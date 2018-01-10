@@ -39,6 +39,7 @@ import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.UUIDSchema;
@@ -1856,8 +1857,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         List<CodegenParameter> formParams = new ArrayList<CodegenParameter>();
         List<CodegenParameter> requiredParams = new ArrayList<CodegenParameter>();
 
-        if (operation.getRequestBody() != null) {
-            bodyParam = fromRequestBody(operation.getRequestBody(), schemas, imports);
+        RequestBody body = operation.getRequestBody();
+        if (body != null) {
+
+            if (StringUtils.isNotBlank(body.get$ref())) {
+                String bodyName = getSimpleRef(body.get$ref());
+                body = openAPI.getComponents().getRequestBodies().get(bodyName);
+            }
+            bodyParam = fromRequestBody(body, schemas, imports);
             bodyParams.add(bodyParam);
             allParams.add(bodyParam);
         }
@@ -2279,9 +2286,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             name = getSimpleRef(schema.get$ref());
             schema = schemas.get(name);
         }
-        if ((SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType())
-                || (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty()))
-                && !(schema instanceof MapSchema)) {
+        if (isObjectSchema(schema)) {
             CodegenModel codegenModel = null;
             if (StringUtils.isNotBlank(name)) {
                 schema.setName(name);
@@ -2345,6 +2350,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 imports.add(codegenProperty.baseType);
                 codegenProperty = codegenProperty.items;
             }
+        }
+        else if (schema instanceof BinarySchema) {
+            codegenParameter.dataType = "Object";
+            codegenParameter.baseType = "Object";
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
         }
         return codegenParameter;
     }
@@ -3154,7 +3164,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
-        System.out.println("adding generic helpers..........");
         handlebars.registerHelper(IsHelper.NAME, new IsHelper());
         handlebars.registerHelper(HasHelper.NAME, new HasHelper());
         handlebars.registerHelper(IsNotHelper.NAME, new IsNotHelper());
@@ -3455,7 +3464,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     protected String getSimpleRef(String ref) {
-        if (ref.startsWith("#/components/schemas/")) {
+        if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf("/") + 1);
         }
         return ref;
@@ -3478,5 +3487,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         else {
             return null;
         }
+    }
+
+    private boolean isObjectSchema (Schema schema) {
+        if (schema instanceof ObjectSchema) {
+            return true;
+        }
+        if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && !(schema instanceof MapSchema)) {
+            return true;
+        }
+        if (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty()) {
+            return true;
+        }
+        return false;
     }
 }

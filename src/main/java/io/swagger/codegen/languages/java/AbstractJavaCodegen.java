@@ -1277,7 +1277,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
-        System.out.println("adding handlebars.........");
         handlebars.registerHelpers(new JavaHelper());
     }
 

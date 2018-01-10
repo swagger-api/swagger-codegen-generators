@@ -54,7 +54,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     public JavaClientCodegen() {
         super();
-        System.out.println("woooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
         outputFolder = "generated-code" + File.separator + "java";
         embeddedTemplateDir = templateDir = "Java";
         invokerPackage = "io.swagger.client";
