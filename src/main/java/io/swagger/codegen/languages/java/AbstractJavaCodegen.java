@@ -620,7 +620,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
             // return getSwaggerType(propertySchema) + "<" + getTypeDeclaration(inner) + ">";
         } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
-            Schema inner = propertySchema.getAdditionalProperties();
+            Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
                 // TODO maybe better defaulting to StringProperty than returning null
@@ -674,7 +674,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 return null;
             }
 
-            String typeDeclaration = String.format("String, %s", getTypeDeclaration(schema.getAdditionalProperties()));
+            String typeDeclaration = String.format("String, %s", getTypeDeclaration((Schema) schema.getAdditionalProperties()));
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
                 Boolean java8 = Boolean.valueOf(java8obj.toString());

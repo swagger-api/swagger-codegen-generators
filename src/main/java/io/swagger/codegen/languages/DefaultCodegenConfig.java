@@ -826,7 +826,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public String toInstantiationType(Schema property) {
         if (property instanceof MapSchema || property.getAdditionalProperties() != null) {
-            Schema additionalProperties = property.getAdditionalProperties();
+            Schema additionalProperties = (Schema) property.getAdditionalProperties();
             String type = additionalProperties.getType();
             if (null == type) {
                 LOGGER.error("No Type defined for Additional Property " + additionalProperties + "\n" //
@@ -1530,7 +1530,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenProperty.maxItems = propertySchema.getMaxProperties();
 
             // handle inner property
-            CodegenProperty cp = fromProperty("inner", propertySchema.getAdditionalProperties());
+            CodegenProperty cp = fromProperty("inner", (Schema) propertySchema.getAdditionalProperties());
             updatePropertyForMap(codegenProperty, cp);
         } else {
             if (StringUtils.isNotBlank(propertySchema.get$ref())) {
@@ -1801,7 +1801,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         codegenOperation.returnBaseType = innerProperty.baseType;
                     } else if (responseSchema instanceof MapSchema) {
                         MapSchema mapSchema = (MapSchema) responseSchema;
-                        CodegenProperty innerProperty = fromProperty("response", mapSchema.getAdditionalProperties());
+                        CodegenProperty innerProperty = fromProperty("response", (Schema) mapSchema.getAdditionalProperties());
                         codegenOperation.returnBaseType = innerProperty.baseType;
                     } else {
                         if (codegenProperty.complexType != null) {
@@ -2116,7 +2116,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
             } else if (parameterSchema instanceof MapSchema) { // for map parameter
-                CodegenProperty codegenProperty = fromProperty("inner", parameterSchema.getAdditionalProperties());
+                CodegenProperty codegenProperty = fromProperty("inner", (Schema) parameterSchema.getAdditionalProperties());
                 codegenParameter.items = codegenProperty;
                 codegenParameter.baseType = codegenProperty.datatype;
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
