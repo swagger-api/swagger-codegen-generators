@@ -785,23 +785,23 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getSchemaType(Schema schema) {
-        String swaggerType = super.getSchemaType(schema);
+        String schemaType = super.getSchemaType(schema);
 
-        swaggerType = getAlias(swaggerType);
+        schemaType = getAlias(schemaType);
 
         // don't apply renaming on types from the typeMapping
-        if (typeMapping.containsKey(swaggerType)) {
-            return typeMapping.get(swaggerType);
+        if (typeMapping.containsKey(schemaType)) {
+            return typeMapping.get(schemaType);
         }
 
-        if (null == swaggerType) {
+        if (null == schemaType) {
             if (schema.getName() != null) {
                 LOGGER.error("No Type defined for Property " + schema.getName());
             } else {
                 // LOGGER.error("No Type defined.", new Exception());
             }
         }
-        return toModelName(swaggerType);
+        return toModelName(schemaType);
     }
 
     @Override

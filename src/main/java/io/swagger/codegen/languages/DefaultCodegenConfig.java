@@ -1533,9 +1533,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             CodegenProperty cp = fromProperty("inner", (Schema) propertySchema.getAdditionalProperties());
             updatePropertyForMap(codegenProperty, cp);
         } else {
-            if (StringUtils.isNotBlank(propertySchema.get$ref())) {
-                codegenProperty.baseType = getSimpleRef(propertySchema.get$ref());
-            }
             setNonArrayMapProperty(codegenProperty, type);
         }
         return codegenProperty;
