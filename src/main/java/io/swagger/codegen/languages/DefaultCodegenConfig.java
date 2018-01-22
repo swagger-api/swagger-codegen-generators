@@ -3449,7 +3449,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     protected String getParentName(ComposedSchema composedSchema, Map<String, Schema> allSchemas) {
-        if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+        if (composedSchema.getAllOf() != null && composedSchema.getAllOf().size() == 1) {
             Schema schema = composedSchema.getAllOf().get(0);
             String ref = schema.get$ref();
             if (StringUtils.isBlank(ref)) {
