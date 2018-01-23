@@ -76,6 +76,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.CodegenConstants.HAS_ONLY_READ_ONLY_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.HAS_OPTIONAL_EXT_NAME;
@@ -88,8 +89,6 @@ import static io.swagger.codegen.languages.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.languages.CodegenHelper.initalizeSpecialCharacterMapping;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.utils.ModelUtils.processCodegenModels;
-import static io.swagger.codegen.utils.ModelUtils.processModelEnums;
-import static io.swagger.codegen.utils.ModelUtils.updateCodegenPropertyEnum;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
 
@@ -225,6 +224,64 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public Map<String, Object> postProcessModelsEnum(Map<String, Object> objs) {
         processModelEnums(objs);
         return objs;
+    }
+
+    public void processModelEnums(Map<String, Object> objs) {
+        List<Object> models = (List<Object>) objs.get("models");
+        for (Object _mo : models) {
+            Map<String, Object> mo = (Map<String, Object>) _mo;
+            CodegenModel cm = (CodegenModel) mo.get("model");
+
+            // for enum model
+            boolean isEnum = getBooleanValue(cm, IS_ENUM_EXT_NAME);
+            if (Boolean.TRUE.equals(isEnum) && cm.allowableValues != null) {
+                Map<String, Object> allowableValues = cm.allowableValues;
+                List<Object> values = (List<Object>) allowableValues.get("values");
+                List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+                String commonPrefix = findCommonPrefixOfVars(values);
+                int truncateIdx = commonPrefix.length();
+                for (Object value : values) {
+                    Map<String, String> enumVar = new HashMap<String, String>();
+                    String enumName;
+                    if (truncateIdx == 0) {
+                        enumName = value.toString();
+                    } else {
+                        enumName = value.toString().substring(truncateIdx);
+                        if ("".equals(enumName)) {
+                            enumName = value.toString();
+                        }
+                    }
+                    enumVar.put("name", toEnumVarName(enumName, cm.dataType));
+                    enumVar.put("value", toEnumValue(value.toString(), cm.dataType));
+                    enumVars.add(enumVar);
+                }
+                cm.allowableValues.put("enumVars", enumVars);
+            }
+
+            // update codegen property enum with proper naming convention
+            // and handling of numbers, special characters
+            for (CodegenProperty var : cm.vars) {
+                updateCodegenPropertyEnum(var);
+            }
+        }
+    }
+
+    /**
+     * Returns the common prefix of variables for enum naming
+     *
+     * @param vars List of variable names
+     * @return the common prefix for naming
+     */
+    public String findCommonPrefixOfVars(List<Object> vars) {
+        try {
+            String[] listStr = vars.toArray(new String[vars.size()]);
+            String prefix = StringUtils.getCommonPrefix(listStr);
+            // exclude trailing characters that should be part of a valid variable
+            // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
+            return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
+        } catch (ArrayStoreException e) {
+            return "";
+        }
     }
 
     /**
@@ -1435,12 +1492,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DOUBLE_EXT_NAME, Boolean.TRUE);
             }
-            if (propertySchema.getEnum() != null) {
-                List<Double> _enum = propertySchema.getEnum();
-                codegenProperty._enum = new ArrayList<String>();
-                for(Double i : _enum) {
-                    codegenProperty._enum.add(i.toString());
-                }
+            if (propertySchema.getEnum() != null && !propertySchema.getEnum().isEmpty()) {
+                List<Number> _enum = propertySchema.getEnum();
+                codegenProperty._enum = _enum.stream().map(number -> number.toString()).collect(Collectors.toList());
                 codegenProperty.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
 
                 // legacy support
@@ -1607,13 +1661,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     protected Boolean isPropertyInnerMostEnum(CodegenProperty property) {
         CodegenProperty currentProperty = property;
-        boolean isMapContainer = getBooleanValue(property, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME);
-        boolean isListContainer = getBooleanValue(property, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME);
-        while (currentProperty != null && (isMapContainer || isListContainer)) {
+        while (currentProperty != null
+                && (getBooleanValue(currentProperty, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME)
+                || getBooleanValue(currentProperty, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME))) {
             currentProperty = currentProperty.items;
         }
-        boolean isEnum = getBooleanValue(currentProperty, IS_ENUM_EXT_NAME);
-        return currentProperty == null ? false : isEnum;
+        return currentProperty == null ? false : getBooleanValue(currentProperty, IS_ENUM_EXT_NAME);
     }
 
     protected Map<String, Object> getInnerEnumAllowableValues(CodegenProperty property) {
@@ -3251,6 +3304,64 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else {
             LOGGER.debug("Property type is not primitive: " + property.datatype);
             parameter.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Update codegen property's enum by adding "enumVars" (with name and value)
+     *
+     * @param var list of CodegenProperty
+     */
+    public void updateCodegenPropertyEnum(CodegenProperty var) {
+        Map<String, Object> allowableValues = var.allowableValues;
+
+        // handle ArrayProperty
+        if (var.items != null) {
+            allowableValues = var.items.allowableValues;
+        }
+
+        if (allowableValues == null) {
+            return;
+        }
+
+        List<Object> values = (List<Object>) allowableValues.get("values");
+        if (values == null) {
+            return;
+        }
+
+        // put "enumVars" map into `allowableValues", including `name` and `value`
+        List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+        String commonPrefix = findCommonPrefixOfVars(values);
+        int truncateIdx = commonPrefix.length();
+        for (Object value : values) {
+            Map<String, String> enumVar = new HashMap<String, String>();
+            String enumName;
+            if (truncateIdx == 0) {
+                enumName = value.toString();
+            } else {
+                enumName = value.toString().substring(truncateIdx);
+                if ("".equals(enumName)) {
+                    enumName = value.toString();
+                }
+            }
+            enumVar.put("name", toEnumVarName(enumName, var.datatype));
+            enumVar.put("value", toEnumValue(value.toString(), var.datatype));
+            enumVars.add(enumVar);
+        }
+        allowableValues.put("enumVars", enumVars);
+
+        // handle default value for enum, e.g. available => StatusEnum.AVAILABLE
+        if (var.defaultValue != null) {
+            String enumName = null;
+            for (Map<String, String> enumVar : enumVars) {
+                if (toEnumValue(var.defaultValue, var.datatype).equals(enumVar.get("value"))) {
+                    enumName = enumVar.get("name");
+                    break;
+                }
+            }
+            if (enumName != null) {
+                var.defaultValue = String.format("%s.%s", enumName, var.datatypeWithEnum);
+            }
         }
     }
 
