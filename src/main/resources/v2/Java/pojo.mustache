@@ -8,7 +8,9 @@ public class {{{getClassDefinition}}} {
 {{/serializableModel~}}
   {{#vars~}}
   {{#is this 'enum'}}
+  {{#isNot this 'container'~}}
 {{> modelInnerEnum}}
+  {{/isNot}}
   {{/is~}}
   {{#is this.items 'enum'~}}
   {{#items~}}
