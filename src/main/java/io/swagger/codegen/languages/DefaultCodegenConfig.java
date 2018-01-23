@@ -2353,6 +2353,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.baseType = "Object";
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
         }
+        else {
+            CodegenProperty codegenProperty = fromProperty(REQUEST_BODY_NAME, schema);
+            codegenParameter.dataType = codegenProperty.datatype;
+            codegenParameter.baseType = codegenProperty.baseType;
+            if (codegenProperty.complexType != null) {
+                imports.add(codegenProperty.complexType);
+            }
+        }
         return codegenParameter;
     }
 
