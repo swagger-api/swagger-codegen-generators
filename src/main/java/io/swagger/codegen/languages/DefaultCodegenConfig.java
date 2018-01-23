@@ -1799,7 +1799,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (removeOperationIdPrefix) {
             int offset = operationId.indexOf('_');
             if (offset > -1) {
-                operationId = operationId.substring(offset+1);
+                operationId = operationId.substring(offset + 1);
             }
         }
         operationId = removeNonNameElementToCamelCase(operationId);
@@ -1953,13 +1953,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allParams.add(codegenParameter);
                 // Issue #2561 (neilotoole) : Moved setting of is<Type>Param flags
                 // from here to fromParameter().
-                if (param instanceof QueryParameter) {
+                if (param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn())) {
                     queryParams.add(codegenParameter.copy());
-                } else if (param instanceof PathParameter) {
+                } else if (param instanceof PathParameter || "path".equalsIgnoreCase(param.getIn())) {
                     pathParams.add(codegenParameter.copy());
-                } else if (param instanceof HeaderParameter) {
+                } else if (param instanceof HeaderParameter || "header".equalsIgnoreCase(param.getIn())) {
                     headerParams.add(codegenParameter.copy());
-                } else if (param instanceof CookieParameter) {
+                } else if (param instanceof CookieParameter || "cookie".equalsIgnoreCase(param.getIn())) {
                     cookieParams.add(codegenParameter.copy());
                 }
                 if (!codegenParameter.required) {
@@ -2260,14 +2260,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         // This code has been moved to here from #fromOperation
         // because these values should be set before calling #postProcessParameter.
         // See: https://github.com/swagger-api/swagger-codegen/issues/2561
-        if (parameter instanceof QueryParameter) {
+        if (parameter instanceof QueryParameter || "query".equalsIgnoreCase(parameter.getIn())) {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_QUERY_PARAM_EXT_NAME, Boolean.TRUE);
-        } else if (parameter instanceof PathParameter) {
+        } else if (parameter instanceof PathParameter || "path".equalsIgnoreCase(parameter.getIn())) {
             codegenParameter.required = true;
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_PATH_PARAM_EXT_NAME, Boolean.TRUE);
-        } else if (parameter instanceof HeaderParameter) {
+        } else if (parameter instanceof HeaderParameter || "header".equalsIgnoreCase(parameter.getIn())) {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_HEADER_PARAM_EXT_NAME, Boolean.TRUE);
-        } else if (parameter instanceof CookieParameter) {
+        } else if (parameter instanceof CookieParameter || "cookie".equalsIgnoreCase(parameter.getIn())) {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_COOKIE_PARAM_EXT_NAME, Boolean.TRUE);
         }
         /** TODO:
