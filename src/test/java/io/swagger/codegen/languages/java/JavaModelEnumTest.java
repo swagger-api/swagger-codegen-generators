@@ -58,14 +58,8 @@ public class JavaModelEnumTest {
         parentModel.setProperties(parentProperties);
         parentModel.name("parentModel");
 
-        final Schema subModel = new Schema()
-                .properties(subProperties)
-                .name("subModel")
-                .type("object");
-
         final ComposedSchema composedSchema = new ComposedSchema()
-                .addAllOfItem(new Schema().$ref(parentModel.getName()))
-                .addAllOfItem(subModel);
+                .addAllOfItem(new Schema().$ref(parentModel.getName()));
 
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final Map<String, Schema> allModels = new HashMap<String, Schema>();

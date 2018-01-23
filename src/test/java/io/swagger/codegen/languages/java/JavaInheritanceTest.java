@@ -22,7 +22,6 @@ public class JavaInheritanceTest {
 
         final Schema schema = new ComposedSchema()
                 .addAllOfItem(new Schema().$ref("Base"))
-                .addAllOfItem(new Schema().additionalProperties(new StringSchema()))
                 .name("composed");
 
         final Map<String, Schema> allSchemas = new HashMap<>();
@@ -45,8 +44,7 @@ public class JavaInheritanceTest {
         base.setDiscriminator(new Discriminator().mapping("name", StringUtils.EMPTY));
 
         final Schema schema = new ComposedSchema()
-                .addAllOfItem(new Schema().$ref("Base"))
-                .addAllOfItem(new Schema().additionalProperties(new StringSchema()));
+                .addAllOfItem(new Schema().$ref("Base"));
 
         final Map<String, Schema> allDefinitions = new HashMap<String, Schema>();
         allDefinitions.put("Base", base);
