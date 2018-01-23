@@ -1,1 +1,1 @@
-# swagger-codegen-templates
+# swagger-codegen-generators
