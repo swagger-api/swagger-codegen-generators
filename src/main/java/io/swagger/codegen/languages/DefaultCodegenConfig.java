@@ -15,7 +15,6 @@ import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
 import io.swagger.codegen.CodegenResponse;
 import io.swagger.codegen.CodegenSecurity;
-import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
 import io.swagger.codegen.languages.helpers.HasHelper;
 import io.swagger.codegen.languages.helpers.HasNotHelper;
@@ -92,7 +91,7 @@ import static io.swagger.codegen.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegen.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
 
@@ -2655,8 +2654,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         co.operationId = uniqueName;
         co.operationIdLowerCase = uniqueName.toLowerCase();
-        co.operationIdCamelCase = DefaultCodegen.camelize(uniqueName);
-        co.operationIdSnakeCase = DefaultCodegen.underscore(uniqueName);
+        co.operationIdCamelCase = camelize(uniqueName);
+        co.operationIdSnakeCase = underscore(uniqueName);
         opList.add(co);
         co.baseName = tag;
     }
@@ -3162,7 +3161,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         // better error handling when map/array type is invalid
         if (name == null) {
-            LOGGER.error("String to be sanitized is null. Default to " + Object.class.getSimpleName());
+            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
             return Object.class.getSimpleName();
         }
 

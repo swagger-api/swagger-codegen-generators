@@ -796,7 +796,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if (null == schemaType) {
             if (schema.getName() != null) {
-                LOGGER.error("No Type defined for Property " + schema.getName());
+                LOGGER.warn("No Type defined for Property " + schema.getName());
             } else {
                 // LOGGER.error("No Type defined.", new Exception());
             }
