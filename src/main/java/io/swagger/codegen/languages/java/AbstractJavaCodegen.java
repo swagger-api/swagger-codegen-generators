@@ -1,7 +1,6 @@
 package io.swagger.codegen.languages.java;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.google.common.base.Strings;
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
@@ -1095,7 +1094,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     private static String sanitizePackageName(String packageName) {
         packageName = packageName.trim(); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
         packageName = packageName.replaceAll("[^a-zA-Z0-9_\\.]", "_");
-        if(Strings.isNullOrEmpty(packageName)) {
+        if(packageName == null || packageName.isEmpty()) {
             return "invalidPackageName";
         }
         return packageName;
