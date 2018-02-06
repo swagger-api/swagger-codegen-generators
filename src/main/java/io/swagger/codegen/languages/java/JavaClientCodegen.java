@@ -4,7 +4,6 @@ import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-import com.google.common.collect.LinkedListMultimap;
 import io.swagger.codegen.*;
 import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.GzipFeatures;
@@ -513,12 +512,12 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     }
 
     private List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {
-        LinkedListMultimap<CodegenModel, CodegenModel> byParent = LinkedListMultimap.create();
+        Map<CodegenModel, List<CodegenModel>> byParent = new LinkedHashMap<>();
         for (Object m : allModels) {
             Map entry = (Map) m;
             CodegenModel parent = ((CodegenModel)entry.get("model")).parentModel;
             if(null!= parent) {
-                byParent.put(parent, ((CodegenModel)entry.get("model")));
+                byParent.computeIfAbsent(parent, k -> new LinkedList<>()).add((CodegenModel)entry.get("model"));
             }
         }
         List<Map<String, Object>> parentsList = new ArrayList<>();
