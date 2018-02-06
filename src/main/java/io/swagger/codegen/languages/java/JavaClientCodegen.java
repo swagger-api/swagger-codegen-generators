@@ -4,7 +4,14 @@ import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-import io.swagger.codegen.*;
+import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenConstants;
+import io.swagger.codegen.CodegenModel;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.CodegenParameter;
+import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.SupportingFile;
 import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.GzipFeatures;
 import io.swagger.codegen.languages.features.PerformBeanValidationFeatures;
@@ -511,10 +518,10 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         return objs;
     }
 
-    private List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {
+    protected List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {
         Map<CodegenModel, List<CodegenModel>> byParent = new LinkedHashMap<>();
-        for (Object m : allModels) {
-            Map entry = (Map) m;
+        for (Object model : allModels) {
+            Map entry = (Map) model;
             CodegenModel parent = ((CodegenModel)entry.get("model")).parentModel;
             if(null!= parent) {
                 byParent.computeIfAbsent(parent, k -> new LinkedList<>()).add((CodegenModel)entry.get("model"));
