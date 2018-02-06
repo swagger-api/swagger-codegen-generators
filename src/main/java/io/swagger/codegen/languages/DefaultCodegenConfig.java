@@ -1,8 +1,6 @@
 package io.swagger.codegen.languages;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConfig;
@@ -63,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -2881,13 +2880,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return camelized string
      */
     protected String removeNonNameElementToCamelCase(final String name, final String nonNameElementPattern) {
-        String result = StringUtils.join(Lists.transform(Lists.newArrayList(name.split(nonNameElementPattern)), new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(String input) {
-                return StringUtils.capitalize(input);
-            }
-        }), "");
+        String result = Arrays.stream(name.split(nonNameElementPattern))
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining(""));
         if (result.length() > 0) {
             result = result.substring(0, 1).toLowerCase() + result.substring(1);
         }
