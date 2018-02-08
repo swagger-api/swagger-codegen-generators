@@ -6,9 +6,9 @@ import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.DefaultGenerator;
 import io.swagger.codegen.config.CodegenConfigurator;
+import io.swagger.codegen.languages.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ByteArraySchema;
@@ -45,7 +45,7 @@ public class JavaModelTest {
                 .addProperties("createdAt", new DateTimeSchema())
                 .addRequiredItem("id")
                 .addRequiredItem("name");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.name, "sample");
@@ -101,7 +101,7 @@ public class JavaModelTest {
                 .addProperties("urls", new ArraySchema()
                         .items(new StringSchema()))
                 .addRequiredItem("id");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -129,7 +129,7 @@ public class JavaModelTest {
                 .addProperties("translations", new MapSchema()
                         .additionalProperties(new StringSchema()))
                 .addRequiredItem("id");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -157,7 +157,7 @@ public class JavaModelTest {
                 .addProperties("translations", new MapSchema()
                         .additionalProperties(new ArraySchema().items(new Schema().$ref("Pet"))))
                 .addRequiredItem("id");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -184,7 +184,7 @@ public class JavaModelTest {
                 .name("sample")
                 .addProperties("list2D", new ArraySchema().items(
                         new ArraySchema().items(new Schema().$ref("Pet"))));
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -207,7 +207,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a sample model")
                 .addProperties("children", new Schema().$ref("#/components/schemas/Children"));
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -233,7 +233,7 @@ public class JavaModelTest {
                 .description("a sample model")
                 .addProperties("children", new ArraySchema()
                         .items(new Schema().$ref("#/components/schemas/Children")));
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -261,7 +261,7 @@ public class JavaModelTest {
                 .description("a sample model")
                 .addProperties("children", new MapSchema()
                         .additionalProperties(new Schema().$ref("#/components/schemas/Children")));
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -298,7 +298,7 @@ public class JavaModelTest {
                 .addProperties("children", propertySchema);
 
 
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -332,7 +332,7 @@ public class JavaModelTest {
                 .items(new Schema().name("elobjeto").$ref("#/components/schemas/Children"))
                 .name("arraySchema")
                 .description("an array model");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -349,7 +349,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -367,7 +367,7 @@ public class JavaModelTest {
                 .description("a model with upper-case property names")
                 .addProperties("NAME", new StringSchema())
                 .addRequiredItem("NAME");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -393,7 +393,7 @@ public class JavaModelTest {
                 .description("a model with a 2nd char upper-case property names")
                 .addProperties("pId", new StringSchema())
                 .addRequiredItem("pId");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -419,7 +419,7 @@ public class JavaModelTest {
                 .description("a model with a property name starting with two upper-case letters")
                 .addProperties("ATTName", new StringSchema())
                 .addRequiredItem("ATTName");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -444,7 +444,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a sample model")
                 .addProperties("created-at", new DateTimeSchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         final CodegenProperty property = cm.vars.get(0);
@@ -459,7 +459,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a sample model")
                 .addProperties("query[password]", new StringSchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         final CodegenProperty property = cm.vars.get(0);
@@ -474,7 +474,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a sample model")
                 .addProperties("created-at", new DateTimeSchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("with.dots", schema);
 
         Assert.assertEquals(cm.classname, "WithDots");
@@ -485,7 +485,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("model with binary")
                 .addProperties("inputBinaryData", new ByteArraySchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         final CodegenProperty property = cm.vars.get(0);
@@ -506,7 +506,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a model with a 2nd char upper-case property names")
                 .addProperties("_", new StringSchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -530,7 +530,7 @@ public class JavaModelTest {
         final Parameter parameter = new QueryParameter()
                 .name("limit")
                 .required(true);
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenParameter cm = codegen.fromParameter(parameter, null);
 
         Assert.assertNull(cm.allowableValues);
@@ -538,14 +538,14 @@ public class JavaModelTest {
 
     @Test(description = "types used by inner properties should be imported")
     public void mapWithAnListOfBigDecimalTest() {
-        final CodegenModel cm1 = new io.swagger.codegen.languages.JavaClientCodegen().fromModel("sample", new Schema()
+        final CodegenModel cm1 = new JavaClientCodegen().fromModel("sample", new Schema()
                 .description("model with Map<String, List<BigDecimal>>")
                 .addProperties("map", new MapSchema()
                         .additionalProperties(new ArraySchema().items(new NumberSchema()))));
         Assert.assertEquals(cm1.vars.get(0).datatype, "Map<String, List<BigDecimal>>");
         Assert.assertTrue(cm1.imports.contains("BigDecimal"));
 
-        final CodegenModel cm2 = new io.swagger.codegen.languages.JavaClientCodegen().fromModel("sample", new Schema()
+        final CodegenModel cm2 = new JavaClientCodegen().fromModel("sample", new Schema()
                 .description("model with Map<String, Map<String, List<BigDecimal>>>")
                 .addProperties("map", new MapSchema()
                         .additionalProperties(new MapSchema()
@@ -571,7 +571,7 @@ public class JavaModelTest {
     @Test(dataProvider = "modelNames", description = "avoid inner class")
     public void modelNameTest(String name, String expectedName) {
         final Schema schema = new Schema();
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel(name, schema);
 
         Assert.assertEquals(cm.name, name);
@@ -592,7 +592,7 @@ public class JavaModelTest {
         final Schema schema = new Schema()
                 .description("a sample model")
                 .addProperties(baseName, new StringSchema());
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         final CodegenProperty property = cm.vars.get(0);
@@ -625,7 +625,7 @@ public class JavaModelTest {
                                 .name("myCreatedAt")))
                 .addRequiredItem("id")
                 .addRequiredItem("name");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -690,7 +690,7 @@ public class JavaModelTest {
                                 .namespace("myNamespace")
                                 .name("xmlArray")))
                 .addRequiredItem("id");
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -724,7 +724,7 @@ public class JavaModelTest {
     @Test(description = "convert a boolean parameter")
     public void booleanParameterTest() {
         final BooleanSchema property = new BooleanSchema();
-        final DefaultCodegen codegen = new io.swagger.codegen.languages.JavaClientCodegen();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenProperty cp = codegen.fromProperty("property", property);
 
         Assert.assertEquals(cp.baseName, "property");
