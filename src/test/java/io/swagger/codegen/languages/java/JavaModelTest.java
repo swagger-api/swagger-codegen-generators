@@ -733,7 +733,7 @@ public class JavaModelTest {
         Assert.assertEquals(cp.baseType, "Boolean");
         Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
         Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_BOOLEAN_EXT_NAME));
-        Assert.assertEquals(cp.getter, "Property");
+        Assert.assertEquals(cp.getter, "isProperty");
     }
 
     @Test(enabled = false, description = "disabled since templates have been moved.")
