@@ -1835,6 +1835,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESPONSE_FILE_EXT_NAME, Boolean.TRUE);
                 }
             }
+            if (codegenOperation.produces != null){
+                Set<String> mediaTypes = new HashSet<String>();
+                codegenOperation.produces.removeIf(map -> !mediaTypes.add(map.get("mediaType")));
+                codegenOperation.produces.get(codegenOperation.produces.size() - 1).remove("hasMore");
+            }
             codegenOperation.responses.get(codegenOperation.responses.size() - 1).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.FALSE);
 
             if (methodResponse != null) {
@@ -3519,7 +3524,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if(codegenOperation.produces == null) {
             codegenOperation.produces = new ArrayList<>();
         }
-        int count = 0;
         for (String key : produces) {
             Map<String, String> mediaType = new HashMap<String, String>();
             // escape quotation to avoid code injection
@@ -3528,12 +3532,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
             }
-            count += 1;
-            if (count < produces.size()) {
-                mediaType.put("hasMore", "true");
-            } else {
-                mediaType.put("hasMore", null);
-            }
+            mediaType.put("hasMore", "true");
             codegenOperation.produces.add(mediaType);
             codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_PRODUCES_EXT_NAME, Boolean.TRUE);
         }
