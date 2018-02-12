@@ -11,6 +11,7 @@ import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         super();
         sourceFolder = "src/gen/java";
         apiTestTemplateFiles.clear(); // TODO: add test template
-        embeddedTemplateDir = templateDir = "v2/JavaInflector";
+        embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
         invokerPackage = "io.swagger.controllers";
         artifactId = "swagger-inflector-server";
         dateLibrary = "legacy"; //TODO: add joda support
@@ -79,6 +80,10 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
     public void processOpts() {
         super.processOpts();
 
+        String templateVersion = getTemplateVersion();
+        if (StringUtils.isNotBlank(templateVersion)) {
+            embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", templateVersion);
+        }
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
         writeOptional(outputFolder, new SupportingFile("web.mustache", "src/main/webapp/WEB-INF", "web.xml"));

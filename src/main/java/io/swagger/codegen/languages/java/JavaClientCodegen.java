@@ -61,7 +61,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     public JavaClientCodegen() {
         super();
         outputFolder = "generated-code" + File.separator + "java";
-        embeddedTemplateDir = templateDir = "Java";
         invokerPackage = "io.swagger.client";
         artifactId = "swagger-java-client";
         apiPackage = "io.swagger.client.api";
@@ -117,6 +116,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     public void processOpts() {
         super.processOpts();
         embeddedTemplateDir = templateDir = "v2/Java";
+        embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", getTemplateVersion());
 
         if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {
             LOGGER.warn("You specified both RxJava versions 1 and 2 but they are mutually exclusive. Defaulting to v2.");

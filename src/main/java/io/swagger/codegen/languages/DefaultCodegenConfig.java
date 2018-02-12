@@ -92,6 +92,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
+    public static final String DEFAULT_TEMPLATE_VERSION = "v2";
 
     protected String inputSpec;
     protected String outputFolder = StringUtils.EMPTY;
@@ -115,6 +116,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, String> modelDocTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> reservedWordsMappings = new HashMap<String, String>();
     protected String templateDir;
+    protected String templateVersion;
     protected String embeddedTemplateDir;
     protected String commonTemplateDir = "_common";
     protected Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -149,6 +151,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
             this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
+        }
+
+        if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_VERSION)) {
+            this.setTemplateVersion((String) additionalProperties.get(CodegenConstants.TEMPLATE_VERSION));
         }
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
@@ -555,6 +561,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public void setTemplateDir(String templateDir) {
         this.templateDir = templateDir;
+    }
+
+    public String getTemplateVersion() {
+        return templateVersion;
+    }
+
+    public void setTemplateVersion(String templateVersion) {
+        this.templateVersion = templateVersion;
     }
 
     public void setModelPackage(String modelPackage) {
