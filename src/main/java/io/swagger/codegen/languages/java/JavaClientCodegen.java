@@ -115,8 +115,12 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     @Override
     public void processOpts() {
         super.processOpts();
-        embeddedTemplateDir = templateDir = "v2/Java";
-        embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", getTemplateVersion());
+        String templateVersion = getTemplateVersion();
+        if (StringUtils.isNotBlank(templateVersion)) {
+            embeddedTemplateDir = templateDir = String.format("%s/Java", templateVersion);
+        } else {
+            embeddedTemplateDir = templateDir = String.format("%s/Java", DEFAULT_TEMPLATE_VERSION);
+        }
 
         if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {
             LOGGER.warn("You specified both RxJava versions 1 and 2 but they are mutually exclusive. Defaulting to v2.");
