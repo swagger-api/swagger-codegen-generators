@@ -2390,7 +2390,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                 arraySchema.setItems(inner);
             }
-            CodegenProperty codegenProperty = fromProperty("inner", inner);
+
+            CodegenProperty codegenProperty = fromProperty("property", schema);
+            CodegenProperty innerProperty = fromProperty("inner", arraySchema.getItems());
+            codegenProperty.baseType = innerProperty.baseType;
             if (codegenProperty.complexType != null) {
                 imports.add(codegenProperty.complexType);
             }
@@ -2404,7 +2407,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             codegenParameter.items = codegenProperty;
             codegenParameter.dataType = codegenProperty.datatype;
-            codegenParameter.baseType = codegenProperty.complexType;
+            codegenParameter.baseType = codegenProperty.baseType;
             boolean isPrimitiveType = getBooleanValue(codegenProperty, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME);
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, isPrimitiveType);
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
