@@ -579,7 +579,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return importMapping.get(name);
         }
 
-        final String sanitizedName = sanitizeName(name);
+        final String sanitizedName = super.sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
         if (!StringUtils.isEmpty(modelNamePrefix)) {
