@@ -153,8 +153,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
         }
 
-        if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_VERSION)) {
-            this.setTemplateVersion((String) additionalProperties.get(CodegenConstants.TEMPLATE_VERSION));
+        //todo: replace hardcore string for constant on "CodegenConstans" class once publishing issue on codegen be resolved. (02-15-18)
+        if (additionalProperties.containsKey(/**fixme: CodegenConstants.TEMPLATE_VERSION*/ "templateVersion")) {
+            this.setTemplateVersion((String) additionalProperties.get(/**fixme: CodegenConstants.TEMPLATE_VERSION*/ "templateVersion"));
         }
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {

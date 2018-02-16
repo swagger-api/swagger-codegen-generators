@@ -96,4 +96,13 @@ public class AbstractJavaCodegenTest {
         Assert.assertNull(openAPI.getPaths().get("dummy").getGet().getExtensions().get("x-contentType"));
         Assert.assertNotNull(openAPI.getPaths().get("dummy").getPost().getExtensions().get("x-contentType"));
     }
+
+    @Test
+     public void convertVarName() throws Exception {
+        AbstractJavaCodegen codegen = new JavaClientCodegen();
+        Assert.assertEquals(codegen.toVarName("name"), "name");
+        Assert.assertEquals(codegen.toVarName("$name"), "$name");
+        Assert.assertEquals(codegen.toVarName("nam$$e"), "nam$$e");
+        Assert.assertEquals(codegen.toVarName("user-name"), "userName");
+    }
 }

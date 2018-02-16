@@ -529,7 +529,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         // camelize (lower first character) the variable name
         // pet_id => petId
-        name = camelize(name, true);
+        name = camelizeVarName(name, true);
 
         // for reserved word or word starting with number, append _
         if (isReservedWord(name) || name.matches("^\\d.*")) {
@@ -537,6 +537,19 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         return name;
+    }
+
+    public String camelizeVarName(String word, boolean lowercaseFirstLetter) {
+        word  = DefaultCodegenConfig.camelize(word, lowercaseFirstLetter);
+        if (!word.startsWith("$") || word.length() <= 1) {
+            return word;
+        }
+        final String letter = String.valueOf(word.charAt(1));
+        if (!StringUtils.isAllUpperCase(letter)) {
+            return word;
+        }
+        word = word.replaceFirst(letter, letter.toLowerCase());
+        return word;
     }
 
     private boolean startsWithTwoUppercaseLetters(String name) {
@@ -1038,6 +1051,35 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         CodegenOperation op = super.fromOperation(path, httpMethod, operation, schemas, openAPI);
         op.path = sanitizePath(op.path);
         return op;
+    }
+
+    @Override
+    public String sanitizeName(String name) {
+        if (name == null) {
+            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
+            return Object.class.getSimpleName();
+        }
+        if ("$".equals(name)) {
+            return "value";
+        }
+        name = name.replaceAll("\\[\\]", StringUtils.EMPTY);
+        name = name.replaceAll("\\[", "_")
+                .replaceAll("\\]", "")
+                .replaceAll("\\(", "_")
+                .replaceAll("\\)", StringUtils.EMPTY)
+                .replaceAll("\\.", "_")
+                .replaceAll("-", "_")
+                .replaceAll(" ", "_");
+
+        // remove everything else other than word, number and _
+        // $php_variable => php_variable
+        if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
+            name = Pattern.compile("\\W-[\\$]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
+        }
+        else {
+            name = name.replaceAll("\\W-[\\$]", StringUtils.EMPTY);
+        }
+        return name;
     }
 
     private static CodegenModel reconcileInlineEnums(CodegenModel codegenModel, CodegenModel parentCodegenModel) {
