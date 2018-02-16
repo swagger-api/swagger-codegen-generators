@@ -540,7 +540,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     }
 
     public String camelizeVarName(String word, boolean lowercaseFirstLetter) {
-        word  = DefaultCodegenConfig.camelize(word, lowercaseFirstLetter);
+        if (word.startsWith("_") && word.length() > 1 && !word.equals("_u") ) {
+            word = "_" + DefaultCodegenConfig.camelize(word, lowercaseFirstLetter);
+        } else {
+            word  = DefaultCodegenConfig.camelize(word, lowercaseFirstLetter);
+        }
+
         if (!word.startsWith("$") || word.length() <= 1) {
             return word;
         }
