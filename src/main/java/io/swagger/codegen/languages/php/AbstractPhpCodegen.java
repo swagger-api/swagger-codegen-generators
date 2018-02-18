@@ -15,9 +15,8 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
@@ -475,40 +474,33 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
      * @return string presentation of the default value of the property
      */
     @Override
-    public String toDefaultValue(Property p) {
-        if (p instanceof StringProperty) {
-            StringProperty dp = (StringProperty) p;
-            if (dp.getDefault() != null) {
-                return "'" + dp.getDefault() + "'";
+    public String toDefaultValue(Schema schema) {
+        if (schema instanceof StringSchema) {
+            StringSchema stringSchema = (StringSchema) schema;
+            if (stringSchema.getDefault() != null) {
+                return "'" + stringSchema.getDefault() + "'";
             }
-        } else if (p instanceof BooleanProperty) {
-            BooleanProperty dp = (BooleanProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
+        } else if (schema instanceof BooleanSchema) {
+            BooleanSchema booleanSchema = (BooleanSchema) schema;
+            if (booleanSchema.getDefault() != null) {
+                return booleanSchema.getDefault().toString();
             }
-        } else if (p instanceof DateProperty) {
+        } else if (schema instanceof DateSchema) {
             // TODO
-        } else if (p instanceof DateTimeProperty) {
+        } else if (schema instanceof DateTimeSchema) {
             // TODO
-        } else if (p instanceof DoubleProperty) {
-            DoubleProperty dp = (DoubleProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
+        } else if (schema instanceof NumberSchema) {
+            NumberSchema numberSchema = (NumberSchema) schema;
+            if (
+                    numberSchema.getDefault() != null
+                            && (SchemaTypeUtil.FLOAT_FORMAT.equals(schema.getFormat()) || SchemaTypeUtil.DOUBLE_FORMAT.equals(schema.getFormat()))
+                    ) {
+                return numberSchema.getDefault().toString();
             }
-        } else if (p instanceof FloatProperty) {
-            FloatProperty dp = (FloatProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-        } else if (p instanceof IntegerProperty) {
-            IntegerProperty dp = (IntegerProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-        } else if (p instanceof LongProperty) {
-            LongProperty dp = (LongProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
+        } else if (schema instanceof IntegerSchema) {
+            IntegerSchema integerSchema = (IntegerSchema) schema;
+            if (integerSchema.getDefault() != null) {
+                return integerSchema.getDefault().toString();
             }
         }
 
