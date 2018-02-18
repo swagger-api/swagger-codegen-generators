@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
@@ -298,21 +301,26 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public String getTypeDeclaration(Property p) {
-        if (p instanceof ArrayProperty) {
-            ArrayProperty ap = (ArrayProperty) p;
-            Property inner = ap.getItems();
+    public String getTypeDeclaration(Schema propertySchema) {
+        if (propertySchema instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema) propertySchema;
+            Schema inner = arraySchema.getItems();
+            if (inner == null) {
+                LOGGER.warn(arraySchema.getName() + "(array property) does not have a proper inner type defined");
+                return "";
+            }
             return getTypeDeclaration(inner) + "[]";
-        } else if (p instanceof MapProperty) {
-            MapProperty mp = (MapProperty) p;
-            Property inner = mp.getAdditionalProperties();
-            return getSwaggerType(p) + "[string," + getTypeDeclaration(inner) + "]";
-        } else if (p instanceof RefProperty) {
-            String type = super.getTypeDeclaration(p);
-            return (!languageSpecificPrimitives.contains(type))
-                    ? "\\" + modelPackage + "\\" + type : type;
+        } else if (propertySchema instanceof MapSchema) {
+            MapSchema mapSchema = (MapSchema) propertySchema;
+            Schema inner = (Schema) mapSchema.getAdditionalProperties();
+            if (inner == null) {
+                LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
+                return "";
+            }
+            return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
         }
-        return super.getTypeDeclaration(p);
+
+        return super.getTypeDeclaration(propertySchema);
     }
 
     @Override
