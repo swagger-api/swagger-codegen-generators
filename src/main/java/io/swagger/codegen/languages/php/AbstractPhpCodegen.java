@@ -5,8 +5,6 @@ import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.SupportingFile;
 import io.swagger.models.properties.*;
 
 import java.io.File;
@@ -332,18 +330,18 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public String getSwaggerType(Property p) {
-        String swaggerType = super.getSwaggerType(p);
+    public String getSchemaType(Schema property) {
+        String schemaType = super.getSchemaType(property);
         String type = null;
-        if (typeMapping.containsKey(swaggerType)) {
-            type = typeMapping.get(swaggerType);
+        if (typeMapping.containsKey(schemaType)) {
+            type = typeMapping.get(schemaType);
             if (languageSpecificPrimitives.contains(type)) {
                 return type;
             } else if (instantiationTypes.containsKey(type)) {
                 return type;
             }
         } else {
-            type = swaggerType;
+            type = schemaType;
         }
         if (type == null) {
             return null;

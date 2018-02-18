@@ -395,18 +395,18 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public String getSwaggerType(Property p) {
-        String swaggerType = super.getSwaggerType(p);
+    public String getSchemaType(Schema property) {
+        String schemaType = super.getSchemaType(property);
         String type = null;
-        if (typeMapping.containsKey(swaggerType)) {
-            type = typeMapping.get(swaggerType);
+        if (typeMapping.containsKey(schemaType)) {
+            type = typeMapping.get(schemaType);
             if (languageSpecificPrimitives.contains(type)) {
                 return type;
             } else if (instantiationTypes.containsKey(type)) {
                 return type;
             }
         } else {
-            type = swaggerType;
+            type = schemaType;
         }
         if (type == null) {
             return null;
