@@ -1,13 +1,11 @@
 package io.swagger.codegen.languages;
 
 import io.swagger.codegen.CliOption;
-import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
 import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
 import io.swagger.models.properties.*;
 
@@ -24,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractPhpCodegen extends DefaultCodegen implements CodegenConfig {
+public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
     static Logger LOGGER = LoggerFactory.getLogger(AbstractPhpCodegen.class);
 
