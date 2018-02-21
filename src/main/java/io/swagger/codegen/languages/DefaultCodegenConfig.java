@@ -1207,18 +1207,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allRequired = new ArrayList<String>();
                 codegenModel.allVars = new ArrayList<CodegenProperty>();
                 int modelImplCnt = 0; // only one inline object allowed in a ComposedModel
-                for (Schema innerModel: composed.getAllOf()) {
-                    if (codegenModel.discriminator == null) {
-                        codegenModel.discriminator = schema.getDiscriminator();
-                    }
-                    if (innerModel.getXml() != null) {
-                        codegenModel.xmlPrefix = innerModel.getXml().getPrefix();
-                        codegenModel.xmlNamespace = innerModel.getXml().getNamespace();
-                        codegenModel.xmlName = innerModel.getXml().getName();
-                    }
-                    if (modelImplCnt++ > 1) {
-                        LOGGER.warn("More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
-                        break; // only one ModelImpl with discriminator allowed in allOf
+                if(composed.getAllOf() != null) {
+                    for (Schema innerModel : composed.getAllOf()) {
+                        if (codegenModel.discriminator == null) {
+                            codegenModel.discriminator = schema
+                                    .getDiscriminator();
+                        }
+                        if (innerModel.getXml() != null) {
+                            codegenModel.xmlPrefix = innerModel.getXml()
+                                    .getPrefix();
+                            codegenModel.xmlNamespace = innerModel.getXml()
+                                    .getNamespace();
+                            codegenModel.xmlName = innerModel.getXml()
+                                    .getName();
+                        }
+                        if (modelImplCnt++ > 1) {
+                            LOGGER.warn(
+                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
+                            break; // only one ModelImpl with discriminator
+                                   // allowed in allOf
+                        }
                     }
                 }
             } else {
