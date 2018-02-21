@@ -3,6 +3,7 @@ package io.swagger.codegen.languages;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
@@ -3242,6 +3243,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasHelper.NAME, new HasHelper());
         handlebars.registerHelper(IsNotHelper.NAME, new IsNotHelper());
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
+    }
+
+    @Override
+    public List<CodegenArgument> getLanguageArguments() {
+        return null;
     }
 
     /**
