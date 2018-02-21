@@ -33,7 +33,7 @@ object Paths {
      * {{#unescapedNotes}}{{.}}{{/unescapedNotes}}
      {{#allParams}}* @param {{paramName}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
      {{/allParams}}*/
-    @Location("{{path}}") class {{operationId}}({{#allParams}}val {{paramName}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    @Location("{{path}}") class {{operationId}}({{#allParams}}val {{paramName}}: {{{dataType}}}{{#has this 'more'}}, {{/has}}{{/allParams}})
 
     {{/bodyAllowed}}
     {{/operation}}
