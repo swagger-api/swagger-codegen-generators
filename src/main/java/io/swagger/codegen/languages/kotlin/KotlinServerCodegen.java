@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
     public static final String DEFAULT_LIBRARY = Constants.KTOR;
@@ -122,6 +124,13 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        String templateVersion = getTemplateVersion();
+        if (StringUtils.isNotBlank(templateVersion)) {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", templateVersion);
+        } else {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_VERSION);
+        }
 
         if (additionalProperties.containsKey(CodegenConstants.LIBRARY)) {
             this.setLibrary((String) additionalProperties.get(CodegenConstants.LIBRARY));

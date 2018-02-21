@@ -11,6 +11,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     public static final String DATE_LIBRARY = "dateLibrary";
@@ -76,13 +78,20 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     @Override
     public void processOpts() {
-        super.processOpts();
+        super.processOpts();        
+
+        String templateVersion = getTemplateVersion();
+        if (StringUtils.isNotBlank(templateVersion)) {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", templateVersion);
+        } else {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", DEFAULT_TEMPLATE_VERSION);
+        }
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             setDateLibrary(additionalProperties.get(DATE_LIBRARY).toString());
         }
 
-        if (DateLibrary.THREETENBP.value.equals(dateLibrary)) {
+        if (DateLibrary.THREETENBP.value.equals(dateLibrary)) {            
             additionalProperties.put(DateLibrary.THREETENBP.value, true);
             typeMapping.put("date", "LocalDate");
             typeMapping.put("DateTime", "LocalDateTime");

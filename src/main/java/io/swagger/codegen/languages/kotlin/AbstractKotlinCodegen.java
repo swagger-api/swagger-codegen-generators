@@ -243,30 +243,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             }
             throw new RuntimeException(sb.toString());
         }
-    }
-
-    // /**
-    //  * returns the swagger type for the property
-    //  *
-    //  * @param p Swagger property object
-    //  * @return string presentation of the type
-    //  **/
-    // @Override
-    // public String getSwaggerType(Schema p) {
-    //     String swaggerType = super.getSwaggerType(p);
-    //     String type;
-    //     // This maps, for example, long -> kotlin.Long based on hashes in this type's constructor
-    //     if (typeMapping.containsKey(swaggerType)) {
-    //         type = typeMapping.get(swaggerType);
-    //         if (languageSpecificPrimitives.contains(type)) {
-    //             return toModelName(type);
-    //         }
-    //     } else {
-    //         type = swaggerType;
-    //     }
-    //     return toModelName(type);
-    // }
-    
+    }       
 
     /**
      * Output the type declaration of the property
@@ -290,6 +267,37 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             // return getSwaggerType(p) + "<kotlin.String, " + getTypeDeclaration(inner) + ">";
         } 
         return super.getTypeDeclaration(propertySchema);
+    }
+
+    @Override
+    public String getAlias(String name) {
+        if (typeAliases != null && typeAliases.containsKey(name)) {
+            return typeAliases.get(name);
+        }
+        return name;
+    }
+
+    @Override
+    public String getSchemaType(Schema schema) {
+        String schemaType = super.getSchemaType(schema);
+
+        schemaType = getAlias(schemaType);
+
+        // don't apply renaming on types from the typeMapping
+        if (typeMapping.containsKey(schemaType)) {
+            return toModelName(typeMapping.get(schemaType));
+        }
+
+        if (null == schemaType) {
+            if (schema.getName() != null) {
+                LOGGER.warn("No Type defined for Property " + schema.getName());
+            } else {
+                // LOGGER.error(schema.toString());
+                // LOGGER.error("No Type defined.", new Exception());
+                return "XXXXXX";
+            }
+        }            
+        return toModelName(schemaType);
     }
 
     @Override
