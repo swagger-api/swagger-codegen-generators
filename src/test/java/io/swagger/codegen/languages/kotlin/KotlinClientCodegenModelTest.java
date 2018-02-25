@@ -49,11 +49,11 @@ public class KotlinClientCodegenModelTest {
                 .description("a sample model")
                 .addProperties("id", new IntegerSchema()
                     .format(SchemaTypeUtil.INTEGER64_FORMAT))
-                .addProperties("name", new StringSchema()
+                .addProperties("first-name", new StringSchema()
                     .example("Tony"))
                 .addProperties("createdAt", new DateTimeSchema())
                 .addRequiredItem("id")
-                .addRequiredItem("name");
+                .addRequiredItem("first-name");
     }
 
     // private Schema getMapSchema() {
@@ -92,9 +92,9 @@ public class KotlinClientCodegenModelTest {
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
 
         final CodegenProperty property2 = cm.vars.get(1);
-        Assert.assertEquals(property2.baseName, "name");
+        Assert.assertEquals(property2.baseName, "first-name");
         Assert.assertEquals(property2.datatype, "kotlin.String");
-        Assert.assertEquals(property2.name, "name");
+        Assert.assertEquals(property2.name, "firstName");
         Assert.assertEquals(property2.defaultValue, "null");
         Assert.assertEquals(property2.baseType, "kotlin.String");
         Assert.assertTrue(getBooleanValue(property2, CodegenConstants.HAS_MORE_EXT_NAME));          
@@ -186,9 +186,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(generated.vars.size(), 0);
         
         Assert.assertEquals(generated.parent, "kotlin.Array<kotlin.String>");
-        Assert.assertEquals(generated.imports.size(), 1);
-
-        LOGGER.error(generated.imports.toArray()[0].toString());
+        Assert.assertEquals(generated.imports.size(), 1);        
 
         // final CodegenProperty property = generated.vars.get(0);
         // Assert.assertEquals(property.baseName, "examples");

@@ -36,6 +36,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         supportsInheritance = true;
 
         languageSpecificPrimitives = new HashSet<String>(Arrays.asList(
+                "kotlin.Any",
                 "kotlin.Byte",
                 "kotlin.Short",
                 "kotlin.Int",
@@ -45,7 +46,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.Boolean",
                 "kotlin.Char",
                 "kotlin.String",
-                "kotlin.Array",
+                "kotlin.Array",                
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
                 "kotlin.collections.Set"
@@ -292,9 +293,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             if (schema.getName() != null) {
                 LOGGER.warn("No Type defined for Property " + schema.getName());
             } else {
-                // LOGGER.error(schema.toString());
-                // LOGGER.error("No Type defined.", new Exception());
-                return "XXXXXX";
+                return toModelName("kotlin.Any");
             }
         }            
         return toModelName(schemaType);
@@ -489,6 +488,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         return titleCase(modifiedName);
     }
 
+    @Override
+    public String toVarName(String name) {
+        return super.toVarName(sanitizeKotlinSpecificNames(name));        
+    }
+
     /**
      * Provides a strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
      *
@@ -505,7 +509,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         // TODO: We may want to differentiate here between generics and primitive arrays.
         instantiationType.append("<").append(nestedType).append(">");
         return instantiationType.toString();
-    }
+    }    
 
     /**
      * Sanitize against Kotlin specific naming conventions, which may differ from those required by {@link DefaultCodegen#sanitizeName}.
@@ -514,7 +518,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
      * @return sanitized string
      */
     private String sanitizeKotlinSpecificNames(final String name) {
-        String word = name;
+        String word = removeNonNameElementToCamelCase(name);
+
         for (Map.Entry<String, String> specialCharacters : specialCharReplacements.entrySet()) {
             // Underscore is the only special character we'll allow
             if (!specialCharacters.getKey().equals("_")) {
