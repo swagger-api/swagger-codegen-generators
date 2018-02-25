@@ -3,6 +3,7 @@ package io.swagger.codegen.languages;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
@@ -1207,18 +1208,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allRequired = new ArrayList<String>();
                 codegenModel.allVars = new ArrayList<CodegenProperty>();
                 int modelImplCnt = 0; // only one inline object allowed in a ComposedModel
-                for (Schema innerModel: composed.getAllOf()) {
-                    if (codegenModel.discriminator == null) {
-                        codegenModel.discriminator = schema.getDiscriminator();
-                    }
-                    if (innerModel.getXml() != null) {
-                        codegenModel.xmlPrefix = innerModel.getXml().getPrefix();
-                        codegenModel.xmlNamespace = innerModel.getXml().getNamespace();
-                        codegenModel.xmlName = innerModel.getXml().getName();
-                    }
-                    if (modelImplCnt++ > 1) {
-                        LOGGER.warn("More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
-                        break; // only one ModelImpl with discriminator allowed in allOf
+                if(composed.getAllOf() != null) {
+                    for (Schema innerModel : composed.getAllOf()) {
+                        if (codegenModel.discriminator == null) {
+                            codegenModel.discriminator = schema
+                                    .getDiscriminator();
+                        }
+                        if (innerModel.getXml() != null) {
+                            codegenModel.xmlPrefix = innerModel.getXml()
+                                    .getPrefix();
+                            codegenModel.xmlNamespace = innerModel.getXml()
+                                    .getNamespace();
+                            codegenModel.xmlName = innerModel.getXml()
+                                    .getName();
+                        }
+                        if (modelImplCnt++ > 1) {
+                            LOGGER.warn(
+                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
+                            break; // only one ModelImpl with discriminator
+                                   // allowed in allOf
+                        }
                     }
                 }
             } else {
@@ -3242,6 +3251,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasHelper.NAME, new HasHelper());
         handlebars.registerHelper(IsNotHelper.NAME, new IsNotHelper());
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
+    }
+
+    @Override
+    public List<CodegenArgument> getLanguageArguments() {
+        return null;
     }
 
     /**

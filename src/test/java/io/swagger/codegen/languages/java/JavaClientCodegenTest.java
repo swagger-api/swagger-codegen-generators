@@ -5,6 +5,7 @@ import io.swagger.codegen.CodegenModelFactory;
 import io.swagger.codegen.CodegenModelType;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -160,5 +161,13 @@ public class JavaClientCodegenTest {
         CodegenParameter codegenParameter3 = codegen.fromRequestBody(body3 , Collections.<String, Schema>singletonMap("Point", point), new HashSet<String>());
         Assert.assertEquals(codegenParameter3.dataType, "List<Point>");
         Assert.assertEquals(codegenParameter3.baseType, "Point");
+    }
+
+    @Test
+    public void nullValuesInComposedSchema() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        CodegenModel result = codegen.fromModel("CompSche",
+                new ComposedSchema());
+        Assert.assertEquals(result.name, "CompSche");
     }
 }

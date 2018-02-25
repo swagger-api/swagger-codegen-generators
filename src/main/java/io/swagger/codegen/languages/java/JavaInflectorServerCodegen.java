@@ -35,7 +35,6 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         super();
         sourceFolder = "src/gen/java";
         apiTestTemplateFiles.clear(); // TODO: add test template
-        embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
         invokerPackage = "io.swagger.controllers";
         artifactId = "swagger-inflector-server";
         dateLibrary = "legacy"; //TODO: add joda support
@@ -83,6 +82,8 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         String templateVersion = getTemplateVersion();
         if (StringUtils.isNotBlank(templateVersion)) {
             embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", templateVersion);
+        } else {
+            embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
         }
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
