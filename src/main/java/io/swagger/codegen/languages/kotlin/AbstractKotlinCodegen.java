@@ -1,5 +1,6 @@
 package io.swagger.codegen.languages.kotlin;
 
+import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
 import io.swagger.codegen.CodegenConstants;
@@ -256,7 +257,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String getTypeDeclaration(Schema propertySchema) {
         if (propertySchema instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) propertySchema);
-        } else if (propertySchema instanceof MapSchema) {
+        } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
@@ -492,7 +493,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String toVarName(String name) {
         return super.toVarName(sanitizeKotlinSpecificNames(name));        
     }
-
+    
     /**
      * Provides a strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
      *
