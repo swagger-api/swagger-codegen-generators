@@ -40,27 +40,27 @@ fun Route.{{classname}}() {
     {{#bodyAllowed}}
 
     route("{{path}}") {
-        {{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}} {
-            {{#lambda.indented_12}}{{>libraries/ktor/_api_body}}{{/lambda.indented_12}}
+        {{httpMethod}} {
+            {{>libraries/ktor/_api_body}}
         }
     }
     {{/bodyAllowed}}
     {{^bodyAllowed}}
 
     {{! NOTE: Locations can be used on routes without body parameters.}}
-    {{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}}<Paths.{{operationId}}> {  it: Paths.{{operationId}} ->
-        {{#lambda.indented_8}}{{>libraries/ktor/_api_body}}{{/lambda.indented_8}}
+    {{httpMethod}}<Paths.{{operationId}}> {  it: Paths.{{operationId}} ->
+        {{>libraries/ktor/_api_body}}
     }
     {{/bodyAllowed}}
     {{! THis looks a little weird, but it's completely valid Kotlin code, and simplifies templated route logic above. }}
-    {{#hasAuthMethods}}.apply {
+    {{#has this 'auth-methods'}}.apply {
       // TODO: ktor doesn't allow different authentication registrations for endpoints sharing the same path but different methods.
       //       It could be the authentication block is being abused here. Until this is resolved, swallow duplicate exceptions.
 
         try {
             authentication {
                 {{#authMethods}}
-                {{#isBasic}}
+                {{#is this 'basic'}}
                 basicAuthentication("{{{name}}}") { credentials ->
                     // TODO: "Apply your basic authentication functionality."
                     // Accessible in-method via call.principal<UserIdPrincipal>()
@@ -70,8 +70,8 @@ fun Route.{{classname}}() {
                         null
                     }
                 }
-                {{/isBasic}}
-                {{#isApiKey}}
+                {{/is}}
+                {{#is this 'api-key'}}
                 // "Implement API key auth ({{{name}}}) for parameter name '{{{keyParamName}}}'."
                 apiKeyAuth("{{{keyParamName}}}", {{#isKeyInQuery}}"query"{{/isKeyInQuery}}{{#isKeyInHeader}}"header"{{/isKeyInHeader}}) {
                     // TODO: "Verify key here , accessible as it.value"
@@ -81,8 +81,8 @@ fun Route.{{classname}}() {
                         null
                     }
                 }
-                {{/isApiKey}}
-                {{#isOAuth}}
+                {{/is}}
+                {{#is this 'oauth'}}
                 {{#bodyAllowed}}
                 oauth(client, ApplicationExecutors.asCoroutineDispatcher(), { ApplicationAuthProviders["{{{name}}}"] }, {
                     // TODO: define a callback url here.
@@ -97,7 +97,7 @@ fun Route.{{classname}}() {
                            "/"
                         })
                 {{/bodyAllowed}}
-                {{/isOAuth}}
+                {{/is}}
                 {{/authMethods}}
             }
         } catch(e: io.ktor.application.DuplicateApplicationFeatureException){
@@ -105,10 +105,10 @@ fun Route.{{classname}}() {
             "Generated endpoints may need to be merged under a 'route' entry.")
         }
     }
-    {{/hasAuthMethods}}
-    {{^hasAuthMethods}}
+    {{/has}}
+    {{^notHas this 'auth-methods'}}
 
-    {{/hasAuthMethods}}
+    {{/notHas}}
 {{/operation}}
 }
 {{/operations}}

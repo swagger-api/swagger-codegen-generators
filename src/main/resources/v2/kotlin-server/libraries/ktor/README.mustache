@@ -84,18 +84,18 @@ Authentication schemes defined for the API:
 <a name="{{name}}"></a>
 ### {{name}}
 
-{{#isApiKey}}- **Type**: API key
+{{#is this 'api-key'}}- **Type**: API key
 - **API key parameter name**: {{keyParamName}}
-- **Location**: {{#isKeyInQuery}}URL query string{{/isKeyInQuery}}{{#isKeyInHeader}}HTTP header{{/isKeyInHeader}}
-{{/isApiKey}}
-{{#isBasic}}- **Type**: HTTP basic authentication
-{{/isBasic}}
-{{#isOAuth}}- **Type**: OAuth
+- **Location**: {{#is this 'key-in-query'}}URL query string{{/is}}{{#is this 'key-in-header'}}HTTP header{{/is}}
+{{/is}}
+{{#is this 'basic'}}- **Type**: HTTP basic authentication
+{{/is}}
+{{#is this 'oauth'}}- **Type**: OAuth
 - **Flow**: {{flow}}
 - **Authorization URL**: {{authorizationUrl}}
 - **Scopes**: {{^scopes}}N/A{{/scopes}}
 {{#scopes}}  - {{scope}}: {{description}}
 {{/scopes}}
-{{/isOAuth}}
+{{/is}}
 
 {{/authMethods}}

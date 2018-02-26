@@ -79,7 +79,7 @@ internal fun ApplicationCompressionConfiguration(): Compression.Configuration.()
 // Defines authentication mechanisms used throughout the application.
 val ApplicationAuthProviders: Map<String, OAuthServerSettings> = listOf<OAuthServerSettings>(
 {{#authMethods}}
-    {{#isOAuth}}
+    {{#is this 'oauth'}}
         OAuthServerSettings.OAuth2ServerSettings(
             name = "{{name}}",
             authorizeUrl = "{{authorizationUrl}}",
@@ -90,7 +90,7 @@ val ApplicationAuthProviders: Map<String, OAuthServerSettings> = listOf<OAuthSer
             clientSecret = settings.property("auth.oauth.{{name}}.clientSecret").getString(),
             defaultScopes = listOf({{#scopes}}"{{scope}}"{{#has this 'more'}}, {{/has}}{{/scopes}})
         ){{#has this 'more'}},{{/has}}
-    {{/isOAuth}}
+    {{/is}}
 {{/authMethods}}
 //        OAuthServerSettings.OAuth2ServerSettings(
 //                name = "facebook",
