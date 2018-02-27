@@ -164,7 +164,6 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
             additionalProperties.put(Constants.COMPRESSION, getCompressionFeatureEnabled());
         }
 
-        // Boolean generateApis = additionalProperties.containsKey(CodegenConstants.GENERATE_APIS) && (Boolean)additionalProperties.get(CodegenConstants.GENERATE_APIS);
         String packageFolder = (sourceFolder + File.separator + packageName).replace(".", File.separator);
         String resourcesFolder = "src/main/resources"; // not sure this can be user configurable.
 
@@ -177,10 +176,8 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
         supportingFiles.add(new SupportingFile("AppMain.kt.mustache", packageFolder, "AppMain.kt"));
         supportingFiles.add(new SupportingFile("Configuration.kt.mustache", packageFolder, "Configuration.kt"));
-
-        // if (generateApis) {
-            supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));
-        // }
+        
+        supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));        
 
         supportingFiles.add(new SupportingFile("application.conf.mustache", resourcesFolder, "application.conf"));
         supportingFiles.add(new SupportingFile("logback.xml", resourcesFolder, "logback.xml"));
