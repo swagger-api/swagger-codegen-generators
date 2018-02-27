@@ -60,9 +60,22 @@ public class KotlinClientCodegenModelTest {
     }
 
     private Schema getMapSchema() {
-        return new Schema()
+        // return new ModelImpl()
+        // .description("a sample model")
+        // .property("mapping", new MapProperty()
+        //         .additionalProperties(new StringProperty()))
+        // .required("id");
+
+        // final Schema propertySchema = new MapSchema().additionalProperties(new StringSchema());
+        // return new Schema()
+        //     .type("object")            
+        //     .description("a sample model")
+        //     .addProperties("mapping", propertySchema);        
+        return  new Schema()
             .description("a sample model")
-            .additionalProperties(new Schema().$ref("#/components/schemas/Children"));        
+            .addProperties("mapping", new MapSchema()
+                    .additionalProperties(new StringSchema()))
+            .addRequiredItem("id");
     }
 
     private Schema getComplexSchema() {
@@ -210,17 +223,17 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(cm.name, "sample");
         Assert.assertEquals(cm.classname, "Sample");
         Assert.assertEquals(cm.description, "a sample model");
-        // Assert.assertEquals(cm.vars.size(), 1);
+        Assert.assertEquals(cm.vars.size(), 1);
 
-        // final CodegenProperty property1 = cm.vars.get(0);
-        // Assert.assertEquals(property1.baseName, "mapping");
-        // Assert.assertEquals(property1.datatype, "kotlin.collections.Map<kotlin.String, kotlin.String>");
-        // Assert.assertEquals(property1.name, "mapping");
-        // Assert.assertEquals(property1.baseType, "kotlin.collections.Map");
-        // Assert.assertEquals(property1.containerType, "map");
-        // Assert.assertFalse(property1.required);
-        // Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_CONTAINER_EXT_NAME));
-        // Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
+        final CodegenProperty property1 = cm.vars.get(0);
+        Assert.assertEquals(property1.baseName, "mapping");
+        Assert.assertEquals(property1.datatype, "kotlin.collections.Map<kotlin.String, kotlin.String>");
+        Assert.assertEquals(property1.name, "mapping");
+        Assert.assertEquals(property1.baseType, "kotlin.collections.Map");
+        Assert.assertEquals(property1.containerType, "map");
+        Assert.assertFalse(property1.required);
+        Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_CONTAINER_EXT_NAME));
+        Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
     }
 
     // @Test(description = "convert a model with complex property")
