@@ -49,6 +49,7 @@ public class KotlinClientCodegenModelTest {
 
     private Schema getSimpleSchema() {
         return new Schema()
+                .type("object")
                 .description("a sample model")
                 .addProperties("id", new IntegerSchema()
                     .format(SchemaTypeUtil.INTEGER64_FORMAT))
@@ -60,18 +61,8 @@ public class KotlinClientCodegenModelTest {
     }
 
     private Schema getMapSchema() {
-        // return new ModelImpl()
-        // .description("a sample model")
-        // .property("mapping", new MapProperty()
-        //         .additionalProperties(new StringProperty()))
-        // .required("id");
-
-        // final Schema propertySchema = new MapSchema().additionalProperties(new StringSchema());
-        // return new Schema()
-        //     .type("object")            
-        //     .description("a sample model")
-        //     .addProperties("mapping", propertySchema);        
-        return  new Schema()
+        return new Schema()
+            .type("object")
             .description("a sample model")
             .addProperties("mapping", new MapSchema()
                     .additionalProperties(new StringSchema()))
@@ -81,12 +72,12 @@ public class KotlinClientCodegenModelTest {
     private Schema getComplexSchema() {
         return new Schema()
                 .description("a sample model")
-                .additionalProperties(new Schema().$ref("#/definitions/Child"));
+                .type("object")
+                .addProperties("child", new Schema().$ref("#/components/schemas/Child"));
     }
 
     @Test(description = "convert a simple model")
-    public void simpleModelTest() {
-        // final Model model = getSimpleModel();
+    public void simpleModelTest() {        
         final Schema schema = getSimpleSchema();
         final KotlinClientCodegen codegen = new KotlinClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
@@ -236,60 +227,60 @@ public class KotlinClientCodegenModelTest {
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
     }
 
-    // @Test(description = "convert a model with complex property")
-    // public void complexPropertyTest() {
-    //     final Schema schema = getComplexSchema();
-    //     final CodegenConfig codegen = new KotlinClientCodegen();
-    //     final CodegenModel cm = codegen.fromModel("sample", schema);
+    @Test(description = "convert a model with complex property")
+    public void complexPropertyTest() {
+        final Schema schema = getComplexSchema();
+        final CodegenConfig codegen = new KotlinClientCodegen();
+        final CodegenModel cm = codegen.fromModel("sample", schema);
 
-    //     Assert.assertEquals(cm.name, "sample");
-    //     Assert.assertEquals(cm.classname, "Sample");
-    //     Assert.assertEquals(cm.description, "a sample model");
-    //     Assert.assertEquals(cm.vars.size(), 0);
+        Assert.assertEquals(cm.name, "sample");
+        Assert.assertEquals(cm.classname, "Sample");
+        Assert.assertEquals(cm.description, "a sample model");
+        Assert.assertEquals(cm.vars.size(), 1);
 
-    //     // final CodegenProperty property1 = cm.vars.get(0);
-    //     // Assert.assertEquals(property1.baseName, "child");
-    //     // Assert.assertEquals(property1.datatype, "Child");
-    //     // Assert.assertEquals(property1.name, "child");
-    //     // Assert.assertEquals(property1.baseType, "Child");
-    //     // Assert.assertFalse(property1.required);
-    //     // Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
-    // }
+        final CodegenProperty property1 = cm.vars.get(0);
+        Assert.assertEquals(property1.baseName, "child");
+        Assert.assertEquals(property1.datatype, "Child");
+        Assert.assertEquals(property1.name, "child");
+        Assert.assertEquals(property1.baseType, "Child");
+        Assert.assertFalse(property1.required);
+        Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+    }
 
-    // @DataProvider(name = "modelNames")
-    // public static Object[][] modelNames() {
-    //     return new Object[][]{
-    //             {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
-    //             {"$", new ModelNameTest("$", "Dollar")},
-    //             {"for", new ModelNameTest("`for`", "`for`")},
-    //             {"One<Two", new ModelNameTest("One<Two", "OneLess_ThanTwo")},
-    //             {"this is a test", new ModelNameTest("this is a test", "This_is_a_test")}
-    //     };
-    // }
+    @DataProvider(name = "modelNames")
+    public static Object[][] modelNames() {
+        return new Object[][]{
+                {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
+                {"$", new ModelNameTest("$", "Dollar")},
+                {"for", new ModelNameTest("`for`", "`for`")},
+                {"One<Two", new ModelNameTest("One<Two", "OneLess_ThanTwo")},
+                {"this is a test", new ModelNameTest("this is a test", "This_is_a_test")}
+        };
+    }
 
-    // @Test(dataProvider = "modelNames", description = "sanitize model names")
-    // public void sanitizeModelNames(final String name, final ModelNameTest testCase) {
-    //     final Schema schema = getComplexSchema();
-    //     final CodegenConfig codegen = new KotlinClientCodegen();
-    //     final CodegenModel cm = codegen.fromModel(name, schema);
+    @Test(dataProvider = "modelNames", description = "sanitize model names")
+    public void sanitizeModelNames(final String name, final ModelNameTest testCase) {
+        final Schema schema = getComplexSchema();
+        final CodegenConfig codegen = new KotlinClientCodegen();
+        final CodegenModel cm = codegen.fromModel(name, schema);
 
-    //     Assert.assertEquals(cm.name, testCase.expectedName);
-    //     Assert.assertEquals(cm.classname, testCase.expectedClassName);
-    // }
+        Assert.assertEquals(cm.name, testCase.expectedName);
+        Assert.assertEquals(cm.classname, testCase.expectedClassName);
+    }
 
-    // private static class ModelNameTest {
-    //     private String expectedName;
-    //     private String expectedClassName;
+    private static class ModelNameTest {
+        private String expectedName;
+        private String expectedClassName;
 
-    //     private ModelNameTest(String nameAndClass) {
-    //         this.expectedName = nameAndClass;
-    //         this.expectedClassName = nameAndClass;
-    //     }
+        private ModelNameTest(String nameAndClass) {
+            this.expectedName = nameAndClass;
+            this.expectedClassName = nameAndClass;
+        }
 
-    //     private ModelNameTest(String expectedName, String expectedClassName) {
-    //         this.expectedName = expectedName;
-    //         this.expectedClassName = expectedClassName;
-    //     }
-    // }
+        private ModelNameTest(String expectedName, String expectedClassName) {
+            this.expectedName = expectedName;
+            this.expectedClassName = expectedClassName;
+        }
+    }
 }
 
