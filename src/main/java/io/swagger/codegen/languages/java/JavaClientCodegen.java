@@ -531,6 +531,9 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     @Override
     public List<CodegenArgument> getLanguageArguments() {
         final InputStream inputStream = getClass().getResourceAsStream("/arguments/java.yaml");
+        if (inputStream == null) {
+            return null;
+        }
         final String content;
         try {
             content = IOUtils.toString(inputStream);
