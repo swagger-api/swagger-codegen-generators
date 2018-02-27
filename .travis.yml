@@ -4,8 +4,9 @@ script: ./mvnw clean verify
 jdk:
   - openjdk8
 after_success:
-  - if [ $SONATYPE_USERNAME ] && [ -z $TRAVIS_TAG ] && [ $TRAVIS_PULL_REQUEST == false ]; then
-      ./mvnw clean deploy --settings .travis/settings.xml;
+  - if [ $SONATYPE_USERNAME ] && [ -z $TRAVIS_TAG ] && [ "$TRAVIS_BRANCH" = "master" ]; then
+      mvn clean deploy --settings .travis/settings.xml;
+      echo "Finished mvn clean deploy for $TRAVIS_BRANCH";
     fi;
 branches:
   only:

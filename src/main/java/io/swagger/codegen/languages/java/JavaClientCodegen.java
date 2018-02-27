@@ -4,7 +4,9 @@ import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
@@ -16,12 +18,16 @@ import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.GzipFeatures;
 import io.swagger.codegen.languages.features.PerformBeanValidationFeatures;
 
+import io.swagger.v3.core.util.Yaml;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -520,6 +526,62 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             }
         }
         return objs;
+    }
+
+    @Override
+    public List<CodegenArgument> getLanguageArguments() {
+        final InputStream inputStream = getClass().getResourceAsStream("/arguments/java.yaml");
+        final String content;
+        try {
+            content = IOUtils.toString(inputStream);
+            if (StringUtils.isBlank(content)) {
+                return null;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not read arguments for java language.", e);
+            return null;
+        }
+        final JsonNode rootNode;
+        try {
+            rootNode = Yaml.mapper().readTree(content.getBytes());
+            if (rootNode == null) {
+                return null;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not parse java arguments content.", e);
+            return null;
+        }
+        JsonNode arguments = rootNode.findValue("arguments");
+        if (arguments == null || !arguments.isArray()) {
+            return null;
+        }
+        List<CodegenArgument> codegenArguments = new ArrayList<>();
+        for (JsonNode argument : arguments) {
+            String option = argument.findValue("option") != null ? argument.findValue("option").textValue() : null;
+            String description = argument.findValue("description") != null ? argument.findValue("description").textValue() : null;
+            String shortOption = argument.findValue("shortOption") != null ? argument.findValue("shortOption").textValue() : null;
+            String type = argument.findValue("type") != null ? argument.findValue("type").textValue() : "string";
+            boolean isArray = argument.findValue("isArray") != null ? argument.findValue("isArray").booleanValue() : false;
+            if (StringUtils.isBlank(option)) {
+                continue;
+            }
+            codegenArguments.add(new CodegenArgument()
+                    .option(option)
+                    .shortOption(shortOption)
+                    .description(description)
+                    .type(type)
+                    .isArray(isArray));
+        }
+
+        return codegenArguments;
+    }
+
+    @Override
+    public void processArgumentsValiues(List<CodegenArgument> codegenArguments){
+        if (codegenArguments == null || codegenArguments.isEmpty()) {
+            return;
+        }
+        Yaml.prettyPrint(codegenArguments);
     }
 
     protected List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {
