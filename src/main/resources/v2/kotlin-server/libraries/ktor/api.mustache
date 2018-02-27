@@ -40,7 +40,7 @@ fun Route.{{classname}}() {
     {{#bodyAllowed}}
 
     route("{{path}}") {
-        {{httpMethodLowerCase}} {
+        {{lower httpMethod}} {
             {{>libraries/ktor/_api_body}}
         }
     }
@@ -48,7 +48,7 @@ fun Route.{{classname}}() {
     {{^bodyAllowed}}
 
     {{! NOTE: Locations can be used on routes without body parameters.}}
-    {{httpMethodLowerCase}}<Paths.{{operationId}}> {  it: Paths.{{operationId}} ->
+    {{lower httpMethod}}<Paths.{{operationId}}> {  it: Paths.{{operationId}} ->
         {{>libraries/ktor/_api_body}}
     }
     {{/bodyAllowed}}
