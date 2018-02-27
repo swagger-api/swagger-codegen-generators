@@ -20,6 +20,7 @@ import java.util.Map;
 public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
 
+
     protected String artifactId;
     protected String artifactVersion = "1.0.0";
     protected String groupId = "io.swagger";
@@ -264,9 +265,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 // TODO maybe better defaulting to StringProperty than returning null
                 return null;
             }
-            return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
             // Maps will be keyed only by primitive Kotlin string
-            // return getSwaggerType(p) + "<kotlin.String, " + getTypeDeclaration(inner) + ">";
+            return String.format("%s<kotlin.String, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));            
         } 
         return super.getTypeDeclaration(propertySchema);
     }
