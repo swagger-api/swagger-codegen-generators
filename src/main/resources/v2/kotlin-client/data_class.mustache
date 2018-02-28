@@ -1,15 +1,15 @@
 /**
  * {{{description}}}
-{{#vars}}
+{{~#vars}} 
  * @param {{name}} {{{description}}}
-{{/vars}}
+{{~/vars~}}
  */
 data class {{classname}} (
-{{#requiredVars}}
-{{>data_class_req_var}}{{^@last}},
-{{/@last}}{{/requiredVars}}{{#has this 'required'}}{{#has this 'optional'}},
-{{/has}}{{/has}}{{#optionalVars}}{{>data_class_opt_var}}{{^@last}},
-{{/@last}}{{/optionalVars}}
+{{~#requiredVars~}}
+    {{>data_class_req_var}}{{^@last}},{{/@last}}
+{{~/requiredVars~}}
+{{#has this 'required'}}{{#has this 'optional'}},{{/has}}{{/has}}
+{{~#optionalVars}}{{>data_class_opt_var}}{{^@last}},{{/@last}}{{/optionalVars}}
 ) {
 {{#has this 'enums'}}{{#vars}}{{#is this 'enum'}}
     /**
