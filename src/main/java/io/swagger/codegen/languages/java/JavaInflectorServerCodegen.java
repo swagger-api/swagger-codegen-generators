@@ -39,12 +39,6 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         artifactId = "swagger-inflector-server";
         dateLibrary = "legacy"; //TODO: add joda support
 
-        // clear model and api doc template as this codegen
-        // does not support auto-generated markdown doc at the moment
-        //TODO: add doc templates
-        modelDocTemplateFiles.remove("model_doc.mustache");
-        apiDocTemplateFiles.remove("api_doc.mustache");
-
         // todo: remove when system properties are removed
         System.setProperty(CodegenConstants.MODEL_DOCS, Boolean.FALSE.toString());
         System.setProperty(CodegenConstants.API_DOCS, Boolean.FALSE.toString());
@@ -85,6 +79,13 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         } else {
             embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
         }
+
+        // clear model and api doc template as this codegen
+        // does not support auto-generated markdown doc at the moment
+        //TODO: add doc templates
+        modelDocTemplateFiles.remove("model_doc.mustache");
+        apiDocTemplateFiles.remove("api_doc.mustache");
+
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
         writeOptional(outputFolder, new SupportingFile("web.mustache", "src/main/webapp/WEB-INF", "web.xml"));
