@@ -580,7 +580,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     }
 
     @Override
-    public void processArgumentsValiues(List<CodegenArgument> codegenArguments){
+    public void processArgumentsValues(List<CodegenArgument> codegenArguments){
         if (codegenArguments == null || codegenArguments.isEmpty()) {
             return;
         }

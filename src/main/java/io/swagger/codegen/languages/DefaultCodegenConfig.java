@@ -2353,6 +2353,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
         codegenParameter.baseName = REQUEST_BODY_NAME;
         codegenParameter.paramName = REQUEST_BODY_NAME;
+        codegenParameter.description = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
 
@@ -3259,7 +3260,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     @Override
-    public void processArgumentsValiues(List<CodegenArgument> codegenArguments){
+    public void processArgumentsValues(List<CodegenArgument> codegenArguments){
     }
 
     /**
