@@ -1,5 +1,6 @@
 package io.swagger.codegen.languages.java;
 
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -8,9 +9,16 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.List;
+
 public class AbstractJavaCodegenTest {
 
     private final AbstractJavaCodegen fakeJavaCodegen = new AbstractJavaCodegen() {
+        @Override
+        public String getArgumentsLocation() {
+            return null;
+        }
+
         @Override
         public CodegenType getTag() {
             return null;
@@ -23,6 +31,11 @@ public class AbstractJavaCodegenTest {
 
         @Override
         public String getHelp() {
+            return null;
+        }
+
+        @Override
+        public List<CodegenArgument> readLanguageArguments() {
             return null;
         }
     };

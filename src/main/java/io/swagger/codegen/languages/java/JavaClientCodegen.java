@@ -529,62 +529,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     }
 
     @Override
-    public List<CodegenArgument> getLanguageArguments() {
-        final InputStream inputStream = getClass().getResourceAsStream("/arguments/java.yaml");
-        if (inputStream == null) {
-            return null;
-        }
-        final String content;
-        try {
-            content = IOUtils.toString(inputStream);
-            if (StringUtils.isBlank(content)) {
-                return null;
-            }
-        } catch (IOException e) {
-            LOGGER.error("Could not read arguments for java language.", e);
-            return null;
-        }
-        final JsonNode rootNode;
-        try {
-            rootNode = Yaml.mapper().readTree(content.getBytes());
-            if (rootNode == null) {
-                return null;
-            }
-        } catch (IOException e) {
-            LOGGER.error("Could not parse java arguments content.", e);
-            return null;
-        }
-        JsonNode arguments = rootNode.findValue("arguments");
-        if (arguments == null || !arguments.isArray()) {
-            return null;
-        }
-        List<CodegenArgument> codegenArguments = new ArrayList<>();
-        for (JsonNode argument : arguments) {
-            String option = argument.findValue("option") != null ? argument.findValue("option").textValue() : null;
-            String description = argument.findValue("description") != null ? argument.findValue("description").textValue() : null;
-            String shortOption = argument.findValue("shortOption") != null ? argument.findValue("shortOption").textValue() : null;
-            String type = argument.findValue("type") != null ? argument.findValue("type").textValue() : "string";
-            boolean isArray = argument.findValue("isArray") != null ? argument.findValue("isArray").booleanValue() : false;
-            if (StringUtils.isBlank(option)) {
-                continue;
-            }
-            codegenArguments.add(new CodegenArgument()
-                    .option(option)
-                    .shortOption(shortOption)
-                    .description(description)
-                    .type(type)
-                    .isArray(isArray));
-        }
-
-        return codegenArguments;
-    }
-
-    @Override
-    public void processArgumentsValues(List<CodegenArgument> codegenArguments){
-        if (codegenArguments == null || codegenArguments.isEmpty()) {
-            return;
-        }
-        Yaml.prettyPrint(codegenArguments);
+    public String getArgumentsLocation() {
+        return "/arguments/java.yaml";
     }
 
     protected List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {
