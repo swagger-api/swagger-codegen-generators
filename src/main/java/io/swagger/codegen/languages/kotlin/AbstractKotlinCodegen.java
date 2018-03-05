@@ -293,6 +293,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         if (null == schemaType) {
             if (schema.getName() != null) {
                 LOGGER.warn("No Type defined for Property " + schema.getName());
+                return toModelName(schema.getName());
             } else {
                 return toModelName("kotlin.Any");
             }
