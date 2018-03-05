@@ -201,6 +201,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     }
 
     @Override
+    public String getArgumentsLocation() {
+        return "";
+    }
+
+    @Override
     public String apiDocFileFolder() {
         return (outputFolder + "/" + apiDocPath).replace('/', File.separatorChar);
     }
