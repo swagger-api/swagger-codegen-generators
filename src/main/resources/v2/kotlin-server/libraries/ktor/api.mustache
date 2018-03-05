@@ -7,6 +7,7 @@ import io.ktor.auth.UserIdPrincipal
 import io.ktor.auth.authentication
 import io.ktor.auth.basicAuthentication
 import io.ktor.auth.oauth
+import io.ktor.auth.Principal
 import io.ktor.auth.OAuthAccessTokenResponse
 import io.ktor.auth.OAuthServerSettings
 import io.ktor.http.ContentType
@@ -73,7 +74,7 @@ fun Route.{{classname}}() {
                 {{/is}}
                 {{#is this 'api-key'}}
                 // "Implement API key auth ({{{name}}}) for parameter name '{{{keyParamName}}}'."
-                apiKeyAuth("{{{keyParamName}}}", {{#isKeyInQuery}}"query"{{/isKeyInQuery}}{{#isKeyInHeader}}"header"{{/isKeyInHeader}}) {
+                apiKeyAuth("{{{keyParamName}}}", {{#is this 'key-in-query'}}"query"{{/is}}{{#is this 'key-in-header'}}"header"{{/is}}) {
                     // TODO: "Verify key here , accessible as it.value"
                     if (it.value == "keyboardcat") {
                          ApiPrincipal(it)

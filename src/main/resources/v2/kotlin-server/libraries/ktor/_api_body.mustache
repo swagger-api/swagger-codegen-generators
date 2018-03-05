@@ -1,6 +1,7 @@
 {{#has this 'auth-methods'}}
+val principals = mutableListOf<Principal?>()
 {{>libraries/ktor/_principal}}
-if (principal == null) {
+if (principals.any({ it != null })) {
     call.respond(HttpStatusCode.Unauthorized)
 } else {
     {{#examples}}
