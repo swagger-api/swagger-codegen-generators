@@ -237,4 +237,9 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         name = name.replaceAll("[^a-zA-Z0-9]+", "_");
         return camelize(name)+ "Controller";
     }
+
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/inflector.yaml";
+    }
 }
