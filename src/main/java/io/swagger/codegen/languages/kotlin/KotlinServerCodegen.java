@@ -1,6 +1,5 @@
 package io.swagger.codegen.languages.kotlin;
 
-import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
@@ -15,6 +14,8 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.Handlebars;
 import org.apache.commons.lang3.StringUtils;
 
+import static java.util.Collections.singletonMap;
+
 public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
     public static final String DEFAULT_LIBRARY = Constants.KTOR;
@@ -26,15 +27,15 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     private Boolean compressionFeatureEnabled = true;
 
     // This is here to potentially warn the user when an option is not supoprted by the target framework.
-    private Map<String, List<String>> optionsSupportedPerFramework = new ImmutableMap.Builder<String, List<String>>()
-            .put(Constants.KTOR, Arrays.asList(
-                    Constants.AUTOMATIC_HEAD_REQUESTS,
-                    Constants.CONDITIONAL_HEADERS,
-                    Constants.HSTS,
-                    Constants.CORS,
-                    Constants.COMPRESSION
-            ))
-            .build();
+    private Map<String, List<String>> optionsSupportedPerFramework = 
+        singletonMap(Constants.KTOR, 
+                    Arrays.asList(
+                        Constants.AUTOMATIC_HEAD_REQUESTS,
+                        Constants.CONDITIONAL_HEADERS,
+                        Constants.HSTS,
+                        Constants.CORS,
+                        Constants.COMPRESSION
+                    ));            
 
     /**
      * Constructs an instance of `KotlinServerCodegen`.
@@ -132,6 +133,8 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
         if (additionalProperties.containsKey(CodegenConstants.LIBRARY)) {
             this.setLibrary((String) additionalProperties.get(CodegenConstants.LIBRARY));
+        } else {
+            this.setLibrary(DEFAULT_LIBRARY);
         }
 
         if (additionalProperties.containsKey(Constants.AUTOMATIC_HEAD_REQUESTS)) {
