@@ -1,5 +1,6 @@
 package io.swagger.codegen.languages;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.CliOption;
@@ -21,6 +22,7 @@ import io.swagger.codegen.languages.helpers.IsHelper;
 import io.swagger.codegen.languages.helpers.IsNotHelper;
 import io.swagger.codegen.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
@@ -53,6 +55,7 @@ import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +63,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -124,6 +129,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, Object> vendorExtensions = new HashMap<String, Object>();
     protected List<SupportingFile> supportingFiles = new ArrayList<SupportingFile>();
     protected List<CliOption> cliOptions = new ArrayList<CliOption>();
+    protected List<CodegenArgument> languageArguments;
     protected boolean skipOverwrite;
     protected boolean removeOperationIdPrefix;
     protected boolean supportsInheritance;
@@ -2353,6 +2359,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
         codegenParameter.baseName = REQUEST_BODY_NAME;
         codegenParameter.paramName = REQUEST_BODY_NAME;
+        codegenParameter.description = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
 
@@ -3254,13 +3261,69 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     @Override
-    public List<CodegenArgument> getLanguageArguments() {
-        return null;
+    public List<CodegenArgument> readLanguageArguments() {
+        final String argumentsLocation = getArgumentsLocation();
+        if (StringUtils.isBlank(argumentsLocation)) {
+            return null;
+        }
+        final InputStream inputStream = getClass().getResourceAsStream(argumentsLocation);
+        if (inputStream == null) {
+            return null;
+        }
+        final String content;
+        try {
+            content = IOUtils.toString(inputStream);
+            if (StringUtils.isBlank(content)) {
+                return null;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not read arguments for java language.", e);
+            return null;
+        }
+        final JsonNode rootNode;
+        try {
+            rootNode = Yaml.mapper().readTree(content.getBytes());
+            if (rootNode == null) {
+                return null;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not parse java arguments content.", e);
+            return null;
+        }
+        JsonNode arguments = rootNode.findValue("arguments");
+        if (arguments == null || !arguments.isArray()) {
+            return null;
+        }
+        List<CodegenArgument> languageArguments = new ArrayList<>();
+        for (JsonNode argument : arguments) {
+            String option = argument.findValue("option") != null ? argument.findValue("option").textValue() : null;
+            String description = argument.findValue("description") != null ? argument.findValue("description").textValue() : null;
+            String shortOption = argument.findValue("shortOption") != null ? argument.findValue("shortOption").textValue() : null;
+            String type = argument.findValue("type") != null ? argument.findValue("type").textValue() : "string";
+            boolean isArray = argument.findValue("isArray") != null ? argument.findValue("isArray").booleanValue() : false;
+            if (StringUtils.isBlank(option)) {
+                continue;
+            }
+            languageArguments.add(new CodegenArgument()
+                    .option(option)
+                    .shortOption(shortOption)
+                    .description(description)
+                    .type(type)
+                    .isArray(isArray));
+        }
+        return languageArguments;
     }
 
     @Override
-    public void processArgumentsValiues(List<CodegenArgument> codegenArguments){
+    public void setLanguageArguments(List<CodegenArgument> languageArguments) {
+        this.languageArguments = languageArguments;
     }
+
+    public List<CodegenArgument> getLanguageArguments() {
+        return languageArguments;
+    }
+
+    public abstract String getArgumentsLocation();
 
     /**
      * Only write if the file doesn't exist
