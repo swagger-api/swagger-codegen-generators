@@ -199,6 +199,7 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
 
     @Override
     public void setLanguageArguments(List<CodegenArgument> languageArguments) {
+        /** fixme: uncomment once build in swagger-codegen works.
         if (languageArguments == null) {
             languageArguments = new ArrayList<>();
         }
@@ -230,6 +231,7 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
                     .type("boolean")
                     .value(Boolean.FALSE.toString()));
         }
+        */
         super.setLanguageArguments(languageArguments);
     }
 
