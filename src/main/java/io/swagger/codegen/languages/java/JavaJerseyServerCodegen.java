@@ -134,6 +134,11 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
     }
 
     @Override
+    public String getArgumentsLocation() {
+        return "";
+    }
+
+    @Override
     public Map<String, Object> postProcessModelsEnum(Map<String, Object> objs) {
         objs = super.postProcessModelsEnum(objs);
 

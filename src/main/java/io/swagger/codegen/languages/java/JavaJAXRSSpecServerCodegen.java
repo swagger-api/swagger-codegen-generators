@@ -106,6 +106,11 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
     }
 
     @Override
+    public String getArgumentsLocation() {
+        return "";
+    }
+
+    @Override
     public String getName() {
         return "jaxrs-spec";
     }

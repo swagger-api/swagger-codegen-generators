@@ -99,6 +99,12 @@ public class JavaResteasyServerCodegen extends AbstractJavaJAXRSServerCodegen im
             supportingFiles.add(new SupportingFile("LocalDateProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "LocalDateProvider.java"));
         }
     }
+    
+
+    @Override
+    public String getArgumentsLocation() {
+        return "";
+    }
 
     @Override
     public void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations) {
