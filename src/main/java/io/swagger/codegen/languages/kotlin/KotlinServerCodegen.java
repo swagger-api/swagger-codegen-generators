@@ -131,6 +131,10 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
             embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_VERSION);
         }
 
+        if (!additionalProperties.containsKey("generateApis")) {
+            additionalProperties.put("generateApis", true);
+        }
+
         if (additionalProperties.containsKey(CodegenConstants.LIBRARY)) {
             this.setLibrary((String) additionalProperties.get(CodegenConstants.LIBRARY));
         } else {
