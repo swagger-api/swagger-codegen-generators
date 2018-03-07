@@ -1,5 +1,11 @@
 package io.swagger.codegen.languages.kotlin;
 
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.v3.oas.models.parameters.Parameter;
+
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
@@ -19,6 +25,8 @@ import static java.util.Collections.singletonMap;
 public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
     public static final String DEFAULT_LIBRARY = Constants.KTOR;
+    public static final String GENERATE_APIS = "generateApis";
+
     static Logger LOGGER = LoggerFactory.getLogger(KotlinServerCodegen.class);
     private Boolean autoHeadFeatureEnabled = true;
     private Boolean conditionalHeadersFeatureEnabled = false;
@@ -121,6 +129,23 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     }
 
     @Override
+    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
+        
+        // Ensure that the parameter names in the path are valid kotlin names
+        // they need to match the names in the generated data class, this is required by ktor Location
+        String modifiedPath = path;
+        if (operation.getParameters() != null) {
+            for (Parameter param : operation.getParameters()) {
+                String pathParamName = param.getName();
+                String kotlinName = toVarName(pathParamName);
+                modifiedPath = modifiedPath.replace("{" + pathParamName + "}", "{" + kotlinName + "}");
+            }
+        }
+
+        return super.fromOperation(modifiedPath, httpMethod, operation, schemas, openAPI);
+    }
+
+    @Override
     public void processOpts() {
         super.processOpts();
 
@@ -131,8 +156,8 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
             embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_VERSION);
         }
 
-        if (!additionalProperties.containsKey("generateApis")) {
-            additionalProperties.put("generateApis", true);
+        if (!additionalProperties.containsKey(GENERATE_APIS)) {
+            additionalProperties.put(GENERATE_APIS, true);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.LIBRARY)) {
@@ -173,6 +198,8 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
         String packageFolder = (sourceFolder + File.separator + packageName).replace(".", File.separator);
         String resourcesFolder = "src/main/resources"; // not sure this can be user configurable.
+                
+        Boolean generateApis = additionalProperties.containsKey(GENERATE_APIS) && (Boolean)additionalProperties.get(GENERATE_APIS);
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("Dockerfile.mustache", "", "Dockerfile"));
@@ -184,7 +211,9 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
         supportingFiles.add(new SupportingFile("AppMain.kt.mustache", packageFolder, "AppMain.kt"));
         supportingFiles.add(new SupportingFile("Configuration.kt.mustache", packageFolder, "Configuration.kt"));
         
-        supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));        
+        if (generateApis) {
+            supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));        
+        }
 
         supportingFiles.add(new SupportingFile("application.conf.mustache", resourcesFolder, "application.conf"));
         supportingFiles.add(new SupportingFile("logback.xml", resourcesFolder, "logback.xml"));
