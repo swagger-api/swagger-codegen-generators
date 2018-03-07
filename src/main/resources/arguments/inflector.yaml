@@ -1,0 +1,13 @@
+arguments:
+  - option: "--model-docs"
+    description: "generate models documentation."
+    type: "boolean"
+  - option: "--api-docs"
+    description: "generate apis documentation."
+    type: "boolean"
+  - option: "--model-tests"
+    description: "generate model tests."
+    type: "boolean"
+  - option: "--api-tests"
+    description: "generate apis tests."
+    type: "boolean"
