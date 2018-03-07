@@ -1,0 +1,2 @@
+{{#is this 'form-param'}}{{#notFile}}@FormParam(value = "{{baseName}}")  {{{dataType}}} {{paramName}}{{/notFile}}{{#is this 'file'}} @FormParam(value = "{{baseName}}") InputStream {{paramName}}InputStream,
+   @FormParam(value = "{{baseName}}") Attachment {{paramName}}Detail{{/is}}{{/is}}

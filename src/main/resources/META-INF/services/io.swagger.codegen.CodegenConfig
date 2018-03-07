@@ -1,2 +1,8 @@
 io.swagger.codegen.languages.java.JavaClientCodegen
+io.swagger.codegen.languages.java.JavaCXFServerCodegen
 io.swagger.codegen.languages.java.JavaInflectorServerCodegen
+io.swagger.codegen.languages.java.JavaJAXRSCXFCDIServerCodegen
+io.swagger.codegen.languages.java.JavaJAXRSSpecServerCodegen
+io.swagger.codegen.languages.java.JavaJerseyServerCodegen
+io.swagger.codegen.languages.java.JavaResteasyEapServerCodegen
+io.swagger.codegen.languages.java.JavaResteasyServerCodegen
