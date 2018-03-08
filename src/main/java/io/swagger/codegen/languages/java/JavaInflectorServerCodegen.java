@@ -1,6 +1,7 @@
 package io.swagger.codegen.languages.java;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
@@ -44,13 +45,6 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         //TODO: add doc templates
         modelDocTemplateFiles.remove("model_doc.mustache");
         apiDocTemplateFiles.remove("api_doc.mustache");
-
-        // todo: remove when system properties are removed
-        System.setProperty(CodegenConstants.MODEL_DOCS, Boolean.FALSE.toString());
-        System.setProperty(CodegenConstants.API_DOCS, Boolean.FALSE.toString());
-        System.setProperty(CodegenConstants.MODEL_TESTS, Boolean.FALSE.toString());
-        System.setProperty(CodegenConstants.API_TESTS, Boolean.FALSE.toString());
-
 
         apiPackage = System.getProperty("swagger.codegen.inflector.apipackage", "io.swagger.controllers");
         modelPackage = System.getProperty("swagger.codegen.inflector.modelpackage", "io.swagger.model");
@@ -201,6 +195,42 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
     @Override
     protected String getOrGenerateOperationId(Operation operation, String path, String httpMethod) {
         return super.getOrGenerateOperationId(operation, path, httpMethod.toUpperCase());
+    }
+
+    @Override
+    public void setLanguageArguments(List<CodegenArgument> languageArguments) {
+        if (languageArguments == null) {
+            languageArguments = new ArrayList<>();
+        }
+        if (!languageArguments.stream()
+                .anyMatch(codegenArgument -> CodegenConstants.MODEL_DOCS_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+            languageArguments.add(new CodegenArgument()
+                    .option(CodegenConstants.MODEL_DOCS_OPTION)
+                    .type("boolean")
+                    .value(Boolean.FALSE.toString()));
+        }
+        if (!languageArguments.stream()
+                .anyMatch(codegenArgument -> CodegenConstants.API_DOCS_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+            languageArguments.add(new CodegenArgument()
+                    .option(CodegenConstants.API_DOCS_OPTION)
+                    .type("boolean")
+                    .value(Boolean.FALSE.toString()));
+        }
+        if (!languageArguments.stream()
+                .anyMatch(codegenArgument -> CodegenConstants.MODEL_TESTS_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+            languageArguments.add(new CodegenArgument()
+                    .option(CodegenConstants.MODEL_TESTS_OPTION)
+                    .type("boolean")
+                    .value(Boolean.FALSE.toString()));
+        }
+        if (!languageArguments.stream()
+                .anyMatch(codegenArgument -> CodegenConstants.API_TESTS_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+            languageArguments.add(new CodegenArgument()
+                    .option(CodegenConstants.API_TESTS_OPTION)
+                    .type("boolean")
+                    .value(Boolean.FALSE.toString()));
+        }
+        super.setLanguageArguments(languageArguments);
     }
 
     public String apiFilename(String templateName, String tag) {
