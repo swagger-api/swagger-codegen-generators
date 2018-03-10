@@ -112,13 +112,20 @@ public class AbstractJavaCodegenTest {
 
     @Test
      public void convertVarName() throws Exception {
-        AbstractJavaCodegen codegen = new JavaClientCodegen();
-        Assert.assertEquals(codegen.toVarName("name"), "name");
-        Assert.assertEquals(codegen.toVarName("$name"), "$name");
-        Assert.assertEquals(codegen.toVarName("nam$$e"), "nam$$e");
-        Assert.assertEquals(codegen.toVarName("_name"), "_name");
-        Assert.assertEquals(codegen.toVarName("user-name"), "userName");
-        Assert.assertEquals(codegen.toVarName("user_name"), "userName");
-        Assert.assertEquals(codegen.toVarName("_user_name"), "_userName");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("name"), "name");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("$name"), "$name");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("nam$$e"), "nam$$e");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("_name"), "_name");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("user-name"), "userName");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("user_name"), "userName");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("_user_name"), "_userName");
+    }
+
+    @Test
+    public void convertModelName() throws Exception {
+        Assert.assertEquals(fakeJavaCodegen.toModelName("name"), "Name");
+        Assert.assertEquals(fakeJavaCodegen.toModelName("$name"), "Name");
+        Assert.assertEquals(fakeJavaCodegen.toModelName("nam#e"), "Name");
+        Assert.assertEquals(fakeJavaCodegen.toModelName("$another-fake?"), "AnotherFake");
     }
 }
