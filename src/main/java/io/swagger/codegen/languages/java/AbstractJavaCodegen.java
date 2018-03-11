@@ -508,7 +508,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         // sanitize name
-        name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+        name = sanitizeVarName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
 
         if (name.toLowerCase().matches("^_*class$")) {
             return "propertyClass";
@@ -584,7 +584,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return importMapping.get(name);
         }
 
-        final String sanitizedName = super.sanitizeName(name);
+        final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
         if (!StringUtils.isEmpty(modelNamePrefix)) {
@@ -1058,8 +1058,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         return op;
     }
 
-    @Override
-    public String sanitizeName(String name) {
+    public String sanitizeVarName(String name) {
         if (name == null) {
             LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
             return Object.class.getSimpleName();
