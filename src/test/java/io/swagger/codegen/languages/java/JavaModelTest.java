@@ -16,6 +16,7 @@ import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.XML;
@@ -28,7 +29,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 
@@ -722,7 +725,7 @@ public class JavaModelTest {
     }
 
     @Test(description = "convert a boolean parameter")
-    public void booleanParameterTest() {
+    public void booleanPropertyTest() {
         final BooleanSchema property = new BooleanSchema();
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final CodegenProperty cp = codegen.fromProperty("property", property);
@@ -734,6 +737,92 @@ public class JavaModelTest {
         Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
         Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_BOOLEAN_EXT_NAME));
         Assert.assertEquals(cp.getter, "isProperty");
+    }
+
+    @Test(description = "convert an integer property")
+    public void integerPropertyTest() {
+        final IntegerSchema property = new IntegerSchema();
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        final CodegenProperty cp = codegen.fromProperty("property", property);
+
+        Assert.assertEquals(cp.baseName, "property");
+        Assert.assertEquals(cp.datatype, "Integer");
+        Assert.assertEquals(cp.name, "property");
+        Assert.assertEquals(cp.baseType, "Integer");
+        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_INTEGER_EXT_NAME));
+        Assert.assertFalse(getBooleanValue(cp, CodegenConstants.IS_LONG_EXT_NAME));
+        Assert.assertEquals(cp.getter, "getProperty");
+    }
+
+    @Test(description = "convert a long property")
+    public void longPropertyTest() {
+        final IntegerSchema property = new IntegerSchema().format("int64");
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        final CodegenProperty cp = codegen.fromProperty("property", property);
+
+        Assert.assertEquals(cp.baseName, "property");
+        Assert.assertEquals(cp.datatype, "Long");
+        Assert.assertEquals(cp.name, "property");
+        Assert.assertEquals(cp.baseType, "Long");
+        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_LONG_EXT_NAME));
+        Assert.assertFalse(getBooleanValue(cp, CodegenConstants.IS_INTEGER_EXT_NAME));
+        Assert.assertEquals(cp.getter, "getProperty");
+    }
+
+    @Test(description = "convert a long property in a referenced schema")
+    public void longPropertyInReferencedSchemaTest() {
+        final IntegerSchema longProperty = new IntegerSchema().format("int64");
+        final Schema TestSchema = new ObjectSchema()
+                .addProperties("Long1", new Schema<>().$ref("#/components/schemas/LongProperty"))
+                .addProperties("Long2", new IntegerSchema().format("int64"));
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        final Map<String, Schema> allDefinitions = Collections.singletonMap("LongProperty", longProperty);
+        final CodegenModel cm = codegen.fromModel("test", TestSchema, allDefinitions);
+
+        Assert.assertEquals(cm.vars.size(), 2);
+
+        CodegenProperty cp1 = cm.vars.get(0);
+        Assert.assertEquals(cp1.baseName, "Long1");
+        Assert.assertEquals(cp1.datatype, "Long");
+        Assert.assertEquals(cp1.name, "long1");
+        Assert.assertEquals(cp1.baseType, "Long");
+        Assert.assertEquals(cp1.getter, "getLong1");
+
+        CodegenProperty cp2 = cm.vars.get(1);
+        Assert.assertEquals(cp2.baseName, "Long2");
+        Assert.assertEquals(cp2.datatype, "Long");
+        Assert.assertEquals(cp2.name, "long2");
+        Assert.assertEquals(cp2.baseType, "Long");
+        Assert.assertEquals(cp2.getter, "getLong2");
+    }
+
+    @Test(description = "convert am integer property in a referenced schema")
+    public void integerPropertyInReferencedSchemaTest() {
+        final IntegerSchema longProperty = new IntegerSchema().format("int32");
+        final Schema TestSchema = new ObjectSchema()
+                .addProperties("Integer1", new Schema<>().$ref("#/components/schemas/IntegerProperty"))
+                .addProperties("Integer2", new IntegerSchema().format("int32"));
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        final Map<String, Schema> allDefinitions = Collections.singletonMap("IntegerProperty", longProperty);
+        final CodegenModel cm = codegen.fromModel("test", TestSchema, allDefinitions);
+
+        Assert.assertEquals(cm.vars.size(), 2);
+
+        CodegenProperty cp1 = cm.vars.get(0);
+        Assert.assertEquals(cp1.baseName, "Integer1");
+        Assert.assertEquals(cp1.datatype, "Integer");
+        Assert.assertEquals(cp1.name, "integer1");
+        Assert.assertEquals(cp1.baseType, "Integer");
+        Assert.assertEquals(cp1.getter, "getInteger1");
+
+        CodegenProperty cp2 = cm.vars.get(1);
+        Assert.assertEquals(cp2.baseName, "Integer2");
+        Assert.assertEquals(cp2.datatype, "Integer");
+        Assert.assertEquals(cp2.name, "integer2");
+        Assert.assertEquals(cp2.baseType, "Integer");
+        Assert.assertEquals(cp2.getter, "getInteger2");
     }
 
     @Test(enabled = false, description = "disabled since templates have been moved.")
