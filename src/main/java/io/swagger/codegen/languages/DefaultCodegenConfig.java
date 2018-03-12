@@ -979,50 +979,55 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return datatype;
         }
 
-        if (property instanceof StringSchema && "number".equals(property.getFormat())) {
-            datatype = "BigDecimal";
-        } else if (property instanceof ByteArraySchema) {
-            datatype = "ByteArray";
-        } else if (property instanceof BinarySchema) {
-            datatype = SchemaTypeUtil.BINARY_FORMAT;
-        } else if (property instanceof FileSchema) {
-            datatype = "file";
-        } else if (property instanceof BooleanSchema) {
-            datatype = SchemaTypeUtil.BOOLEAN_TYPE;
-        } else if (property instanceof DateSchema) {
-            datatype = SchemaTypeUtil.DATE_FORMAT;
-        } else if (property instanceof DateTimeSchema) {
-            datatype = "DateTime";
-        } else if (property instanceof NumberSchema) {
-            if(SchemaTypeUtil.FLOAT_FORMAT.equals(property.getFormat())) {
-                datatype = SchemaTypeUtil.FLOAT_FORMAT;
-            } else if(SchemaTypeUtil.DOUBLE_FORMAT.equals(property.getFormat())) {
-                datatype = SchemaTypeUtil.DOUBLE_FORMAT;
+        datatype = getTypeOfSchema(property);
+        return datatype;
+    }
+
+    private static String getTypeOfSchema(Schema schema) {
+        if (schema instanceof StringSchema && "number".equals(schema.getFormat())) {
+            return "BigDecimal";
+        } else if (schema instanceof ByteArraySchema) {
+            return "ByteArray";
+        } else if (schema instanceof BinarySchema) {
+            return SchemaTypeUtil.BINARY_FORMAT;
+        } else if (schema instanceof FileSchema) {
+            return "file";
+        } else if (schema instanceof BooleanSchema) {
+            return SchemaTypeUtil.BOOLEAN_TYPE;
+        } else if (schema instanceof DateSchema) {
+            return SchemaTypeUtil.DATE_FORMAT;
+        } else if (schema instanceof DateTimeSchema) {
+            return "DateTime";
+        } else if (schema instanceof NumberSchema) {
+            if(SchemaTypeUtil.FLOAT_FORMAT.equals(schema.getFormat())) {
+                return SchemaTypeUtil.FLOAT_FORMAT;
+            } else if(SchemaTypeUtil.DOUBLE_FORMAT.equals(schema.getFormat())) {
+                return SchemaTypeUtil.DOUBLE_FORMAT;
             } else {
-                datatype = "BigDecimal";
+                return "BigDecimal";
             }
-        } else if (property instanceof IntegerSchema) {
-            if(SchemaTypeUtil.INTEGER64_FORMAT.equals(property.getFormat())) {
-                datatype = "long";
+        } else if (schema instanceof IntegerSchema) {
+            if(SchemaTypeUtil.INTEGER64_FORMAT.equals(schema.getFormat())) {
+                return "long";
             } else {
-                datatype = property.getType();
+                return schema.getType();
             }
-        } else if (property instanceof MapSchema) {
-            datatype = "map";
-        } else if ( property instanceof UUIDSchema) {
-            datatype = "UUID";
-        } else if (property instanceof StringSchema) {
-            datatype = "string";
+        } else if (schema instanceof MapSchema) {
+            return "map";
+        } else if (schema instanceof UUIDSchema) {
+            return "UUID";
+        } else if (schema instanceof StringSchema) {
+            return "string";
         } else {
-            if (property != null) {
-                if (SchemaTypeUtil.OBJECT_TYPE.equals(property.getType()) && property.getAdditionalProperties() != null) {
-                    datatype = "map";
+            if (schema != null) {
+                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null) {
+                    return "map";
                 } else {
-                    datatype = property.getType();
+                    return schema.getType();
                 }
             }
         }
-        return datatype;
+        return null;
     }
 
     /**
@@ -2885,8 +2890,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (Map.Entry<String, Schema> entry : allSchemas.entrySet()) {
             String swaggerName = entry.getKey();
             Schema schema = entry.getValue();
-            if (schema.getType() != null && !schema.getType().equals("object") && schema.getEnum() == null) {
-                aliases.put(swaggerName, schema.getType());
+            String schemaType = getTypeOfSchema(schema);
+            if (schemaType != null && !schemaType.equals("object") && schema.getEnum() == null) {
+                aliases.put(swaggerName, schemaType);
             }
         }
         return aliases;
