@@ -64,16 +64,16 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
 {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
 {{/vendorExtensions.extraAnnotation}}
-{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  {{#is this 'enum'}}{{^isListContainer}}{{^isMapContainer}}public {{datatype}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  {{#is this 'enum'}}{{#isNot this 'list-container'}}{{#isNot this 'map-container'}}public {{datatype}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     if ({{name}} == null) {
       return null;
     }
     return {{name}}.value();
-  }{{/isMapContainer}}{{/isListContainer}}{{/is}}{{#is this 'enum'}}{{#isListContainer}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/isNot}}{{/isNot}}{{/is}}{{#is this 'enum'}}{{#is this 'list-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};
-  }{{/isListContainer}}{{/is}}{{#is this 'enum'}}{{#isMapContainer}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/is}}{{/is}}{{#is this 'enum'}}{{#is this 'map-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};
-  }{{/isMapContainer}}{{/is}}{{#isNot this 'enum'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/is}}{{/is}}{{#isNot this 'enum'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};
   }{{/isNot}}
 
@@ -86,20 +86,20 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
     this.{{name}} = {{name}};
     return this;
   }
-  {{#isListContainer}}
+  {{#is this 'list-container'}}
 
   public {{classname}} add{{nameInCamelCase}}Item({{{items.datatypeWithEnum}}} {{name}}Item) {
     this.{{name}}.add({{name}}Item);
     return this;
   }
-  {{/isListContainer}}
-  {{#isMapContainer}}
+  {{/is}}
+  {{#is this 'map-container'}}
 
   public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
     this.{{name}}.put(key, {{name}}Item);
     return this;
   }
-  {{/isMapContainer}}
+  {{/is}}
   {{/isReadOnly}}
 
   {{/vars}}
