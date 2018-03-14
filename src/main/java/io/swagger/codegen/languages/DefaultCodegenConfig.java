@@ -15,10 +15,10 @@ import io.swagger.codegen.CodegenProperty;
 import io.swagger.codegen.CodegenResponse;
 import io.swagger.codegen.CodegenSecurity;
 import io.swagger.codegen.SupportingFile;
-import io.swagger.codegen.languages.helpers.HasHelper;
-import io.swagger.codegen.languages.helpers.HasNotHelper;
-import io.swagger.codegen.languages.helpers.IsHelper;
-import io.swagger.codegen.languages.helpers.IsNotHelper;
+import io.swagger.codegen.handlebars.helpers.HasHelper;
+import io.swagger.codegen.handlebars.helpers.HasNotHelper;
+import io.swagger.codegen.handlebars.helpers.IsHelper;
+import io.swagger.codegen.handlebars.helpers.IsNotHelper;
 import io.swagger.codegen.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -89,7 +89,7 @@ import static io.swagger.codegen.languages.CodegenHelper.getDefaultIncludes;
 import static io.swagger.codegen.languages.CodegenHelper.getImportMappings;
 import static io.swagger.codegen.languages.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.languages.CodegenHelper.initalizeSpecialCharacterMapping;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
