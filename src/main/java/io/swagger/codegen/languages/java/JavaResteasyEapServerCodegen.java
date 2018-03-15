@@ -22,13 +22,13 @@ import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanVal
 
 public class JavaResteasyEapServerCodegen extends AbstractJavaJAXRSServerCodegen implements JbossFeature, BeanValidationFeatures, SwaggerFeatures {
 
-    protected boolean useBeanValidation = true;
     protected boolean generateJbossDeploymentDescriptor = true;
     protected boolean useSwaggerFeature = false;
 
     public JavaResteasyEapServerCodegen() {
-
         super();
+
+        useBeanValidation = true;
 
         artifactId = "swagger-jaxrs-resteasy-eap-server";
 
