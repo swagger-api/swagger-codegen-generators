@@ -86,16 +86,16 @@ import static io.swagger.codegen.CodegenConstants.HAS_OPTIONAL_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.HAS_REQUIRED_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.languages.CodegenHelper.getDefaultIncludes;
 import static io.swagger.codegen.languages.CodegenHelper.getImportMappings;
 import static io.swagger.codegen.languages.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.languages.CodegenHelper.initalizeSpecialCharacterMapping;
-import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
     public static final String DEFAULT_TEMPLATE_VERSION = "v2";
