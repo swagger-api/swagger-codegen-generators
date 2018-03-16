@@ -1,5 +1,6 @@
 package io.swagger.codegen.languages.java;
 
+import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenModelFactory;
 import io.swagger.codegen.CodegenModelType;
@@ -172,5 +173,74 @@ public class JavaClientCodegenTest {
         CodegenModel result = codegen.fromModel("CompSche",
                 new ComposedSchema());
         Assert.assertEquals(result.name, "CompSche");
+    }
+
+    @Test
+    public void testInitialPackageNamesValues() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "io.swagger.client.model");
+        Assert.assertEquals(codegen.apiPackage(), "io.swagger.client.api");
+        Assert.assertEquals(codegen.invokerPackage, "io.swagger.client");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "io.swagger.client");
+    }
+
+    @Test
+    public void testPackageNamesSetWithSetters() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.setModelPackage("xxx.yyyyy.zzzzzzz.model");
+        codegen.setApiPackage("xxx.yyyyy.zzzzzzz.api");
+        codegen.setInvokerPackage("xxx.yyyyy.zzzzzzz.invoker");
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.model");
+        Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.zzzzzzz.api");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.invoker");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.invoker");
+    }
+
+    @Test
+    public void testPackageNamesSetWithAdditionalProperties() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.additionalProperties().put(CodegenConstants.MODEL_PACKAGE, "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        codegen.additionalProperties().put(CodegenConstants.API_PACKAGE, "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        codegen.additionalProperties().put(CodegenConstants.INVOKER_PACKAGE,"xxx.yyyyy.zzzzzzz.iiii.invoker");
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.iiii.invoker");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.iiii.invoker");
+    }
+
+    @Test
+    public void testPackageNamesSetInvokerDerivedFromApi() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.additionalProperties().put(CodegenConstants.MODEL_PACKAGE, "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        codegen.additionalProperties().put(CodegenConstants.API_PACKAGE, "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xxx.yyyyy.zzzzzzz.aaaaa.api");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.aaaaa");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.aaaaa");
+    }
+
+    @Test
+    public void testPackageNamesSetInvokerDerivedFromModel() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.additionalProperties().put(CodegenConstants.MODEL_PACKAGE, "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm.model");
+        Assert.assertEquals(codegen.apiPackage(), "io.swagger.client.api");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.mmmmm");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm");
     }
 }

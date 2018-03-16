@@ -588,6 +588,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         this.apiPackage = apiPackage;
     }
 
+    public Boolean getSortParamsByRequiredFlag() {
+        return sortParamsByRequiredFlag;
+    }
+
     public void setSortParamsByRequiredFlag(Boolean sortParamsByRequiredFlag) {
         this.sortParamsByRequiredFlag = sortParamsByRequiredFlag;
     }

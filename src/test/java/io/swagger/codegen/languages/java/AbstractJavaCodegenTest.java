@@ -1,6 +1,7 @@
 package io.swagger.codegen.languages.java;
 
 import io.swagger.codegen.CodegenArgument;
+import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -13,32 +14,7 @@ import java.util.List;
 
 public class AbstractJavaCodegenTest {
 
-    private final AbstractJavaCodegen fakeJavaCodegen = new AbstractJavaCodegen() {
-        @Override
-        public String getArgumentsLocation() {
-            return null;
-        }
-
-        @Override
-        public CodegenType getTag() {
-            return null;
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public String getHelp() {
-            return null;
-        }
-
-        @Override
-        public List<CodegenArgument> readLanguageArguments() {
-            return null;
-        }
-    };
+    private final AbstractJavaCodegen fakeJavaCodegen = new P_AbstractJavaCodegen();
 
     @Test
     public void toEnumVarNameShouldNotShortenUnderScore() throws Exception {
@@ -127,5 +103,76 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(fakeJavaCodegen.toModelName("$name"), "Name");
         Assert.assertEquals(fakeJavaCodegen.toModelName("nam#e"), "Name");
         Assert.assertEquals(fakeJavaCodegen.toModelName("$another-fake?"), "AnotherFake");
+    }
+
+    @Test
+    public void testInitialPackageNamesValues() throws Exception {
+        final AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "invalidPackageName");
+        Assert.assertEquals(codegen.apiPackage(), "invalidPackageName");
+        Assert.assertEquals(codegen.invokerPackage, "io.swagger");
+    }
+
+    @Test
+    public void testPackageNamesSetWithSetters() throws Exception {
+        final AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+        codegen.setModelPackage("xxx.yyyyy.zzzzzzz.model");
+        codegen.setApiPackage("xxx.yyyyy.zzzzzzz.api");
+        codegen.setInvokerPackage("xxx.yyyyy.zzzzzzz.invoker");
+        codegen.setSortParamsByRequiredFlag(false);
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.model");
+        Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.zzzzzzz.api");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.invoker");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.invoker");
+        Assert.assertEquals(codegen.getSortParamsByRequiredFlag(), Boolean.FALSE);
+    }
+
+    @Test
+    public void testPackageNamesSetWithAdditionalProperties() throws Exception {
+        final AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+        codegen.additionalProperties().put(CodegenConstants.MODEL_PACKAGE, "xxx.yyyyy.model.xxxxxx");
+        codegen.additionalProperties().put(CodegenConstants.API_PACKAGE, "xxx.yyyyy.api.xxxxxx");
+        codegen.additionalProperties().put(CodegenConstants.INVOKER_PACKAGE, "xxx.yyyyy.invoker.xxxxxx");
+        codegen.setSortParamsByRequiredFlag(true);
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.model.xxxxxx");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.model.xxxxxx");
+        Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.api.xxxxxx");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xxx.yyyyy.api.xxxxxx");
+        Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.invoker.xxxxxx");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.invoker.xxxxxx");
+        Assert.assertEquals(codegen.getSortParamsByRequiredFlag(), Boolean.TRUE);
+    }
+
+    public static class P_AbstractJavaCodegen extends AbstractJavaCodegen {
+        @Override
+        public String getArgumentsLocation() {
+            return null;
+        }
+
+        @Override
+        public CodegenType getTag() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public String getHelp() {
+            return null;
+        }
+
+        @Override
+        public List<CodegenArgument> readLanguageArguments() {
+            return null;
+        }
     }
 }
