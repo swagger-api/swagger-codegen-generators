@@ -17,6 +17,9 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.Map;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 
 public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticHtml2Codegen.class);
+
     protected String invokerPackage = "io.swagger.client"; // default for Java and Android
     protected String phpInvokerPackage = "Swagger\\Client"; // default for PHP
     protected String packageName = "IO.Swagger"; // default for C#
