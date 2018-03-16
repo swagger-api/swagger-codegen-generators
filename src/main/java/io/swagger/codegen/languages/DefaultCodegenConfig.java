@@ -205,8 +205,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         if (additionalProperties.containsKey(CodegenConstants.REMOVE_OPERATION_ID_PREFIX)) {
-            this.setRemoveOperationIdPrefix(Boolean.valueOf(additionalProperties
+            this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.REMOVE_OPERATION_ID_PREFIX).toString()));
+        }
+
+        if (additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
+            this.setHideGenerationTimestamp(Boolean.valueOf(additionalProperties
+                    .get(CodegenConstants.HIDE_GENERATION_TIMESTAMP).toString()));
+        } else {
+            //not set, use to be passed to template
+            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
         }
     }
 
@@ -3180,6 +3188,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public String getHttpUserAgent() {
         return httpUserAgent;
+    }
+
+    /**
+     * Hide generation timestamp
+     *
+     * @param hideGenerationTimestamp flag to indicates if the generation timestamp should be hidden or not
+     */
+    public void setHideGenerationTimestamp(Boolean hideGenerationTimestamp) {
+        this.hideGenerationTimestamp = hideGenerationTimestamp;
+    }
+
+    /**
+     * Hide generation timestamp
+     *
+     * @return if the generation timestamp should be hidden or not
+     */
+    public Boolean getHideGenerationTimestamp() {
+        return hideGenerationTimestamp;
     }
 
     @SuppressWarnings("static-method")
