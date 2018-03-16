@@ -1,6 +1,7 @@
 package io.swagger.codegen.languages;
 
 import io.swagger.codegen.CodegenArgument;
+import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -14,8 +15,11 @@ public class DefaultCodegenConfigTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage, "");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "");
         Assert.assertEquals(codegen.apiPackage, "");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "");
         Assert.assertEquals(codegen.sortParamsByRequiredFlag, Boolean.TRUE);
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.TRUE);
     }
 
     @Test
@@ -27,8 +31,11 @@ public class DefaultCodegenConfigTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage, "xxx.yyyyy.zzzzzzz.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.model");
         Assert.assertEquals(codegen.apiPackage, "xxx.yyyyy.zzzzzzz.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xxx.yyyyy.zzzzzzz.api");
         Assert.assertEquals(codegen.sortParamsByRequiredFlag, Boolean.FALSE);
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.FALSE);
     }
 
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{

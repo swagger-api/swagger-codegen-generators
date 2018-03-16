@@ -26,7 +26,9 @@ public class AbstractJavaJAXRSServerCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage(), "io.swagger.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "io.swagger.model");
         Assert.assertEquals(codegen.apiPackage(), "io.swagger.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "io.swagger.api");
         Assert.assertEquals(codegen.invokerPackage, "io.swagger.api");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "io.swagger.api");
     }
@@ -40,7 +42,9 @@ public class AbstractJavaJAXRSServerCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage(), "xx.yyyyyyyy.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xx.yyyyyyyy.model");
         Assert.assertEquals(codegen.apiPackage(), "xx.yyyyyyyy.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xx.yyyyyyyy.api");
         Assert.assertEquals(codegen.invokerPackage, "xx.yyyyyyyy.invoker");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xx.yyyyyyyy.invoker");
     }
