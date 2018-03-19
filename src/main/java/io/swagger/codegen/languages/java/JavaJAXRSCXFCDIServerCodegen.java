@@ -17,12 +17,11 @@ import java.io.File;
  */
 public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen implements BeanValidationFeatures {
 
-    protected boolean useBeanValidation = true;
-
     /**
      * Default constructor
      */
     public JavaJAXRSCXFCDIServerCodegen() {
+        useBeanValidation = true;
         outputFolder = "generated-code/JavaJaxRS-CXF-CDI";
         artifactId = "swagger-jaxrs-cxf-cdi-server";
         sourceFolder = "src" + File.separator + "gen" + File.separator + "java";
