@@ -798,15 +798,15 @@ public class JavaModelTest {
         Assert.assertEquals(cp2.getter, "getLong2");
     }
 
-    @Test(description = "convert am integer property in a referenced schema")
+    @Test(description = "convert an integer property in a referenced schema")
     public void integerPropertyInReferencedSchemaTest() {
         final IntegerSchema longProperty = new IntegerSchema().format("int32");
-        final Schema TestSchema = new ObjectSchema()
+        final Schema testSchema = new ObjectSchema()
                 .addProperties("Integer1", new Schema<>().$ref("#/components/schemas/IntegerProperty"))
                 .addProperties("Integer2", new IntegerSchema().format("int32"));
-        final DefaultCodegenConfig codegen = new JavaClientCodegen();
         final Map<String, Schema> allDefinitions = Collections.singletonMap("IntegerProperty", longProperty);
-        final CodegenModel cm = codegen.fromModel("test", TestSchema, allDefinitions);
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 2);
 
