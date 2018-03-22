@@ -19,7 +19,7 @@ You need the following installed and available in your $PATH:
 ## How to contribute.
 Right now the templates and generators classes are migrated from  [swagger codegen](https://github.com/swagger-api/swagger-codegen) **3.0.0** branch. 
 If you want to migrate an existing language/framework, you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-(swagger-codegen-generators-repository)).
-Also you need to keep in mind that **Handlebars** is used as template engines and besides it's pretty similar to **Mustache** there are different thar can not be ignored. So you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-from-Mustache-and-Handlebars-templates.) which explains steps to migrate templates from **Mustaches** to **Handelbars**.
+Also you need to keep in mind that **Handlebars** is used as template engines and besides it's pretty similar to **Mustache** there are different that can not be ignored. So you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-from-Mustache-and-Handlebars-templates.) which explains steps to migrate templates from **Mustaches** to **Handelbars**.
  
 License
 -------
