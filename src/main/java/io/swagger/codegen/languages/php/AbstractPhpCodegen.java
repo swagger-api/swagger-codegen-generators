@@ -1,11 +1,11 @@
-package io.swagger.codegen.languages;
+package io.swagger.codegen.languages.php;
 
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
-import io.swagger.models.properties.*;
+import io.swagger.codegen.languages.DefaultCodegenConfig;
 
 import java.io.File;
 import java.util.Arrays;
@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
@@ -470,7 +472,7 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     /**
      * Return the default value of the property
      *
-     * @param p Swagger property object
+     * @param schema Schema property object
      * @return string presentation of the default value of the property
      */
     @Override
@@ -508,23 +510,23 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public void setParameterExampleValue(CodegenParameter p) {
+    public void setParameterExampleValue(CodegenParameter codegenParameter) {
         String example;
 
-        if (p.defaultValue == null) {
-            example = p.example;
+        if (codegenParameter.defaultValue == null) {
+            example = codegenParameter.example;
         } else {
-            example = p.defaultValue;
+            example = codegenParameter.defaultValue;
         }
 
-        String type = p.baseType;
+        String type = codegenParameter.baseType;
         if (type == null) {
-            type = p.dataType;
+            type = codegenParameter.dataType;
         }
 
         if ("String".equalsIgnoreCase(type)) {
             if (example == null) {
-                example = p.paramName + "_example";
+                example = codegenParameter.paramName + "_example";
             }
             example = "\"" + escapeText(example) + "\"";
         } else if ("Integer".equals(type) || "int".equals(type)) {
@@ -561,15 +563,18 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
             LOGGER.warn("Type " + type + " not handled properly in setParameterExampleValue");
         }
 
+        boolean isListContainer = getBooleanValue(codegenParameter, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME);
+        boolean isMapContainer = getBooleanValue(codegenParameter, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME);
+
         if (example == null) {
             example = "NULL";
-        } else if (Boolean.TRUE.equals(p.isListContainer)) {
+        } else if (isListContainer) {
             example = "array(" + example + ")";
-        } else if (Boolean.TRUE.equals(p.isMapContainer)) {
+        } else if (isMapContainer) {
             example = "array('key' => " + example + ")";
         }
 
-        p.example = example;
+        codegenParameter.example = example;
     }
 
     @Override
