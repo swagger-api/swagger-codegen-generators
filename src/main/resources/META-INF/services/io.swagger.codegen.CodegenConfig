@@ -2,6 +2,7 @@ io.swagger.codegen.languages.html.StaticDocCodegen
 io.swagger.codegen.languages.html.StaticHtmlCodegen
 io.swagger.codegen.languages.html.StaticHtml2Codegen
 io.swagger.codegen.languages.java.JavaClientCodegen
+io.swagger.codegen.languages.java.JavaCXFClientCodegen
 io.swagger.codegen.languages.java.JavaCXFServerCodegen
 io.swagger.codegen.languages.java.JavaInflectorServerCodegen
 io.swagger.codegen.languages.java.JavaJAXRSCXFCDIServerCodegen
