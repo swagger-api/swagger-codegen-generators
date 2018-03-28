@@ -2102,7 +2102,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (responseSchema instanceof ArraySchema) {
                 ArraySchema arraySchema = (ArraySchema) responseSchema;
                 CodegenProperty innerProperty = fromProperty("response", arraySchema.getItems());
-                codegenResponse.baseType = innerProperty.baseType;
+                CodegenProperty innerCp = innerProperty;
+                while(innerCp != null) {
+                    codegenResponse.baseType = innerCp.baseType;
+                    innerCp = innerCp.items;
+                }
             } else {
                 if (codegenProperty.complexType != null) {
                     codegenResponse.baseType = codegenProperty.complexType;
