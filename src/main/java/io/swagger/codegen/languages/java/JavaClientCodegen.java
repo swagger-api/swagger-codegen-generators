@@ -4,9 +4,7 @@ import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.codegen.CliOption;
-import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
@@ -18,23 +16,25 @@ import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.GzipFeatures;
 import io.swagger.codegen.languages.features.PerformBeanValidationFeatures;
 
-import io.swagger.v3.core.util.Yaml;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
     static final String MEDIA_TYPE = "mediaType";
 
-    @SuppressWarnings("hiding")
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
 
     public static final String USE_RX_JAVA = "useRxJava";
