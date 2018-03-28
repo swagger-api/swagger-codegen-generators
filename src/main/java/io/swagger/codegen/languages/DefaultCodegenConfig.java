@@ -166,23 +166,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             this.setModelPackage((String) additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
-        } else {
-            // not set, use to be passed to template
+        } else if (StringUtils.isNotEmpty(modelPackage)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             this.setApiPackage((String) additionalProperties.get(CodegenConstants.API_PACKAGE));
-        } else {
-            // not set, use to be passed to template
+        } else if (StringUtils.isNotEmpty(apiPackage)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG)) {
             this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG).toString()));
-        } else {
-            // not set, use to be passed to template
+        } else if (sortParamsByRequiredFlag != null) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG, sortParamsByRequiredFlag);
         }
 
@@ -212,8 +212,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
             this.setHideGenerationTimestamp(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.HIDE_GENERATION_TIMESTAMP).toString()));
-        } else {
-            //not set, use to be passed to template
+        } else if(hideGenerationTimestamp != null) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
         }
     }

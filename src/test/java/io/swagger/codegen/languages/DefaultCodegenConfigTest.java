@@ -15,9 +15,9 @@ public class DefaultCodegenConfigTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage, "");
-        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), null);
         Assert.assertEquals(codegen.apiPackage, "");
-        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), null);
         Assert.assertEquals(codegen.sortParamsByRequiredFlag, Boolean.TRUE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.TRUE);
         Assert.assertEquals(codegen.hideGenerationTimestamp, Boolean.TRUE);

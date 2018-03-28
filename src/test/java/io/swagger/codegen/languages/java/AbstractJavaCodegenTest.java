@@ -111,9 +111,9 @@ public class AbstractJavaCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage(), "invalidPackageName");
-        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "invalidPackageName");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), null);
         Assert.assertEquals(codegen.apiPackage(), "invalidPackageName");
-        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "invalidPackageName");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), null);
         Assert.assertEquals(codegen.invokerPackage, "io.swagger");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "io.swagger");
     }
