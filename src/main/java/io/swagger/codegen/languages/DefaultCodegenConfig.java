@@ -160,22 +160,30 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
         }
 
-        //todo: replace hardcore string for constant on "CodegenConstans" class once publishing issue on codegen be resolved. (02-15-18)
-        if (additionalProperties.containsKey(/**fixme: CodegenConstants.TEMPLATE_VERSION*/ "templateVersion")) {
-            this.setTemplateVersion((String) additionalProperties.get(/**fixme: CodegenConstants.TEMPLATE_VERSION*/ "templateVersion"));
+        if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_VERSION)) {
+            this.setTemplateVersion((String) additionalProperties.get(CodegenConstants.TEMPLATE_VERSION));
         }
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             this.setModelPackage((String) additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
+        } else if (StringUtils.isNotEmpty(modelPackage)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
+            additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             this.setApiPackage((String) additionalProperties.get(CodegenConstants.API_PACKAGE));
+        } else if (StringUtils.isNotEmpty(apiPackage)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
+            additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG)) {
             this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG).toString()));
+        } else if (sortParamsByRequiredFlag != null) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
+            additionalProperties.put(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG, sortParamsByRequiredFlag);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ENSURE_UNIQUE_PARAMS)) {
@@ -199,6 +207,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (additionalProperties.containsKey(CodegenConstants.REMOVE_OPERATION_ID_PREFIX)) {
             this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.REMOVE_OPERATION_ID_PREFIX).toString()));
+        }
+
+        if (additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
+            this.setHideGenerationTimestamp(Boolean.valueOf(additionalProperties
+                    .get(CodegenConstants.HIDE_GENERATION_TIMESTAMP).toString()));
+        } else if(hideGenerationTimestamp != null) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
+            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
         }
     }
 
@@ -587,6 +603,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public void setApiPackage(String apiPackage) {
         this.apiPackage = apiPackage;
+    }
+
+    public Boolean getSortParamsByRequiredFlag() {
+        return sortParamsByRequiredFlag;
     }
 
     public void setSortParamsByRequiredFlag(Boolean sortParamsByRequiredFlag) {
@@ -3168,6 +3188,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public String getHttpUserAgent() {
         return httpUserAgent;
+    }
+
+    /**
+     * Hide generation timestamp
+     *
+     * @param hideGenerationTimestamp flag to indicates if the generation timestamp should be hidden or not
+     */
+    public void setHideGenerationTimestamp(Boolean hideGenerationTimestamp) {
+        this.hideGenerationTimestamp = hideGenerationTimestamp;
+    }
+
+    /**
+     * Hide generation timestamp
+     *
+     * @return if the generation timestamp should be hidden or not
+     */
+    public Boolean getHideGenerationTimestamp() {
+        return hideGenerationTimestamp;
     }
 
     @SuppressWarnings("static-method")

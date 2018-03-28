@@ -143,7 +143,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING, CodegenConstants
                 .SERIALIZE_BIG_DECIMAL_AS_STRING_DESC));
         cliOptions.add(CliOption.newBoolean(FULL_JAVA_UTIL, "whether to use fully qualified name for classes under java.util. This option only works for Java API client"));
-        cliOptions.add(new CliOption("hideGenerationTimestamp", "hides the timestamp when files were generated"));
+        cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC));
         cliOptions.add(CliOption.newBoolean(WITH_XML, "whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)"));
 
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
@@ -167,20 +167,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public void processOpts() {
-        super.processOpts();
-
-        modelTemplateFiles.put("model.mustache", ".java");
-        apiTemplateFiles.put("api.mustache", ".java");
-        apiTestTemplateFiles.put("api_test.mustache", ".java");
-        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-        apiDocTemplateFiles.put("api_doc.mustache", ".md");
-
-        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
-            this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
-        }
-        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
-
-
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
         } else if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
@@ -195,95 +181,119 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
             LOGGER.info("Invoker Package Name, originally not set, is now dervied from model package name: " + derviedInvokerPackage);
-        } else {
-            //not set, use default to be passed to template
+        } else if (StringUtils.isNotEmpty(invokerPackage)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
         }
 
+        super.processOpts();
+
+        modelTemplateFiles.put("model.mustache", ".java");
+        apiTemplateFiles.put("api.mustache", ".java");
+        apiTestTemplateFiles.put("api_test.mustache", ".java");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+
+        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
+            this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
+        }
+        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
+
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
-        } else {
-            //not set, use to be passed to template
+        } else if(StringUtils.isNotEmpty(groupId)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.GROUP_ID, groupId);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_ID)) {
             this.setArtifactId((String) additionalProperties.get(CodegenConstants.ARTIFACT_ID));
-        } else {
-            //not set, use to be passed to template
+        } else if(StringUtils.isNotEmpty(artifactId)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.ARTIFACT_ID, artifactId);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_VERSION)) {
             this.setArtifactVersion((String) additionalProperties.get(CodegenConstants.ARTIFACT_VERSION));
-        } else {
-            //not set, use to be passed to template
+        } else if(StringUtils.isNotEmpty(artifactVersion)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.ARTIFACT_VERSION, artifactVersion);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_URL)) {
             this.setArtifactUrl((String) additionalProperties.get(CodegenConstants.ARTIFACT_URL));
-        } else {
+        } else if(StringUtils.isNoneEmpty(artifactUrl)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.ARTIFACT_URL, artifactUrl);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_DESCRIPTION)) {
             this.setArtifactDescription((String) additionalProperties.get(CodegenConstants.ARTIFACT_DESCRIPTION));
-        } else {
+        } else if(StringUtils.isNoneEmpty(artifactDescription)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.ARTIFACT_DESCRIPTION, artifactDescription);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SCM_CONNECTION)) {
             this.setScmConnection((String) additionalProperties.get(CodegenConstants.SCM_CONNECTION));
-        } else {
+        } else if(StringUtils.isNoneEmpty(scmConnection)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.SCM_CONNECTION, scmConnection);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SCM_DEVELOPER_CONNECTION)) {
             this.setScmDeveloperConnection((String) additionalProperties.get(CodegenConstants.SCM_DEVELOPER_CONNECTION));
-        } else {
+        } else if(StringUtils.isNoneEmpty(scmDeveloperConnection)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.SCM_DEVELOPER_CONNECTION, scmDeveloperConnection);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SCM_URL)) {
             this.setScmUrl((String) additionalProperties.get(CodegenConstants.SCM_URL));
-        } else {
+        } else if(StringUtils.isNoneEmpty(scmUrl)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.SCM_URL, scmUrl);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.DEVELOPER_NAME)) {
             this.setDeveloperName((String) additionalProperties.get(CodegenConstants.DEVELOPER_NAME));
-        } else {
+        } else if(StringUtils.isNoneEmpty(developerName)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.DEVELOPER_NAME, developerName);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.DEVELOPER_EMAIL)) {
             this.setDeveloperEmail((String) additionalProperties.get(CodegenConstants.DEVELOPER_EMAIL));
-        } else {
+        } else if(StringUtils.isNoneEmpty(developerEmail)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.DEVELOPER_EMAIL, developerEmail);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.DEVELOPER_ORGANIZATION)) {
             this.setDeveloperOrganization((String) additionalProperties.get(CodegenConstants.DEVELOPER_ORGANIZATION));
-        } else {
+        } else if(StringUtils.isNoneEmpty(developerOrganization)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.DEVELOPER_ORGANIZATION, developerOrganization);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.DEVELOPER_ORGANIZATION_URL)) {
             this.setDeveloperOrganizationUrl((String) additionalProperties.get(CodegenConstants.DEVELOPER_ORGANIZATION_URL));
-        } else {
+        } else if(StringUtils.isNoneEmpty(developerOrganizationUrl)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.DEVELOPER_ORGANIZATION_URL, developerOrganizationUrl);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.LICENSE_NAME)) {
             this.setLicenseName((String) additionalProperties.get(CodegenConstants.LICENSE_NAME));
-        } else {
+        } else if(StringUtils.isNoneEmpty(licenseName)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.LICENSE_NAME, licenseName);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.LICENSE_URL)) {
             this.setLicenseUrl((String) additionalProperties.get(CodegenConstants.LICENSE_URL));
-        } else {
+        } else if(StringUtils.isNoneEmpty(licenseUrl)) {
+            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.LICENSE_URL, licenseUrl);
         }
 
