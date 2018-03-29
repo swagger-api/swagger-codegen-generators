@@ -123,13 +123,13 @@ public class {{{getClassDefinition}}} {
   {{/supportJava6~}}
   {{#supportJava6~}}
   @Override
-  public boolean equals(java.lang.Object obj) {
+  public boolean equals(java.lang.Object o) {
   if (this == o) {
     return true;
   }
   if (o == null || getClass() != o.getClass()) {
     return false;
-  }{{#has this 'more'}}
+  }{{#has this 'vars'}}
     {{classname}} {{classVarName}} = ({{classname}}) o;
     return {{#vars}}ObjectUtils.equals(this.{{name}}, {{classVarName}}.{{name}}){{#has this 'more'}} &&
     {{/has}}{{/vars}}{{#parent}} &&
@@ -139,7 +139,7 @@ public class {{{getClassDefinition}}} {
 
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCodeMulti({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#parent}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/parent}});
+    return ObjectUtils.hashCodeMulti({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#if parent}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/if}});
   }
   {{/supportJava6~}}
 
