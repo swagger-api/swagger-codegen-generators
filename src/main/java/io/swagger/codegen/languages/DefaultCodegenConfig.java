@@ -166,24 +166,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             this.setModelPackage((String) additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
-        } else if (StringUtils.isNotEmpty(modelPackage)) {
-            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
-            additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             this.setApiPackage((String) additionalProperties.get(CodegenConstants.API_PACKAGE));
-        } else if (StringUtils.isNotEmpty(apiPackage)) {
-            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
-            additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG)) {
             this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG).toString()));
-        } else if (sortParamsByRequiredFlag != null) {
-            // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
-            additionalProperties.put(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG, sortParamsByRequiredFlag);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.ENSURE_UNIQUE_PARAMS)) {
@@ -2102,7 +2093,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (responseSchema instanceof ArraySchema) {
                 ArraySchema arraySchema = (ArraySchema) responseSchema;
                 CodegenProperty innerProperty = fromProperty("response", arraySchema.getItems());
-                codegenResponse.baseType = innerProperty.baseType;
+                CodegenProperty innerCp = innerProperty;
+                while(innerCp != null) {
+                    codegenResponse.baseType = innerCp.baseType;
+                    innerCp = innerCp.items;
+                }
             } else {
                 if (codegenProperty.complexType != null) {
                     codegenResponse.baseType = codegenProperty.complexType;
