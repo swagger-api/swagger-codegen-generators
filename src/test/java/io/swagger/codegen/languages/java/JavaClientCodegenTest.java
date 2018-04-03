@@ -181,7 +181,9 @@ public class JavaClientCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage(), "io.swagger.client.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "io.swagger.client.model");
         Assert.assertEquals(codegen.apiPackage(), "io.swagger.client.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "io.swagger.client.api");
         Assert.assertEquals(codegen.invokerPackage, "io.swagger.client");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "io.swagger.client");
     }
@@ -195,7 +197,9 @@ public class JavaClientCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.model");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.model");
         Assert.assertEquals(codegen.apiPackage(), "xxx.yyyyy.zzzzzzz.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "xxx.yyyyy.zzzzzzz.api");
         Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.invoker");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.invoker");
     }
@@ -240,6 +244,7 @@ public class JavaClientCodegenTest {
         Assert.assertEquals(codegen.modelPackage(), "xxx.yyyyy.zzzzzzz.mmmmm.model");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm.model");
         Assert.assertEquals(codegen.apiPackage(), "io.swagger.client.api");
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE), "io.swagger.client.api");
         Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.mmmmm");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm");
     }
