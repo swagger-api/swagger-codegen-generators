@@ -103,7 +103,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
 
         // provide primitives to mustache template
-        List sortedLanguageSpecificPrimitives= new ArrayList(languageSpecificPrimitives);
+        List<String> sortedLanguageSpecificPrimitives= new ArrayList<String>(languageSpecificPrimitives);
         Collections.sort(sortedLanguageSpecificPrimitives);
         String primitives = "'" + StringUtils.join(sortedLanguageSpecificPrimitives, "', '") + "'";
         additionalProperties.put("primitives", primitives);
