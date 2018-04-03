@@ -1706,38 +1706,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return True if the inner most type is enum
      */
     protected Boolean isPropertyInnerMostEnum(CodegenProperty property) {
-        CodegenProperty currentProperty = property;
-        while (currentProperty != null
-                && (getBooleanValue(currentProperty, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME)
-                || getBooleanValue(currentProperty, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME))) {
-            currentProperty = currentProperty.items;
-        }
-        return currentProperty == null ? false : getBooleanValue(currentProperty, IS_ENUM_EXT_NAME);
+        CodegenProperty baseItem = getBaseItemProperty(property);
+        return baseItem == null ? false : getBooleanValue(baseItem, IS_ENUM_EXT_NAME);
     }
+
+
 
     protected Map<String, Object> getInnerEnumAllowableValues(CodegenProperty property) {
-        CodegenProperty currentProperty = property;
-        boolean isMapContainer = getBooleanValue(property, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME);
-        boolean isListContainer = getBooleanValue(property, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME);
-        while (currentProperty != null && (isMapContainer || isListContainer)) {
-            currentProperty = currentProperty.items;
-        }
-
-        return currentProperty == null ? new HashMap<String, Object>() : currentProperty.allowableValues;
+        CodegenProperty baseItem = getBaseItemProperty(property);
+        return baseItem == null ? new HashMap<String, Object>() : baseItem.allowableValues;
     }
-
 
     /**
      * Update datatypeWithEnum for array container
      * @param property Codegen property
      */
     protected void updateDataTypeWithEnumForArray(CodegenProperty property) {
-        CodegenProperty baseItem = property.items;
-        boolean isMapContainer = getBooleanValue(baseItem, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME);
-        boolean isListContainer = getBooleanValue(baseItem, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME);
-        while (baseItem != null && (isMapContainer || isListContainer)) {
-            baseItem = baseItem.items;
-        }
+        CodegenProperty baseItem = getBaseItemProperty(property);
         if (baseItem != null) {
             // set both datatype and datetypeWithEnum as only the inner type is enum
             property.datatypeWithEnum = property.datatypeWithEnum.replace(baseItem.baseType, toEnumName(baseItem));
@@ -1758,12 +1743,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @param property Codegen property
      */
     protected void updateDataTypeWithEnumForMap(CodegenProperty property) {
-        CodegenProperty baseItem = property.items;
-        boolean isMapContainer = getBooleanValue(baseItem, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME);
-        boolean isListContainer = getBooleanValue(baseItem, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME);
-        while (baseItem != null && (isMapContainer || isListContainer)) {
-            baseItem = baseItem.items;
-        }
+        CodegenProperty baseItem = getBaseItemProperty(property);
 
         if (baseItem != null) {
             // set both datatype and datetypeWithEnum as only the inner type is enum
@@ -1778,6 +1758,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 property.defaultValue = property.defaultValue.replace(", " + property.items.baseType, ", " + toEnumName(property.items));
             }
         }
+    }
+
+    private CodegenProperty getBaseItemProperty(CodegenProperty property) {
+        CodegenProperty currentProperty = property;
+        while (currentProperty != null
+                && (getBooleanValue(currentProperty, CodegenConstants.IS_MAP_CONTAINER_EXT_NAME)
+                || getBooleanValue(currentProperty, CodegenConstants.IS_LIST_CONTAINER_EXT_NAME))) {
+            currentProperty = currentProperty.items;
+        }
+        return currentProperty;
     }
 
     protected void setNonArrayMapProperty(CodegenProperty property, String type) {
