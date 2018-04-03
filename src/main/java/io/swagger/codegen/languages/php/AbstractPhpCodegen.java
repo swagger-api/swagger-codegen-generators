@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
-
-    static Logger LOGGER = LoggerFactory.getLogger(AbstractPhpCodegen.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AbstractPhpCodegen.class);
 
     public static final String VARIABLE_NAMING_CONVENTION = "variableNamingConvention";
     public static final String PACKAGE_PATH = "packagePath";

@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
 import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public class PhpClientCodegen extends DefaultCodegenConfig {
-    @SuppressWarnings("hiding")
-    static Logger LOGGER = LoggerFactory.getLogger(PhpClientCodegen.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(PhpClientCodegen.class);
 
     public static final String VARIABLE_NAMING_CONVENTION = "variableNamingConvention";
     public static final String PACKAGE_PATH = "packagePath";
@@ -104,7 +103,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
 
         // provide primitives to mustache template
-        List sortedLanguageSpecificPrimitives= new ArrayList(languageSpecificPrimitives);
+        List<String> sortedLanguageSpecificPrimitives= new ArrayList<String>(languageSpecificPrimitives);
         Collections.sort(sortedLanguageSpecificPrimitives);
         String primitives = "'" + StringUtils.join(sortedLanguageSpecificPrimitives, "', '") + "'";
         additionalProperties.put("primitives", primitives);
@@ -210,28 +209,6 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public void processOpts() {
-        super.processOpts();
-
-        // default HIDE_GENERATION_TIMESTAMP to true
-        if (!additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
-            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, Boolean.TRUE.toString());
-        } else {
-            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP,
-                    Boolean.valueOf(additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP).toString()));
-        }
-
-        if (additionalProperties.containsKey(PACKAGE_PATH)) {
-            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
-        } else {
-            additionalProperties.put(PACKAGE_PATH, packagePath);
-        }
-
-        if (additionalProperties.containsKey(SRC_BASE_PATH)) {
-            this.setSrcBasePath((String) additionalProperties.get(SRC_BASE_PATH));
-        } else {
-            additionalProperties.put(SRC_BASE_PATH, srcBasePath);
-        }
-
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
 
@@ -258,6 +235,20 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
             this.setComposerProjectName((String) additionalProperties.get(COMPOSER_PROJECT_NAME));
         } else {
             additionalProperties.put(COMPOSER_PROJECT_NAME, composerProjectName);
+        }
+
+        super.processOpts();
+
+        if (additionalProperties.containsKey(PACKAGE_PATH)) {
+            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
+        } else {
+            additionalProperties.put(PACKAGE_PATH, packagePath);
+        }
+
+        if (additionalProperties.containsKey(SRC_BASE_PATH)) {
+            this.setSrcBasePath((String) additionalProperties.get(SRC_BASE_PATH));
+        } else {
+            additionalProperties.put(SRC_BASE_PATH, srcBasePath);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.GIT_USER_ID)) {
