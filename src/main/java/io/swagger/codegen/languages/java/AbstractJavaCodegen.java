@@ -167,20 +167,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public void processOpts() {
-        super.processOpts();
-
-        modelTemplateFiles.put("model.mustache", ".java");
-        apiTemplateFiles.put("api.mustache", ".java");
-        apiTestTemplateFiles.put("api_test.mustache", ".java");
-        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-        apiDocTemplateFiles.put("api_doc.mustache", ".md");
-
-        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
-            this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
-        }
-        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
-
-
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
         } else if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
@@ -199,6 +185,19 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
         }
+
+        super.processOpts();
+
+        modelTemplateFiles.put("model.mustache", ".java");
+        apiTemplateFiles.put("api.mustache", ".java");
+        apiTestTemplateFiles.put("api_test.mustache", ".java");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+
+        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
+            this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
+        }
+        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
