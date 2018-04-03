@@ -209,20 +209,6 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public void processOpts() {
-        super.processOpts();
-
-        if (additionalProperties.containsKey(PACKAGE_PATH)) {
-            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
-        } else {
-            additionalProperties.put(PACKAGE_PATH, packagePath);
-        }
-
-        if (additionalProperties.containsKey(SRC_BASE_PATH)) {
-            this.setSrcBasePath((String) additionalProperties.get(SRC_BASE_PATH));
-        } else {
-            additionalProperties.put(SRC_BASE_PATH, srcBasePath);
-        }
-
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
 
@@ -249,6 +235,20 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
             this.setComposerProjectName((String) additionalProperties.get(COMPOSER_PROJECT_NAME));
         } else {
             additionalProperties.put(COMPOSER_PROJECT_NAME, composerProjectName);
+        }
+
+        super.processOpts();
+
+        if (additionalProperties.containsKey(PACKAGE_PATH)) {
+            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
+        } else {
+            additionalProperties.put(PACKAGE_PATH, packagePath);
+        }
+
+        if (additionalProperties.containsKey(SRC_BASE_PATH)) {
+            this.setSrcBasePath((String) additionalProperties.get(SRC_BASE_PATH));
+        } else {
+            additionalProperties.put(SRC_BASE_PATH, srcBasePath);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.GIT_USER_ID)) {

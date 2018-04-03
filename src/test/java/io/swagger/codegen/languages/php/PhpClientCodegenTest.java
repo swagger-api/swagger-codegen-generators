@@ -18,6 +18,7 @@ public class PhpClientCodegenTest {
         Assert.assertEquals(codegen.invokerPackage, "Swagger\\Client");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "Swagger\\Client");
         Assert.assertEquals(codegen.getSortParamsByRequiredFlag(), Boolean.TRUE);
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.TRUE);
         Assert.assertEquals(codegen.getHideGenerationTimestamp(), Boolean.TRUE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP), Boolean.TRUE);
     }
@@ -39,6 +40,7 @@ public class PhpClientCodegenTest {
         Assert.assertEquals(codegen.invokerPackage, "My\\Client\\Invoker");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "My\\Client\\Invoker");
         Assert.assertEquals(codegen.getSortParamsByRequiredFlag(), Boolean.FALSE);
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.FALSE);
         Assert.assertEquals(codegen.getHideGenerationTimestamp(), Boolean.FALSE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP), Boolean.FALSE);
     }
