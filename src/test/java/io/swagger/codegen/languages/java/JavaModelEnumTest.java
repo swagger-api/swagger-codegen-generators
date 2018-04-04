@@ -2,6 +2,7 @@ package io.swagger.codegen.languages.java;
 
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.handlebars.helpers.BaseItemsHelper;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -37,6 +38,8 @@ public class JavaModelEnumTest {
         Assert.assertEquals(enumVar.defaultValue, "null");
         Assert.assertEquals(enumVar.baseType, "String");
         Assert.assertTrue(getBooleanValue(enumVar, IS_ENUM_EXT_NAME));
+        CodegenProperty baseItems = BaseItemsHelper.getBaseItemsProperty(enumVar);
+        Assert.assertEquals(baseItems, enumVar);
     }
 
     @Test(description = "convert a java model with an enum inside a list")
@@ -58,6 +61,13 @@ public class JavaModelEnumTest {
         Assert.assertEquals(enumVar.defaultValue, "new ArrayList<NameEnum>()");
         Assert.assertEquals(enumVar.baseType, "List");
         Assert.assertTrue(getBooleanValue(enumVar, IS_ENUM_EXT_NAME));
+        CodegenProperty baseItems = BaseItemsHelper.getBaseItemsProperty(enumVar);
+        Assert.assertEquals(baseItems.baseName, "name");
+        Assert.assertEquals(baseItems.datatype, "String");
+        Assert.assertEquals(baseItems.datatypeWithEnum, "NameEnum");
+        Assert.assertEquals(baseItems.name, "name");
+        Assert.assertEquals(baseItems.defaultValue, "null");
+        Assert.assertEquals(baseItems.baseType, "String");
     }
 
     @Test(description = "convert a java model with an enum inside a list")
@@ -80,6 +90,13 @@ public class JavaModelEnumTest {
         Assert.assertEquals(enumVar.defaultValue, "new ArrayList<List<NameEnum>>()");
         Assert.assertEquals(enumVar.baseType, "List");
         Assert.assertTrue(getBooleanValue(enumVar, IS_ENUM_EXT_NAME));
+        CodegenProperty baseItems = BaseItemsHelper.getBaseItemsProperty(enumVar);
+        Assert.assertEquals(baseItems.baseName, "name");
+        Assert.assertEquals(baseItems.datatype, "String");
+        Assert.assertEquals(baseItems.datatypeWithEnum, "NameEnum");
+        Assert.assertEquals(baseItems.name, "name");
+        Assert.assertEquals(baseItems.defaultValue, "null");
+        Assert.assertEquals(baseItems.baseType, "String");
     }
 
     @Test(description = "not override identical parent enums")

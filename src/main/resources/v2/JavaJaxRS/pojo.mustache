@@ -5,18 +5,11 @@
 {{>generatedAnnotation}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable{{/serializableModel}} {
   {{#vars}}
+    {{#baseItems this}}
     {{#is this 'enum'}}
-    {{#isNot this 'container'}}
 {{>enumClass}}
-    {{/isNot}}
-    {{/is}}
-    {{#is items 'enum'}}
-      {{#items}}
-      {{#isNot this 'container'}}
-{{>enumClass}}
-      {{/isNot}}
-      {{/items}}
-    {{/is}}
+    {{/is~}}
+    {{/baseItems}}  
   {{#jackson}}
   @JsonProperty("{{baseName}}")
   {{/jackson}}
