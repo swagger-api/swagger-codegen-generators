@@ -23,11 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @ApiModel(description="{{{description}}}")
 {{/description}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
-  {{#vars}}{{#is this 'enum'}}{{#isNot this 'container'}}
-
-{{>enumClass}}{{/isNot}}{{/is}}{{#is items 'enum'}}{{#items}}
-
-{{#isNot this 'container'}}{{>enumClass}}{{/isNot}}{{/items}}{{/is}}
+  {{#vars}}{{#baseItems this}}{{#is this 'enum'}}
+{{>enumClass}}{{/is~}}{{/baseItems}}
 {{#withXml}}
   @XmlElement(name="{{baseName}}"{{#required}}, required = {{required}}{{/required}})
 {{/withXml}}
