@@ -2896,6 +2896,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (Map.Entry<String, Schema> entry : allSchemas.entrySet()) {
             String swaggerName = entry.getKey();
             Schema schema = entry.getValue();
+
+            if (schema instanceof ArraySchema || schema instanceof MapSchema) {
+                continue;
+            }
+
             String schemaType = getTypeOfSchema(schema);
             if (schemaType != null && !schemaType.equals("object") && schema.getEnum() == null) {
                 aliases.put(swaggerName, schemaType);
