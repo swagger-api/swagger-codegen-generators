@@ -3,12 +3,15 @@ package io.swagger.codegen.languages.kotlin;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.codegen.CodegenOperation;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.CodegenModel;
+import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.SupportingFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +38,15 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     private Boolean compressionFeatureEnabled = true;
 
     // This is here to potentially warn the user when an option is not supoprted by the target framework.
-    private Map<String, List<String>> optionsSupportedPerFramework = 
-        singletonMap(Constants.KTOR, 
+    private Map<String, List<String>> optionsSupportedPerFramework =
+        singletonMap(Constants.KTOR,
                     Arrays.asList(
                         Constants.AUTOMATIC_HEAD_REQUESTS,
                         Constants.CONDITIONAL_HEADERS,
                         Constants.HSTS,
                         Constants.CORS,
                         Constants.COMPRESSION
-                    ));            
+                    ));
 
     /**
      * Constructs an instance of `KotlinServerCodegen`.
@@ -128,9 +131,21 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
         return CodegenType.SERVER;
     }
 
+    /**
+    * Handle typealias for schema of Array type
+    */
+    @Override
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+
+        if (schema instanceof ArraySchema) {
+            codegenModel.dataType = getTypeDeclaration(schema);
+        }
+        return codegenModel;
+    }
+
     @Override
     public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
-        
         // Ensure that the parameter names in the path are valid kotlin names
         // they need to match the names in the generated data class, this is required by ktor Location
         String modifiedPath = path;
@@ -198,7 +213,6 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
         String packageFolder = (sourceFolder + File.separator + packageName).replace(".", File.separator);
         String resourcesFolder = "src/main/resources"; // not sure this can be user configurable.
-                
         Boolean generateApis = additionalProperties.containsKey(GENERATE_APIS) && (Boolean)additionalProperties.get(GENERATE_APIS);
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
@@ -210,9 +224,9 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
 
         supportingFiles.add(new SupportingFile("AppMain.kt.mustache", packageFolder, "AppMain.kt"));
         supportingFiles.add(new SupportingFile("Configuration.kt.mustache", packageFolder, "Configuration.kt"));
-        
+
         if (generateApis) {
-            supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));        
+            supportingFiles.add(new SupportingFile("Paths.kt.mustache", packageFolder, "Paths.kt"));
         }
 
         supportingFiles.add(new SupportingFile("application.conf.mustache", resourcesFolder, "application.conf"));
