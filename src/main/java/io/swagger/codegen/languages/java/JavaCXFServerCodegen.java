@@ -98,11 +98,12 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf", templateVersion);
-        }
-        else {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf", DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            if (StringUtils.isNotBlank(templateVersion)) {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf", templateVersion);
+            } else {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf", DEFAULT_TEMPLATE_VERSION);
+            }
         }
 
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");

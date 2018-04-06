@@ -73,11 +73,13 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
     public void processOpts() {
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", templateVersion);
-        } else {
-            embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            String templateVersion = getTemplateVersion();
+            if (StringUtils.isNotBlank(templateVersion)) {
+                embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", templateVersion);
+            } else {
+                embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_VERSION);
+            }
         }
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
