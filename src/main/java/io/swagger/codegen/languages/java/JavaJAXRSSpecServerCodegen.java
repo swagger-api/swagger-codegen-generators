@@ -74,11 +74,12 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
         super.processOpts();
 
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec", templateVersion);
-        }
-        else {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec", DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            if (StringUtils.isNotBlank(templateVersion)) {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec", templateVersion);
+            } else {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec", DEFAULT_TEMPLATE_VERSION);
+            }
         }
 
         modelTemplateFiles.put("model.mustache", ".java");

@@ -80,11 +80,12 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME, templateVersion);
-        }
-        else {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME, DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            if (StringUtils.isNotBlank(templateVersion)) {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME, templateVersion);
+            } else {
+                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME, DEFAULT_TEMPLATE_VERSION);
+            }
         }
 
         apiTemplateFiles.put("apiService.mustache", ".java");
