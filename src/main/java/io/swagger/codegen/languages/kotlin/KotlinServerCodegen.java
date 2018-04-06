@@ -30,7 +30,7 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     public static final String DEFAULT_LIBRARY = Constants.KTOR;
     public static final String GENERATE_APIS = "generateApis";
 
-    static Logger LOGGER = LoggerFactory.getLogger(KotlinServerCodegen.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(KotlinServerCodegen.class);
     private Boolean autoHeadFeatureEnabled = true;
     private Boolean conditionalHeadersFeatureEnabled = false;
     private Boolean hstsFeatureEnabled = true;

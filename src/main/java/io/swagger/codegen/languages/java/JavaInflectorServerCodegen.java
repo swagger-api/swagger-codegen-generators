@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static io.swagger.codegen.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
 

@@ -19,9 +19,12 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
-    static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
+
+    private static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
 
     private Set<String> instantiationLibraryFunction;
+
+   
 
     protected String artifactId;
     protected String artifactVersion = "1.0.0";

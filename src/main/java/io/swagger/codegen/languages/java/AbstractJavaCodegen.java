@@ -7,8 +7,8 @@ import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.handlebars.helpers.JavaHelper;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
-import io.swagger.codegen.languages.helpers.JavaHelper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -37,10 +37,10 @@ import java.util.regex.Pattern;
 
 import static io.swagger.codegen.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
-    static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
     public static final String FULL_JAVA_UTIL = "fullJavaUtil";
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
@@ -75,13 +75,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String javaUtilPrefix = "";
     protected Boolean serializableModel = false;
     protected boolean serializeBigDecimalAsString = false;
-    protected boolean hideGenerationTimestamp = false;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
 
     public AbstractJavaCodegen() {
         super();
+        hideGenerationTimestamp = false;
         supportsInheritance = true;
 
         setReservedWordsLowerCase(

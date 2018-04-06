@@ -37,7 +37,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     this.{{name}} = {{name}};
     return this;
   }
-  {{#isListContainer}}
+  {{#is this 'list-container'}}
 
   public {{classname}} add{{nameInCamelCase}}Item({{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
@@ -48,8 +48,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     this.{{name}}.add({{name}}Item);
     return this;
   }
-  {{/isListContainer}}
-  {{#isMapContainer}}
+  {{/is}}
+  {{#is this 'map-container'}}
 
   public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
@@ -60,7 +60,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     this.{{name}}.put(key, {{name}}Item);
     return this;
   }
-  {{/isMapContainer}}
+  {{/is}}
 
   {{/isReadOnly}}
   /**
