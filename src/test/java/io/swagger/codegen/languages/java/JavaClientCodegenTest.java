@@ -248,4 +248,15 @@ public class JavaClientCodegenTest {
         Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.zzzzzzz.mmmmm");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.zzzzzzz.mmmmm");
     }
+
+    @Test
+    public void customTemplates() throws Exception {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.processOpts();
+        Assert.assertEquals(codegen.templateDir(), "v2/Java");
+
+        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, "/user/custom/location");
+        codegen.processOpts();
+        Assert.assertEquals(codegen.templateDir(), "/user/custom/location");
+    }
 }
