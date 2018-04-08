@@ -16,9 +16,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
+
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
+
+    private Set<String> instantiationLibraryFunction;
+
+   
 
     protected String artifactId;
     protected String artifactVersion = "1.0.0";
@@ -47,7 +53,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.Boolean",
                 "kotlin.Char",
                 "kotlin.String",
-                "kotlin.Array",                
+                "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
                 "kotlin.collections.Set"
@@ -134,6 +140,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
                 "kotlin.collections.Map"
+        ));
+
+        instantiationLibraryFunction = new HashSet<String>(Arrays.asList(
+                "arrayOf",
+                "mapOf"
         ));
 
         typeMapping = new HashMap<String, String>();
@@ -250,7 +261,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             }
             throw new RuntimeException(sb.toString());
         }
-    }       
+    }
 
     /**
      * Output the type declaration of the property
@@ -270,8 +281,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 return null;
             }
             // Maps will be keyed only by primitive Kotlin string
-            return String.format("%s<kotlin.String, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));            
-        } 
+            return String.format("%s<kotlin.String, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        }
         return super.getTypeDeclaration(propertySchema);
     }
 
@@ -287,8 +298,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String getSchemaType(Schema schema) {
         String schemaType = super.getSchemaType(schema);
 
-        schemaType = getAlias(schemaType);
-
         // don't apply renaming on types from the typeMapping
         if (typeMapping.containsKey(schemaType)) {
             return toModelName(typeMapping.get(schemaType));
@@ -301,7 +310,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             } else {
                 return toModelName("kotlin.Any");
             }
-        }            
+        }
         return toModelName(schemaType);
     }
 
@@ -496,9 +505,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
 
     @Override
     public String toVarName(String name) {
-        return super.toVarName(sanitizeKotlinSpecificNames(name));        
+        return super.toVarName(sanitizeKotlinSpecificNames(name));
     }
-    
+
     /**
      * Provides a strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
      *
@@ -515,7 +524,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         // TODO: We may want to differentiate here between generics and primitive arrays.
         instantiationType.append("<").append(nestedType).append(">");
         return instantiationType.toString();
-    }    
+    }
 
     /**
      * Sanitize against Kotlin specific naming conventions, which may differ from those required by {@link DefaultCodegen#sanitizeName}.
@@ -566,7 +575,13 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     @Override
     protected boolean needToImport(String type) {
         // provides extra protection against improperly trying to import language primitives and java types
-        boolean imports = !type.startsWith("kotlin.") && !type.startsWith("java.") && !defaultIncludes.contains(type) && !languageSpecificPrimitives.contains(type);
+        boolean imports =
+            !type.startsWith("kotlin.") &&
+            !type.startsWith("java.") &&
+            !defaultIncludes.contains(type) &&
+            !languageSpecificPrimitives.contains(type) &&
+            !instantiationLibraryFunction.contains(type);
+
         return imports;
     }
 }
