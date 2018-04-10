@@ -1,0 +1,15 @@
+# {{classname}}
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#vars}}**{{name}}** | {{#is this 'enum'}}[**inline**](#{{datatypeWithEnum}}){{/is}}{{#isNot this 'enum'}}{{#is this 'primitiveType'}}}**{{datatype}}**{{/is}}}{{#isNot this 'primitiveType'}}[**{{datatype}}**]({{complexType}}.md){{/isNot}}}{{/isNot}} | {{description}} | {{^required}} [optional]{{/required}}{{#readOnly}} [readonly]{{/readOnly}}
+{{/vars}}
+{{#vars}}{{#is this 'enum'}}
+
+<a name="{{{datatypeWithEnum}}}"></a>{{!NOTE: see java's resources "pojo_doc.mustache" once enums are fully implemented}}
+## Enum: {{baseName}}
+Name | Value
+---- | -----{{#allowableValues}}
+{{name}} | {{#values}}{{.}}{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}
+{{/is}}{{/vars}}

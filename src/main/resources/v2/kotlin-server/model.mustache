@@ -1,0 +1,14 @@
+{{>licenseInfo}}
+package {{modelPackage}}
+
+{{#imports}}import {{import}}
+{{/imports}}
+{{#threetenbp}}
+import org.threeten.bp.LocalDateTime
+{{/threetenbp}}
+
+{{#models}}
+{{#model}}
+{{#is this 'alias'}}typealias {{classname}} = {{{dataType}}}{{/is}}{{#isNot this 'alias'}}{{#is this 'enum'}}{{>enum_class}}{{/is}}{{#isNot this 'enum'}}{{>data_class}}{{/isNot}}{{/isNot}}
+{{/model}}
+{{/models}}
