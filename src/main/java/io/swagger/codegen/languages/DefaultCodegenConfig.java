@@ -32,6 +32,7 @@ import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.EmailSchema;
@@ -1930,14 +1931,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         List<Parameter> parameters = operation.getParameters();
         CodegenParameter bodyParam = null;
-        List<CodegenParameter> allParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> bodyParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> pathParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> queryParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> headerParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> cookieParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> formParams = new ArrayList<CodegenParameter>();
-        List<CodegenParameter> requiredParams = new ArrayList<CodegenParameter>();
+        List<CodegenParameter> allParams = new ArrayList<>();
+        List<CodegenParameter> bodyParams = new ArrayList<>();
+        List<CodegenParameter> pathParams = new ArrayList<>();
+        List<CodegenParameter> queryParams = new ArrayList<>();
+        List<CodegenParameter> headerParams = new ArrayList<>();
+        List<CodegenParameter> cookieParams = new ArrayList<>();
+        List<CodegenParameter> formParams = new ArrayList<>();
+        List<CodegenParameter> requiredParams = new ArrayList<>();
 
         RequestBody body = operation.getRequestBody();
         if (body != null) {
@@ -1949,6 +1950,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             bodyParam = fromRequestBody(body, schemas, imports);
             bodyParams.add(bodyParam);
             allParams.add(bodyParam);
+            if (containsFormContentType(body)) {
+                Schema schema = getSchemaFromBody(body);
+                final Map<String, Schema> propertyMap = schema.getProperties();
+                if (propertyMap != null && !propertyMap.isEmpty()) {
+                    for (String propertyName : propertyMap.keySet()) {
+                        CodegenParameter codegenParameter = fromParameter(new Parameter()
+                                .name(propertyName)
+                                .schema(propertyMap.get(propertyName)), imports);
+                        formParams.add(codegenParameter);
+                    }
+                }
+            }
         }
 
         if (parameters != null) {
@@ -3738,4 +3751,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         return false;
     }
+
+    private boolean containsFormContentType(RequestBody body) {
+        if (body == null) {
+            return false;
+        }
+        final Content content = body.getContent();
+        if (content == null || content.isEmpty()) {
+            return false;
+        }
+        return content.get("application/x-www-form-urlencoded") != null ||
+                content.get("multipart/form-data") != null;
+    }
+
 }
