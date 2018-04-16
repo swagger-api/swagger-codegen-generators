@@ -10,4 +10,6 @@ io.swagger.codegen.languages.java.JavaJAXRSSpecServerCodegen
 io.swagger.codegen.languages.java.JavaJerseyServerCodegen
 io.swagger.codegen.languages.java.JavaResteasyEapServerCodegen
 io.swagger.codegen.languages.java.JavaResteasyServerCodegen
+io.swagger.codegen.languages.kotlin.KotlinClientCodegen
+io.swagger.codegen.languages.kotlin.KotlinServerCodegen
 io.swagger.codegen.languages.php.PhpClientCodegen
