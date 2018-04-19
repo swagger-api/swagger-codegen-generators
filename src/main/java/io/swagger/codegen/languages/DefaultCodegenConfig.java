@@ -21,6 +21,7 @@ import io.swagger.codegen.handlebars.helpers.HasHelper;
 import io.swagger.codegen.handlebars.helpers.HasNotHelper;
 import io.swagger.codegen.handlebars.helpers.IsHelper;
 import io.swagger.codegen.handlebars.helpers.IsNotHelper;
+import io.swagger.codegen.handlebars.helpers.StringUtilHelper;
 import io.swagger.codegen.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -3301,6 +3302,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
         handlebars.registerHelper(BracesHelper.NAME, new BracesHelper());
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
+        handlebars.registerHelpers(new StringUtilHelper());
     }
 
     @Override
