@@ -1,4 +1,4 @@
-# {{invokerPackage}}\{{classname}}{{#description}}
+# {{concat invokerPackage '\\' classname}}{{#description}}
 {{description}}{{/description}}
 
 All URIs are relative to *{{basePath}}*
@@ -21,25 +21,25 @@ Method | HTTP request | Description
 ```php
 <?php
 require_once(__DIR__ . '/vendor/autoload.php');
-{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
+{{#has this 'auth-methods'}}{{#authMethods}}{{#is this 'basic'}}
 // Configure HTTP basic authorization: {{{name}}}
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()
               ->setUsername('YOUR_USERNAME')
               ->setPassword('YOUR_PASSWORD');
-{{/isBasic}}{{#isApiKey}}
+{{/is}}{{#is this 'api-key'}}
 // Configure API key authorization: {{{name}}}
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setApiKey('{{{keyParamName}}}', 'YOUR_API_KEY');
 // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-// $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setApiKeyPrefix('{{{keyParamName}}}', 'Bearer');{{/isApiKey}}{{#isOAuth}}
+// $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setApiKeyPrefix('{{{keyParamName}}}', 'Bearer');{{/is}}{{#is this 'oauth'}}
 // Configure OAuth2 access token for authorization: {{{name}}}
-$config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');{{/isOAuth}}{{/authMethods}}
-{{/hasAuthMethods}}
+$config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');{{/is}}{{/authMethods}}
+{{/has}}
 
-$apiInstance = new {{invokerPackage}}\Api\{{classname}}(
+$apiInstance = new {{concat apiPackage '\\' classname}}(
     // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
     // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(){{#hasAuthMethods}},
-    $config{{/hasAuthMethods}}
+    new GuzzleHttp\Client(){{#has this 'auth-methods'}},
+    $config{{/has}}
 );
 {{#allParams}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{description}}}
 {{/allParams}}
@@ -57,7 +57,7 @@ try {
 {{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
+{{#allParams}} **{{paramName}}** | {{#is this 'file'}}**{{dataType}}**{{/is}}{{#is this 'primitive-type'}}**{{dataType}}**{{/is}}{{#isNot this 'primitive-type'}}{{#isNot this 'file'}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
 {{/allParams}}
 
 ### Return type

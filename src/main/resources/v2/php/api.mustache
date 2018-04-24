@@ -92,7 +92,7 @@ use {{invokerPackage}}\ObjectSerializer;
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
      {{/allParams~}}
      *
-     * @throws \{{invokerPackage}}\ApiException on non-2xx response
+     * @throws {{backSlash}}{{invokerPackage}}\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}
      */
@@ -117,7 +117,7 @@ use {{invokerPackage}}\ObjectSerializer;
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
      {{/allParams~}}
      *
-     * @throws \{{invokerPackage}}\ApiException on non-2xx response
+     * @throws {{backSlash}}{{invokerPackage}}\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}null{{/returnType}}, HTTP status code, HTTP response headers (array of strings)
      */
