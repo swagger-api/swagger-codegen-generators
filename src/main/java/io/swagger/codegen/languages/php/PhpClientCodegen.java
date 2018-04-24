@@ -380,6 +380,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
                 return "";
             }
             return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
+        } else if (StringUtils.isNotBlank(propertySchema.get$ref())) {
+            String type = super.getTypeDeclaration(propertySchema);
+            return (!languageSpecificPrimitives.contains(type))
+                    ? "\\" + modelPackage + "\\" + type : type;
         }
 
         return super.getTypeDeclaration(propertySchema);
@@ -628,7 +632,11 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
             example = "new \\stdClass";
         } else if (!languageSpecificPrimitives.contains(type)) {
             // type is a model class, e.g. User
-            example = "new " + getTypeDeclaration(type) + "()";
+            if (type != null && type.contains(modelPackage)) {
+                example = "new " + type + "()";
+            } else {
+                example = "new " + getTypeDeclaration(type) + "()";
+            }
         } else {
             LOGGER.warn("Type " + type + " not handled properly in setParameterExampleValue");
         }
