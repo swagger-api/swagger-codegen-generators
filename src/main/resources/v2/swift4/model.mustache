@@ -8,18 +8,11 @@
 import Foundation
 
 {{#description}}
-
-/** {{description}} */{{/description}}
+/** {{description}} */{{/description~}}
 {{#is this 'arrayModel'}}
 {{> modelArray}}
-{{/is}}
-{{#isNot this 'arrayModel'}}
-{{#is this 'enum'}}
+{{/is}}{{#isNot this 'arrayModel'}}{{#is this 'enum'}}
 {{> modelEnum}}
-{{/is}}
-{{#isNot this 'enum'}}
+{{/is~}}{{#isNot this 'enum'}}
 {{> modelObject}}
-{{/isNot}}
-{{/isNot}}
-{{/model}}
-{{/models}}
+{{/isNot}}{{/isNot}}{{/model}}{{/models~}}

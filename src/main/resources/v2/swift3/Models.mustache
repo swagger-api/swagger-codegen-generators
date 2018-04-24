@@ -161,7 +161,7 @@ class Decoders {
         if let intermediate = source as? String, let value = Data(base64Encoded: intermediate) as? T {
             return .success(value)
         }
-        {{#lenientTypeCast}}
+{{#lenientTypeCast}}
         if T.self is Int32.Type && source is String {
             return (source as! NSString).intValue as! T
         }
@@ -174,8 +174,7 @@ class Decoders {
         if T.self is String.Type && source is NSNumber {
             return String(describing: source) as! T
         }
-        {{/lenientTypeCast}}
-
+{{/lenientTypeCast}}
         let key = "\(T.self)"
         if let decoder = decoders[key], let value = decoder(source, instance) as? Decoded<T> {
            return value
@@ -302,9 +301,7 @@ class Decoders {
             }
         }
 
-        {{#models}}
-        {{#model}}
-        {{#isNot this 'arrayModel'}}
+        {{#models}}{{#model}}{{#isNot this 'arrayModel'}}
         // Decoder for [{{{classname}}}]
         Decoders.addDecoder(clazz: [{{{classname}}}].self) { (source: AnyObject, instance: AnyObject?) -> Decoded<[{{{classname}}}]> in
             return Decoders.decode(clazz: [{{{classname}}}].self, source: source)
@@ -315,27 +312,23 @@ class Decoders {
 {{#is this 'enum'}}
             //TODO: I don't think we need this anymore
             return Decoders.decode(clazz: {{{classname}}}.self, source: source, instance: instance)
-{{/is}}
-{{#isNot this 'enum'}}
-{{#allVars.isEmpty}}
+{{/is~}}
+{{#isNot this 'enum'}}{{#allVars.isEmpty}}
             if let source = source as? {{classname}} {
                 return .success(source)
             } else {
                 return .failure(.typeMismatch(expected: "Typealias {{classname}}", actual: "\(source)"))
             }
-{{/allVars.isEmpty}}
-{{^allVars.isEmpty}}
-            if let sourceDictionary = source as? [AnyHashable: Any] {
-            {{#discriminator}}
+{{/allVars.isEmpty~}}
+{{^allVars.isEmpty}}            if let sourceDictionary = source as? [AnyHashable: Any] { {{#discriminator}}
                 // Check discriminator to support inheritance
                 if let discriminator = sourceDictionary["{{discriminator}}"] as? String, instance == nil && discriminator != "{{classname}}"{
                     return Decoders.decode(clazz: {{classname}}.self, discriminator: discriminator, source: source)
-                }
-            {{/discriminator}}
+                }{{/discriminator~}}
             {{#additionalPropertiesType}}
             var propsDictionary = sourceDictionary
             let keys : [AnyHashable] = [{{#allVars}}{{^@last}}"{{baseName}}", {{/@last}}{{#@last}}"{{baseName}}"{{/@last}}{{/allVars}}]
-            {{/additionalPropertiesType}}
+            {{/additionalPropertiesType~}}
             {{#unwrapRequired}}
                 {{#requiredVars}}
                 guard let {{name}}Source = sourceDictionary["{{baseName}}"] as AnyObject? else {
@@ -344,32 +337,29 @@ class Decoders {
                 guard let {{name}} = Decoders.decode(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}.self, source: {{name}}Source).value else {
                     return .failure(.typeMismatch(expected: "{{classname}}", actual: "\({{name}}Source)"))
                 }
-                {{/requiredVars}}
+                {{/requiredVars~}}
                 let _result = {{classname}}({{#requiredVars}}{{^@first}}, {{/@first}}{{name}}: {{name}}{{/requiredVars}})
                 {{#optionalVars}}
                 switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
                 case let .success(value): _result.{{name}} = value
                 case let .failure(error): break
-                }
-                {{/optionalVars}}
-            {{/unwrapRequired}}
+                }{{/optionalVars~}}
+            {{/unwrapRequired~}}
             {{^unwrapRequired}}
-                let _result = instance == nil ? {{classname}}() : instance as! {{classname}}
-                {{#parent}}
+                let _result = instance == nil ? {{classname}}() : instance as! {{classname}}{{#parent}}
                 if decoders["\({{parent}}.self)"] != nil {
                   _ = Decoders.decode(clazz: {{parent}}.self, source: source, instance: _result)
                 }
-                {{/parent}}
+                {{/parent~}}
                 {{#allVars}}
                 switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
                 {{#is this 'enum'}}{{#is this 'mapContainer'}}/*{{/is}}{{/is}}
                 case let .success(value): _result.{{name}} = value
                 case let .failure(error): break
                 {{#is this 'enum'}}{{#is this 'mapContainer'}}*/ default: break //TODO: handle enum map scenario{{/is}}{{/is}}
-                }
-                {{/allVars}}
-            {{/unwrapRequired}}
-            {{#additionalPropertiesType}}
+                }{{/allVars~}}
+            {{/unwrapRequired~}}
+                {{#additionalPropertiesType}}
 
                 for key in keys {
                     propsDictionary.removeValue(forKey: key)
@@ -383,17 +373,12 @@ class Decoders {
 
                     }
                 }
-            {{/additionalPropertiesType}}
+                {{/additionalPropertiesType}}
                 return .success(_result)
             } else {
                 return .failure(.typeMismatch(expected: "{{classname}}", actual: "\(source)"))
-            }
-{{/allVars.isEmpty}}
-{{/isNot}}
-        }
-        {{/isNot}}
-        {{/model}}
-        {{/models}}
+            }{{/allVars.isEmpty}}{{/isNot}}
+        }{{/isNot}}{{/model}}{{/models}}
     }()
 
     static fileprivate func initialize() {

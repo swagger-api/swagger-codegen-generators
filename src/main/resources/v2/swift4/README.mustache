@@ -43,13 +43,13 @@ Class | Method | HTTP request | Description
 {{/authMethods}}{{#authMethods}}{{#last}} Authentication schemes defined for the API:{{/last}}{{/authMethods}}
 {{#authMethods}}## {{{name}}}
 
-{{#is this 'apiKey'}}- **Type**: API key
+{{#is this 'api-key'}}- **Type**: API key
 - **API key parameter name**: {{{keyParamName}}}
 - **Location**: {{#is this 'keyInQuery'}}URL query string{{/is}}{{#is this 'keyInHeader'}}HTTP header{{/is}}
 {{/is}}
 {{#is this 'basic'}}- **Type**: HTTP basic authentication
 {{/is}}
-{{#is this 'oAuth'}}- **Type**: OAuth
+{{#is this 'oauth'}}- **Type**: OAuth
 - **Flow**: {{{flow}}}
 - **Authorization URL**: {{{authorizationUrl}}}
 - **Scopes**: {{^scopes}}N/A{{/scopes}}
