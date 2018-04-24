@@ -1094,11 +1094,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return a string presentation of the property type
      */
     public String getTypeDeclaration(Schema schema) {
-        String swaggerType = getSchemaType(schema);
-        if (typeMapping.containsKey(swaggerType)) {
-            return typeMapping.get(swaggerType);
+        String schemaType = getSchemaType(schema);
+        if (typeMapping.containsKey(schemaType)) {
+            return typeMapping.get(schemaType);
         }
-        return swaggerType;
+        return schemaType;
     }
 
     /**
@@ -2227,12 +2227,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
                 collectionFormat = getCollectionFormat(parameter);
-                /** TODO: } else {
-                 Map<PropertyId, Object> args = new HashMap<PropertyId, Object>();
-                 String format = qp.getFormat();
-                 args.put(PropertyId.ENUM, qp.getEnum());
-                 parameterSchema = PropertyBuilder.build(type, format, args);
-                 */
             }
 
             if (parameterSchema == null) {
@@ -2394,7 +2388,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenModel = fromModel(name, schema, schemas);
             }
             if (codegenModel != null && !codegenModel.emptyVars) {
-                codegenParameter.paramName = codegenModel.classname.toLowerCase();
+                codegenParameter.baseType = codegenModel.classname;
                 codegenParameter.dataType = getTypeDeclaration(codegenModel.classname);
                 imports.add(codegenParameter.dataType);
             } else {
@@ -2468,6 +2462,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 imports.add(codegenProperty.complexType);
             }
         }
+        setParameterExampleValue(codegenParameter);
         return codegenParameter;
     }
 
