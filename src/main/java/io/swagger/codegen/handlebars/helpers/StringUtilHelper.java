@@ -19,4 +19,9 @@ public class StringUtilHelper {
         }
         return builder.toString();
     }
+
+    public String backSlash() {
+        return "\\";
+    }
+
 }
