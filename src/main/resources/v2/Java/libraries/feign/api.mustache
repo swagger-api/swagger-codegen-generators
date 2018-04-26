@@ -37,8 +37,8 @@ public interface {{classname}} extends ApiClient.Api {
    */
   @RequestLine("{{httpMethod}} {{{path}}}{{#hasQueryParams}}?{{/hasQueryParams}}{{#queryParams}}{{baseName}}={{=<% %>=}}{<%paramName%>}<%={{ }}=%>{{#has this 'more'}}&{{/has}}{{/queryParams}}")
   @Headers({
-    "Content-Type: {{vendorExtensions.x-contentType}}",
-    "Accept: {{vendorExtensions.x-accepts}}",{{#headerParams}}
+  {{#vendorExtensions.x-contentType}}"Content-Type: {{vendorExtensions.x-contentType}}"{{#vendorExtensions.x-accepts}},{{/vendorExtensions.x-accepts}}{{/vendorExtensions.x-contentType}}
+  {{#vendorExtensions.x-accepts}}"Accept: {{vendorExtensions.x-accepts}}"{{/vendorExtensions.x-accepts}}{{#headerParams}},{{/headerParams}}{{#headerParams}}
     "{{baseName}}: {{=<% %>=}}{<%paramName%>}<%={{ }}=%>"{{#has this 'more'}},
     {{/has}}{{/headerParams}}
   })
@@ -75,8 +75,8 @@ public interface {{classname}} extends ApiClient.Api {
    */
   @RequestLine("{{httpMethod}} {{{path}}}?{{#queryParams}}{{baseName}}={{=<% %>=}}{<%paramName%>}<%={{ }}=%>{{#has this 'more'}}&{{/has}}{{/queryParams}}")
   @Headers({
-  "Content-Type: {{vendorExtensions.x-contentType}}",
-  "Accept: {{vendorExtensions.x-accepts}}",{{#headerParams}}
+  {{#vendorExtensions.x-contentType}}"Content-Type: {{vendorExtensions.x-contentType}}"{{#vendorExtensions.x-accepts}},{{/vendorExtensions.x-accepts}}{{/vendorExtensions.x-contentType}}
+  {{#vendorExtensions.x-accepts}}"Accept: {{vendorExtensions.x-accepts}}"{{/vendorExtensions.x-accepts}}{{#headerParams}},{{/headerParams}}{{#headerParams}}
       "{{baseName}}: {{=<% %>=}}{<%paramName%>}<%={{ }}=%>"{{#has this 'more'}},
       {{/has}}{{/headerParams}}
   })
