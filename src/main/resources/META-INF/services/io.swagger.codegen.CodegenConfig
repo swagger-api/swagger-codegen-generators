@@ -14,3 +14,4 @@ io.swagger.codegen.languages.kotlin.KotlinClientCodegen
 io.swagger.codegen.languages.kotlin.KotlinServerCodegen
 io.swagger.codegen.languages.swift.Swift3Codegen
 io.swagger.codegen.languages.swift.Swift4Codegen
+io.swagger.codegen.languages.typescript.TypeScriptAngularClientCodegen
