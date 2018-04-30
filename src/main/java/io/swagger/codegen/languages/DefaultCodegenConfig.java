@@ -519,25 +519,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return apiTemplateFiles;
     }
 
-    public Map<String, String> modelTemplateFiles() {
-        return modelTemplateFiles;
-    }
+    public Map<String, String> modelTemplateFiles() { return modelTemplateFiles; }
 
-    public String apiFileFolder() {
-        return outputFolder + "/" + apiPackage().replace('.', '/');
-    }
+    public String apiFileFolder() { return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar); }
 
-    public String modelFileFolder() {
-        return outputFolder + "/" + modelPackage().replace('.', '/');
-    }
+    public String modelFileFolder() { return outputFolder + File.separator + modelPackage().replace('.', File.separatorChar); }
 
-    public String apiTestFileFolder() {
-        return outputFolder + "/" + testPackage().replace('.', '/');
-    }
+    public String apiTestFileFolder() { return outputFolder + File.separator + testPackage().replace('.', File.separatorChar); }
 
-    public String modelTestFileFolder() {
-        return outputFolder + "/" + testPackage().replace('.', '/');
-    }
+    public String modelTestFileFolder() { return outputFolder + File.separator + testPackage().replace('.', File.separatorChar); }
 
     public String apiDocFileFolder() {
         return outputFolder;

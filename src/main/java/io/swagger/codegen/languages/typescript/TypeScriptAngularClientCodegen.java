@@ -22,6 +22,7 @@ import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +45,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     public TypeScriptAngularClientCodegen() {
         super();
-        this.outputFolder = "generated-code/typescript-angular";
-
-        embeddedTemplateDir = templateDir = "typescript-angular";
-        modelTemplateFiles.put("model.mustache", ".ts");
-        apiTemplateFiles.put("api.service.mustache", ".ts");
-        languageSpecificPrimitives.add("Blob");
-        typeMapping.put("file", "Blob");
-        apiPackage = "api";
-        modelPackage = "model";
+        this.outputFolder = "generated-code" + File.separator + "typescript-angular";
 
         this.cliOptions.add(new CliOption(NPM_NAME, "The name under which you want to publish generated npm package"));
         this.cliOptions.add(new CliOption(NPM_VERSION, "The version of your npm package"));
@@ -84,6 +77,24 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     @Override
     public void processOpts() {
         super.processOpts();
+
+        if (StringUtils.isBlank(templateDir)) {
+            String templateVersion = getTemplateVersion();
+            if (StringUtils.isNotBlank(templateVersion)) {
+                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "typescript-angular", templateVersion);
+            } else {
+                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "typescript-angular", DEFAULT_TEMPLATE_VERSION);
+            }
+        }
+
+        modelTemplateFiles.put("model.mustache", ".ts");
+        apiTemplateFiles.put("api.service.mustache", ".ts");
+
+        languageSpecificPrimitives.add("Blob");
+        typeMapping.put("file", "Blob");
+        apiPackage = "api";
+        modelPackage = "model";
+
         supportingFiles.add(
                 new SupportingFile("models.mustache", modelPackage().replace('.', File.separatorChar), "models.ts"));
         supportingFiles
@@ -356,7 +367,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toApiImport(String name) {
-        return apiPackage() + "/" + toApiFilename(name);
+        return apiPackage() + File.separator + toApiFilename(name);
     }
 
     @Override
@@ -366,7 +377,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelImport(String name) {
-        return modelPackage() + "/" + toModelFilename(name);
+        return modelPackage() + File.separator + toModelFilename(name);
     }
 
     public String getNpmName() {
@@ -399,7 +410,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     }
 
     private String getModelnameFromModelFilename(String filename) {
-        String name = filename.substring((modelPackage() + "/").length());
+        String name = filename.substring((modelPackage() + File.separator).length());
         return camelize(name);
     }
 
