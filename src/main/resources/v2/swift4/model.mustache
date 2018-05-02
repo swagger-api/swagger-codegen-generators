@@ -9,9 +9,9 @@ import Foundation
 
 {{#description}}
 /** {{description}} */{{/description~}}
-{{#is this 'arrayModel'}}
+{{#is this 'array-model'}}
 {{> modelArray}}
-{{/is}}{{#isNot this 'arrayModel'}}{{#is this 'enum'}}
+{{/is}}{{#isNot this 'array-model'}}{{#is this 'enum'}}
 {{> modelEnum}}
 {{/is~}}{{#isNot this 'enum'}}
 {{> modelObject}}
