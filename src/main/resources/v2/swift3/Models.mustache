@@ -301,7 +301,7 @@ class Decoders {
             }
         }
 
-        {{#models}}{{#model}}{{#isNot this 'arrayModel'}}
+        {{#models}}{{#model}}{{#isNot this 'array-model'}}
         // Decoder for [{{{classname}}}]
         Decoders.addDecoder(clazz: [{{{classname}}}].self) { (source: AnyObject, instance: AnyObject?) -> Decoded<[{{{classname}}}]> in
             return Decoders.decode(clazz: [{{{classname}}}].self, source: source)
@@ -334,13 +334,13 @@ class Decoders {
                 guard let {{name}}Source = sourceDictionary["{{baseName}}"] as AnyObject? else {
                     return .failure(.missingKey(key: "{{baseName}}"))
                 }
-                guard let {{name}} = Decoders.decode(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}.self, source: {{name}}Source).value else {
+                guard let {{name}} = Decoders.decode(clazz: {{#is this 'enum'}}{{#isNot this 'list-container'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'list-container'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}.self, source: {{name}}Source).value else {
                     return .failure(.typeMismatch(expected: "{{classname}}", actual: "\({{name}}Source)"))
                 }
                 {{/requiredVars~}}
                 let _result = {{classname}}({{#requiredVars}}{{^@first}}, {{/@first}}{{name}}: {{name}}{{/requiredVars}})
                 {{#optionalVars}}
-                switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
+                switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'list-container'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'list-container'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
                 case let .success(value): _result.{{name}} = value
                 case let .failure(error): break
                 }{{/optionalVars~}}
@@ -352,11 +352,11 @@ class Decoders {
                 }
                 {{/parent~}}
                 {{#allVars}}
-                switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'listContainer'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'listContainer'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
-                {{#is this 'enum'}}{{#is this 'mapContainer'}}/*{{/is}}{{/is}}
+                switch Decoders.decodeOptional(clazz: {{#is this 'enum'}}{{#isNot this 'list-container'}}{{classname}}.{{enumName}}.self{{/isNot}}{{#is this 'list-container'}}Array<{{classname}}.{{enumName}}>.self{{/is}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}.self{{/isNot}}, source: sourceDictionary["{{baseName}}"] as AnyObject?) {
+                {{#is this 'enum'}}{{#is this 'map-container'}}/*{{/is}}{{/is}}
                 case let .success(value): _result.{{name}} = value
                 case let .failure(error): break
-                {{#is this 'enum'}}{{#is this 'mapContainer'}}*/ default: break //TODO: handle enum map scenario{{/is}}{{/is}}
+                {{#is this 'enum'}}{{#is this 'map-container'}}*/ default: break //TODO: handle enum map scenario{{/is}}{{/is}}
                 }{{/allVars~}}
             {{/unwrapRequired~}}
                 {{#additionalPropertiesType}}
