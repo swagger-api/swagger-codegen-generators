@@ -1,5 +1,5 @@
 {{#discriminator}}
-export type {{classname}} = {{#children}}{{^-first}} | {{/-first}}{{classname}}{{/children}};
+export type {{classname}} = {{#children}}{{^@first}} | {{/@first}}{{classname}}{{/children}};
 {{/discriminator}}
 {{^discriminator}}
 {{#parent}}

@@ -1,5 +1,5 @@
-{{#additionalPropertiesType}}
+{{#if additionalPropertiesType}}
 
-  [key: string]: {{{additionalPropertiesType}}}{{#hasVars}} | any{{/hasVars}};
+  [key: string]: {{{additionalPropertiesType}}}{{#has this 'vars'}} | any{{/has}};
 
-{{/additionalPropertiesType}}
+{{/if}}
