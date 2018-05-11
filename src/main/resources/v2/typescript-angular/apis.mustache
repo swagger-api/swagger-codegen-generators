@@ -8,5 +8,5 @@ import { {{ classname }} } from './{{ classFilename }}';
 export * from './{{ classFilename }}Interface'
 {{/withInterfaces}}
 {{/apis}}
-export const APIS = [{{#apis}}{{#operations}}{{ classname }}{{/operations}}{{^-last}}, {{/-last}}{{/apis}}];
+export const APIS = [{{#apis}}{{#operations}}{{ classname }}{{/operations}}{{^@last}}, {{/@last}}{{/apis}}];
 {{/apiInfo}}
