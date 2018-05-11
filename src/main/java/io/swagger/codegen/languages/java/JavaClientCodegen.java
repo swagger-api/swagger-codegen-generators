@@ -16,6 +16,7 @@ import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.GzipFeatures;
 import io.swagger.codegen.languages.features.PerformBeanValidationFeatures;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -124,9 +125,9 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         if (StringUtils.isBlank(templateDir)) {
             String templateVersion = getTemplateVersion();
             if (StringUtils.isNotBlank(templateVersion)) {
-                embeddedTemplateDir = templateDir = String.format("%s/Java", templateVersion);
+                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", templateVersion);
             } else {
-                embeddedTemplateDir = templateDir = String.format("%s/Java", DEFAULT_TEMPLATE_VERSION);
+                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", DEFAULT_TEMPLATE_VERSION);
             }
         }
 
@@ -173,9 +174,9 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             this.setUseRuntimeException(convertPropertyToBooleanAndWriteBack(USE_RUNTIME_EXCEPTION));
         }
 
-        final String invokerFolder = (sourceFolder + '/' + invokerPackage).replace(".", "/");
-        final String authFolder = (sourceFolder + '/' + invokerPackage + ".auth").replace(".", "/");
-        final String apiFolder = (sourceFolder + '/' + apiPackage).replace(".", "/");
+        final String invokerFolder = (sourceFolder + File.separator + invokerPackage).replace(".", File.separator);
+        final String authFolder = (sourceFolder + File.separator + invokerPackage + ".auth").replace(".", File.separator);
+        final String apiFolder = (sourceFolder + File.separator + apiPackage).replace(".", File.separator);
 
         //Common files
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
@@ -193,6 +194,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
         // google-api-client doesn't use the Swagger auth, because it uses Google Credential directly (HttpRequestInitializer)
         if (!"google-api-client".equals(getLibrary())) {
+
             supportingFiles.add(new SupportingFile("auth/HttpBasicAuth.mustache", authFolder, "HttpBasicAuth.java"));
             supportingFiles.add(new SupportingFile("auth/ApiKeyAuth.mustache", authFolder, "ApiKeyAuth.java"));
             supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
