@@ -1,0 +1,10 @@
+export interface {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{ {{>modelGenericAdditionalProperties}}
+{{#vars}}
+    {{#description}}
+    /**
+     * {{{description}}}
+     */
+    {{/description}}
+    {{#is this 'read-only'}}readonly {{/is}}{{name}}{{^required}}?{{/required}}: {{#is this 'enum'}}{{{datatypeWithEnum}}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}{{/isNot}};
+{{/vars}}
+}{{>modelGenericEnums}}
