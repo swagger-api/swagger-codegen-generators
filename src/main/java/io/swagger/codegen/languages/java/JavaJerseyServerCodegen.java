@@ -88,16 +88,7 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
             }
         }
 
-        apiTemplateFiles.put("apiService.mustache", ".java");
-        apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
-        apiTemplateFiles.put("apiServiceFactory.mustache", ".java");
-        apiTestTemplateFiles.clear(); // TODO: add test template
-
-        // clear model and api doc template as this codegen
-        // does not support auto-generated markdown doc at the moment
-        // TODO: add doc templates
-        modelDocTemplateFiles.remove("model_doc.mustache");
-        apiDocTemplateFiles.remove("api_doc.mustache");
+        addTemplateFiles();
 
         // use default library if unset
         if (StringUtils.isEmpty(library)) {
@@ -112,6 +103,11 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
             this.setUseTags(Boolean.valueOf(additionalProperties.get(USE_TAGS).toString()));
         }
 
+        addDateLibrary();
+        addSupportingFiles();
+    }
+
+    public void addDateLibrary() {
         if ("joda".equals(dateLibrary)) {
             supportingFiles.add(new SupportingFile("JodaDateTimeProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "JodaDateTimeProvider.java"));
             supportingFiles.add(new SupportingFile("JodaLocalDateProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "JodaLocalDateProvider.java"));
@@ -120,7 +116,21 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
             supportingFiles.add(new SupportingFile("OffsetDateTimeProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "OffsetDateTimeProvider.java"));
             supportingFiles.add(new SupportingFile("LocalDateProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "LocalDateProvider.java"));
         }
+    }
 
+    public void addTemplateFiles() {
+        apiTemplateFiles.put("apiService.mustache", ".java");
+        apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
+        apiTemplateFiles.put("apiServiceFactory.mustache", ".java");
+        apiTestTemplateFiles.clear(); // TODO: add test template
+        // clear model and api doc template as this codegen
+        // does not support auto-generated markdown doc at the moment
+        // TODO: add doc templates
+        modelDocTemplateFiles.remove("model_doc.mustache");
+        apiDocTemplateFiles.remove("api_doc.mustache");
+    }
+
+    public void addSupportingFiles() {
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("ApiException.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "ApiException.java"));

@@ -21,6 +21,7 @@ import io.swagger.codegen.handlebars.helpers.HasHelper;
 import io.swagger.codegen.handlebars.helpers.HasNotHelper;
 import io.swagger.codegen.handlebars.helpers.IsHelper;
 import io.swagger.codegen.handlebars.helpers.IsNotHelper;
+import io.swagger.codegen.handlebars.helpers.StringUtilHelper;
 import io.swagger.codegen.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -519,25 +520,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return apiTemplateFiles;
     }
 
-    public Map<String, String> modelTemplateFiles() {
-        return modelTemplateFiles;
-    }
+    public Map<String, String> modelTemplateFiles() { return modelTemplateFiles; }
 
-    public String apiFileFolder() {
-        return outputFolder + "/" + apiPackage().replace('.', '/');
-    }
+    public String apiFileFolder() { return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar); }
 
-    public String modelFileFolder() {
-        return outputFolder + "/" + modelPackage().replace('.', '/');
-    }
+    public String modelFileFolder() { return outputFolder + File.separator + modelPackage().replace('.', File.separatorChar); }
 
-    public String apiTestFileFolder() {
-        return outputFolder + "/" + testPackage().replace('.', '/');
-    }
+    public String apiTestFileFolder() { return outputFolder + File.separator + testPackage().replace('.', File.separatorChar); }
 
-    public String modelTestFileFolder() {
-        return outputFolder + "/" + testPackage().replace('.', '/');
-    }
+    public String modelTestFileFolder() { return outputFolder + File.separator + testPackage().replace('.', File.separatorChar); }
 
     public String apiDocFileFolder() {
         return outputFolder;
@@ -1093,11 +1084,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return a string presentation of the property type
      */
     public String getTypeDeclaration(Schema schema) {
-        String swaggerType = getSchemaType(schema);
-        if (typeMapping.containsKey(swaggerType)) {
-            return typeMapping.get(swaggerType);
+        String schemaType = getSchemaType(schema);
+        if (typeMapping.containsKey(schemaType)) {
+            return typeMapping.get(schemaType);
         }
-        return swaggerType;
+        return schemaType;
     }
 
     /**
@@ -1262,7 +1253,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allRequired = null;
             }
             // parent model
-            final String parentName = getParentName(composed, allDefinitions);
+            final String parentName = getParentName(composed);
             final Schema parent = StringUtils.isBlank(parentName) ? null : allDefinitions.get(parentName);
 
             List<Schema> interfaces = getInterfaces(composed);
@@ -1359,11 +1350,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected void addProperties(Map<String, Schema> properties, List<String> required, Schema schema, Map<String, Schema> allSchemas) {
         if(schema instanceof ComposedSchema) {
             ComposedSchema composedSchema = (ComposedSchema) schema;
-            if(composedSchema.getAllOf() == null) {
+            if(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1) {
                 return;
             }
-            for (Schema component : composedSchema.getAllOf()) {
-                addProperties(properties, required, component, allSchemas);
+            for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
+                addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
             }
             return;
         }
@@ -2226,12 +2217,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
                 collectionFormat = getCollectionFormat(parameter);
-                /** TODO: } else {
-                 Map<PropertyId, Object> args = new HashMap<PropertyId, Object>();
-                 String format = qp.getFormat();
-                 args.put(PropertyId.ENUM, qp.getEnum());
-                 parameterSchema = PropertyBuilder.build(type, format, args);
-                 */
             }
 
             if (parameterSchema == null) {
@@ -2393,7 +2378,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenModel = fromModel(name, schema, schemas);
             }
             if (codegenModel != null && !codegenModel.emptyVars) {
-                codegenParameter.paramName = codegenModel.classname.toLowerCase();
+                codegenParameter.baseType = codegenModel.classname;
                 codegenParameter.dataType = getTypeDeclaration(codegenModel.classname);
                 imports.add(codegenParameter.dataType);
             } else {
@@ -2467,6 +2452,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 imports.add(codegenProperty.complexType);
             }
         }
+        setParameterExampleValue(codegenParameter);
         return codegenParameter;
     }
 
@@ -3301,6 +3287,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
         handlebars.registerHelper(BracesHelper.NAME, new BracesHelper());
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
+        handlebars.registerHelpers(new StringUtilHelper());
     }
 
     @Override
@@ -3701,7 +3688,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return null;
     }
 
-    protected String getParentName(ComposedSchema composedSchema, Map<String, Schema> allSchemas) {
+    protected String getParentName(ComposedSchema composedSchema) {
         if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
             Schema schema = composedSchema.getAllOf().get(0);
             String ref = schema.get$ref();

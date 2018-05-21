@@ -863,7 +863,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
         if (allSchemas != null && codegenModel.parentSchema != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
-            final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel);
+            final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allSchemas);
             codegenModel = AbstractJavaCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
         return codegenModel;

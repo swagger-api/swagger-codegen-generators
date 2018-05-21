@@ -18,6 +18,8 @@ import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -253,10 +255,10 @@ public class JavaClientCodegenTest {
     public void customTemplates() throws Exception {
         final JavaClientCodegen codegen = new JavaClientCodegen();
         codegen.processOpts();
-        Assert.assertEquals(codegen.templateDir(), "v2/Java");
+        Assert.assertEquals(codegen.templateDir(), "v2" + File.separator  + "Java");
 
-        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, "/user/custom/location");
+        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, String.join(File.separator,"user", "custom", "location"));
         codegen.processOpts();
-        Assert.assertEquals(codegen.templateDir(), "/user/custom/location");
+        Assert.assertEquals(codegen.templateDir(), String.join(File.separator,"user", "custom", "location"));
     }
 }
