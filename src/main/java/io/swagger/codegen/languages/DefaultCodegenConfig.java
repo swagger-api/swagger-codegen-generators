@@ -1944,9 +1944,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 String bodyName = getSimpleRef(body.get$ref());
                 body = openAPI.getComponents().getRequestBodies().get(bodyName);
             }
-            bodyParam = fromRequestBody(body, schemas, imports);
-            bodyParams.add(bodyParam);
-            allParams.add(bodyParam);
             if (containsFormContentType(body)) {
                 Schema schema = getSchemaFromBody(body);
                 final Map<String, Schema> propertyMap = schema.getProperties();
@@ -1956,8 +1953,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                 .name(propertyName)
                                 .schema(propertyMap.get(propertyName)), imports);
                         formParams.add(codegenParameter);
+                        allParams.add(codegenParameter);
                     }
                 }
+            } else {
+                bodyParam = fromRequestBody(body, schemas, imports);
+                bodyParams.add(bodyParam);
+                allParams.add(bodyParam);
             }
         }
 
