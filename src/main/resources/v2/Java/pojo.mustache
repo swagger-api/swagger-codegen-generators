@@ -159,7 +159,9 @@ public class {{{getClassDefinition}}} {
 
   {{#parcelableModel}}
   public void writeToParcel(Parcel out, int flags) {
+    {{#isNot this 'container'~}}
     {{#parent}} super.writeToParcel(out, flags); {{/parent}}
+    {{/isNot}}
     {{#vars~}}
     out.writeValue({{name}});
     {{/vars}}
@@ -170,7 +172,9 @@ public class {{{getClassDefinition}}} {
   }
 
   {{classname}}(Parcel in) {
+    {{#isNot this 'container'~}}
     {{#parent}} super(in); {{/parent}}
+    {{/isNot}}
     {{#vars~}}
     {{#is this 'primitive-type'~}}{{name}} = ({{{datatypeWithEnum}}})in.readValue(null);{{/is~}}
     {{#isNot this 'primitive-type'~}}{{name}} = ({{{datatypeWithEnum}}})in.readValue({{complexType}}.class.getClassLoader());{{/isNot~}}

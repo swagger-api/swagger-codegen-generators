@@ -88,6 +88,7 @@ import static io.swagger.codegen.CodegenConstants.HAS_ONLY_READ_ONLY_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.HAS_OPTIONAL_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.HAS_REQUIRED_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
+import static io.swagger.codegen.CodegenConstants.IS_CONTAINER_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.languages.CodegenHelper.getDefaultIncludes;
@@ -1211,11 +1212,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         if (schema instanceof ArraySchema) {
             codegenModel.getVendorExtensions().put(IS_ARRAY_MODEL_EXT_NAME, Boolean.TRUE);
+            codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenModel.arrayModelType = fromProperty(name, schema).complexType;
             addParentContainer(codegenModel, name, schema);
-            //} else if (schema instanceof RefModel) {
-            // TODO
-        } else if (schema instanceof ComposedSchema) {
+        }
+        else if (schema instanceof MapSchema) {
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
+            codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+            addParentContainer(codegenModel, name, schema);
+        }
+        else if (schema instanceof ComposedSchema) {
             final ComposedSchema composed = (ComposedSchema) schema;
             Map<String, Schema> properties = new LinkedHashMap<>();
             List<String> required = new ArrayList<String>();
