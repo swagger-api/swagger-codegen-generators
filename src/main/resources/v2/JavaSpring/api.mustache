@@ -97,8 +97,8 @@ public interface {{classname}} {
     @RequestMapping(value = "{{{path}}}",{{#if singleContentTypes}}{{#has this 'produces'}}
         produces = "{{{vendorExtensions.x-accepts}}}", {{/has}}{{#has this 'consumes'}}
         consumes = "{{{vendorExtensions.x-contentType}}}",{{/has}}{{/if}}{{#unless singleContentTypes}}{{#has this 'produces'}}
-        produces = { {{#produces}}"{{{mediaType}}}"{{#has this 'more'}}, {{/has}}{{/produces}} }, {{/has}}{{#has this 'consumes'}}
-        consumes = { {{#consumes}}"{{{mediaType}}}"{{#has this 'more'}}, {{/has}}{{/consumes}} },{{/has}}{{/unless}}
+        produces = { {{#produces}}"{{{mediaType}}}"{{#has ../this 'more'}}, {{/has}}{{/produces}} }, {{/has}}{{#has this 'consumes'}}
+        consumes = { {{#consumes}}"{{{mediaType}}}"{{#has ../this 'more'}}, {{/has}}{{/consumes}} },{{/has}}{{/unless}}
         method = RequestMethod.{{httpMethod}})
     {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#has this 'more'}},{{/has}}{{/allParams}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
         {{#delegate-method}}
