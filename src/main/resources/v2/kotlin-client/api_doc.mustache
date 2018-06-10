@@ -45,7 +45,7 @@ try {
 {{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#is this 'primitiveType'}}}**{{dataType}}**{{/is}}}{{#isNot this 'primitiveType'}}{{#is this 'file'}}**{{dataType}}**{{/is}}{{#isNot this 'file'}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isNot}}{{/isNot}}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
+{{#allParams}} **{{paramName}}** | {{#is this 'primitiveType'}}**{{dataType}}**{{/is}}{{#isNot this 'primitiveType'}}{{#is this 'file'}}**{{dataType}}**{{/is}}{{#isNot this 'file'}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
 {{/allParams}}
 
 ### Return type
@@ -58,8 +58,8 @@ Name | Type | Description  | Notes
 
 ### HTTP request headers
 
- - **Content-Type**: {{#consumes}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
- - **Accept**: {{#produces}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/produces}}{{^produces}}Not defined{{/produces}}
+ - **Content-Type**: {{#if consumes}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/if}}{{#unless consumes}}Not defined{{/unless}}
+ - **Accept**: {{#if produces}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/if}}{{#unless produces}}Not defined{{/unless}}
 
 {{/operation}}
 {{/operations}}
