@@ -470,12 +470,20 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (operations != null) {
             List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
             for (final CodegenOperation operation : ops) {
+                boolean multipleReturnTypes = false;
+                String previousReturnType = null;
+                
                 List<CodegenResponse> responses = operation.responses;
                 if (responses != null) {
                     for (final CodegenResponse resp : responses) {
                         if ("0".equals(resp.code)) {
                             resp.code = "200";
                         }
+                        
+                        if (previousReturnType != null && !previousReturnType.equals(resp.dataType)) {
+                            multipleReturnTypes = true;
+                        }
+                        
                         doDataTypeAssignment(resp.dataType, new io.swagger.codegen.languages.java.SpringCodegen.DataTypeAssigner() {
                             @Override
                             public void setReturnType(final String returnType) {
@@ -487,9 +495,14 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                                 resp.containerType = returnContainer;
                             }
                         });
+                        previousReturnType = resp.dataType;
                     }
                 }
-
+                
+                if (multipleReturnTypes) {
+                    operation.returnType = "?";
+                }
+                    
                 doDataTypeAssignment(operation.returnType, new io.swagger.codegen.languages.java.SpringCodegen.DataTypeAssigner() {
 
                     @Override
