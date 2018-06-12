@@ -877,7 +877,7 @@ public class JavaModelTest {
         Assert.assertEquals(cp1.dataType, "List<Pet>");
         Assert.assertEquals(cp1.items.baseType, "Pet");
         Assert.assertEquals(cp1.items.complexType, "Pet");
-        Assert.assertEquals(cp1.items.datatype, "List<Pet>");
+        Assert.assertEquals(cp1.items.datatype, "Pet");
 
         Assert.assertEquals(co.responses.size(), 1);
 
@@ -946,11 +946,11 @@ public class JavaModelTest {
 
         Assert.assertEquals(co.bodyParams.size(), 1);
         CodegenParameter cp1 = co.bodyParams.get(0);
-        Assert.assertEquals(cp1.baseType, "List");
+        Assert.assertEquals(cp1.baseType, "List<Pet>");
         Assert.assertEquals(cp1.dataType, "List<List<Pet>>");
         Assert.assertEquals(cp1.items.baseType, "List");
-        Assert.assertEquals(cp1.items.complexType, "List");
-        Assert.assertEquals(cp1.items.datatype, "List<List<Pet>>");
+        Assert.assertEquals(cp1.items.complexType, "Pet");
+        Assert.assertEquals(cp1.items.datatype, "List<Pet>");
 
         Assert.assertEquals(co.responses.size(), 1);
 

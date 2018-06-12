@@ -2401,7 +2401,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     arraySchema.setItems(inner);
                 }
 
-                CodegenProperty codegenProperty = fromProperty("inner", inner);
+                CodegenProperty codegenProperty = fromProperty("property", inner);
                 codegenParameter.items = codegenProperty;
                 codegenParameter.baseType = codegenProperty.datatype;
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -2413,7 +2413,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
             } else if (bodySchema instanceof MapSchema) { // for map parameter
-                CodegenProperty codegenProperty = fromProperty("inner", (Schema) bodySchema.getAdditionalProperties());
+                CodegenProperty codegenProperty = fromProperty("property", (Schema) bodySchema.getAdditionalProperties());
                 codegenParameter.items = codegenProperty;
                 codegenParameter.baseType = codegenProperty.datatype;
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
