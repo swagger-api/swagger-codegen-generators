@@ -2434,8 +2434,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // set boolean flag (e.g. isString)
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
 
-            codegenParameter.dataType = codegenProperty.datatype;
-            codegenParameter.dataFormat = codegenProperty.dataFormat;
+            if (bodySchema instanceof BinarySchema) {
+                codegenParameter.dataType = "Object";
+                codegenParameter.baseType = "Object";
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
+            } else {
+                codegenParameter.dataType = codegenProperty.datatype;
+                codegenParameter.dataFormat = codegenProperty.dataFormat;
+            }
 
             if (getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME)) {
                 codegenParameter.datatypeWithEnum = codegenProperty.datatypeWithEnum;
