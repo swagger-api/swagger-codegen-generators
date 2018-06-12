@@ -86,7 +86,7 @@ public interface {{classname}} {
         {{/hasMore}}{{/authMethods}}
     }{{/has}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#has this 'more'}},,{{/has}}{{/responses}} })
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#has this 'more'}},{{/has}}{{/responses}} })
     {{#implicitHeaders}}
     @ApiImplicitParams({
     {{#headerParams}}
