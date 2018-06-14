@@ -1,0 +1,4 @@
+arguments:
+  - option: "--test-option"
+    description: "added to verify custom arguments functionality."
+    type: "string"
