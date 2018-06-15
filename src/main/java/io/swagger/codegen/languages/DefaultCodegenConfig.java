@@ -2435,13 +2435,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
 
             if (bodySchema instanceof BinarySchema) {
-                codegenParameter.dataType = "Object";
-                codegenParameter.baseType = "Object";
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
-            } else {
-                codegenParameter.dataType = codegenProperty.datatype;
-                codegenParameter.dataFormat = codegenProperty.dataFormat;
             }
+            codegenParameter.dataType = codegenProperty.datatype;
+            codegenParameter.dataFormat = codegenProperty.dataFormat;
 
             if (getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME)) {
                 codegenParameter.datatypeWithEnum = codegenProperty.datatypeWithEnum;
@@ -2449,10 +2446,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                 updateCodegenPropertyEnum(codegenProperty);
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_ENUM_EXT_NAME, Boolean.TRUE);
-                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_LIST_CONTAINER_EXT_NAME, Boolean.TRUE);
                 codegenParameter._enum = codegenProperty._enum;
-                codegenParameter.allowableValues = codegenProperty.allowableValues;
             }
+            codegenParameter.allowableValues = codegenProperty.allowableValues;
 
             if (codegenProperty.items != null && getBooleanValue(codegenProperty.items, IS_ENUM_EXT_NAME)) {
                 codegenParameter.datatypeWithEnum = codegenProperty.datatypeWithEnum;
