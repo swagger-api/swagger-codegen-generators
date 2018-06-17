@@ -4,7 +4,7 @@
 ## Supported features
 * Bean-Validation-API support
 * Spring-configuration of Swagger, WADL and Endpoints
-* Swagger-API is accessible (CXF3 Swagger2Feature)
+* OpenAPI v2/v3 is accessible (CXF3 Swagger2Feature/OpenApiFeature)
 * Swagger-UI can be included as Web-Jar automatically
 * WADL is accessible (CXF WADL-Generator)
 * Unit-tests include Gzip-Interceptors for demonstration
@@ -16,9 +16,12 @@
 * Available services listing
 http://localhost:8080/
 
-* Swagger API  
- http://localhost:8080/services/swagger.json
+* OpenAPI v3
+ http://localhost:8080/services/openapi.json
 
+* Swagger API (OpenAPI v2)
+ http://localhost:8080/services/swagger.json
+ 
 * CXF WADL
  http://localhost:8080/services?_wadl
 
@@ -27,7 +30,10 @@ http://localhost:8080/
 * Available services listing
 http://localhost:8080/swagger-cxf-server/rest/services/
 
-* Swagger API  
+* OpenAPI v3
+ http://localhost:8080/swagger-cxf-server/rest/services/openapi.json
+
+* Swagger API (OpenAPI v2)
  http://localhost:8080/swagger-cxf-server/rest/services/swagger.json
 
 * CXF WADL

@@ -9,8 +9,13 @@
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>
+                {{#useOas2}}
                 io.swagger.jaxrs.listing,
                 io.swagger.sample.resource,
+                {{/useOas2}}
+                {{^useOas2}}
+                io.swagger.v3.jaxrs2.integration.resources,
+                {{/useOas2}}
                 {{apiPackage}}
             </param-value>
         </init-param>
@@ -22,9 +27,16 @@
             <param-name>jersey.config.server.wadl.disableWadl</param-name>
             <param-value>true</param-value>
         </init-param>
+        {{^useOas2}}
+        <init-param>
+            <param-name>openApi.configuration.prettyPrint</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        {{/useOas2}}
         <load-on-startup>1</load-on-startup>
     </servlet>
-
+    
+    {{#useOas2}}
     <servlet>
         <servlet-name>Jersey2Config</servlet-name>
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
@@ -48,6 +60,8 @@
         <servlet-class>{{apiPackage}}.Bootstrap</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
+    {{/useOas2}}
+    
     <servlet-mapping>
         <servlet-name>jersey</servlet-name>
         <url-pattern>{{contextPath}}/*</url-pattern>

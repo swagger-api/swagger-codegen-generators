@@ -1,4 +1,9 @@
+{{#useOas2}}
 import io.swagger.annotations.ApiModelProperty;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.media.Schema;
+{{/useOas2}}
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
   * {{{description}}}
  **/
-@ApiModel(description="{{{description}}}")
+{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description="{{{description}}}")
 {{/description}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
   {{#vars}}{{#baseItems this}}{{#is this 'enum'}}
@@ -28,7 +33,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
 {{#withXml}}
   @XmlElement(name="{{baseName}}"{{#required}}, required = {{required}}{{/required}})
 {{/withXml}}
-  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}")
+  {{#useOas2}}@ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}"){{/useOas2}}
+  {{^useOas2}}@Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}description = "{{{description}}}"){{/useOas2}}
 {{#description}}
  /**
    * {{{description}}}  

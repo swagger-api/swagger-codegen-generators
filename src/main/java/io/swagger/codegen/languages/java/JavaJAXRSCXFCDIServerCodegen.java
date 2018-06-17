@@ -39,8 +39,8 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
 
     @Override
     public void processOpts() {
-        super.processOpts();
-
+    	// Set the template dir first, before super.processOpts(), otherwise it is going to
+    	// be set to /spec location.
         if (StringUtils.isBlank(templateDir)) {
             if (StringUtils.isNotBlank(templateVersion)) {
                 embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", templateVersion);
@@ -49,6 +49,8 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
                 embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", DEFAULT_TEMPLATE_VERSION);
             }
         }
+
+        super.processOpts();
 
         // Three API templates to support CDI injection
         apiTemplateFiles.put("apiService.mustache", ".java");

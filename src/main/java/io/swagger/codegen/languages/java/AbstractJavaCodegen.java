@@ -2,6 +2,7 @@ package io.swagger.codegen.languages.java;
 
 import com.github.jknack.handlebars.Handlebars;
 import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
@@ -145,6 +146,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(FULL_JAVA_UTIL, "whether to use fully qualified name for classes under java.util. This option only works for Java API client"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC));
         cliOptions.add(CliOption.newBoolean(WITH_XML, "whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)"));
+        cliOptions.add(CliOption.newBoolean(CodegenConstants.USE_OAS2, CodegenConstants.USE_OAS2_DESC));
 
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
@@ -162,7 +164,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
-
     }
 
     @Override
@@ -367,8 +368,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         importMapping.put("JsonSerialize", "com.fasterxml.jackson.databind.annotation.JsonSerialize");
 
         // imports for pojos
-        importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
-        importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
+        if (useOas2) {
+            importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
+            importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
+        } else {
+            importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
+        }
+        
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
@@ -854,7 +860,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allSchemas) {
         CodegenModel codegenModel = super.fromModel(name, schema, allSchemas);
         if(codegenModel.description != null) {
-            codegenModel.imports.add("ApiModel");
+            if (useOas2) {
+                codegenModel.imports.add("ApiModel");
+            } else {
+                codegenModel.imports.add("Schema");
+            }
         }
         if (codegenModel.discriminator != null && additionalProperties.containsKey("jackson")) {
             codegenModel.imports.add("JsonSubTypes");
@@ -893,8 +903,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
         if(!BooleanUtils.toBoolean(isEnum)) {
             // needed by all pojos, but not enums
-            model.imports.add("ApiModelProperty");
-            model.imports.add("ApiModel");
+            if (useOas2) {
+                model.imports.add("ApiModelProperty");
+                model.imports.add("ApiModel");
+            } else {
+                model.imports.add("Schema");
+            }
         }
     }
 
@@ -1290,7 +1304,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public void setSupportJava6(boolean value) {
         this.supportJava6 = value;
     }
-
+    
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
@@ -1335,4 +1349,18 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(new JavaHelper());
     }
 
+    @Override
+    public void setLanguageArguments(List<CodegenArgument> languageArguments) {
+        if (languageArguments != null) {
+	        if (!languageArguments.stream()
+	                .anyMatch(codegenArgument -> CodegenConstants.USE_OAS2_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+	            languageArguments.add(new CodegenArgument()
+	                    .option(CodegenConstants.USE_OAS2_OPTION)
+	                    .type("boolean")
+	                    .value(Boolean.FALSE.toString()));
+	        }
+        }
+        
+        super.setLanguageArguments(languageArguments);
+    }
 }

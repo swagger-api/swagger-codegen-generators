@@ -1,1 +1,4 @@
-{{#is this 'form-param'}}{{#notFile}}@ApiParam(value = "{{{description}}}"{{#required}}, required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@FormParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/notFile}}{{/is}}
+{{#is this 'form-param'}}{{#notFile}}
+{{#useOas2}}@ApiParam(value = "{{{description}}}"{{#required}}, required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@FormParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/useOas2}}
+{{^useOas2}}@Parameter(description = "{{{description}}}"{{#required}}, required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@FormParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/useOas2}}
+{{/notFile}}{{/is}}

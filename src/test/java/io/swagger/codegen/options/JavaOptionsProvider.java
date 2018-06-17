@@ -73,6 +73,7 @@ public class JavaOptionsProvider implements OptionsProvider {
                 .put(JavaClientCodegen.DATE_LIBRARY, "joda")
                 .put("hideGenerationTimestamp", "true")
                 .put(CodegenConstants.ALLOW_UNICODE_IDENTIFIERS, ALLOW_UNICODE_IDENTIFIERS_VALUE)
+                .put(CodegenConstants.USE_OAS2, "true")
                 //.put("supportJava6", "true")
                 .build();
     }

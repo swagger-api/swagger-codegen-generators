@@ -354,6 +354,25 @@ public class JavaModelTest {
         Assert.assertEquals(cm.vars.size(), 0);
         Assert.assertEquals(cm.parent, "ArrayList<Children>");
         Assert.assertEquals(cm.imports.size(), 4);
+        Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "List", "ArrayList", "Children")).size(), 4);
+    }
+    
+    @Test(description = "convert an array model")
+    public void arrayModelTestUsingOas2() {
+        final Schema schema = new ArraySchema()
+                .items(new Schema().name("elobjeto").$ref("#/components/schemas/Children"))
+                .name("arraySchema")
+                .description("an array model");
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.setUseOas2(true);
+        final CodegenModel cm = codegen.fromModel("sample", schema);
+
+        Assert.assertEquals(cm.name, "sample");
+        Assert.assertEquals(cm.classname, "Sample");
+        Assert.assertEquals(cm.description, "an array model");
+        Assert.assertEquals(cm.vars.size(), 0);
+        Assert.assertEquals(cm.parent, "ArrayList<Children>");
+        Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("ApiModel", "List", "ArrayList", "Children")).size(), 4);
     }
 
@@ -371,9 +390,27 @@ public class JavaModelTest {
         Assert.assertEquals(cm.vars.size(), 0);
         Assert.assertEquals(cm.parent, "HashMap<String, Children>");
         Assert.assertEquals(cm.imports.size(), 4);
+        Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "Map", "HashMap", "Children")).size(), 4);
+    }
+    
+    @Test(description = "convert an map model")
+    public void mapModelTestUsingOas2() {
+        final Schema schema = new Schema()
+                .description("an map model")
+                .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
+        final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.setUseOas2(true);
+        final CodegenModel cm = codegen.fromModel("sample", schema);
+
+        Assert.assertEquals(cm.name, "sample");
+        Assert.assertEquals(cm.classname, "Sample");
+        Assert.assertEquals(cm.description, "an map model");
+        Assert.assertEquals(cm.vars.size(), 0);
+        Assert.assertEquals(cm.parent, "HashMap<String, Children>");
+        Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("ApiModel", "Map", "HashMap", "Children")).size(), 4);
     }
-
+    
     @Test(description = "convert a model with upper-case property names")
     public void upperCaseNamesTest() {
         final Schema schema = new Schema()

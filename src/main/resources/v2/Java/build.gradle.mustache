@@ -106,7 +106,12 @@ if(hasProperty('target') && target == 'android') {
 }
 
 ext {
+    {{#useOas2}}
     swagger_annotations_version = "1.5.15"
+    {{/useOas2}}
+    {{^useOas2}}
+    swagger_annotations_version = "2.0.0"
+    {{/useOas2}}
     jackson_version = "{{^threetenbp}}2.8.9{{/threetenbp}}{{#threetenbp}}2.6.4{{/threetenbp}}"
     jersey_version = "1.19.4"
     jodatime_version = "2.9.9"
@@ -114,7 +119,12 @@ ext {
 }
 
 dependencies {
+    {{#useOas2}}
     compile "io.swagger:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
+    {{^useOas2}}
+    compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
     compile "com.sun.jersey:jersey-client:$jersey_version"
     compile "com.sun.jersey.contribs:jersey-multipart:$jersey_version"
     compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"

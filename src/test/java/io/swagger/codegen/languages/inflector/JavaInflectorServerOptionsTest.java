@@ -48,6 +48,8 @@ public class JavaInflectorServerOptionsTest extends AbstractOptionsTest {
             times = 1;
             clientCodegen.setSerializeBigDecimalAsString(true);
             times = 1;
+            clientCodegen.setUseOas2(true);
+            times = 1;
         }};
     }
 }

@@ -183,11 +183,20 @@
   </profiles>
 
   <dependencies>
+    {{#useOas2}}
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-core-version}</version>
     </dependency>
+    {{/useOas2}}
+    {{^useOas2}}
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-core-version}</version>
+    </dependency>
+    {{/useOas2}}
 
     <!-- HTTP client: jersey-client -->
     <dependency>
@@ -291,7 +300,12 @@
     </dependency>
   </dependencies>
   <properties>
+    {{#useOas2}}
     <swagger-core-version>1.5.15</swagger-core-version>
+    {{/useOas2}}
+    {{^useOas2}}
+    <swagger-core-version>2.0.0</swagger-core-version>
+    {{/useOas2}}
     {{^supportJava6}}
     <jersey-version>2.25.1</jersey-version>
     {{/supportJava6}}

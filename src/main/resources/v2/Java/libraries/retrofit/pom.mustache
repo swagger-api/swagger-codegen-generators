@@ -177,11 +177,20 @@
   </profiles>
 
   <dependencies>
+    {{#useOas2}}
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-core-version}</version>
     </dependency>
+    {{/useOas2}}
+    {{^useOas2}}
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-core-version}</version>
+    </dependency>
+    {{/useOas2}}
     <dependency>
       <groupId>com.squareup.retrofit</groupId>
       <artifactId>retrofit</artifactId>
@@ -222,7 +231,12 @@
     </dependency>
   </dependencies>
   <properties>
+    {{#useOas2}}
     <swagger-core-version>1.5.15</swagger-core-version>
+    {{/useOas2}}
+    {{^useOas2}}
+    <swagger-core-version>2.0.0</swagger-core-version>
+    {{/useOas2}}
     <retrofit-version>1.9.0</retrofit-version>
     <okhttp-version>2.7.5</okhttp-version>
     <jodatime-version>2.9.9</jodatime-version>

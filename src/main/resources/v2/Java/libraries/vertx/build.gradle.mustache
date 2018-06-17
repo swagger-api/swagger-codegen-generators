@@ -26,14 +26,24 @@ task execute(type:JavaExec) {
 }
 
 ext {
+    {{#useOas2}}
     swagger_annotations_version = "1.5.15"
+    {{/useOas2}}
+    {{^useOas2}}
+    swagger_annotations_version = "2.0.0"
+    {{/useOas2}}
     jackson_version = "{{^threetenbp}}2.8.9{{/threetenbp}}{{#threetenbp}}2.6.4{{/threetenbp}}"
     vertx_version = "3.4.2"
     junit_version = "4.12"
 }
 
 dependencies {
+    {{#useOas2}}
     compile "io.swagger:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
+    {{^useOas2}}
+    compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
     compile "io.vertx:vertx-web-client:$vertx_version"
     compile "io.vertx:vertx-rx-java:$vertx_version"
     compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
