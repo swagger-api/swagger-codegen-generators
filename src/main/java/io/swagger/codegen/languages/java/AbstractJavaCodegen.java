@@ -372,6 +372,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
+        importMapping.put("JsonTypeId", "com.fasterxml.jackson.annotation.JsonTypeId");
         importMapping.put("JsonCreator", "com.fasterxml.jackson.annotation.JsonCreator");
         importMapping.put("JsonValue", "com.fasterxml.jackson.annotation.JsonValue");
         importMapping.put("SerializedName", "com.google.gson.annotations.SerializedName");
@@ -895,6 +896,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             // needed by all pojos, but not enums
             model.imports.add("ApiModelProperty");
             model.imports.add("ApiModel");
+        }
+
+        if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
+            property.vendorExtensions.put("x-is-discriminator-property", true);
+
+            model.imports.add("JsonTypeId");
         }
     }
 
