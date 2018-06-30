@@ -374,6 +374,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 writer.write(fragment.execute().replaceAll("\\r|\\n", ""));
             }
         });
+
+        importMapping.put("JsonTypeId", "com.fasterxml.jackson.annotation.JsonTypeId");
     }
 
     @Override
@@ -687,6 +689,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (additionalProperties.containsKey("jackson")) {
                 model.imports.add("JsonCreator");
             }
+        }
+        if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
+            property.vendorExtensions.put("x-is-discriminator-property", true);
+
+            model.imports.add("JsonTypeId");
         }
     }
 
