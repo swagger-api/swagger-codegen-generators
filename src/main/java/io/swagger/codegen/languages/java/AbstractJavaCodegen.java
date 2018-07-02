@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static io.swagger.codegen.CodegenConstants.HAS_ENUMS_EXT_NAME;
+import static io.swagger.codegen.CodegenConstants.IS_ALIAS_EXT_NAME;
 import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
@@ -664,6 +665,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return typeAliases.get(name);
         }
         return name;
+    }
+    @Override
+    public boolean shouldSkipModel(CodegenModel model) {
+        return getBooleanValue(model, IS_ALIAS_EXT_NAME);
     }
 
     @Override
