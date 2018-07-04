@@ -1537,6 +1537,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DOUBLE_EXT_NAME, Boolean.TRUE);
             }
+            if (propertySchema.getMinimum() != null) {
+                codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
+            }
+            if (propertySchema.getMaximum() != null) {
+                codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
+            }
+            if (propertySchema.getExclusiveMinimum() != null) {
+                codegenProperty.exclusiveMinimum = propertySchema.getExclusiveMinimum();
+            }
+            if (propertySchema.getExclusiveMaximum() != null) {
+                codegenProperty.exclusiveMaximum = propertySchema.getExclusiveMaximum();
+            }
             if (propertySchema.getEnum() != null && !propertySchema.getEnum().isEmpty()) {
                 List<Number> _enum = propertySchema.getEnum();
                 codegenProperty._enum = _enum.stream().map(number -> number.toString()).collect(Collectors.toList());
