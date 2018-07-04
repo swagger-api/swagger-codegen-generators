@@ -2,9 +2,14 @@ package io.swagger.codegen.languages;
 
 import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
+import io.swagger.codegen.CodegenProperty;
 import io.swagger.codegen.CodegenType;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 public class DefaultCodegenConfigTest {
@@ -60,6 +65,19 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.FALSE);
         Assert.assertEquals(codegen.hideGenerationTimestamp, Boolean.FALSE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP), Boolean.FALSE);
+    }
+
+    @Test
+    public void testNumberSchemaMinMax() {
+        Schema schema = new NumberSchema()
+                .minimum(BigDecimal.valueOf(50))
+                .maximum(BigDecimal.valueOf(1000));
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        CodegenProperty codegenProperty = codegen.fromProperty("test", schema);
+
+        Assert.assertEquals(codegenProperty.minimum, "50");
+        Assert.assertEquals(codegenProperty.maximum, "1000");
     }
 
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
