@@ -1293,7 +1293,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
-                codegenModel.parent = StringUtils.capitalize(modelNamePrefix + parentName + modelNameSuffix);
+                codegenModel.parent = toModelName(parentName);
                 addImport(codegenModel, codegenModel.parent);
                 if (allDefinitions != null) {
                     if (supportsInheritance) {
