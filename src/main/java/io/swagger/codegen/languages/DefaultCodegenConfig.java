@@ -2518,7 +2518,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_QUERY_EXT_NAME, !isKeyInHeader);
 
             } else if (SecurityScheme.Type.HTTP.equals(schemeDefinition.getType())) {
-                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BASIC_EXT_NAME, Boolean.TRUE);
+                if ("bearer".equalsIgnoreCase(schemeDefinition.getScheme())) {
+                    codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BEARER_EXT_NAME, Boolean.TRUE);
+                } else {
+                    codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BASIC_EXT_NAME, Boolean.TRUE);
+                }
             } else if (SecurityScheme.Type.OAUTH2.equals(schemeDefinition.getType())) {
                 codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_OAUTH_EXT_NAME, Boolean.TRUE);
                 final OAuthFlows flows = schemeDefinition.getFlows();
