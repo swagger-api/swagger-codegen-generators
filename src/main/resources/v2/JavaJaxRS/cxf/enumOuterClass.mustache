@@ -2,19 +2,34 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 {{/jackson}}
+{{#withXml}}
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+{{/withXml}}
 
 /**
  * {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{description}}{{/description}}
  */
+{{#if withXml}}
+@XmlType(name="{{classname}}")
+@XmlEnum({{dataType}}.class)
+{{/if~}}
 public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
   {{#if gson}}
   {{#allowableValues}}{{#enumVars}}
   @SerializedName({{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}}{{{value}}}{{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}})
+  {{#if withXml}}
+  @XmlEnumValue({{{value}}})
+  {{/if~}}
   {{{name}}}({{{value}}}){{^@last}},
   {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
   {{/if}}
   {{#unless gson}}
   {{#allowableValues}}{{#enumVars}}
+  {{#if withXml}}
+  @XmlEnumValue({{{value}}})
+  {{/if~}}
   {{{name}}}({{{value}}}){{^@last}},
   {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
   {{/unless}}
