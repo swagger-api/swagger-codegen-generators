@@ -15,8 +15,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
       * @var string[]
       */
     protected static $swaggerTypes = [
-        {{#vars}}'{{name}}' => '{{{datatype}}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}'{{name}}' => '{{{datatype}}}'{{#has this 'more'}},
+        {{/has}}{{/vars}}
     ];
 
     /**
@@ -25,8 +25,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
       * @var string[]
       */
     protected static $swaggerFormats = [
-        {{#vars}}'{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}'{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#has this 'more'}},
+        {{/has}}{{/vars}}
     ];
 
     /**
@@ -66,8 +66,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $setters = [
-        {{#vars}}'{{name}}' => '{{setter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}'{{name}}' => '{{setter}}'{{#has this 'more'}},
+        {{/has}}{{/vars}}
     ];
 
     /**
@@ -76,8 +76,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $getters = [
-        {{#vars}}'{{name}}' => '{{getter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}'{{name}}' => '{{getter}}'{{#has this 'more'}},
+        {{/has}}{{/vars}}
     ];
 
     /**
@@ -121,10 +121,10 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         return self::$swaggerModelName;
     }
 
-    {{#vars}}{{#isEnum}}{{#allowableValues}}{{#enumVars}}const {{enumName}}_{{{name}}} = {{{value}}};
-    {{/enumVars}}{{/allowableValues}}{{/isEnum}}{{/vars}}
+    {{#vars}}{{#is this 'enum'}}{{#allowableValues}}{{#enumVars}}const {{enumName}}_{{{name}}} = {{{value}}};
+    {{/enumVars}}{{/allowableValues}}{{/is}}{{/vars}}
 
-    {{#vars}}{{#isEnum}}
+    {{#vars}}{{#is this 'enum'}}
     /**
      * Gets allowable values of the enum
      *
@@ -137,7 +137,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
             {{/@last}}{{/enumVars}}{{/allowableValues}}
         ];
     }
-    {{/isEnum}}{{/vars}}
+    {{/is}}{{/vars}}
 
     {{^parentSchema}}
     /**
@@ -191,8 +191,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
             $invalidProperties[] = "'{{name}}' can't be null";
         }
         {{/required}}
-        {{#isEnum}}
-        {{^isContainer}}
+        {{#is this 'enum'}}
+        {{#isNot this 'container'}}
         $allowedValues = $this->{{getter}}AllowableValues();
         if (!in_array($this->container['{{name}}'], $allowedValues)) {
             $invalidProperties[] = sprintf(
@@ -201,9 +201,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
             );
         }
 
-        {{/isContainer}}
-        {{/isEnum}}
-        {{#hasValidation}}
+        {{/isNot}}
+        {{/is}}
+        {{#has this 'validation'}}
         {{#maxLength}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(strlen($this->container['{{name}}']) > {{maxLength}})) {
             $invalidProperties[] = "invalid value for '{{name}}', the character length must be smaller than or equal to {{{maxLength}}}.";
@@ -246,7 +246,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         }
 
         {{/minItems}}
-        {{/hasValidation}}
+        {{/has}}
         {{/vars}}
         return $invalidProperties;
     }
@@ -271,14 +271,14 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
             return false;
         }
         {{/required}}
-        {{#isEnum}}
-        {{^isContainer}}
+        {{#is this 'enum'}}
+        {{#isNot this 'container'}}
         $allowedValues = $this->{{getter}}AllowableValues();
         if (!in_array($this->container['{{name}}'], $allowedValues)) {
             return false;
         }
-        {{/isContainer}}
-        {{/isEnum}}
+        {{/isNot}}
+        {{/is}}
         {{#hasValidation}}
         {{#maxLength}}
         if (strlen($this->container['{{name}}']) > {{maxLength}}) {
@@ -341,9 +341,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      */
     public function {{setter}}(${{name}})
     {
-        {{#isEnum}}
+        {{#is this 'enum'}}
         $allowedValues = $this->{{getter}}AllowableValues();
-        {{^isContainer}}
+        {{#isNot this 'container'}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}!in_array(${{{name}}}, $allowedValues)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -352,8 +352,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
                 )
             );
         }
-        {{/isContainer}}
-        {{#isContainer}}
+        {{/isNot}}
+        {{#is this 'container'}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}array_diff(${{{name}}}, $allowedValues)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -362,9 +362,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
                 )
             );
         }
-        {{/isContainer}}
-        {{/isEnum}}
-        {{#hasValidation}}
+        {{/is}}
+        {{/is}}
+        {{#has this 'validation'}}
         {{#maxLength}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(strlen(${{name}}) > {{maxLength}})) {
             throw new \InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, must be smaller than or equal to {{maxLength}}.');
@@ -398,7 +398,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
             throw new \InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, number of items must be greater than or equal to {{minItems}}.');
         }
         {{/minItems}}
-        {{/hasValidation}}
+        {{/has}}
         $this->container['{{name}}'] = ${{name}};
 
         return $this;
