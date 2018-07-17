@@ -457,7 +457,11 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
         CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
         if (codegenModel.description != null) {
-            codegenModel.imports.add("ApiModel");
+            if (useOas2) {
+                codegenModel.imports.add("ApiModel");
+            } else {
+                codegenModel.imports.add("Schema");
+            }
         }
         if (allDefinitions != null) {
             String parentSchema = codegenModel.parentSchema;

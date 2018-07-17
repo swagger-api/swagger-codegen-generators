@@ -1,9 +1,14 @@
+{{#useOas2}}
 import io.swagger.annotations.*;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.media.Schema;
+{{/useOas2}}
 import java.util.Objects;
 
 import javax.xml.bind.annotation.*;
 
-{{#description}}@ApiModel(description = "{{{description}}}"){{/description}}
+{{#description}}{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
 
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable{{/serializableModel}} {
   {{#vars}}{{#baseItems this}}{{#is this 'enum'}}
@@ -28,7 +33,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
   }
 
   {{#vendorExtensions.extraAnnotation}}{{{vendorExtensions.extraAnnotation}}}{{/vendorExtensions.extraAnnotation}}
-  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}")
+  {{#useOas2}}@ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}"){{/useOas2}}
+  {{^useOas2}}@Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}description = "{{{description}}}"){{/useOas2}}
   @JsonProperty("{{baseName}}")
 {{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};

@@ -154,6 +154,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, String> typeAliases = null;
 
     protected String ignoreFilePathOverride;
+    protected boolean useOas2 = false;
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -219,6 +220,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else if(hideGenerationTimestamp != null) {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
+        }
+        
+        if (additionalProperties.containsKey(CodegenConstants.USE_OAS2)) {
+            this.setUseOas2(Boolean.valueOf(additionalProperties.get(CodegenConstants.USE_OAS2).toString()));
         }
     }
 
@@ -3569,6 +3574,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public void setIgnoreFilePathOverride(final String ignoreFileOverride) {
         this.ignoreFilePathOverride = ignoreFileOverride;
+    }
+    
+    public void setUseOas2(boolean useOas2) {
+        this.useOas2 = useOas2;
     }
 
     public boolean convertPropertyToBoolean(String propertyKey) {

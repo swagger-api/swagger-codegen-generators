@@ -216,8 +216,12 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
-        model.imports.remove("ApiModelProperty");
-        model.imports.remove("ApiModel");
+        if (useOas2) {
+            model.imports.remove("ApiModelProperty");
+            model.imports.remove("ApiModel");
+        } else {
+            model.imports.remove("Schema");
+        }
         model.imports.remove("JsonSerialize");
         model.imports.remove("ToStringSerializer");
     }

@@ -1,14 +1,15 @@
 package {{apiPackage}};
 
-import io.swagger.jaxrs.config.SwaggerContextService;
-import io.swagger.models.*;
-
-import io.swagger.models.auth.*;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
+{{#useOas2}}
+import io.swagger.jaxrs.config.SwaggerContextService;
+import io.swagger.models.*;
+
+import io.swagger.models.auth.*;
 
 public class Bootstrap extends HttpServlet {
   @Override
@@ -29,3 +30,26 @@ public class Bootstrap extends HttpServlet {
     new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
   }
 }
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+
+@OpenAPIDefinition(
+    info = @Info(
+        title = "{{title}}", 
+        version = "{{version}}", 
+        description = "{{{appDescription}}}",
+        termsOfService = "{{termsOfService}}",
+        contact = @Contact(email = "{{infoEmail}}"),
+        license = @License(
+            name = "{{licenseInfo}}",
+            url = "{{licenseUrl}}"
+        )
+    )
+)
+public class Bootstrap {
+}
+{{/useOas2}}

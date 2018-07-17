@@ -9,7 +9,12 @@
         <java.version>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        {{#useOas2}}
         <swagger-core-version>1.5.18</swagger-core-version>
+        {{/useOas2}}
+        {{^useOas2}}
+        <swagger-core-version>2.0.0</swagger-core-version>
+        {{/useOas2}}
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -33,11 +38,20 @@
     </dependencyManagement>
 
     <dependencies>
+        {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger-core-version}</version>
         </dependency>
+        {{/useOas2}}
+        {{^useOas2}}
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-core-version}</version>
+        </dependency>
+        {{/useOas2}}
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>

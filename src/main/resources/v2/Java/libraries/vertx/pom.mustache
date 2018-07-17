@@ -178,11 +178,20 @@
   </profiles>
 
   <dependencies>
+    {{#useOas2}}
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-core-version}</version>
     </dependency>
+    {{/useOas2}}
+    {{^useOas2}}
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>${swagger-core-version}</version>
+    </dependency>
+    {{/useOas2}}
 
     <!-- Vertx -->
     <dependency>
@@ -252,7 +261,12 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <vertx-version>3.4.2</vertx-version>
+    {{#useOas2}}
     <swagger-core-version>1.5.16</swagger-core-version>
+    {{/useOas2}}
+    {{^useOas2}}
+    <swagger-core-version>2.0.0</swagger-core-version>
+    {{/useOas2}}
     <jackson-version>{{^threetenbp}}2.8.9{{/threetenbp}}{{#threetenbp}}2.6.4{{/threetenbp}}</jackson-version>
     <junit-version>4.12</junit-version>
   </properties>

@@ -103,7 +103,12 @@ ext {
     okhttp_version = "2.7.5"
     oltu_version = "1.0.2"
     retrofit_version = "1.9.0"
+    {{#useOas2}}
     swagger_annotations_version = "1.5.8"
+    {{/useOas2}}
+    {{^useOas2}}
+    swagger_annotations_version = "2.0.0"
+    {{/useOas2}}
     junit_version = "4.12"
     jodatime_version = "2.9.3"
 }
@@ -111,7 +116,12 @@ ext {
 dependencies {
     compile "com.squareup.okhttp:okhttp:$okhttp_version"
     compile "com.squareup.retrofit:retrofit:$retrofit_version"
+    {{#useOas2}}
     compile "io.swagger:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
+    {{^useOas2}}
+    compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
+    {{/useOas2}}
     compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
     compile "joda-time:joda-time:$jodatime_version"
     testCompile "junit:junit:$junit_version"

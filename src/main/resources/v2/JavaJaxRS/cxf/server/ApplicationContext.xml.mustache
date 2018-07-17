@@ -33,11 +33,17 @@
 {{/apiInfo}}
 {{/useSpringAnnotationConfig}}
 
-{{#useSwaggerFeature}}  
+{{#useSwaggerFeature}}
+    {{#useOas2}}
     <!-- CXF Swagger2Feature -->
-    {{! http://cxf.apache.org/docs/swagger2feature.html }}  
     <bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
         <!--property name="basePath" value="/services"/-->
+    {{/useOas2}}
+    {{^useOas2}}
+    <!-- CXF OpenapiFeature -->
+    {{! http://cxf.apache.org/docs/openapifeature.html }}  
+    <bean id="openApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
+    {{/useOas2}}
 {{#useSwaggerUI}}        
         <property name="supportSwaggerUi" value="true" />
 {{/useSwaggerUI}}        
@@ -137,8 +143,13 @@
 {{/useWadlFeature}}            
         </jaxrs:providers>
         <jaxrs:features>
-{{#useSwaggerFeature}}          
+{{#useSwaggerFeature}}
+            {{#useOas2}}
             <ref bean="swagger2Feature" />
+            {{/useOas2}}
+            {{^useOas2}}
+            <ref bean="openApiFeature" />
+            {{/useOas2}}
 {{/useSwaggerFeature}}              
 {{#useBeanValidationFeature}}            
             <ref bean="commonValidationFeature" />
