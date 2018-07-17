@@ -143,7 +143,7 @@ public class JavaClientCodegenTest {
         RequestBody body1 = new RequestBody();
         body1.setDescription("A list of ids");
         body1.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new StringSchema()))));
-        CodegenParameter codegenParameter1 = codegen.fromRequestBody(body1 , new HashMap<String, Schema>(), new HashSet<String>());
+        CodegenParameter codegenParameter1 = codegen.fromRequestBody(body1, new HashSet<String>());
         Assert.assertEquals(codegenParameter1.description, "A list of ids");
         Assert.assertEquals(codegenParameter1.dataType, "List<String>");
         Assert.assertEquals(codegenParameter1.baseType, "String");
@@ -151,19 +151,16 @@ public class JavaClientCodegenTest {
         RequestBody body2 = new RequestBody();
         body2.setDescription("A list of list of values");
         body2.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new ArraySchema().items(new IntegerSchema())))));
-        CodegenParameter codegenParameter2 = codegen.fromRequestBody(body2 , new HashMap<String, Schema>(), new HashSet<String>());
+        CodegenParameter codegenParameter2 = codegen.fromRequestBody(body2, new HashSet<String>());
         Assert.assertEquals(codegenParameter2.description, "A list of list of values");
         Assert.assertEquals(codegenParameter2.dataType, "List<List<Integer>>");
-        Assert.assertEquals(codegenParameter2.baseType, "List");
+        Assert.assertEquals(codegenParameter2.baseType, "List<Integer>");
         
         RequestBody body3 = new RequestBody();
         body3.setDescription("A list of points");
         body3.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new ObjectSchema().$ref("#/components/schemas/Point")))));
-        ObjectSchema point = new ObjectSchema();
-        point.addProperties("message", new StringSchema());
-        point.addProperties("x", new IntegerSchema().format(SchemaTypeUtil.INTEGER32_FORMAT));
-        point.addProperties("y", new IntegerSchema().format(SchemaTypeUtil.INTEGER32_FORMAT));
-        CodegenParameter codegenParameter3 = codegen.fromRequestBody(body3 , Collections.<String, Schema>singletonMap("Point", point), new HashSet<String>());
+
+        CodegenParameter codegenParameter3 = codegen.fromRequestBody(body3, new HashSet<String>());
         Assert.assertEquals(codegenParameter3.description, "A list of points");
         Assert.assertEquals(codegenParameter3.dataType, "List<Point>");
         Assert.assertEquals(codegenParameter3.baseType, "Point");
