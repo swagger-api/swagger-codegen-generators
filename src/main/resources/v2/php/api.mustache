@@ -410,12 +410,12 @@ use {{invokerPackage}}\ObjectSerializer;
 
         if ($multipart) {
             $headers = $this->headerSelector->selectHeadersForMultipart(
-                [{{#produces}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/produces}}]
+                [{{#produces}}'{{{mediaType}}}'{{#has ../this 'more'}}, {{/has}}{{/produces}}]
             );
         } else {
             $headers = $this->headerSelector->selectHeaders(
-                [{{#produces}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/produces}}],
-                [{{#consumes}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/consumes}}]
+                [{{#produces}}'{{{mediaType}}}'{{#has ../this 'more'}}, {{/has}}{{/produces}}],
+                [{{#consumes}}'{{{mediaType}}}'{{#has ../this 'more'}}, {{/has}}{{/consumes}}]
             );
         }
 
