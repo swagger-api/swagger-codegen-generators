@@ -56,8 +56,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $attributeMap = [
-        {{#vars}}'{{name}}' => '{{baseName}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}'{{name}}' => '{{baseName}}'{{#has this 'more'}},
+        {{/has}}{{/vars}}
     ];
 
     /**

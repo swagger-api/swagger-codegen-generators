@@ -98,7 +98,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}})
     {
-        {{#returnType}}list($response) = {{/returnType}}$this->{{operationId}}WithHttpInfo({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+        {{#returnType}}list($response) = {{/returnType}}$this->{{operationId}}WithHttpInfo({{#allParams}}${{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});{{#returnType}}
         return $response;{{/returnType}}
     }
 
@@ -124,7 +124,7 @@ use {{invokerPackage}}\ObjectSerializer;
     public function {{operationId}}WithHttpInfo({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}})
     {
         $returnType = '{{returnType}}';
-        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});
 
         try {
             $options = $this->createHttpClientOption();
@@ -210,7 +210,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}Async({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}})
     {
-        return $this->{{operationId}}AsyncWithHttpInfo({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        return $this->{{operationId}}AsyncWithHttpInfo({{#allParams}}${{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}})
             ->then(
                 function ($response) {
                     return $response[0];
@@ -237,7 +237,7 @@ use {{invokerPackage}}\ObjectSerializer;
     public function {{operationId}}AsyncWithHttpInfo({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}})
     {
         $returnType = '{{returnType}}';
-        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -410,12 +410,12 @@ use {{invokerPackage}}\ObjectSerializer;
 
         if ($multipart) {
             $headers = $this->headerSelector->selectHeadersForMultipart(
-                [{{#produces}}'{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}{{/produces}}]
+                [{{#produces}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/produces}}]
             );
         } else {
             $headers = $this->headerSelector->selectHeaders(
-                [{{#produces}}'{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}{{/produces}}],
-                [{{#consumes}}'{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}{{/consumes}}]
+                [{{#produces}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/produces}}],
+                [{{#consumes}}'{{{mediaType}}}'{{#has this 'more'}}, {{/has}}{{/consumes}}]
             );
         }
 
