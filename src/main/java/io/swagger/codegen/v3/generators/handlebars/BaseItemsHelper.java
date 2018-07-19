@@ -1,4 +1,4 @@
-package io.swagger.codegen.handlebars.helpers;
+package io.swagger.codegen.v3.generators.handlebars;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
@@ -8,7 +8,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 
 import java.io.IOException;
 
-import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class BaseItemsHelper implements Helper<CodegenProperty> {
     public static final String NAME = "baseItems";

@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class PhpClientCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(PhpClientCodegen.class);

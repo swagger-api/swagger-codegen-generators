@@ -1,4 +1,4 @@
-package io.swagger.codegen.handlebars.helpers;
+package io.swagger.codegen.v3.generators.handlebars;
 
 import io.swagger.codegen.v3.VendorExtendable;
 

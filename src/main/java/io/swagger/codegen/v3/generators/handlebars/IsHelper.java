@@ -1,4 +1,6 @@
-package io.swagger.codegen.handlebars.helpers;
+package io.swagger.codegen.v3.generators.handlebars;
+
+import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
 
 import static io.swagger.codegen.v3.VendorExtendable.PREFIX_IS;
 

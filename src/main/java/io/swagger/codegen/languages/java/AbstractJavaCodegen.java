@@ -8,7 +8,7 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.handlebars.helpers.JavaHelper;
+import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
