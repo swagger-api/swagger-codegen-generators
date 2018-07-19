@@ -1,10 +1,10 @@
 package io.swagger.codegen.languages.kotlin;
 
-import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.CliOption;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
-import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.DefaultCodegen;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.DefaultCodegen;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;

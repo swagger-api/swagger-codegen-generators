@@ -1,6 +1,6 @@
 package io.swagger.codegen.handlebars.helpers;
 
-import io.swagger.codegen.VendorExtendable;
+import io.swagger.codegen.v3.VendorExtendable;
 
 public class HasNotHelper extends NoneExtensionHelper {
 

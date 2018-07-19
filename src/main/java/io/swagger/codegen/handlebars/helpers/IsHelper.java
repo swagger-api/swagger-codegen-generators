@@ -1,6 +1,6 @@
 package io.swagger.codegen.handlebars.helpers;
 
-import static io.swagger.codegen.VendorExtendable.PREFIX_IS;
+import static io.swagger.codegen.v3.VendorExtendable.PREFIX_IS;
 
 public class IsHelper extends ExtensionHelper {
 

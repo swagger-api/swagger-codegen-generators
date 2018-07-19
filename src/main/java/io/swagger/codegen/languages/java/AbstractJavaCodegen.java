@@ -1,13 +1,13 @@
 package io.swagger.codegen.languages.java;
 
 import com.github.jknack.handlebars.Handlebars;
-import io.swagger.codegen.CliOption;
-import io.swagger.codegen.CodegenArgument;
-import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.CodegenOperation;
-import io.swagger.codegen.CodegenParameter;
-import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenArgument;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.handlebars.helpers.JavaHelper;
 import io.swagger.codegen.languages.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -36,8 +36,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static io.swagger.codegen.CodegenConstants.HAS_ENUMS_EXT_NAME;
-import static io.swagger.codegen.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.handlebars.helpers.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {

@@ -3,9 +3,8 @@ package io.swagger.codegen.handlebars.helpers;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Options.Buffer;
-
-import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenProperty;
 
 import java.io.IOException;
 
