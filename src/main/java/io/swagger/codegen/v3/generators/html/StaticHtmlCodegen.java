@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.html;
+package io.swagger.codegen.v3.generators.html;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConfig;
