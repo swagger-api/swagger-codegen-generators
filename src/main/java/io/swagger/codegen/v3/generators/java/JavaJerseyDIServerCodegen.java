@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.java;
+package io.swagger.codegen.v3.generators.java;
 
 /**
  * Generates a Java JAXRS API using jersey.

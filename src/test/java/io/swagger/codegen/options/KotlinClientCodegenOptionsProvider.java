@@ -1,7 +1,7 @@
 package io.swagger.codegen.options;
 
 import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.languages.kotlin.KotlinClientCodegen;
+import io.swagger.codegen.v3.generators.kotlin.KotlinClientCodegen;
 
 import com.google.common.collect.ImmutableMap;
 

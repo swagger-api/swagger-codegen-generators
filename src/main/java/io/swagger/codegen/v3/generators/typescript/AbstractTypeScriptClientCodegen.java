@@ -1,14 +1,11 @@
-package io.swagger.codegen.languages.typescript;
+package io.swagger.codegen.v3.generators.typescript;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.DefaultCodegen;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
-import io.swagger.codegen.languages.java.JavaClientCodegen;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.DateSchema;

@@ -2,6 +2,7 @@ package io.swagger.codegen.languages.swift;
 
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.v3.generators.swift.Swift4Codegen;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -83,7 +84,7 @@ public class Swift4CodegenTest {
 
         Assert.assertEquals(op.returnType, "Data");
         // TODO - must be checked. It seems that there is a new expected value "Object" set in the method:
-        // io.swagger.codegen.languages.DefaultCodegenConfig.fromRequestBody
+        // io.swagger.codegen.v3.generators.DefaultCodegenConfig.fromRequestBody
 //        Assert.assertEquals(op.bodyParam.dataType, "Data");
         Assert.assertTrue(getBooleanValue(op.bodyParam, CodegenConstants.IS_BINARY_EXT_NAME));
         // TODO - have to be checked - in the old code generator there was an expected value set but in the current it isn't

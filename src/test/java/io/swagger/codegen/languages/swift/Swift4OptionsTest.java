@@ -3,6 +3,7 @@ package io.swagger.codegen.languages.swift;
 import io.swagger.codegen.AbstractOptionsTest;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.options.Swift4OptionsProvider;
+import io.swagger.codegen.v3.generators.swift.Swift4Codegen;
 import mockit.Expectations;
 import mockit.Tested;
 

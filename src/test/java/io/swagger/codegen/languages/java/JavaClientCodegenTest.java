@@ -5,6 +5,7 @@ import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenModelFactory;
 import io.swagger.codegen.CodegenModelType;
 import io.swagger.codegen.CodegenParameter;
+import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -19,7 +20,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

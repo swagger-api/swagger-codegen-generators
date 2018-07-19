@@ -3,6 +3,7 @@ package io.swagger.codegen.languages.java;
 import io.swagger.codegen.CodegenArgument;
 import io.swagger.codegen.CodegenConstants;
 import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.v3.generators.java.AbstractJavaJAXRSServerCodegen;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.List;

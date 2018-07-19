@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.typescript;
+package io.swagger.codegen.v3.generators.typescript;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

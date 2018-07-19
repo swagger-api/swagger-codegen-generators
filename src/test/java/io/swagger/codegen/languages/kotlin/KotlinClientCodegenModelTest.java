@@ -1,20 +1,11 @@
 package io.swagger.codegen.languages.kotlin;
 
-import com.google.common.collect.Sets;
-
-import io.swagger.codegen.*;
-import io.swagger.codegen.languages.kotlin.KotlinClientCodegen;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
-import io.swagger.models.*;
-import io.swagger.models.properties.*;
+import io.swagger.codegen.v3.generators.kotlin.KotlinClientCodegen;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 
@@ -23,8 +14,6 @@ import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

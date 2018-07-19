@@ -2,11 +2,11 @@ package io.swagger.codegen.languages.java;
 
 import com.google.common.collect.Sets;
 import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;

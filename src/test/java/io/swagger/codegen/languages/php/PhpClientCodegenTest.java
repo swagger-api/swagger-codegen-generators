@@ -2,6 +2,7 @@ package io.swagger.codegen.languages.php;
 
 import io.swagger.codegen.CodegenConstants;
 
+import io.swagger.codegen.v3.generators.php.PhpClientCodegen;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -1,11 +1,11 @@
-package io.swagger.codegen.languages.php;
+package io.swagger.codegen.v3.generators.php;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 
 import java.io.File;
 import java.util.Arrays;

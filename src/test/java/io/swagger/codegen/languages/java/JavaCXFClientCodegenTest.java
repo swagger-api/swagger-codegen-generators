@@ -2,6 +2,7 @@ package io.swagger.codegen.languages.java;
 
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenResponse;
+import io.swagger.codegen.v3.generators.java.JavaCXFClientCodegen;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;

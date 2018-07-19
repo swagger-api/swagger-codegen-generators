@@ -1,7 +1,6 @@
-package io.swagger.codegen.languages.kotlin;
+package io.swagger.codegen.v3.generators.kotlin;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.java;
+package io.swagger.codegen.v3.generators.java;
 
 import com.github.jknack.handlebars.Handlebars;
 import io.swagger.codegen.v3.CliOption;
@@ -9,7 +9,7 @@ import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;

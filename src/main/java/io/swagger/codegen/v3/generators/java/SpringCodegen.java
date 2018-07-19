@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.java;
+package io.swagger.codegen.v3.generators.java;
 
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -14,7 +14,6 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.OptionalFeatures;
-import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -486,7 +485,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                             multipleReturnTypes = true;
                         }
                         
-                        doDataTypeAssignment(resp.dataType, new io.swagger.codegen.languages.java.SpringCodegen.DataTypeAssigner() {
+                        doDataTypeAssignment(resp.dataType, new SpringCodegen.DataTypeAssigner() {
                             @Override
                             public void setReturnType(final String returnType) {
                                 resp.dataType = returnType;
@@ -505,7 +504,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     operation.returnType = "?";
                 }
                     
-                doDataTypeAssignment(operation.returnType, new io.swagger.codegen.languages.java.SpringCodegen.DataTypeAssigner() {
+                doDataTypeAssignment(operation.returnType, new SpringCodegen.DataTypeAssigner() {
 
                     @Override
                     public void setReturnType(final String returnType) {
@@ -537,7 +536,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
      * @param returnType The return type that needs to be converted
      * @param dataTypeAssigner An object that will assign the data to the respective fields in the model.
      */
-    private void doDataTypeAssignment(String returnType, io.swagger.codegen.languages.java.SpringCodegen.DataTypeAssigner dataTypeAssigner) {
+    private void doDataTypeAssignment(String returnType, SpringCodegen.DataTypeAssigner dataTypeAssigner) {
         final String rt = returnType;
         if (rt == null) {
             dataTypeAssigner.setReturnType("Void");

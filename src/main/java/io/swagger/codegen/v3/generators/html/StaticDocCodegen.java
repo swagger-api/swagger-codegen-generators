@@ -5,7 +5,7 @@ import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.languages.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 

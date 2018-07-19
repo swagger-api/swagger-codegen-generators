@@ -1,10 +1,11 @@
-package io.swagger.codegen.languages.swift;
+package io.swagger.codegen.v3.generators.swift;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.swift.AbstractSwiftCodegen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;

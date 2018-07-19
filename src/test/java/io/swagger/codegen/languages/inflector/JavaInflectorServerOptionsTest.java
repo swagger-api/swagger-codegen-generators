@@ -2,7 +2,7 @@ package io.swagger.codegen.languages.inflector;
 
 import io.swagger.codegen.AbstractOptionsTest;
 import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.languages.java.JavaInflectorServerCodegen;
+import io.swagger.codegen.v3.generators.java.JavaInflectorServerCodegen;
 import io.swagger.codegen.options.JavaInflectorServerOptionsProvider;
 import mockit.Expectations;
 import mockit.Tested;

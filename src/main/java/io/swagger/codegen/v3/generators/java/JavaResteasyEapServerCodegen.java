@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.java;
+package io.swagger.codegen.v3.generators.java;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenModel;
@@ -8,6 +8,7 @@ import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.codegen.languages.features.JbossFeature;
 import io.swagger.codegen.languages.features.SwaggerFeatures;
+import io.swagger.codegen.v3.generators.java.AbstractJavaJAXRSServerCodegen;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

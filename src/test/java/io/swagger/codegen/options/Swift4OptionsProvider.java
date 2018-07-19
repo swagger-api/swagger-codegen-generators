@@ -2,7 +2,7 @@ package io.swagger.codegen.options;
 
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.languages.swift.Swift4Codegen;
+import io.swagger.codegen.v3.generators.swift.Swift4Codegen;
 
 import java.util.Map;
 

@@ -2,7 +2,7 @@ package io.swagger.codegen.languages.kotlin;
 
 import io.swagger.codegen.AbstractOptionsTest;
 import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.languages.kotlin.KotlinClientCodegen;
+import io.swagger.codegen.v3.generators.kotlin.KotlinClientCodegen;
 import io.swagger.codegen.options.KotlinClientCodegenOptionsProvider;
 
 import mockit.Expectations;

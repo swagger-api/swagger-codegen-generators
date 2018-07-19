@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages;
+package io.swagger.codegen.v3.generators;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
@@ -91,10 +91,10 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_CONTAINER_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-import static io.swagger.codegen.languages.CodegenHelper.getDefaultIncludes;
-import static io.swagger.codegen.languages.CodegenHelper.getImportMappings;
-import static io.swagger.codegen.languages.CodegenHelper.getTypeMappings;
-import static io.swagger.codegen.languages.CodegenHelper.initalizeSpecialCharacterMapping;
+import static io.swagger.codegen.v3.generators.CodegenHelper.getDefaultIncludes;
+import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
+import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
+import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
 import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {

@@ -1,4 +1,4 @@
-package io.swagger.codegen.languages.java;
+package io.swagger.codegen.v3.generators.java;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.codegen.v3.CodegenArgument;
