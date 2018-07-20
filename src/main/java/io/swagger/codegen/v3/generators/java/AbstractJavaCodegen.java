@@ -1352,13 +1352,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public void setLanguageArguments(List<CodegenArgument> languageArguments) {
         if (languageArguments != null) {
-	        if (!languageArguments.stream()
-	                .anyMatch(codegenArgument -> CodegenConstants.USE_OAS2_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
-	            languageArguments.add(new CodegenArgument()
-	                    .option(CodegenConstants.USE_OAS2_OPTION)
-	                    .type("boolean")
-	                    .value(Boolean.FALSE.toString()));
-	        }
+            if (!languageArguments.stream()
+                    .anyMatch(codegenArgument -> CodegenConstants.USE_OAS2_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+                languageArguments.add(new CodegenArgument()
+                        .option(CodegenConstants.USE_OAS2_OPTION)
+                        .type("boolean")
+                        .value(Boolean.FALSE.toString()));
+            }
         }
         
         super.setLanguageArguments(languageArguments);
