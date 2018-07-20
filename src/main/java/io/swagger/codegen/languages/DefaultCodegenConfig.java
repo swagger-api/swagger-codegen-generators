@@ -3087,6 +3087,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         this.skipOverwrite = skipOverwrite;
     }
 
+    @Override
+    public boolean shouldSkipModel(CodegenModel model) {
+        return false;
+    }
+
     public boolean isRemoveOperationIdPrefix() {
         return removeOperationIdPrefix;
     }
