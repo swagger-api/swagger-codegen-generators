@@ -19,10 +19,10 @@ var {{{name}}} = defaultClient.authentications['{{{name}}}'];
 
 var api = new {{{jsModuleName}}}.{{{classname}}}(){{#hasParams}}
 {{#vendorExtensions.x-codegen-hasRequiredParams}}{{#allParams}}{{#required}}
-var {{{paramName}}} = {{{example}}}; // {{braces "left"}}{{&dataType}}{{braces "right"}} {{{unescapedDescription}}}
+var {{{paramName}}} = {{{example}}}; // {{braces "left" 2}}{{&dataType}}{{braces "right" 2}} {{{unescapedDescription}}}
 {{/required}}{{/allParams}}{{/vendorExtensions.x-codegen-hasRequiredParams}}{{#hasOptionalParams}}
 var opts = { {{#allParams}}{{^required}}
-  '{{{paramName}}}': {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} // {{braces "left"}}{{&dataType}}{{braces "right"}} {{{unescapedDescription}}}{{/required}}{{/allParams}}
+  '{{{paramName}}}': {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} // {{braces "left" 2}}{{&dataType}}{{braces "right" 2}} {{{unescapedDescription}}}{{/required}}{{/allParams}}
 };{{/hasOptionalParams}}{{/hasParams}}
 {{#usePromises}}
 api.{{{operationId}}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}).then(function({{#returnType}}data{{/returnType}}) {
