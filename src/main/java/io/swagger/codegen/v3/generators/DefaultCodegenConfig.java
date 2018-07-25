@@ -1965,10 +1965,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 Schema schema = getSchemaFromBody(body);
                 final Map<String, Schema> propertyMap = schema.getProperties();
                 if (propertyMap != null && !propertyMap.isEmpty()) {
+                    boolean isMultipart = body.getContent().containsKey("multipart/form-data");
+
                     for (String propertyName : propertyMap.keySet()) {
                         CodegenParameter codegenParameter = fromParameter(new Parameter()
                                 .name(propertyName)
                                 .schema(propertyMap.get(propertyName)), imports);
+                        if (isMultipart) {
+                            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
+                        }
+                        codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
                         formParams.add(codegenParameter);
                         allParams.add(codegenParameter);
                     }
@@ -2242,6 +2248,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
                 collectionFormat = getCollectionFormat(parameter);
+            } else if (parameterSchema instanceof FileSchema) {
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
             }
 
             if (parameterSchema == null) {
