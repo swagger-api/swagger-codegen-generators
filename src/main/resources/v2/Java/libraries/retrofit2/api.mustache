@@ -43,7 +43,7 @@ public interface {{classname}} {
    */
   {{#formParams}}
   {{#@first}}
-  {{#is ../../this 'multipart'}}@retrofit2.http.Multipart{{/is}}{{#isNot ../../this 'multipart'}}@retrofit2.http.FormUrlEncoded{{/isNot}}
+  {{#is ../this 'multipart'}}@retrofit2.http.Multipart{{/is}}{{#isNot ../this 'multipart'}}@retrofit2.http.FormUrlEncoded{{/isNot}}
   {{/@first}}
   {{/formParams}}
   {{^formParams}}
