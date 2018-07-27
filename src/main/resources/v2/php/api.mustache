@@ -160,7 +160,7 @@ use {{invokerPackage}}\ObjectSerializer;
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -174,12 +174,18 @@ use {{invokerPackage}}\ObjectSerializer;
             {{^returnType}}return [null, $statusCode, $response->getHeaders()];{{/returnType~}}
 
         } catch (ApiException $e) {
+            $content = $e->getResponseBody();
+            if ($returnType !== '\SplFileObject') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
+                    $content = json_decode($content);
+                }
+            }
             switch ($e->getCode()) {
             {{#responses~}}
             {{#dataType~}}
                 {{^isWildcard}}case {{code}}:{{/isWildcard}}{{#isWildcard}}default:{{/isWildcard~}}
                     $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
+                        $content,
                         '{{dataType}}',
                         $e->getResponseHeaders()
                     );
