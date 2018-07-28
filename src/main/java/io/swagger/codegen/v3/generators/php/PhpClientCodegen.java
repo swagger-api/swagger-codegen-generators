@@ -63,7 +63,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         apiTemplateFiles.put("api.mustache", ".php");
         modelTestTemplateFiles.put("model_test.mustache", ".php");
         apiTestTemplateFiles.put("api_test.mustache", ".php");
-        embeddedTemplateDir = templateDir = "php";
+        embeddedTemplateDir = "php";
         apiPackage = invokerPackage + "\\" + apiDirName;
         modelPackage = invokerPackage + "\\" + modelDirName;
 
@@ -241,9 +241,12 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         String templateVersion = getTemplateVersion();
         if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/php", templateVersion);
+            embeddedTemplateDir = String.format("%s" + File.separator + "php", templateVersion);
         } else {
-            embeddedTemplateDir = templateDir = String.format("%s/php", DEFAULT_TEMPLATE_VERSION);
+            embeddedTemplateDir = String.format("%s" + File.separator + "php", DEFAULT_TEMPLATE_VERSION);
+        }
+        if (StringUtils.isBlank(templateDir)) {
+            templateDir = embeddedTemplateDir;
         }
 
         if (additionalProperties.containsKey(PACKAGE_PATH)) {
