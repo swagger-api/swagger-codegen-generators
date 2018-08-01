@@ -4,14 +4,14 @@ import com.github.jknack.handlebars.Options;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.languages.JavaClientCodegen;
+import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class JavaHelper {
 

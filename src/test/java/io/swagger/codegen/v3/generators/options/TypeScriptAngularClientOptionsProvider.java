@@ -1,8 +1,8 @@
 package io.swagger.codegen.v3.generators.options;
 
 import com.google.common.collect.ImmutableMap;
-import io.swagger.codegen.languages.TypeScriptAngularClientCodegen;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.generators.typescript.TypeScriptAngularClientCodegen;
 
 import java.util.Map;
 

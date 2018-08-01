@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticHtml2Codegen.class);

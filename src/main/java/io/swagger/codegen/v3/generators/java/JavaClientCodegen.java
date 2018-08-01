@@ -1,9 +1,5 @@
 package io.swagger.codegen.v3.generators.java;
 
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
-import static java.util.Collections.sort;
-
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -12,10 +8,9 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.languages.features.BeanValidationFeatures;
-import io.swagger.codegen.languages.features.GzipFeatures;
-import io.swagger.codegen.languages.features.PerformBeanValidationFeatures;
-
+import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.GzipFeatures;
+import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +26,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+import static java.util.Collections.sort;
 
 public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
     static final String MEDIA_TYPE = "mediaType";

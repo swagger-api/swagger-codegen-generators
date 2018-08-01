@@ -2,6 +2,7 @@ package io.swagger.codegen.v3.generators;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
+import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConfig;
@@ -392,6 +393,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     @Override
     public void processOpenAPI(OpenAPI openAPI) {
+    }
+
+    public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
+        return compiler;
     }
 
     // override with any special text escaping logic
@@ -3787,6 +3792,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         return content.get("application/x-www-form-urlencoded") != null ||
                 content.get("multipart/form-data") != null;
+    }
+
+    protected static boolean hasSchemaProperties(Schema schema) {
+        final Object additionalProperties = schema.getAdditionalProperties();
+        return additionalProperties != null && additionalProperties instanceof Schema;
     }
 
 }

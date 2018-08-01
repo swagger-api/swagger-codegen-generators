@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 

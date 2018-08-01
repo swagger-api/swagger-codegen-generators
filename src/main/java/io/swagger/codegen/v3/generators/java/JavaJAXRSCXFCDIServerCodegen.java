@@ -4,8 +4,9 @@ import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.languages.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 
 /**

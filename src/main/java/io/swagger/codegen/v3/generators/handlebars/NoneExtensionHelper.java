@@ -6,7 +6,7 @@ import io.swagger.codegen.v3.VendorExtendable;
 
 import java.io.IOException;
 
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class NoneExtensionHelper implements Helper<VendorExtendable> {
 
