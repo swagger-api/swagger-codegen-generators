@@ -41,7 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class JavaModelTest {
     private TemporaryFolder folder = new TemporaryFolder();

@@ -6,17 +6,18 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.java.AbstractJavaJAXRSServerCodegen;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 

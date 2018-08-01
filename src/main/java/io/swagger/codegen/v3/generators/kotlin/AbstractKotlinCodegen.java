@@ -1,12 +1,11 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.DefaultCodegen;
-import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -510,7 +509,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     /**
      * Provides a strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
      *
-     * @param arr
+     * @param arraySchema
      * @return
      */
     private String getArrayTypeDeclaration(ArraySchema arraySchema) {
@@ -526,7 +525,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     }
 
     /**
-     * Sanitize against Kotlin specific naming conventions, which may differ from those required by {@link DefaultCodegen#sanitizeName}.
+     * Sanitize against Kotlin specific naming conventions, which may differ from those required by {@link DefaultCodegenConfig#sanitizeName}.
      *
      * @param name string to be sanitize
      * @return sanitized string

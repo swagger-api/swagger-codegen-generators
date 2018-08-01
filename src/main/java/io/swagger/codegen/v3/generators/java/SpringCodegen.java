@@ -12,8 +12,8 @@ import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.languages.features.BeanValidationFeatures;
-import io.swagger.codegen.languages.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.OptionalFeatures;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
     static Logger LOGGER = LoggerFactory.getLogger(SpringCodegen.class);

@@ -5,14 +5,15 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.languages.features.CXFServerFeatures;
-import io.swagger.codegen.languages.features.GzipTestFeatures;
-import io.swagger.codegen.languages.features.LoggingTestFeatures;
-import io.swagger.codegen.languages.features.UseGenericResponseFeatures;
+import io.swagger.codegen.v3.generators.features.CXFServerFeatures;
+import io.swagger.codegen.v3.generators.features.GzipTestFeatures;
+import io.swagger.codegen.v3.generators.features.LoggingTestFeatures;
+import io.swagger.codegen.v3.generators.features.UseGenericResponseFeatures;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Map;
 

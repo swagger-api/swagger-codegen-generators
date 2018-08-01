@@ -17,7 +17,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 @SuppressWarnings("static-method")
 public class KotlinClientCodegenModelTest {
