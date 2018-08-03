@@ -2,7 +2,7 @@ package {{package}};
 
 import java.util.Objects;
 {{#imports}}import {{import}};
-{{/imports~}}
+{{/imports}}
 
 {{#serializableModel}}import java.io.Serializable;{{/serializableModel~}}
 {{#models~}}
@@ -10,7 +10,9 @@ import java.util.Objects;
 /**
  * {{description}}
  **/{{/description~}}
-{{#is this 'enum'}}{{>enumOuterClass}}{{/is~}}
+{{#is this 'enum'}}
+{{>enumOuterClass}}
+{{/is~}}
 {{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
 {{/model}}
 {{/models}}

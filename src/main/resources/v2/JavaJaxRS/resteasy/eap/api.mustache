@@ -46,9 +46,15 @@ public interface {{classname}}  {
    
 {{#operation}}
     @{{httpMethod}}
-    {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
-    {{#has this 'consumes'}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/has}}
-    {{#has this 'produces'}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/has}}
+    {{#subresourceOperation}}
+    @Path("{{{path}}}")
+    {{/subresourceOperation}}
+    {{#has this 'consumes'}}
+    @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
+    {{/has}}
+    {{#has this 'produces'}}
+    @Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
+    {{/has}}
     {{#useOas2}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#is this 'oauth'}}, scopes = {
@@ -73,7 +79,7 @@ public interface {{classname}}  {
         @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#has this 'more'}},
         {{/has}}{{/responses}} })
     {{/useOas2}}
-    public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{^isMultipart}}{{>formParams}},{{/isMultipart}}{{#isMultipart}}{{#isNot this 'form-param'}},{{/isNot}}{{/isMultipart}}{{/allParams}}@Context SecurityContext securityContext);
+    public Response {{nickname}}({{#is this 'multipart'}}MultipartFormDataInput input,{{/is}}{{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{#isNot this 'multipart'}}{{>formParams}},{{/isNot}}{{#is this 'multipart'}}{{#isNot this 'form-param'}},{{/isNot}}{{/is}}{{/allParams}}@Context SecurityContext securityContext);
 {{/operation}}
 }
 {{/operations}}

@@ -51,42 +51,60 @@ public class {{classname}} {
     /**
      * {{summary}}
      * {{notes}}
-{{#responses}}     * <p><b>{{code}}</b>{{#message}} - {{message}}{{/message}}
-{{/responses}}{{#allParams}}     * @param {{paramName}} {{description}}{{^description}}The {{paramName}} parameter{{/description}}
-{{/allParams}}{{#returnType}}     * @return {{returnType}}
-{{/returnType}}     * @throws RestClientException if an error occurs while attempting to invoke the API
-{{#externalDocs}}
-    * {{description}}
-    * @see <a href="{{url}}">{{summary}} Documentation</a>
-{{/externalDocs}}
+    {{#responses}}
+     * <p><b>{{code}}</b>{{#message}} - {{message}}{{/message}}
+    {{/responses}}
+    {{#allParams}}
+     * @param {{paramName}} {{description}}{{^description}}The {{paramName}} parameter{{/description}}
+    {{/allParams}}
+    {{#returnType}}
+     * @return {{returnType}}
+    {{/returnType}}
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+    {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
      */
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}) throws RestClientException {
         Object {{localVariablePrefix}}postBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
-        {{#allParams}}{{#required}}
+        {{#allParams}}
+        {{#required}}
         // verify the required parameter '{{paramName}}' is set
         if ({{paramName}} == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter '{{paramName}}' when calling {{operationId}}");
         }
-        {{/required}}{{/allParams}}{{#hasPathParams}}
+        {{/required}}
+        {{/allParams}}
+        {{#hasPathParams}}
         // create path and map variables
-        final Map<String, Object> uriVariables = new HashMap<String, Object>();{{#pathParams}}
-        uriVariables.put("{{baseName}}", {{{paramName}}});{{/pathParams}}{{/hasPathParams}}
+        final Map<String, Object> uriVariables = new HashMap<String, Object>();
+        {{#pathParams}}
+        uriVariables.put("{{baseName}}", {{{paramName}}});
+        {{/pathParams}}
+        {{/hasPathParams}}
         String {{localVariablePrefix}}path = UriComponentsBuilder.fromPath("{{{path}}}"){{#hasPathParams}}.buildAndExpand(uriVariables){{/hasPathParams}}{{^hasPathParams}}.build(){{/hasPathParams}}.toUriString();
         
         final MultiValueMap<String, String> {{localVariablePrefix}}queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders {{localVariablePrefix}}headerParams = new HttpHeaders();
-        final MultiValueMap<String, Object> {{localVariablePrefix}}formParams = new LinkedMultiValueMap<String, Object>();{{#hasQueryParams}}
-        
-        {{#queryParams}}{{localVariablePrefix}}queryParams.putAll({{localVariablePrefix}}apiClient.parameterToMultiValueMap({{#collectionFormat}}ApiClient.CollectionFormat.valueOf("{{{collectionFormat}}}".toUpperCase()){{/collectionFormat}}{{^collectionFormat}}null{{/collectionFormat}}, "{{baseName}}", {{paramName}}));{{#has this 'more'}}
-        {{/has}}{{/queryParams}}{{/hasQueryParams}}{{#hasHeaderParams}}
-        
-        {{#headerParams}}if ({{paramName}} != null)
-        {{localVariablePrefix}}headerParams.add("{{baseName}}", {{localVariablePrefix}}apiClient.parameterToString({{paramName}}));{{#has this 'more'}}
-        {{/has}}{{/headerParams}}{{/hasHeaderParams}}{{#hasFormParams}}
-        
-        {{#formParams}}if ({{paramName}} != null)
-            {{localVariablePrefix}}formParams.add("{{baseName}}", {{#is this 'file'}}new FileSystemResource({{paramName}}){{/is}}{{#isNot this 'file'}}{{paramName}}{{/isNot}});{{#has this 'more'}}
-        {{/has}}{{/formParams}}{{/hasFormParams}}
+        final MultiValueMap<String, Object> {{localVariablePrefix}}formParams = new LinkedMultiValueMap<String, Object>();
+        {{#hasQueryParams}}
+        {{#queryParams}}
+        {{localVariablePrefix}}queryParams.putAll({{localVariablePrefix}}apiClient.parameterToMultiValueMap({{#collectionFormat}}ApiClient.CollectionFormat.valueOf("{{{collectionFormat}}}".toUpperCase()){{/collectionFormat}}{{^collectionFormat}}null{{/collectionFormat}}, "{{baseName}}", {{paramName}}));
+        {{/queryParams}}
+        {{/hasQueryParams}}
+        {{#hasHeaderParams}}
+        {{#headerParams}}
+        if ({{paramName}} != null)
+            {{localVariablePrefix}}headerParams.add("{{baseName}}", {{localVariablePrefix}}apiClient.parameterToString({{paramName}}));
+        {{/headerParams}}
+        {{/hasHeaderParams}}
+        {{#hasFormParams}}
+        {{#formParams}}
+        if ({{paramName}} != null)
+            {{localVariablePrefix}}formParams.add("{{baseName}}", {{#is this 'file'}}new FileSystemResource({{paramName}}){{/is}}{{#isNot this 'file'}}{{paramName}}{{/isNot}});
+        {{/formParams}}
+        {{/hasFormParams}}
 
         final String[] {{localVariablePrefix}}accepts = { {{#has this 'produces'}}
             {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}}

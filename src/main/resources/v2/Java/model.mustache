@@ -2,8 +2,8 @@
 
 package {{package}};
 
-{{getModelImports~}}
-{{#models~}}
+{{getModelImports}}
+{{#models}}
 {{#model}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
 {{/model}}

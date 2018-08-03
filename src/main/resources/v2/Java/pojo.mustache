@@ -1,50 +1,53 @@
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
- */{{#description}}{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
+ */
+{{#description}}{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
 {{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 public class {{{getClassDefinition}}} {
 {{#serializableModel}}
   private static final long serialVersionUID = 1L;
-{{/serializableModel~}}
-  {{#vars~}}
-  {{#baseItems this ~}}
+{{/serializableModel}}
+  {{#vars}}
+  {{#baseItems this }}
   {{#is this 'enum'}}
 {{> modelInnerEnum}}
-  {{/is~}}
+  {{/is}}
   {{/baseItems}}
   {{#if jackson}}
+
   @JsonProperty("{{baseName}}")
-  {{#if withXml~}}
-  {{#isNot this 'container'~}}@JacksonXmlProperty({{{getJacksonXmlProperty this}}}){{/isNot}}
-  {{#is this 'container'~}}
-  {{#is this 'xml-wrapped'~}}
+  {{#if withXml}}
+  {{#isNot this 'container'}}@JacksonXmlProperty({{{getJacksonXmlProperty this}}}){{/isNot}}
+  {{#is this 'container'}}
+  {{#is this 'xml-wrapped'}}
   // items.xmlName={{items.xmlName}}
   @JacksonXmlElementWrapper({{{getJacksonXmlElementWrapper this}}})
-  {{/is~}}
-  {{/is~}}
-  {{/if ~}}
-  {{/if~}}
-  {{#if withXml~}}
-  {{#is this 'xml-attribute'~}}
+  {{/is}}
+  {{/is}}
+  {{/if }}
+  {{/if}}
+  {{#if withXml}}
+  {{#is this 'xml-attribute'}}
   @XmlAttribute(name = "{{getXmlAttributeName xmlName baseName}}")
-  {{/is~}}
-  {{#isNot this 'xml-attribute'~}}
-  {{#isNot this 'container'~}}@XmlElement({{{getXmlElementName xmlNamespace xmlName baseName}}}){{/isNot}}
-  {{#is this 'container'~}}
-  {{#items~}}
+  {{/is}}
+  {{#isNot this 'xml-attribute'}}
+  {{#isNot this 'container'}}@XmlElement({{{getXmlElementName xmlNamespace xmlName baseName}}}){{/isNot}}
+  {{#is this 'container'}}
+  {{#items}}
   @XmlElement({{{getXmlElementName items.xmlNamespace items.xmlName items.baseName}}})
-  {{/items~}}
-  {{#is this 'xml-wrapped'~}}@XmlElementWrapper({{{getXmlElementName xmlNamespace xmlName baseName}}}){{/is}}
-  {{/is~}}
-  {{/isNot~}}
-  {{/if~}}
-  {{#gson~}}
+  {{/items}}
+  {{#is this 'xml-wrapped'}}@XmlElementWrapper({{{getXmlElementName xmlNamespace xmlName baseName}}}){{/is}}
+  {{/is}}
+  {{/isNot}}
+  {{/if}}
+
+  {{#gson}}
   @SerializedName("{{baseName}}")
-  {{/gson~}}
+  {{/gson}}
   private {{{getJavaProperty}}};
   {{/vars}}
-  {{#vars~}}
-  {{#isNot this 'read-only'~}}
+  {{#vars}}
+  {{#isNot this 'read-only'}}
   public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
     return this;
@@ -58,9 +61,9 @@ public class {{{getClassDefinition}}} {
     {{/required}}
     this.{{name}}.add({{name}}Item);
     return this;
-  }
-  {{/is~}}
-  {{#is this 'map-container'}}public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
+  }{{/is}}
+  {{#is this 'map-container'}}
+  public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
     if (this.{{name}} == null) {
       this.{{name}} = {{{defaultValue}}};
@@ -68,34 +71,45 @@ public class {{{getClassDefinition}}} {
     {{/required}}
     this.{{name}}.put(key, {{name}}Item);
     return this;
-  }{{/is~}}
+  }{{/is}}
   {{/isNot}}
   /**
-  {{#if description~}}* {{description}}{{else}}* Get {{name}}{{/if}}
-  {{#if minimum~}}
+  {{#if description}}
+  * {{description}}
+  {{/if}}
+  {{#unless description}}
+  * Get {{name}}
+  {{/unless}}
+  {{#if minimum}}
   * minimum: {{minimum}}
-  {{/if~}}
-  {{#if maximum~}}
+  {{/if}}
+  {{#if maximum}}
   * maximum: {{maximum}}
-  {{/if~}}
+  {{/if}}
   * @return {{name}}
   **/
-  {{#if useBeanValidation}}{{>beanValidation}}{{/if}}
-  {{#useOas2}}@ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}"){{/useOas2}}
-  {{^useOas2}}@Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}description = "{{{description}}}"){{/useOas2}}
+  {{#if useBeanValidation}}
+  {{>beanValidation}}
+  {{/if}}
+  {{#useOas2}}
+  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}")
+  {{/useOas2}}
+  {{^useOas2}}
+  @Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}description = "{{{description}}}")
+  {{/useOas2}}
   {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
-  {{/vendorExtensions.extraAnnotation~}}
+  {{/vendorExtensions.extraAnnotation}}
   public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
   }
-  {{#isNot this 'read-only'~}}
+  {{#isNot this 'read-only'}}
   public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
   }
   {{/isNot}}
-  {{/vars~}}
-  {{^supportJava6~}}
+  {{/vars}}
+  {{^supportJava6}}
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -115,8 +129,8 @@ public class {{{getClassDefinition}}} {
   public int hashCode() {
     return java.util.Objects.hash({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#if parent}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/if}});
   }
-  {{/supportJava6~}}
-  {{#supportJava6~}}
+  {{/supportJava6}}
+  {{#supportJava6}}
   @Override
   public boolean equals(java.lang.Object o) {
   if (this == o) {
@@ -124,19 +138,23 @@ public class {{{getClassDefinition}}} {
   }
   if (o == null || getClass() != o.getClass()) {
     return false;
-  }{{#has this 'vars'}}
+  }
+  {{#has this 'vars'}}
     {{classname}} {{classVarName}} = ({{classname}}) o;
     return {{#vars}}ObjectUtils.equals(this.{{name}}, {{classVarName}}.{{name}}){{#has this 'more'}} &&
     {{/has}}{{/vars}}{{#parent}} &&
-    super.equals(o){{/parent}};{{/has}}{{#hasNot this 'vars'}}
-    return true;{{/hasNot}}
+    super.equals(o){{/parent}};
+  {{/has}}
+  {{#hasNot this 'vars'}}
+    return true;
+  {{/hasNot}}
   }
 
   @Override
   public int hashCode() {
     return ObjectUtils.hashCodeMulti({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#if parent}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/if}});
   }
-  {{/supportJava6~}}
+  {{/supportJava6}}
 
   @Override
   public String toString() {
@@ -161,10 +179,10 @@ public class {{{getClassDefinition}}} {
 
   {{#parcelableModel}}
   public void writeToParcel(Parcel out, int flags) {
-    {{#isNot this 'container'~}}
+    {{#isNot this 'container'}}
     {{#parent}} super.writeToParcel(out, flags); {{/parent}}
     {{/isNot}}
-    {{#vars~}}
+    {{#vars}}
     out.writeValue({{name}});
     {{/vars}}
   }
@@ -174,12 +192,12 @@ public class {{{getClassDefinition}}} {
   }
 
   {{classname}}(Parcel in) {
-    {{#isNot this 'container'~}}
+    {{#isNot this 'container'}}
     {{#parent}} super(in); {{/parent}}
     {{/isNot}}
-    {{#vars~}}
-    {{#is this 'primitive-type'~}}{{name}} = ({{{datatypeWithEnum}}})in.readValue(null);{{/is~}}
-    {{#isNot this 'primitive-type'~}}{{name}} = ({{{datatypeWithEnum}}})in.readValue({{complexType}}.class.getClassLoader());{{/isNot~}}
+    {{#vars}}
+    {{#is this 'primitive-type'}}{{name}} = ({{{datatypeWithEnum}}})in.readValue(null);{{/is}}
+    {{#isNot this 'primitive-type'}}{{name}} = ({{{datatypeWithEnum}}})in.readValue({{complexType}}.class.getClassLoader());{{/isNot}}
     {{/vars}}
   }
 
@@ -194,5 +212,6 @@ public class {{{getClassDefinition}}} {
     public {{classname}}[] newArray(int size) {
       return new {{classname}}[size];
     }
-  };{{/parcelableModel}}
+  };
+  {{/parcelableModel}}
 }
