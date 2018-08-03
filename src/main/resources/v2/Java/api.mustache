@@ -19,7 +19,7 @@ import java.util.Map;
 {{/fullJavaUtil}}
 
 {{>generatedAnnotation}}
-{{#operations~}}
+{{#operations}}
 public class {{classname}} {
   private ApiClient {{localVariablePrefix}}apiClient;
 
@@ -39,28 +39,28 @@ public class {{classname}} {
     this.{{localVariablePrefix}}apiClient = apiClient;
   }
 
-  {{#operation~}}
+  {{#operation}}
   /**
-   * {{summary~}}
-   * {{notes~}}
-   {{#allParams~}}
+   * {{summary}}
+   * {{notes}}
+   {{#allParams}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-   {{/allParams~}}
-   {{#returnType~}}
+   {{/allParams}}
+   {{#returnType}}
    * @return {{returnType}}
-   {{/returnType~}}
+   {{/returnType}}
    * @throws ApiException if fails to make API call
-   {{#is this 'deprecated'~}}
+   {{#is this 'deprecated'}}
    * @deprecated
-   {{/is~}}
-   {{#externalDocs~}}
-   * {{description~}}
+   {{/is}}
+   {{#externalDocs}}
+   * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>
-   {{/externalDocs~}}
+   {{/externalDocs}}
    */
-  {{#is this 'deprecated'~}}
+  {{#is this 'deprecated'}}
   @Deprecated
-  {{/is~}}
+  {{/is}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}) throws ApiException {
     Object {{localVariablePrefix}}localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
     {{#allParams}}{{#required}}

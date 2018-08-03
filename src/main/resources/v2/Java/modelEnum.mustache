@@ -17,9 +17,11 @@ import com.google.gson.stream.JsonWriter;
 @JsonAdapter({{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.Adapter.class)
 {{/gson}}
 public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
-  {{#allowableValues}}{{#enumVars}}
-  {{{name}}}({{{value}}}){{^@last}},
-  {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
+  {{#allowableValues}}
+  {{#enumVars}}
+  {{{name}}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+  {{/enumVars}}
+  {{/allowableValues}}
 
   private {{{dataType}}} value;
 
@@ -27,9 +29,9 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
     this.value = value;
   }
 
-{{#jackson}}
+  {{#jackson}}
   @JsonValue
-{{/jackson}}
+  {{/jackson}}
   public {{{dataType}}} getValue() {
     return value;
   }
