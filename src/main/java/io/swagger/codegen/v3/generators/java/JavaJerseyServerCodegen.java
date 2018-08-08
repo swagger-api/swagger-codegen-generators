@@ -80,6 +80,11 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
     @Override
     public void processOpts() {
+        if ("jersey1".equalsIgnoreCase(library)) {
+            setUseOas2(true);
+            additionalProperties.put(CodegenConstants.USE_OAS2, true);
+        }
+
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
