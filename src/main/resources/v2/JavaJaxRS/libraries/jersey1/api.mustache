@@ -44,17 +44,19 @@ public class {{classname}}  {
     {{#has this 'consumes'}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/has}}
     {{#has this 'produces'}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/has}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#is this 'oauth'}}, scopes = {
-            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
-        }{{/is}}){{#hasMore}},
-        {{/hasMore}}{{/authMethods}}
+    {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#is this 'oauth'}}, scopes = {
+    {{#scopes}}
+    @io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},{{/hasMore}}
+    {{/scopes}}
+    }{{/is}}){{#hasMore}},{{/hasMore}}
+    {{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @io.swagger.annotations.ApiResponses(value = { {{#responses}}
         @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#has this 'more'}},{{/has}}{{/responses}} })
     public Response {{nickname}}(
-        {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}},
-        {{/allParams}}@Context SecurityContext securityContext)
+    {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>libraries/jersey1/formParams}},
+    {{/allParams}}
+        @Context SecurityContext securityContext)
     throws NotFoundException {
         return delegate.{{nickname}}({{#allParams}}{{#is this 'file'}}inputStream, fileDetail{{/is}}{{#isNot this 'file'}}{{paramName}}{{/isNot}},{{/allParams}}securityContext);
     }
