@@ -1968,6 +1968,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             if (containsFormContentType(body)) {
                 Schema schema = getSchemaFromBody(body);
+                if (StringUtils.isNotBlank(schema.get$ref())) {
+                    String schemaName = getSimpleRef(schema.get$ref());
+                    schema = schemas.get(schemaName);
+                }
                 final Map<String, Schema> propertyMap = schema.getProperties();
                 if (propertyMap != null && !propertyMap.isEmpty()) {
                     boolean isMultipart = body.getContent().containsKey("multipart/form-data");
