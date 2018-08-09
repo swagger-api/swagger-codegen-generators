@@ -120,6 +120,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         instantiationTypes.put("map", "HashMap");
         typeMapping.put("date", "Date");
         typeMapping.put("file", "File");
+        typeMapping.put("binary", "File");
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.API_PACKAGE, CodegenConstants.API_PACKAGE_DESC));
@@ -374,7 +375,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else {
             importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
         }
-        
+
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
@@ -1304,7 +1305,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public void setSupportJava6(boolean value) {
         this.supportJava6 = value;
     }
-    
+
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
@@ -1360,7 +1361,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         .value(Boolean.FALSE.toString()));
             }
         }
-        
+
         super.setLanguageArguments(languageArguments);
     }
 }
