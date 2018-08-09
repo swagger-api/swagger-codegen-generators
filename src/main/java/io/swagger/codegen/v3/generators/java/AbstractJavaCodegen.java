@@ -375,7 +375,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else {
             importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
         }
-
+        
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
@@ -1305,7 +1305,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public void setSupportJava6(boolean value) {
         this.supportJava6 = value;
     }
-
+    
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
@@ -1361,7 +1361,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         .value(Boolean.FALSE.toString()));
             }
         }
-
+        
         super.setLanguageArguments(languageArguments);
     }
 }
