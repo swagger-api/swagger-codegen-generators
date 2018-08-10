@@ -3392,7 +3392,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return languageArguments;
     }
 
-    public abstract String getArgumentsLocation();
+    public String getArgumentsLocation() {
+        return null;
+    }
 
     /**
      * Only write if the file doesn't exist
