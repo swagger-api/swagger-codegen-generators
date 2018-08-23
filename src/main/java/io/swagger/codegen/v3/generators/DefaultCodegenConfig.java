@@ -23,6 +23,7 @@ import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
+import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
@@ -401,7 +402,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     public TemplateEngine getTemplateEngine() {
-        return null;
+        return new HandlebarTemplateEngine(this);
     }
 
     // override with any special text escaping logic
