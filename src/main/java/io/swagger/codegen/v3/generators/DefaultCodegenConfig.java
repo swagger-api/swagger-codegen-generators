@@ -401,6 +401,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return compiler;
     }
 
+    @Override
     public TemplateEngine getTemplateEngine() {
         return new HandlebarTemplateEngine(this);
     }
