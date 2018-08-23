@@ -23,6 +23,7 @@ import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
+import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -397,6 +398,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         return compiler;
+    }
+
+    public TemplateEngine getTemplateEngine() {
+        return null;
     }
 
     // override with any special text escaping logic
