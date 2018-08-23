@@ -397,12 +397,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void processOpenAPI(OpenAPI openAPI) {
     }
 
-    @Override
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         return compiler;
     }
 
-    @Override
     public TemplateEngine getTemplateEngine() {
         return new HandlebarTemplateEngine(this);
     }
