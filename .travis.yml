@@ -13,6 +13,7 @@ script:
   - ./mvnw clean verify
 jdk:
   - openjdk8
+  - oraclejdk9
 after_success:
   - if [ $SONATYPE_USERNAME ] && [ -z $TRAVIS_TAG ] && [ "$TRAVIS_BRANCH" = "master" ]; then
       mvn clean deploy --settings .travis/settings.xml;
