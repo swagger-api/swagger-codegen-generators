@@ -14,6 +14,8 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
+import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -130,6 +132,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public void processOpts() {
+        setUseOas2(true);
+        additionalProperties.put(CodegenConstants.USE_OAS2, true);
 
         // Process java8 option before common java ones to change the default dateLibrary to java8.
         if (additionalProperties.containsKey(JAVA_8)) {
@@ -153,12 +157,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            String templateVersion = getTemplateVersion();
-            if (StringUtils.isNotBlank(templateVersion)) {
-                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "JavaSpring", templateVersion);
-            } else {
-                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "JavaSpring", DEFAULT_TEMPLATE_VERSION);
-            }
+            embeddedTemplateDir = templateDir = "mustache" + File.separator + "JavaSpring";
         }
 
         // clear model and api doc template as this codegen
@@ -247,9 +246,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             }
         }
 
+        supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+
         if (!this.interfaceOnly) {
-            supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
-            supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
             if (library.equals(DEFAULT_LIBRARY)) {
                 supportingFiles.add(new SupportingFile("homeController.mustache",
@@ -326,10 +326,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (this.async) {
                 additionalProperties.put(RESPONSE_WRAPPER, "CompletableFuture");
             }
-            typeMapping.put("date", "LocalDate");
-            typeMapping.put("DateTime", "OffsetDateTime");
-            importMapping.put("LocalDate", "java.time.LocalDate");
-            importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
         } else if (this.async) {
             additionalProperties.put(RESPONSE_WRAPPER, "Callable");
         }
@@ -373,8 +369,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 writer.write(fragment.execute().replaceAll("\\r|\\n", ""));
             }
         });
-
-        importMapping.put("JsonTypeId", "com.fasterxml.jackson.annotation.JsonTypeId");
     }
 
     @Override
@@ -471,21 +465,13 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (operations != null) {
             List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
             for (final CodegenOperation operation : ops) {
-                boolean multipleReturnTypes = false;
-                String previousReturnType = null;
-                
                 List<CodegenResponse> responses = operation.responses;
                 if (responses != null) {
                     for (final CodegenResponse resp : responses) {
                         if ("0".equals(resp.code)) {
                             resp.code = "200";
                         }
-                        
-                        if (previousReturnType != null && !previousReturnType.equals(resp.dataType)) {
-                            multipleReturnTypes = true;
-                        }
-                        
-                        doDataTypeAssignment(resp.dataType, new SpringCodegen.DataTypeAssigner() {
+                        doDataTypeAssignment(resp.dataType, new DataTypeAssigner() {
                             @Override
                             public void setReturnType(final String returnType) {
                                 resp.dataType = returnType;
@@ -496,15 +482,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                                 resp.containerType = returnContainer;
                             }
                         });
-                        previousReturnType = resp.dataType;
                     }
                 }
-                
-                if (multipleReturnTypes) {
-                    operation.returnType = "?";
-                }
-                    
-                doDataTypeAssignment(operation.returnType, new SpringCodegen.DataTypeAssigner() {
+
+                doDataTypeAssignment(operation.returnType, new DataTypeAssigner() {
 
                     @Override
                     public void setReturnType(final String returnType) {
@@ -629,6 +610,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
     }
 
+    @Override
+    public TemplateEngine getTemplateEngine() {
+        return new MustacheTemplateEngine(this);
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -692,7 +678,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
             property.vendorExtensions.put("x-is-discriminator-property", true);
 
-            model.imports.add("JsonTypeId");
+            //model.imports.add("JsonTypeId");
         }
     }
 
