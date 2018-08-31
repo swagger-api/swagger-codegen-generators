@@ -1980,9 +1980,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     schema = schemas.get(schemaName);
                 }
                 final Map<String, Schema> propertyMap = schema.getProperties();
+                boolean isMultipart = body.getContent().containsKey("multipart/form-data");
                 if (propertyMap != null && !propertyMap.isEmpty()) {
-                    boolean isMultipart = body.getContent().containsKey("multipart/form-data");
-
                     for (String propertyName : propertyMap.keySet()) {
                         CodegenParameter codegenParameter = fromParameter(new Parameter()
                                 .name(propertyName)
