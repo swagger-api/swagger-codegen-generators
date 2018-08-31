@@ -610,6 +610,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
     }
 
+    public String toBooleanGetter(String name) {
+        return getterAndSetterCapitalize(name);
+    }
+
     @Override
     public TemplateEngine getTemplateEngine() {
         return new MustacheTemplateEngine(this);
