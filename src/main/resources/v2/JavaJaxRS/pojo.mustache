@@ -113,7 +113,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
 
   @Override
   public int hashCode() {
-    return Objects.hash({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#parentModel}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/parentModel}});
+    return Objects.hash({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#parentModel}}{{#has ../this 'vars'}}, {{/has}}super.hashCode(){{/parentModel}});
   }
 
 {{/supportJava6}}
