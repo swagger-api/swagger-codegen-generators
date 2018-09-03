@@ -13,9 +13,6 @@ public class NotEmptyHelper implements Helper<Collection> {
     public Object apply(Collection collection, Options options) throws IOException {
         final Options.Buffer buffer = options.buffer();
 
-        System.out.println("------------------------ collection:");
-        System.out.println(collection);
-
         if (collection == null || collection.isEmpty()) {
             buffer.append(options.inverse());
         } else {
