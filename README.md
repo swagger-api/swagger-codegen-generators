@@ -8,7 +8,7 @@
 - **Handlebars as template engine:** with Handelbars feature is possible to create more logic-less templates.
 - **OAS 3 support:** generator classes work with OpenAPI Specificacion V3.
 
-More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0-SNAPSHOT](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0-SNAPSHOT)
+More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0)
 
 ### Prerequisites
 You need the following installed and available in your $PATH:
