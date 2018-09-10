@@ -31,7 +31,7 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
         outputFolder = "generated-code/scala";
         modelTemplateFiles.put("model.mustache", ".scala");
         apiTemplateFiles.put("api.mustache", ".scala");
-        embeddedTemplateDir = templateDir = "mustache/scala";
+        embeddedTemplateDir = templateDir = "v2/scala/client";
         apiPackage = "io.swagger.client.api";
         modelPackage = "io.swagger.client.model";
 
