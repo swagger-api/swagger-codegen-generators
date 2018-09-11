@@ -25,6 +25,7 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
     protected String artifactId = "swagger-scala-client";
     protected String artifactVersion = "1.0.0";
     protected String clientName = "AsyncClient";
+    protected String invokerPackage = "io.swagger.client";
 
     public ScalaClientCodegen() {
         super();

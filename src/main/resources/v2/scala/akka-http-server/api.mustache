@@ -1,0 +1,32 @@
+package {{package}}
+
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+
+{{#operations}}
+class {{classname}}(
+    {{classVarName}}Service: {{classname}}Service
+) {
+
+  {{#operation}}
+
+  lazy val route: Route =
+      path({{#vendorExtensions.paths}}"{{.}}"{{#vendorExtensions.paths.hasNext}} / {{/vendorExtensions.paths.hasNext}}{{/vendorExtensions.paths}}) {
+        {{vendorExtensions.lowercaseHttpMethod}} {
+            complete{
+                {{classVarName}}Service.{{operationId}}()
+            }
+        }
+      }
+  {{/operation}}
+}
+
+trait {{classname}}Service {
+
+{{#operation}}
+  def {{operationId}}(): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
+
+{{/operation}}
+
+}
+{{/operations}}

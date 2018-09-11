@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
 
     protected String modelPropertyNaming = "camelCase";
-    protected String invokerPackage = "io.swagger.client";
     protected String sourceFolder = "src/main/scala";
 
     public AbstractScalaCodegen() {
