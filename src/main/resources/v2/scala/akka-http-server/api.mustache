@@ -2,6 +2,7 @@ package {{package}}
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import {{invokerPackage}}.AkkaHttpHelper._
 
 {{#operations}}
 class {{classname}}(
@@ -11,10 +12,10 @@ class {{classname}}(
   {{#operation}}
 
   lazy val route: Route =
-      path({{#vendorExtensions.paths}}"{{.}}"{{#vendorExtensions.paths.hasNext}} / {{/vendorExtensions.paths.hasNext}}{{/vendorExtensions.paths}}) {
+      path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{#pathParams.size}}({{/pathParams.size}}{{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#pathParams.size}}) => {{/pathParams.size}}
         {{vendorExtensions.lowercaseHttpMethod}} {
             complete{
-                {{classVarName}}Service.{{operationId}}()
+                {{classVarName}}Service.{{operationId}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}})
             }
         }
       }
@@ -24,7 +25,7 @@ class {{classname}}(
 trait {{classname}}Service {
 
 {{#operation}}
-  def {{operationId}}(): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
+  def {{operationId}}({{#vendorExtensions.matchedPathParams}}{{paramName}}: {{dataType}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.matchedPathParams}}): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
 
 {{/operation}}
 
