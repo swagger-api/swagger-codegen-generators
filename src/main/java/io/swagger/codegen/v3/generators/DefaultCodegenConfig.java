@@ -1377,7 +1377,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1) {
                 return;
             }
-            for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
+            for (int i = 0; i < composedSchema.getAllOf().size(); i++) {
                 addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
             }
             return;
