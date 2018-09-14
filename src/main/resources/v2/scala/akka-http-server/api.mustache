@@ -12,11 +12,13 @@ class {{classname}}(
   {{#operation}}
 
   lazy val route: Route =
-      path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{#pathParams.size}}({{/pathParams.size}}{{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}{{#pathParams.size}}) => {{/pathParams.size}}
+      path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
         {{vendorExtensions.lowercaseHttpMethod}} {
-            complete{
-                {{classVarName}}Service.{{operationId}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}})
-            }
+            {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+                complete{
+                    {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+                }
+           {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
         }
       }
   {{/operation}}
@@ -25,7 +27,7 @@ class {{classname}}(
 trait {{classname}}Service {
 
 {{#operation}}
-  def {{operationId}}({{#vendorExtensions.matchedPathParams}}{{paramName}}: {{dataType}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.matchedPathParams}}): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
+  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
 
 {{/operation}}
 

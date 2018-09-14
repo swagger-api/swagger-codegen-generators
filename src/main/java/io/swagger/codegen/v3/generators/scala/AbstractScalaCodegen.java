@@ -83,6 +83,9 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
                 "yield"
         ));
 
+        typeMapping.put("int", "Int");
+        typeMapping.put("integer", "Int");
+
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.API_PACKAGE, CodegenConstants.API_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.SOURCE_FOLDER, CodegenConstants.SOURCE_FOLDER_DESC));

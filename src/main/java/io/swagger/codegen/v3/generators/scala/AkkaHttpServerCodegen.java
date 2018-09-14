@@ -62,7 +62,10 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         CodegenOperation codegenOperation =  super.fromOperation(path, httpMethod, operation, schemas, openAPI);
 
         addLowercaseHttpMethod(codegenOperation);
-        splitToPaths(codegenOperation);
+
+        addPathMatcher(codegenOperation);
+        addQueryParamsWithSupportedType(codegenOperation);
+        addAllParamsWithSupportedTypes(codegenOperation);
 
         return codegenOperation;
     }
@@ -78,32 +81,25 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
     }
 
     protected static String PATHS = "paths";
-    protected static String MATCHED_PATH_PARAMS = "matchedPathParams";
 
     /**
      *  Split the path as a string to a list of strings to map to the path directives of akka http
      *  @see <a href="https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/path-directives/index.html">Akka Http Documentation</a>
      */
-    protected static void splitToPaths(CodegenOperation codegenOperation) {
+    protected static void addPathMatcher(CodegenOperation codegenOperation) {
         LinkedList<String> allPaths = new LinkedList<>(Arrays.asList(codegenOperation.path.split("/")));
         allPaths.removeIf(""::equals);
 
         LinkedList<TextOrMatcher> paths = replacePathsWithMatchers(allPaths, codegenOperation);
         codegenOperation.getVendorExtensions().put(PATHS, paths);
-
-        LinkedList<CodegenParameter> matchedPathParams = new LinkedList<CodegenParameter>();
-        for(CodegenParameter parameter: codegenOperation.pathParams) {
-            matchedPathParams.add(replaceTypeIfNoMatcherFound(parameter));
-        }
-        codegenOperation.getVendorExtensions().put(MATCHED_PATH_PARAMS, matchedPathParams);
     }
 
     /**
      *  Mapping from parameter data types in path to akka http path matcher
      *  @see <a href="https://doc.akka.io/docs/akka-http/current/routing-dsl/path-matchers.html#basic-pathmatchers">Akka Http Documentation</a>
      */
-    private static Map<String, String> typeToMatcher = new HashMap<String, String>(){{
-        put("Integer", "IntNumber");
+    private static Map<String, String> pathTypeToMatcher = new HashMap<String, String>(){{
+        put("Int", "IntNumber");
         put("Long", "LongNumber");
         put("Float","FloatNumber"); //Custom implementation in AkkaHttpHelper object
         put("Double","DoubleNumber");
@@ -113,6 +109,8 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         put("String", "Segment");
     }};
 
+    protected static String FALLBACK_DATA_TYPE = "String";
+
     private static LinkedList<TextOrMatcher> replacePathsWithMatchers(LinkedList<String> paths, CodegenOperation codegenOperation) {
         LinkedList<TextOrMatcher> result = new LinkedList<>();
         for(String path: paths){
@@ -121,13 +119,13 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
                 String parameterName = path.substring(1, path.length()-1);
                 for(CodegenParameter pathParam: codegenOperation.pathParams){
                     if(pathParam.paramName.equals(parameterName)) {
-                        String matcher = typeToMatcher.get(pathParam.dataType);
+                        String matcher = pathTypeToMatcher.get(pathParam.dataType);
                         if(matcher == null) {
                             LOGGER.warn("The path parameter " + pathParam.paramName +
                                     " with the datatype " + pathParam.dataType +
                                     " could not be translated to a corresponding path matcher of akka http" +
                                     " and therefore has been translated to string.");
-                            matcher = typeToMatcher.get("String");
+                            matcher = pathTypeToMatcher.get(FALLBACK_DATA_TYPE);
                         }
                         textOrMatcher.value = matcher;
                         textOrMatcher.isText = false;
@@ -144,12 +142,64 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         return result;
     }
 
-    private static CodegenParameter replaceTypeIfNoMatcherFound(CodegenParameter parameter) {
-        CodegenParameter result = parameter.copy();
-        if(!typeToMatcher.containsKey(parameter.dataType)){
-            result.dataType = "String";
+    /**
+     *  Mapping from parameter data types in java to corresponding data types in java
+     */
+    private static Set<String> primitiveParamTypes = new HashSet<String>(){{
+        addAll(Arrays.asList(
+            "Int",
+            "Long",
+            "Float",
+            "Double",
+            "Boolean",
+            "String"
+        ));
+    }};
+
+    protected static String QUERY_PARAMS_WITH_SUPPORTED_TYPE = "queryParamsWithSupportedType";
+
+    /**
+     *  Replace all not supported types of query parameters by the fallback type
+     */
+    protected static void addQueryParamsWithSupportedType(CodegenOperation codegenOperation) {
+        LinkedList<CodegenParameter> queryParamsWithSupportedType = new LinkedList<CodegenParameter>();
+        for(CodegenParameter parameter: codegenOperation.queryParams) {
+            CodegenParameter parameterCopy = parameter.copy();
+            if(!primitiveParamTypes.contains(parameter.dataType)){
+                parameterCopy.dataType = FALLBACK_DATA_TYPE;
+            }
+            queryParamsWithSupportedType.add(parameterCopy);
         }
-        return result;
+        codegenOperation.getVendorExtensions().put(QUERY_PARAMS_WITH_SUPPORTED_TYPE, queryParamsWithSupportedType);
+    }
+
+    protected static String PARAMS_WITH_SUPPORTED_TYPE = "paramsWithSupportedType";
+
+    public static void addAllParamsWithSupportedTypes(CodegenOperation codegenOperation) {
+        LinkedList<CodegenParameter> allParamsWithSupportedType = new LinkedList<CodegenParameter>();
+        for(CodegenParameter parameter: codegenOperation.allParams) {
+            CodegenParameter parameterCopy = parameter.copy();
+            if(containsParam(codegenOperation.pathParams, parameter)){
+                if(!pathTypeToMatcher.containsKey(parameter.dataType)){
+                    parameterCopy.dataType = FALLBACK_DATA_TYPE;
+                }
+            } else if(containsParam(codegenOperation.queryParams, parameter)){
+                if(!primitiveParamTypes.contains(parameter.dataType)){
+                    parameterCopy.dataType = FALLBACK_DATA_TYPE;
+                }
+            }
+            allParamsWithSupportedType.add(parameterCopy);
+        }
+        codegenOperation.getVendorExtensions().put(PARAMS_WITH_SUPPORTED_TYPE, allParamsWithSupportedType);
+    }
+
+    private static boolean containsParam(List<CodegenParameter> parameters, CodegenParameter param) {
+        for(CodegenParameter elem: parameters){
+            if(param.paramName.equals(elem.paramName)){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

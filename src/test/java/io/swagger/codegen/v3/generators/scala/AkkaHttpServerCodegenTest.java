@@ -21,19 +21,23 @@ public class AkkaHttpServerCodegenTest {
     }
 
     @Test
-    public void testSplitToPaths() {
+    public void testAddPathMatcher() {
         CodegenOperation codegenOperation = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
 
         codegenOperation.path = "/pet";
         Assert.assertNull(codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PATHS));
-        AkkaHttpServerCodegen.splitToPaths(codegenOperation);
+
+        AkkaHttpServerCodegen.addPathMatcher(codegenOperation);
+
         LinkedList<TextOrMatcher> expectedPaths = new LinkedList<TextOrMatcher>(){{
             add(new TextOrMatcher("pet", true, false));
         }};
         Assert.assertEquals((LinkedList<TextOrMatcher>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PATHS), expectedPaths);
 
         codegenOperation.path = "/some/pet";
-        AkkaHttpServerCodegen.splitToPaths(codegenOperation);
+
+        AkkaHttpServerCodegen.addPathMatcher(codegenOperation);
+
         expectedPaths = new LinkedList<TextOrMatcher>(){{
             add(new TextOrMatcher("some", true, true));
             add(new TextOrMatcher("pet", true, false));
@@ -54,7 +58,8 @@ public class AkkaHttpServerCodegenTest {
         codegenOperation.pathParams.add(petName);
         codegenOperation.pathParams.add(unknownMatcher);
 
-        AkkaHttpServerCodegen.splitToPaths(codegenOperation);
+        AkkaHttpServerCodegen.addPathMatcher(codegenOperation);
+
         expectedPaths = new LinkedList<TextOrMatcher>(){{
             add(new TextOrMatcher("pet", true, true));
             add(new TextOrMatcher("LongNumber", false, true));
@@ -63,15 +68,75 @@ public class AkkaHttpServerCodegenTest {
             add(new TextOrMatcher("Segment", false, false));
         }};
         Assert.assertEquals((LinkedList<TextOrMatcher>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PATHS), expectedPaths);
+    }
 
+    @Test
+    public void testAddQueryParamsWithSupportedTypes() {
+        CodegenOperation codegenOperation = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+
+        CodegenParameter petAge = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petAge.paramName = "petAge";
+        petAge.dataType = "Int";
+        CodegenParameter petInfos = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petInfos.paramName = "petInfos";
+        petInfos.dataType = "Object";
+        codegenOperation.queryParams.add(petAge);
+        codegenOperation.queryParams.add(petInfos);
+        CodegenParameter petInfosWithString = petInfos.copy();
+        petInfosWithString.dataType = AkkaHttpServerCodegen.FALLBACK_DATA_TYPE;
+
+        AkkaHttpServerCodegen.addQueryParamsWithSupportedType(codegenOperation);
+
+        LinkedList<CodegenParameter> expectedMatchedPathParams = new LinkedList<CodegenParameter>(){{
+            add(petAge);
+            add(petInfosWithString);
+        }};
+        Assert.assertEquals((LinkedList<CodegenParameter>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.QUERY_PARAMS_WITH_SUPPORTED_TYPE), expectedMatchedPathParams);
+    }
+
+    @Test
+    public void testAddAllParamsWithSupportedTypes() {
+        CodegenOperation codegenOperation = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+
+        CodegenParameter petId = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petId.paramName = "petId";
+        petId.dataType = "Long";
+        CodegenParameter petName = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petName.paramName = "petName";
+        petName.dataType = "String";
+        CodegenParameter unknownMatcher = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        unknownMatcher.paramName = "unknownMatcher";
+        unknownMatcher.dataType = "List[String]";
+        CodegenParameter petAge = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petAge.paramName = "petAge";
+        petAge.dataType = "Int";
+        CodegenParameter petInfos = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        petInfos.paramName = "petInfos";
+        petInfos.dataType = "Object";
+        codegenOperation.pathParams.add(petId);
+        codegenOperation.pathParams.add(petName);
+        codegenOperation.pathParams.add(unknownMatcher);
+        codegenOperation.queryParams.add(petAge);
+        codegenOperation.queryParams.add(petInfos);
+        codegenOperation.allParams.add(petId.copy());
+        codegenOperation.allParams.add(petName.copy());
+        codegenOperation.allParams.add(unknownMatcher.copy());
+        codegenOperation.allParams.add(petAge.copy());
+        codegenOperation.allParams.add(petInfos.copy());
         CodegenParameter unknownMatcherWithString = unknownMatcher.copy();
-        unknownMatcherWithString.dataType = "String";
+        unknownMatcherWithString.dataType = AkkaHttpServerCodegen.FALLBACK_DATA_TYPE;
+        CodegenParameter petInfosWithString = petInfos.copy();
+        petInfosWithString.dataType = AkkaHttpServerCodegen.FALLBACK_DATA_TYPE;
+
+        AkkaHttpServerCodegen.addAllParamsWithSupportedTypes(codegenOperation);
+
         LinkedList<CodegenParameter> expectedMatchedPathParams = new LinkedList<CodegenParameter>(){{
             add(petId);
             add(petName);
             add(unknownMatcherWithString);
+            add(petAge);
+            add(petInfosWithString);
         }};
-        Assert.assertEquals((LinkedList<CodegenParameter>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.MATCHED_PATH_PARAMS), expectedMatchedPathParams);
-
+        Assert.assertEquals((LinkedList<CodegenParameter>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PARAMS_WITH_SUPPORTED_TYPE), expectedMatchedPathParams);
     }
 }
