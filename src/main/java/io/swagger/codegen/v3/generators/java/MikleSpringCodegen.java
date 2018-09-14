@@ -31,6 +31,7 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
     public static final String DEFAULT_LIBRARY = "spring-boot";
     public static final String TITLE = "title";
     public static final String CONFIG_PACKAGE = "configPackage";
+    public static final String ENCODER_PACKAGE = "encoderPackage";
     public static final String BASE_PACKAGE = "basePackage";
     public static final String INTERFACE_ONLY = "interfaceOnly";
     public static final String DELEGATE_PATTERN = "delegatePattern";
@@ -46,6 +47,7 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
+    protected String encoderPackage = "io.swagger.encoder";
     protected String basePackage = "io.swagger";
     protected boolean interfaceOnly = false;
     protected boolean delegatePattern = false;
@@ -69,6 +71,7 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
         artifactId = "swagger-spring";
 
         additionalProperties.put(CONFIG_PACKAGE, configPackage);
+        additionalProperties.put(ENCODER_PACKAGE, encoderPackage);
         additionalProperties.put(BASE_PACKAGE, basePackage);
 
         // spring uses the jackson lib
@@ -265,6 +268,10 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
                         (sourceFolder + File.separator + configPackage).replace(".", File.separator), "ApiKeyRequestInterceptor.java"));
                 supportingFiles.add(new SupportingFile("clientConfiguration.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", File.separator), "ClientConfiguration.java"));
+
+                supportingFiles.add(new SupportingFile("sdkEncoder.mustache",
+                        (sourceFolder + File.separator + encoderPackage).replace(".", File.separator), "SdkEncoder.java"));
+
                 apiTemplateFiles.put("apiClient.mustache", "Client.java");
                 if (!additionalProperties.containsKey(SINGLE_CONTENT_TYPES)) {
                     additionalProperties.put(SINGLE_CONTENT_TYPES, "true");

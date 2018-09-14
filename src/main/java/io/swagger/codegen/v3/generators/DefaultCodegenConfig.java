@@ -1974,32 +1974,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 String bodyName = getSimpleRef(body.get$ref());
                 body = openAPI.getComponents().getRequestBodies().get(bodyName);
             }
-            if (containsFormContentType(body)) {
-                Schema schema = getSchemaFromBody(body);
-                if (StringUtils.isNotBlank(schema.get$ref())) {
-                    String schemaName = getSimpleRef(schema.get$ref());
-                    schema = schemas.get(schemaName);
-                }
-                final Map<String, Schema> propertyMap = schema.getProperties();
-                boolean isMultipart = body.getContent().containsKey("multipart/form-data");
-                if (propertyMap != null && !propertyMap.isEmpty()) {
-                    for (String propertyName : propertyMap.keySet()) {
-                        CodegenParameter codegenParameter = fromParameter(new Parameter()
-                                .name(propertyName)
-                                .schema(propertyMap.get(propertyName)), imports);
-                        if (isMultipart) {
-                            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
-                        }
-                        codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                        formParams.add(codegenParameter);
-                        allParams.add(codegenParameter);
-                    }
-                }
-            } else {
-                bodyParam = fromRequestBody(body, schemas, imports);
-                bodyParams.add(bodyParam);
-                allParams.add(bodyParam);
-            }
+
+            bodyParam = fromRequestBody(body, schemas, imports);
+            bodyParams.add(bodyParam);
+            allParams.add(bodyParam);
         }
 
         if (parameters != null) {

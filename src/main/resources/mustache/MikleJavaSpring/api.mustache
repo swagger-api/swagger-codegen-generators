@@ -10,7 +10,6 @@ package {{package}};
 {{#jdk8-no-delegate}}
 import com.fasterxml.jackson.databind.ObjectMapper;
 {{/jdk8-no-delegate}}
-import io.swagger.annotations.*;
 {{#jdk8-no-delegate}}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,6 @@ import java.util.Optional;
 import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture{{/jdk8}};
 {{/async}}
 {{>generatedAnnotation}}
-@Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
 {{#operations}}
 public interface {{classname}} {
 {{#jdk8}}
@@ -79,22 +77,6 @@ public interface {{classname}} {
 {{/jdk8}}
 {{#operation}}
 
-    @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
-            }{{/isOAuth}}){{#hasMore}},
-        {{/hasMore}}{{/authMethods}}
-    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
-    @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},{{/hasMore}}{{/responses}} })
-    {{#implicitHeaders}}
-    @ApiImplicitParams({
-    {{#headerParams}}
-    {{>implicitHeader}}
-    {{/headerParams}}
-    })
-    {{/implicitHeaders}}
     @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
         produces = "{{{vendorExtensions.x-accepts}}}", {{/hasProduces}}{{#hasConsumes}}
         consumes = "{{{vendorExtensions.x-contentType}}}",{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}}
