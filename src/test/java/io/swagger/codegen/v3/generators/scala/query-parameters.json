@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "minimal example",
+    "title": "query-parameters",
     "version": "1.0"
   },
   "paths": {
