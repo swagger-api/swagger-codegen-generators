@@ -8,21 +8,20 @@ import {{invokerPackage}}.AkkaHttpHelper._
 class {{classname}}(
     {{classVarName}}Service: {{classname}}Service
 ) {
+  lazy val route: Route =
 
   {{#operation}}
-
-  lazy val route: Route =
-      path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
-        {{vendorExtensions.lowercaseHttpMethod}} {
-            {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
-                {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
-                    complete{
-                        {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
-                    }
-               {{#headerParams}} }{{/headerParams}}
-           {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
-        }
+    path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
+      {{vendorExtensions.lowercaseHttpMethod}} {
+        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+          {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
+            complete{
+              {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+            }
+         {{#headerParams}} }{{/headerParams}}
+       {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
       }
+    }{{^-last}} ~{{/-last}}
   {{/operation}}
 }
 
