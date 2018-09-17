@@ -22,6 +22,7 @@ import io.swagger.codegen.v3.generators.handlebars.HasHelper;
 import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
+import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
@@ -1980,9 +1981,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     schema = schemas.get(schemaName);
                 }
                 final Map<String, Schema> propertyMap = schema.getProperties();
+                boolean isMultipart = body.getContent().containsKey("multipart/form-data");
                 if (propertyMap != null && !propertyMap.isEmpty()) {
-                    boolean isMultipart = body.getContent().containsKey("multipart/form-data");
-
                     for (String propertyName : propertyMap.keySet()) {
                         CodegenParameter codegenParameter = fromParameter(new Parameter()
                                 .name(propertyName)
@@ -3337,6 +3337,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
         handlebars.registerHelper(BracesHelper.NAME, new BracesHelper());
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
+        handlebars.registerHelper(NotEmptyHelper.NAME, new NotEmptyHelper());
         handlebars.registerHelpers(new StringUtilHelper());
     }
 

@@ -1,36 +1,49 @@
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
  */{{#description}}
-{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
-{{>generatedAnnotation}}
+@ApiModel(description = "{{{description}}}"){{/description}}
+{{#useBeanValidation}}@Validated{{/useBeanValidation}}
+{{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable{{/serializableModel}} {
+{{#serializableModel}}
+  private static final long serialVersionUID = 1L;
+
+{{/serializableModel}}
   {{#vars}}
-    {{#baseItems this}}
-    {{#is this 'enum'}}
+    {{#isEnum}}
+    {{^isContainer}}
 {{>enumClass}}
-    {{/is~}}
-    {{/baseItems}}  
+    {{/isContainer}}
+    {{/isEnum}}
+    {{#items.isEnum}}
+      {{#items}}
+      {{^isContainer}}
+{{>enumClass}}
+      {{/isContainer}}
+      {{/items}}
+    {{/items.isEnum}}
   {{#jackson}}
-  @JsonProperty("{{baseName}}")
+  @JsonProperty("{{baseName}}"){{#withXml}}
+  @JacksonXmlProperty({{#isXmlAttribute}}isAttribute = true, {{/isXmlAttribute}}{{#xmlNamespace}}namespace="{{xmlNamespace}}", {{/xmlNamespace}}localName = "{{#xmlName}}{{xmlName}}{{/xmlName}}{{^xmlName}}{{baseName}}{{/xmlName}}"){{/withXml}}
   {{/jackson}}
-  {{#if gson}}
+  {{#gson}}
   @SerializedName("{{baseName}}")
-  {{/if}}
-  {{#is this 'container'}}
+  {{/gson}}
+  {{#isContainer}}
+  {{#useBeanValidation}}@Valid{{/useBeanValidation}}
   private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
-  {{/is}}
-  {{#isNot this 'container'}}
+  {{/isContainer}}
+  {{^isContainer}}
   private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
-  {{/isNot}}
+  {{/isContainer}}
 
   {{/vars}}
   {{#vars}}
-  {{^isReadOnly}}
   public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
     return this;
   }
-  {{#is this 'list-container'}}
+  {{#isListContainer}}
 
   public {{classname}} add{{nameInCamelCase}}Item({{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
@@ -41,8 +54,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     this.{{name}}.add({{name}}Item);
     return this;
   }
-  {{/is}}
-  {{#is this 'map-container'}}
+  {{/isListContainer}}
+  {{#isMapContainer}}
 
   public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
@@ -53,12 +66,11 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     this.{{name}}.put(key, {{name}}Item);
     return this;
   }
-  {{/is}}
+  {{/isMapContainer}}
 
-  {{/isReadOnly}}
   /**
   {{#description}}
-   * {{description}}
+   * {{{description}}}
   {{/description}}
   {{^description}}
    * Get {{name}}
@@ -70,32 +82,21 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
    * maximum: {{maximum}}
   {{/maximum}}
    * @return {{name}}
-   **/
+  **/
  {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
   {{/vendorExtensions.extraAnnotation}}
-  {{#jackson}}
-  @JsonProperty("{{baseName}}")
-  {{/jackson}}
-  {{#useOas2}}
-  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}value = "{{{description}}}")
-  {{/useOas2}}
-  {{^useOas2}}
-  @Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}description = "{{{description}}}")
-  {{/useOas2}}
-{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}value = "{{{description}}}")
+{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  public {{{datatypeWithEnum}}} {{#isBoolean}}is{{/isBoolean}}{{getter}}() {
     return {{name}};
   }
-  {{^isReadOnly}}
 
   public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
   }
-  {{/isReadOnly}}
 
   {{/vars}}
 
-{{^supportJava6}}
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -103,42 +104,18 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     }
     if (o == null || getClass() != o.getClass()) {
       return false;
-    }{{#has this 'vars'}}
+    }{{#hasVars}}
     {{classname}} {{classVarName}} = ({{classname}}) o;
-    return {{#vars}}Objects.equals(this.{{name}}, {{classVarName}}.{{name}}){{#has this 'more'}} &&
-        {{/has}}{{/vars}}{{#parent}} &&
-        super.equals(o){{/parent}};{{/has}}{{#hasNot this 'vars'}}
-    return true;{{/hasNot}}
+    return {{#vars}}Objects.equals(this.{{name}}, {{classVarName}}.{{name}}){{#hasMore}} &&
+        {{/hasMore}}{{/vars}}{{#parent}} &&
+        super.equals(o){{/parent}};{{/hasVars}}{{^hasVars}}
+    return true;{{/hasVars}}
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#parentModel}}{{#has ../this 'vars'}}, {{/has}}super.hashCode(){{/parentModel}});
+    return Objects.hash({{#vars}}{{name}}{{#hasMore}}, {{/hasMore}}{{/vars}}{{#parent}}{{#hasVars}}, {{/hasVars}}super.hashCode(){{/parent}});
   }
-
-{{/supportJava6}}
-{{#supportJava6}}
-  @Override
-  public boolean equals(java.lang.Object o) {
-  if (this == o) {
-    return true;
-  }
-  if (o == null || getClass() != o.getClass()) {
-    return false;
-  }{{#has this 'vars'}}
-    {{classname}} {{classVarName}} = ({{classname}}) o;
-    return {{#vars}}ObjectUtils.equals(this.{{name}}, {{classVarName}}.{{name}}){{#has this 'more'}} &&
-    {{/has}}{{/vars}}{{#parent}} &&
-    super.equals(o){{/parent}};{{/has}}{{#hasNot this 'vars'}}
-    return true;{{/hasNot}}
-  }
-
-  @Override
-  public int hashCode() {
-    return ObjectUtils.hashCodeMulti({{#vars}}{{name}}{{#has this 'more'}}, {{/has}}{{/vars}}{{#parentModel}}{{#has this 'vars'}}, {{/has}}super.hashCode(){{/parentModel}});
-  }
-
-{{/supportJava6}}
 
   @Override
   public String toString() {
