@@ -188,6 +188,10 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
                 if(!primitiveParamTypes.contains(parameter.dataType)){
                     parameterCopy.dataType = FALLBACK_DATA_TYPE;
                 }
+            } else if(containsParam(codegenOperation.formParams, parameter)){
+                if(!primitiveParamTypes.contains(parameter.dataType)){
+                    parameterCopy.dataType = FALLBACK_DATA_TYPE;
+                }
             }
             allParamsWithSupportedType.add(parameterCopy);
         }
