@@ -274,7 +274,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             // for enum model
             boolean isEnum = getBooleanValue(cm, IS_ENUM_EXT_NAME);
-            if (Boolean.TRUE.equals(isEnum) && cm.allowableValues != null) {
+
+            if (cm.getVendorExtensions().containsKey("x-enum")) {
+                LinkedHashMap<String,String> valList = (LinkedHashMap<String,String>)cm.getVendorExtensions().get("x-enum");
+                List<Map<String, String>> enumVars = new ArrayList<>();
+
+                for (Map.Entry<String, String> entry : valList.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+
+                    Map<String, String> enumVar = new HashMap<String, String>();
+                    enumVar.put("name", key);
+                    enumVar.put("value", toEnumValue(value.toString(), cm.dataType));
+                    enumVars.add(enumVar);
+                }
+
+                cm.allowableValues.put("enumVars", enumVars);
+            } else if (Boolean.TRUE.equals(isEnum) && cm.allowableValues != null) {
                 Map<String, Object> allowableValues = cm.allowableValues;
                 List<Object> values = (List<Object>) allowableValues.get("values");
                 List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
