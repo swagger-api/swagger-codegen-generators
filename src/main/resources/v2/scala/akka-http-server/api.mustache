@@ -3,6 +3,8 @@ package {{package}}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import {{invokerPackage}}.AkkaHttpHelper._
+{{#imports}}import {{import}}
+{{/imports}}
 
 {{#operations}}
 class {{classname}}(

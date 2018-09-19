@@ -18,7 +18,6 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
     protected String artifactVersion = "1.0.0";
     protected String invokerPackage = "io.swagger.server";
 
-
     @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
@@ -43,11 +42,13 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         additionalProperties.put(CodegenConstants.ARTIFACT_VERSION, artifactVersion);
         additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
         apiPackage = "io.swagger.server.api";
+        modelPackage = "io.swagger.server.model";
 
         //TEMPLATING
         embeddedTemplateDir = templateDir = "v2/scala/akka-http-server";
 
         apiTemplateFiles.put("api.mustache", ".scala");
+        modelTemplateFiles.put("model.mustache", ".scala");
 
         supportingFiles.add(new SupportingFile("build.sbt.mustache", "", "build.sbt"));
         supportingFiles.add(new SupportingFile("controller.mustache",
