@@ -927,7 +927,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return string presentation of the instantiation type of the property
      */
     public String toInstantiationType(Schema property) {
-        if (property instanceof MapSchema || property.getAdditionalProperties() != null) {
+        if (property instanceof MapSchema || (property.getAdditionalProperties() != null && (property.getAdditionalProperties() instanceof Schema))) {
             Schema additionalProperties = (Schema) property.getAdditionalProperties();
             String type = additionalProperties.getType();
             if (null == type) {
@@ -1053,7 +1053,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return "string";
         } else {
             if (schema != null) {
-                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null) {
+                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
                     return "map";
                 } else {
                     return schema.getType();
@@ -1331,7 +1331,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
             }
-            if (schema.getAdditionalProperties() != null) {
+            if (schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
                 addAdditionPropertiesToCodeGenModel(codegenModel, schema);
             }
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
@@ -1649,7 +1649,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             Schema items = ((ArraySchema) propertySchema).getItems();
             CodegenProperty innerCodegenProperty = fromProperty(itemName, items);
             updatePropertyForArray(codegenProperty, innerCodegenProperty);
-        } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
+        } else if (propertySchema instanceof MapSchema || ((propertySchema.getAdditionalProperties() != null && (propertySchema.getAdditionalProperties() instanceof Schema)))) {
 
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
