@@ -59,6 +59,37 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
     }
 
     @Override
+    public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
+        return setComplexTypes(objs);
+    }
+
+    public static Map<String, Object> setComplexTypes(Map<String, Object> objs) {
+        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+        List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
+        Boolean hasComplexTypes = Boolean.FALSE;
+        Set<String> complexRequestTypes = new HashSet<>();
+        for (CodegenOperation op : operationList) {
+            for(CodegenParameter parameter : op.allParams) {
+                if(!parameter.getIsPrimitiveType()){
+                    if(parameter.getIsBodyParam()){
+                        hasComplexTypes = Boolean.TRUE;
+                        complexRequestTypes.add(parameter.dataType);
+                    }
+                }
+            }
+            for(CodegenResponse response : op.responses) {
+                if(!response.getIsPrimitiveType()){
+                    hasComplexTypes = Boolean.TRUE;
+                }
+            }
+        }
+        objs.put("hasComplexTypes", hasComplexTypes);
+        objs.put("complexRequestTypes", complexRequestTypes);
+
+        return objs;
+    }
+
+    @Override
     public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI){
         CodegenOperation codegenOperation =  super.fromOperation(path, httpMethod, operation, schemas, openAPI);
 
@@ -156,6 +187,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             "String"
         ));
     }};
+
 
     protected static String QUERY_PARAMS_WITH_SUPPORTED_TYPE = "queryParamsWithSupportedType";
 

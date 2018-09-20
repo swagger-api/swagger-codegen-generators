@@ -2,24 +2,31 @@ package {{package}}
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+{{^operations.complexRequestTypes.isEmpty}}import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+{{/operations.complexRequestTypes.isEmpty}}
 import {{invokerPackage}}.AkkaHttpHelper._
 {{#imports}}import {{import}}
 {{/imports}}
 
 {{#operations}}
 class {{classname}}(
-    {{classVarName}}Service: {{classname}}Service
+    {{classVarName}}Service: {{classname}}Service{{#hasComplexTypes}},
+    {{classVarName}}Marshaller: {{classname}}Marshaller{{/hasComplexTypes}}
 ) {
-  lazy val route: Route =
+  {{#hasComplexTypes}}import {{classVarName}}Marshaller._
+  {{/hasComplexTypes}}
 
+  lazy val route: Route =
   {{#operation}}
     path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
       {{vendorExtensions.lowercaseHttpMethod}} {
         {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
           {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
             {{^formParams.isEmpty}}formFields({{#formParams}}"{{paramName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
-              {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
-            {{^formParams.isEmpty}} }{{/formParams.isEmpty}}
+              {{^bodyParam.isPrimitiveType}}entity(as[{{bodyParam.dataType}}]){ body =>{{/bodyParam.isPrimitiveType}}
+                {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+             {{^bodyParam.isPrimitiveType}} }{{/bodyParam.isPrimitiveType}}
+           {{^formParams.isEmpty}} }{{/formParams.isEmpty}}
          {{#headerParams}} }{{/headerParams}}
        {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
       }
@@ -29,7 +36,6 @@ class {{classname}}(
 
 trait {{classname}}Service {
 
-
 {{#operation}}
   /**
 {{#responses}}   * {{#code}}Code: {{.}},{{/code}} {{#message}}Message: {{.}},{{/message}} {{#dataType}}DataType: {{.}}{{/dataType}}
@@ -38,6 +44,13 @@ trait {{classname}}Service {
   def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}): Route
 
 {{/operation}}
-
 }
+
+{{#hasComplexTypes}}
+trait {{classname}}Marshaller {
+
+  {{#complexRequestTypes}}implicit def fromRequestUnmarshaller{{.}}: FromRequestUnmarshaller[{{.}}]
+  {{/complexRequestTypes}}
+}{{/hasComplexTypes}}
+
 {{/operations}}

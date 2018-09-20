@@ -1,15 +1,75 @@
 package io.swagger.codegen.v3.generators.scala;
 
-import io.swagger.codegen.v3.CodegenModelFactory;
-import io.swagger.codegen.v3.CodegenModelType;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.LinkedList;
+import java.util.*;
 
 public class AkkaHttpServerCodegenTest {
+
+    @Test
+    public void testSetComplexTypes() {
+        CodegenOperation codegenOperation1 = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+        CodegenOperation codegenOperation2 = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+        CodegenOperation codegenOperation3 = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+        CodegenOperation codegenOperation4 = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
+
+        CodegenParameter param1 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        CodegenParameter param2 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        CodegenParameter param3 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        CodegenParameter param4 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        CodegenParameter param5 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+
+        param1.dataType = "Pet";
+        param1.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        param1.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+        param2.dataType = "Pet";
+        param2.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        param2.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+        param3.dataType = "User";
+        param3.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        param3.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+        param4.dataType = "String";
+        param4.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
+        param4.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+        param5.dataType = "Order";
+        param5.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        param5.getVendorExtensions().put(CodegenConstants.IS_QUERY_PARAM_EXT_NAME, Boolean.TRUE);
+
+        codegenOperation1.bodyParam = param1;
+        codegenOperation1.bodyParams.add(param1);
+        codegenOperation1.allParams.add(param1);
+        codegenOperation2.bodyParam = param2;
+        codegenOperation2.bodyParams.add(param2);
+        codegenOperation2.allParams.add(param2);
+        codegenOperation3.bodyParam = param3;
+        codegenOperation3.bodyParams.add(param3);
+        codegenOperation3.allParams.add(param3);
+        codegenOperation4.bodyParam = param4;
+        codegenOperation4.bodyParams.add(param4);
+        codegenOperation4.allParams.add(param4);
+        codegenOperation4.queryParams.add(param5);
+        codegenOperation4.allParams.add(param5);
+
+        List<CodegenOperation> operationList = new LinkedList<CodegenOperation>(){{
+            addAll(Arrays.asList(
+                    codegenOperation1,
+                    codegenOperation2,
+                    codegenOperation3,
+                    codegenOperation4
+            ));
+        }};
+        Map<String, Object> operation = new HashMap<>();
+        operation.put("operation", operationList);
+        Map<String, Object> operations = new HashMap<>();
+        operations.put("operations", operation);
+
+        Map<String, Object> result = AkkaHttpServerCodegen.setComplexTypes(operations);
+
+        Assert.assertEquals(result.get("hasComplexTypes"), Boolean.TRUE);
+        Assert.assertEquals(result.get("complexRequestTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
+    }
 
     @Test
     public void testAddLowercaseHttpMethod() {
