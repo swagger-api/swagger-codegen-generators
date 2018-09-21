@@ -1,0 +1,35 @@
+package {{package}}
+
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import {{invokerPackage}}.AkkaHttpHelper._
+
+{{#operations}}
+class {{classname}}(
+    {{classVarName}}Service: {{classname}}Service
+) {
+
+  {{#operation}}
+
+  lazy val route: Route =
+      path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
+        {{vendorExtensions.lowercaseHttpMethod}} {
+            {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+                complete{
+                    {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+                }
+           {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
+        }
+      }
+  {{/operation}}
+}
+
+trait {{classname}}Service {
+
+{{#operation}}
+  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}): {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
+
+{{/operation}}
+
+}
+{{/operations}}

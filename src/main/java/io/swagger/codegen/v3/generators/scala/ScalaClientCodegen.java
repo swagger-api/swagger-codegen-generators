@@ -25,13 +25,14 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
     protected String artifactId = "swagger-scala-client";
     protected String artifactVersion = "1.0.0";
     protected String clientName = "AsyncClient";
+    protected String invokerPackage = "io.swagger.client";
 
     public ScalaClientCodegen() {
         super();
         outputFolder = "generated-code/scala";
         modelTemplateFiles.put("model.mustache", ".scala");
         apiTemplateFiles.put("api.mustache", ".scala");
-        embeddedTemplateDir = templateDir = "mustache/scala";
+        embeddedTemplateDir = templateDir = "mustache/scala/client";
         apiPackage = "io.swagger.client.api";
         modelPackage = "io.swagger.client.model";
 

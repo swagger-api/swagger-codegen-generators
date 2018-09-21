@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
 
     protected String modelPropertyNaming = "camelCase";
-    protected String invokerPackage = "io.swagger.client";
     protected String sourceFolder = "src/main/scala";
 
     public AbstractScalaCodegen() {
@@ -83,6 +82,9 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
                 "with",
                 "yield"
         ));
+
+        typeMapping.put("int", "Int");
+        typeMapping.put("integer", "Int");
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.API_PACKAGE, CodegenConstants.API_PACKAGE_DESC));
