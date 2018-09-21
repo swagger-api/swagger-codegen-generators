@@ -20,6 +20,9 @@ public class AkkaHttpServerCodegenTest {
         CodegenParameter param3 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
         CodegenParameter param4 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
         CodegenParameter param5 = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+        CodegenResponse response1 = CodegenModelFactory.newInstance(CodegenModelType.RESPONSE);
+        CodegenResponse response2 = CodegenModelFactory.newInstance(CodegenModelType.RESPONSE);
+        CodegenResponse response3 = CodegenModelFactory.newInstance(CodegenModelType.RESPONSE);
 
         param1.dataType = "Pet";
         param1.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
@@ -36,7 +39,12 @@ public class AkkaHttpServerCodegenTest {
         param5.dataType = "Order";
         param5.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
         param5.getVendorExtensions().put(CodegenConstants.IS_QUERY_PARAM_EXT_NAME, Boolean.TRUE);
-
+        response1.dataType = "Pet";
+        response1.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        response2.dataType = "Pet";
+        response2.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
+        response3.dataType = "User";
+        response3.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.FALSE);
         codegenOperation1.bodyParam = param1;
         codegenOperation1.bodyParams.add(param1);
         codegenOperation1.allParams.add(param1);
@@ -51,6 +59,9 @@ public class AkkaHttpServerCodegenTest {
         codegenOperation4.allParams.add(param4);
         codegenOperation4.queryParams.add(param5);
         codegenOperation4.allParams.add(param5);
+        codegenOperation1.responses.add(response1);
+        codegenOperation2.responses.add(response2);
+        codegenOperation2.responses.add(response3);
 
         List<CodegenOperation> operationList = new LinkedList<CodegenOperation>(){{
             addAll(Arrays.asList(
@@ -69,6 +80,9 @@ public class AkkaHttpServerCodegenTest {
 
         Assert.assertEquals(result.get("hasComplexTypes"), Boolean.TRUE);
         Assert.assertEquals(result.get("complexRequestTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
+        Assert.assertEquals(result.get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
+        Assert.assertEquals(codegenOperation1.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Collections.singletonList("Pet"));}});
+        Assert.assertEquals(codegenOperation2.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
     }
 
     @Test

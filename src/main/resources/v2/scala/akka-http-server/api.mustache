@@ -3,6 +3,7 @@ package {{package}}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 {{^operations.complexRequestTypes.isEmpty}}import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import akka.http.scaladsl.marshalling.ToEntityMarshaller
 {{/operations.complexRequestTypes.isEmpty}}
 import {{invokerPackage}}.AkkaHttpHelper._
 {{#imports}}import {{import}}
@@ -23,9 +24,9 @@ class {{classname}}(
         {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
           {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
             {{^formParams.isEmpty}}formFields({{#formParams}}"{{paramName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
-              {{^bodyParam.isPrimitiveType}}entity(as[{{bodyParam.dataType}}]){ body =>{{/bodyParam.isPrimitiveType}}
+              {{#bodyParam}}{{^isPrimitiveType}}entity(as[{{dataType}}]){ body =>{{/isPrimitiveType}}{{/bodyParam}}
                 {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
-             {{^bodyParam.isPrimitiveType}} }{{/bodyParam.isPrimitiveType}}
+             {{#bodyParam}}{{^isPrimitiveType}} }{{/isPrimitiveType}}{{/bodyParam}}
            {{^formParams.isEmpty}} }{{/formParams.isEmpty}}
          {{#headerParams}} }{{/headerParams}}
        {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
@@ -37,20 +38,29 @@ class {{classname}}(
 trait {{classname}}Service {
 
 {{#operation}}
+{{#responses}}  def {{operationId}}{{code}}{{#dataType}}(response{{dataType}}: {{dataType}}){{^isPrimitiveType}}(implicit toEntityMarshaller{{dataType}}: ToEntityMarshaller[{{dataType}}]){{/isPrimitiveType}}{{/dataType}}: Route =
+    complete(({{code}}, {{#dataType}}response{{dataType}}{{/dataType}}{{^dataType}}"{{message}}"{{/dataType}}))
+{{/responses}}
   /**
 {{#responses}}   * {{#code}}Code: {{.}},{{/code}} {{#message}}Message: {{.}},{{/message}} {{#dataType}}DataType: {{.}}{{/dataType}}
    {{/responses}}
    */
-  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}): Route
+  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
+      (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{.}}: ToEntityMarshaller[{{.}}]{{^-last}}, {{/-last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
 
 {{/operation}}
 }
 
 {{#hasComplexTypes}}
 trait {{classname}}Marshaller {
+{{#complexRequestTypes}}  implicit def fromRequestUnmarshaller{{.}}: FromRequestUnmarshaller[{{.}}]
 
-  {{#complexRequestTypes}}implicit def fromRequestUnmarshaller{{.}}: FromRequestUnmarshaller[{{.}}]
-  {{/complexRequestTypes}}
-}{{/hasComplexTypes}}
+{{/complexRequestTypes}}
+
+{{#complexReturnTypes}}  implicit def toEntityMarshaller{{.}}: ToEntityMarshaller[{{.}}]
+
+{{/complexReturnTypes}}
+}
+{{/hasComplexTypes}}
 
 {{/operations}}

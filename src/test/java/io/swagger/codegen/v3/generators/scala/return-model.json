@@ -61,11 +61,23 @@
               }
             }
           },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
           "404": {
             "description": "Pet not found"
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -73,6 +85,21 @@
   },
   "components": {
     "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Error"
+        }
+      },
       "Category": {
         "type": "object",
         "properties": {
