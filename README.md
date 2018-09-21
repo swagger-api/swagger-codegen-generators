@@ -1,6 +1,6 @@
 # swagger-codegen-generators
 
-- Master: [![Build Status](https://img.shields.io/travis/swagger-api/swagger-codegen-generators/master.svg?label=Build%20Status)](https://travis-ci.org/swagger-api/swagger-codegen-generators)
+- Master: [![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8)
 
 ## Overview
 **Swagger codegen generator** project is a set of classes and templates ([Handlebars](https://jknack.github.io/handlebars.java)) used by [swagger codegen 3.0.0 project](https://github.com/swagger-api/swagger-codegen/tree/3.0.0) in its code generation process for a specific language or language framework. The main differents with **swagger codegen 2.x.x** are:
@@ -8,7 +8,7 @@
 - **Handlebars as template engine:** with Handelbars feature is possible to create more logic-less templates.
 - **OAS 3 support:** generator classes work with OpenAPI Specificacion V3.
 
-More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0-SNAPSHOT](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0-SNAPSHOT)
+More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0)
 
 ### Prerequisites
 You need the following installed and available in your $PATH:

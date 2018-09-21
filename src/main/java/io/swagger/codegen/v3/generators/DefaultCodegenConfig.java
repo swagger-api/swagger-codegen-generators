@@ -22,6 +22,7 @@ import io.swagger.codegen.v3.generators.handlebars.HasHelper;
 import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
+import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
@@ -926,7 +927,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return string presentation of the instantiation type of the property
      */
     public String toInstantiationType(Schema property) {
-        if (property instanceof MapSchema || property.getAdditionalProperties() != null) {
+        if (property instanceof MapSchema || (property.getAdditionalProperties() != null && (property.getAdditionalProperties() instanceof Schema))) {
             Schema additionalProperties = (Schema) property.getAdditionalProperties();
             String type = additionalProperties.getType();
             if (null == type) {
@@ -1052,7 +1053,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return "string";
         } else {
             if (schema != null) {
-                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null) {
+                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
                     return "map";
                 } else {
                     return schema.getType();
@@ -1330,7 +1331,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
             }
-            if (schema.getAdditionalProperties() != null) {
+            if (schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
                 addAdditionPropertiesToCodeGenModel(codegenModel, schema);
             }
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
@@ -1648,7 +1649,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             Schema items = ((ArraySchema) propertySchema).getItems();
             CodegenProperty innerCodegenProperty = fromProperty(itemName, items);
             updatePropertyForArray(codegenProperty, innerCodegenProperty);
-        } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
+        } else if (propertySchema instanceof MapSchema || ((propertySchema.getAdditionalProperties() != null && (propertySchema.getAdditionalProperties() instanceof Schema)))) {
 
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -1980,9 +1981,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     schema = schemas.get(schemaName);
                 }
                 final Map<String, Schema> propertyMap = schema.getProperties();
+                boolean isMultipart = body.getContent().containsKey("multipart/form-data");
                 if (propertyMap != null && !propertyMap.isEmpty()) {
-                    boolean isMultipart = body.getContent().containsKey("multipart/form-data");
-
                     for (String propertyName : propertyMap.keySet()) {
                         CodegenParameter codegenParameter = fromParameter(new Parameter()
                                 .name(propertyName)
@@ -3337,6 +3337,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(HasNotHelper.NAME, new HasNotHelper());
         handlebars.registerHelper(BracesHelper.NAME, new BracesHelper());
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
+        handlebars.registerHelper(NotEmptyHelper.NAME, new NotEmptyHelper());
         handlebars.registerHelpers(new StringUtilHelper());
     }
 
