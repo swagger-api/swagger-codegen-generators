@@ -45,7 +45,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         apiPackage = "io.swagger.server.api";
 
         //TEMPLATING
-        embeddedTemplateDir = templateDir = "v2/scala/akka-http-server";
+        embeddedTemplateDir = templateDir = "mustache/scala/akka-http-server";
 
         apiTemplateFiles.put("api.mustache", ".scala");
 
