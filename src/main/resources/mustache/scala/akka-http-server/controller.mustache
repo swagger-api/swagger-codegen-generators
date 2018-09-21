@@ -1,0 +1,14 @@
+package {{invokerPackage}}
+
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Route
+import io.swagger.server.api.PetApi
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+
+class Controller({{#apiInfo}}{{#apis}}{{#operations}}{{classVarName}}: {{classname}}{{/operations}}{{/apis}}{{/apiInfo}})(implicit system: ActorSystem, materializer: ActorMaterializer) {
+
+    lazy val routes: Route = {{#apiInfo}}{{#apis}}{{#operations}}{{classVarName}}.route{{/operations}}{{/apis}}{{/apiInfo}}
+
+    Http().bindAndHandle(routes, "0.0.0.0", 9000)
+}
