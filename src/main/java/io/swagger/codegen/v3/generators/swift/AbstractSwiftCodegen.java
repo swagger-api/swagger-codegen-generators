@@ -145,11 +145,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/%s", templateVersion, getName());
-        } else {
-            embeddedTemplateDir = templateDir = String.format("%s/%s", DEFAULT_TEMPLATE_VERSION, getName());
+        if (StringUtils.isNotBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = String.format("%s/%s", DEFAULT_TEMPLATE_DIR, getName());
         }
 
         // Setup project name

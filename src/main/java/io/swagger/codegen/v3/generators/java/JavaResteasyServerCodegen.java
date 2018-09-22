@@ -52,11 +52,7 @@ public class JavaResteasyServerCodegen extends AbstractJavaJAXRSServerCodegen im
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            if (StringUtils.isNotBlank(templateVersion)) {
-                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/resteasy", templateVersion);
-            } else {
-                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/resteasy", DEFAULT_TEMPLATE_VERSION);
-            }
+            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/resteasy", DEFAULT_TEMPLATE_DIR);
         }
 
         apiTemplateFiles.put("apiService.mustache", ".java");

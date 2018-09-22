@@ -163,11 +163,8 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     public void processOpts() {
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", templateVersion);
-        } else {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_DIR);
         }
 
         if (!additionalProperties.containsKey(GENERATE_APIS)) {

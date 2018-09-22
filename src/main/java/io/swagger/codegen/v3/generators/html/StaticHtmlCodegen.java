@@ -126,13 +126,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenCo
     public void processOpts() {
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/htmlDocs", templateVersion);
-        }
-        else {
-            embeddedTemplateDir = templateDir = String.format("%s/htmlDocs", DEFAULT_TEMPLATE_VERSION);
-        }
+        embeddedTemplateDir = templateDir = String.format("%s/htmlDocs", DEFAULT_TEMPLATE_DIR);
     }
 
     @Override
