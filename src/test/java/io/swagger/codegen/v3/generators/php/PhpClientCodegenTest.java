@@ -20,8 +20,8 @@ public class PhpClientCodegenTest {
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.TRUE);
         Assert.assertEquals(codegen.getHideGenerationTimestamp(), Boolean.TRUE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP), Boolean.TRUE);
-        Assert.assertEquals(codegen.templateDir(), "v2/php");
-        Assert.assertEquals(codegen.embeddedTemplateDir(), "v2/php");
+        Assert.assertEquals(codegen.templateDir(), "handlebars/php");
+        Assert.assertEquals(codegen.embeddedTemplateDir(), "handlebars/php");
     }
 
     @Test
@@ -74,18 +74,6 @@ public class PhpClientCodegenTest {
         codegen.processOpts();
 
         Assert.assertEquals(codegen.templateDir(), "/absolute/path");
-        Assert.assertEquals(codegen.embeddedTemplateDir(), "v2/php");
-    }
-
-
-    @Test
-    public void testPutTemplateDirPropertyWithTemplateVersion() throws Exception {
-        final PhpClientCodegen codegen = new PhpClientCodegen();
-        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, "/absolute/path");
-        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_VERSION, "v3");
-        codegen.processOpts();
-
-        Assert.assertEquals(codegen.templateDir(), "/absolute/path");
-        Assert.assertEquals(codegen.embeddedTemplateDir(), "v3/php");
+        Assert.assertEquals(codegen.embeddedTemplateDir(), "handlebars/php");
     }
 }

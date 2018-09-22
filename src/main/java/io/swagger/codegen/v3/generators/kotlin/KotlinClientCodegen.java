@@ -78,11 +78,8 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     public void processOpts() {
         super.processOpts();        
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", templateVersion);
-        } else {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", DEFAULT_TEMPLATE_VERSION);
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", DEFAULT_TEMPLATE_DIR);
         }
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
