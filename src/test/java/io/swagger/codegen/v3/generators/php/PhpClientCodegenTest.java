@@ -76,16 +76,4 @@ public class PhpClientCodegenTest {
         Assert.assertEquals(codegen.templateDir(), "/absolute/path");
         Assert.assertEquals(codegen.embeddedTemplateDir(), "handlebars/php");
     }
-
-
-    @Test
-    public void testPutTemplateDirPropertyWithTemplateVersion() throws Exception {
-        final PhpClientCodegen codegen = new PhpClientCodegen();
-        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, "/absolute/path");
-        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_VERSION, "v3");
-        codegen.processOpts();
-
-        Assert.assertEquals(codegen.templateDir(), "/absolute/path");
-        Assert.assertEquals(codegen.embeddedTemplateDir(), "v3/php");
-    }
 }
