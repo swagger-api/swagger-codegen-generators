@@ -43,12 +43,7 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
         // Set the template dir first, before super.processOpts(), otherwise it is going to
         // be set to /spec location.
         if (StringUtils.isBlank(templateDir)) {
-            if (StringUtils.isNotBlank(templateVersion)) {
-                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", templateVersion);
-            }
-            else {
-                embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", DEFAULT_TEMPLATE_VERSION);
-            }
+            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", DEFAULT_TEMPLATE_DIR);
         }
 
         super.processOpts();

@@ -122,11 +122,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         super.processOpts();
         if (StringUtils.isBlank(templateDir)) {
             String templateVersion = getTemplateVersion();
-            if (StringUtils.isNotBlank(templateVersion)) {
-                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", templateVersion);
-            } else {
-                embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", DEFAULT_TEMPLATE_VERSION);
-            }
+            embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", DEFAULT_TEMPLATE_DIR);
         }
 
         if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {

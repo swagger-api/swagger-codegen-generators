@@ -239,12 +239,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = String.format("%s" + File.separator + "php", templateVersion);
-        } else {
-            embeddedTemplateDir = String.format("%s" + File.separator + "php", DEFAULT_TEMPLATE_VERSION);
-        }
+        embeddedTemplateDir = String.format("%s" + File.separator + "php", DEFAULT_TEMPLATE_DIR);
         if (StringUtils.isBlank(templateDir)) {
             templateDir = embeddedTemplateDir;
         }
