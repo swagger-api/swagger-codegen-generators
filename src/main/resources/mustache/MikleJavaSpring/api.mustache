@@ -51,7 +51,6 @@ import java.util.Optional;
 {{#async}}
 import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture{{/jdk8}};
 {{/async}}
-{{>generatedAnnotation}}
 {{#operations}}
 public interface {{classname}} {
 {{#jdk8}}

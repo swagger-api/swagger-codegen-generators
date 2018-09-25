@@ -19,6 +19,7 @@ import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -965,8 +966,18 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     continue;
                 }
                 //only add content-Type if its no a GET-Method
+
                 if (!operation.equals(pathItem.getGet())) {
-                    String contentType = getContentType(operation.getRequestBody());
+
+                    RequestBody body = operation.getRequestBody();
+
+                    if (body != null && StringUtils.isNotBlank(body.get$ref())) {
+                        String bodyName = getSimpleRef(body.get$ref());
+                        body = openAPI.getComponents().getRequestBodies().get(bodyName);
+                    }
+
+                    String contentType = getContentType(body);
+
                     if (StringUtils.isBlank(contentType)) {
                         contentType = DEFAULT_CONTENT_TYPE;
                     }
