@@ -2264,6 +2264,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
                 collectionFormat = getCollectionFormat(parameter);
+            } else if (parameterSchema instanceof BinarySchema) {
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
             } else if (parameterSchema instanceof FileSchema) {
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
             }
