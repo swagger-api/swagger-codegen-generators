@@ -95,6 +95,11 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
     }
 
     @Override
+    public String getDefaultTemplateDir() {
+        return "htmlDocs2";
+    }
+
+    @Override
     public String getName() {
         return "html2";
     }
@@ -144,7 +149,7 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
     public void processOpts() {
         super.processOpts();
 
-        embeddedTemplateDir = templateDir = String.format("%s/htmlDocs2", DEFAULT_TEMPLATE_DIR);
+        embeddedTemplateDir = templateDir = getTemplateDir();
     }
 
     @Override

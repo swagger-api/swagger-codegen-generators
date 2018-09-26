@@ -122,7 +122,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         super.processOpts();
         if (StringUtils.isBlank(templateDir)) {
             String templateVersion = getTemplateVersion();
-            embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "Java", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {
@@ -529,6 +529,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     @Override
     public String getArgumentsLocation() {
         return "/arguments/java.yaml";
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "Java";
     }
 
     protected List<Map<String, Object>> modelInheritanceSupportInGson(List<?> allModels) {

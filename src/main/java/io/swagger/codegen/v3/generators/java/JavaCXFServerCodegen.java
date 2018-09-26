@@ -100,7 +100,7 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
@@ -295,6 +295,11 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
 
     public void setUseGenericResponse(boolean useGenericResponse) {
         this.useGenericResponse = useGenericResponse;
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return JAXRS_TEMPLATE_DIRECTORY_NAME;
     }
 
 }

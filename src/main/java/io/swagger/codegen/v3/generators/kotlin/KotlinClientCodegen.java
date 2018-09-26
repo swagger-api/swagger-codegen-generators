@@ -58,6 +58,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         cliOptions.add(dateLibrary);
     }
 
+    @Override
+    public String getDefaultTemplateDir() {
+        return "kotlin-client";
+    }
+
     public CodegenType getTag() {
         return CodegenType.CLIENT;
     }
@@ -79,7 +84,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         super.processOpts();        
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-client", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
