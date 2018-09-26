@@ -25,6 +25,7 @@ import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
+import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.core.util.Json;
@@ -150,6 +151,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String gitUserId, gitRepoId, releaseNote;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
+    protected TemplateEngine templateEngine;
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
@@ -229,6 +231,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (additionalProperties.containsKey(CodegenConstants.USE_OAS2)) {
             this.setUseOas2(Boolean.valueOf(additionalProperties.get(CodegenConstants.USE_OAS2).toString()));
         }
+
+        setTemplateEngine();
     }
 
     public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
@@ -3607,6 +3611,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         this.useOas2 = useOas2;
     }
 
+    public abstract String getDefaultTemplateDir();
+
     public boolean convertPropertyToBoolean(String propertyKey) {
         boolean booleanValue = false;
         if (additionalProperties.containsKey(propertyKey)) {
@@ -3649,6 +3655,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         String parameterName = ref.substring(ref.lastIndexOf('/') + 1);
         Map<String, Parameter> parameterMap = openAPI.getComponents().getParameters();
         return parameterMap.get(parameterName);
+    }
+
+    protected void setTemplateEngine() {
+        String templateEngineKey = additionalProperties.get(CodegenConstants.TEMPLATE_ENGINE) != null ? additionalProperties.get(CodegenConstants.TEMPLATE_ENGINE).toString() : null;
+
+        if (templateEngineKey == null) {
+            templateEngine = new MustacheTemplateEngine(this);
+        } else {
+            if (CodegenConstants.HANDLEBARS_TEMPLATE_ENGINE.equalsIgnoreCase(templateEngineKey)) {
+                templateEngine = new HandlebarTemplateEngine(this);
+            } else {
+                templateEngine = new MustacheTemplateEngine(this);
+            }
+        }
+    }
+
+    protected String getTemplateDir() {
+        return templateEngine.getName() + File.separator + getDefaultTemplateDir();
     }
 
     private void setOauth2Info(CodegenSecurity codegenSecurity, OAuthFlow flow) {
