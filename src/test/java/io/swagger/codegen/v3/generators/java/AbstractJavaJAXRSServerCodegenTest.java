@@ -73,6 +73,11 @@ public class AbstractJavaJAXRSServerCodegenTest {
         }
 
         @Override
+        public String getDefaultTemplateDir() {
+            return null;
+        }
+
+        @Override
         public CodegenType getTag() {
             return null;
         }
