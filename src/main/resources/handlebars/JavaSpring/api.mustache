@@ -106,7 +106,7 @@ public interface {{classname}} {
     }
 
     // Override this method
-    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{#isNot this 'file'}}{{{dataType}}}{{/isNot}}{{#is this 'file'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},{{/has}}{{/allParams}}) {
+    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{#isNot this 'binary'}}{{{dataType}}}{{/isNot}}{{#is this 'binary'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},{{/has}}{{/allParams}}) {
         {{/delegate-method}}
         {{^isDelegate}}
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {

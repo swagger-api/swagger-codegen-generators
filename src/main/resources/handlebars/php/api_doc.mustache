@@ -57,7 +57,7 @@ try {
 {{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#is this 'file'}}**{{dataType}}**{{/is}}{{#is this 'primitive-type'}}**{{dataType}}**{{/is}}{{#isNot this 'primitive-type'}}{{#isNot this 'file'}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
+{{#allParams}} **{{paramName}}** | {{#is this 'binary'}}**{{dataType}}**{{/is}}{{#is this 'primitive-type'}}**{{dataType}}**{{/is}}{{#isNot this 'primitive-type'}}{{#isNot this 'binary'}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
 {{/allParams}}
 
 ### Return type

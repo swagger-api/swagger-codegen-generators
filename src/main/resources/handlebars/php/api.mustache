@@ -398,11 +398,11 @@ use {{invokerPackage}}\ObjectSerializer;
         {{#formParams~}}
         // form params
         if (${{paramName}} !== null) {
-            {{#is this 'file'}}
+            {{#is this 'binary'}}
             $multipart = true;
             $formParams['{{baseName}}'] = \GuzzleHttp\Psr7\try_fopen(ObjectSerializer::toFormValue(${{paramName}}), 'rb');
             {{/is}}
-            {{#isNot this 'file'}}
+            {{#isNot this 'binary'}}
             $formParams['{{baseName}}'] = ObjectSerializer::toFormValue(${{paramName}});
             {{/isNot}}
         }

@@ -58,7 +58,7 @@ public class {{classname}}  {
     {{/allParams}}
         @Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#allParams}}{{#is this 'file'}}inputStream, fileDetail{{/is}}{{#isNot this 'file'}}{{paramName}}{{/isNot}},{{/allParams}}securityContext);
+        return delegate.{{nickname}}({{#allParams}}{{#is this 'binary'}}inputStream, fileDetail{{/is}}{{#isNot this 'binary'}}{{paramName}}{{/isNot}},{{/allParams}}securityContext);
     }
 {{/operation}}
 }

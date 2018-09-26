@@ -103,7 +103,7 @@ public class {{classname}}  {
     {{/useOas2}}
     public Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}},{{/allParams}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#allParams}}{{#is this 'file'}}{{paramName}}InputStream, {{paramName}}Detail{{/is}}{{#isNot this 'file'}}{{paramName}}{{/isNot}},{{/allParams}}securityContext);
+        return delegate.{{nickname}}({{#allParams}}{{#is this 'binary'}}{{paramName}}InputStream, {{paramName}}Detail{{/is}}{{#isNot this 'binary'}}{{paramName}}{{/isNot}},{{/allParams}}securityContext);
     }
 {{/operation}}
 }

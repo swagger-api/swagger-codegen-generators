@@ -61,7 +61,7 @@ public interface {{classname}}Delegate {
     /**
      * @see {{classname}}#{{operationId}}
      */
-    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{#isNot this 'file'}} {{>optionalDataType}} {{/isNot}}{{#is this 'file'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},
+    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{#isNot this 'binary'}} {{>optionalDataType}} {{/isNot}}{{#is this 'binary'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},
         {{/has}}{{/allParams}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
         {{#examples}}
