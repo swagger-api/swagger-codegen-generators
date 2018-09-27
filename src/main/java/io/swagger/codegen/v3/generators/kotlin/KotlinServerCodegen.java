@@ -164,7 +164,7 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/kotlin-server", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         if (!additionalProperties.containsKey(GENERATE_APIS)) {
@@ -237,6 +237,11 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(StringHelpers.class);
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "kotlin-server";
     }
 
     public static class Constants {

@@ -239,7 +239,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         super.processOpts();
 
-        embeddedTemplateDir = String.format("%s" + File.separator + "php", DEFAULT_TEMPLATE_DIR);
+        embeddedTemplateDir = getTemplateDir();
         if (StringUtils.isBlank(templateDir)) {
             templateDir = embeddedTemplateDir;
         }
@@ -515,6 +515,11 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     @Override
     public String getArgumentsLocation() {
         return null;
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "php";
     }
 
     @Override

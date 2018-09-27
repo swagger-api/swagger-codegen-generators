@@ -85,6 +85,11 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenCo
     }
 
     @Override
+    public String getDefaultTemplateDir() {
+        return "htmlDocs";
+    }
+
+    @Override
     public String getName() {
         return "html";
     }
@@ -126,7 +131,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenCo
     public void processOpts() {
         super.processOpts();
 
-        embeddedTemplateDir = templateDir = String.format("%s/htmlDocs", DEFAULT_TEMPLATE_DIR);
+        embeddedTemplateDir = templateDir = getTemplateDir();
     }
 
     @Override

@@ -32,7 +32,6 @@ public class OpenAPIYamlGenerator extends DefaultCodegenConfig {
 
     public OpenAPIYamlGenerator() {
         super();
-        embeddedTemplateDir = templateDir = "openapi";
         outputFolder = "generated-code/openapi";
 
         cliOptions.add(new CliOption(OUTPUT_NAME,
@@ -61,9 +60,16 @@ public class OpenAPIYamlGenerator extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
+        embeddedTemplateDir = templateDir = getTemplateDir();
+
         if (additionalProperties.containsKey(OUTPUT_NAME) && !StringUtils.isBlank((String) additionalProperties.get(OUTPUT_NAME))) {
             setOutputFile((String) additionalProperties.get(OUTPUT_NAME));
         }
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "openapi";
     }
 
     public void setOutputFile(String outputFile) {

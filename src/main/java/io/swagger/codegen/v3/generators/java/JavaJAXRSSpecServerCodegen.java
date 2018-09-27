@@ -76,7 +76,7 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         modelTemplateFiles.put("model.mustache", ".java");
@@ -106,6 +106,11 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
     @Override
     public String getArgumentsLocation() {
         return "";
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return JAXRS_TEMPLATE_DIRECTORY_NAME;
     }
 
     @Override

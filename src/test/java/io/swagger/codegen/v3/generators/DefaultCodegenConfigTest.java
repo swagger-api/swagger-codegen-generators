@@ -87,6 +87,11 @@ public class DefaultCodegenConfigTest {
         }
 
         @Override
+        public String getDefaultTemplateDir() {
+            return null;
+        }
+
+        @Override
         public CodegenType getTag() {
             return null;
         }

@@ -1,9 +1,11 @@
 package io.swagger.codegen.v3.generators.openapi;
 
 import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +27,6 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
 
     public OpenAPIGenerator() {
         super();
-        embeddedTemplateDir = templateDir = "openapi";
         outputFolder = "generated-code/openapi";
 
         cliOptions.add(new CliOption(OUTPUT_NAME,
@@ -66,6 +67,8 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
+        embeddedTemplateDir = templateDir = getTemplateDir();
+
         if (additionalProperties.containsKey(OUTPUT_NAME) && !StringUtils.isBlank((String) additionalProperties.get(OUTPUT_NAME))) {
             setOutputFile((String) additionalProperties.get(OUTPUT_NAME));
         }
@@ -87,8 +90,18 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     }
 
     @Override
+    public String getDefaultTemplateDir() {
+        return "openapi";
+    }
+
+    @Override
     public String escapeUnsafeCharacters(String input) {
         // just return the original string
         return input;
+    }
+
+    @Override
+    protected void setTemplateEngine() {
+        templateEngine = new HandlebarTemplateEngine(this);
     }
 }

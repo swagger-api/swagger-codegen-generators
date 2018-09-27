@@ -34,6 +34,11 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
     }
 
     @Override
+    public String getDefaultTemplateDir() {
+        return JAXRS_TEMPLATE_DIRECTORY_NAME;
+    }
+
+    @Override
     public String getName() {
         return "jaxrs-cxf-cdi";
     }
@@ -43,7 +48,7 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
         // Set the template dir first, before super.processOpts(), otherwise it is going to
         // be set to /spec location.
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/" + JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         super.processOpts();

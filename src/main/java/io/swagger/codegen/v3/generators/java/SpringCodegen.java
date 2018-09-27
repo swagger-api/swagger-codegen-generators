@@ -157,7 +157,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = "mustache" + File.separator + "JavaSpring";
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
         // clear model and api doc template as this codegen
@@ -403,6 +403,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     @Override
     public String getArgumentsLocation() {
         return null;
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "JavaSpring";
     }
 
     @Override

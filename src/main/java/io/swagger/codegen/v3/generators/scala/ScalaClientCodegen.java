@@ -32,7 +32,6 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
         outputFolder = "generated-code/scala";
         modelTemplateFiles.put("model.mustache", ".scala");
         apiTemplateFiles.put("api.mustache", ".scala");
-        embeddedTemplateDir = templateDir = "mustache/scala/client";
         apiPackage = "io.swagger.client.api";
         modelPackage = "io.swagger.client.model";
 
@@ -119,6 +118,9 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        embeddedTemplateDir = templateDir = getTemplateDir();
+
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
         }
@@ -234,6 +236,11 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
         }
 
         return camelizedName;
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "scala/client";
     }
 
     @Override

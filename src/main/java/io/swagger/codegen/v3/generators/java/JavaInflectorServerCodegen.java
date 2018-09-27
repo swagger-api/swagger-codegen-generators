@@ -74,7 +74,7 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s/JavaInflector", DEFAULT_TEMPLATE_DIR);
+            embeddedTemplateDir = templateDir = getTemplateDir();
         }
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
@@ -268,5 +268,10 @@ public class JavaInflectorServerCodegen extends AbstractJavaCodegen {
     @Override
     public String getArgumentsLocation() {
         return "/arguments/inflector.yaml";
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "JavaInflector";
     }
 }

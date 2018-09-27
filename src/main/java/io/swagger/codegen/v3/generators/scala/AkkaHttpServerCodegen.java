@@ -45,7 +45,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         modelPackage = "io.swagger.server.model";
 
         //TEMPLATING
-        embeddedTemplateDir = templateDir = "mustache/scala/akka-http-server";
+        embeddedTemplateDir = templateDir = getTemplateDir();
 
         apiTemplateFiles.put("api.mustache", ".scala");
         modelTemplateFiles.put("model.mustache", ".scala");
@@ -106,6 +106,11 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         addAllParamsWithSupportedTypes(codegenOperation);
 
         return codegenOperation;
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return "scala/akka-http-server";
     }
 
     protected static String LOWERCASE_HTTP_METHOD = "lowercaseHttpMethod";
