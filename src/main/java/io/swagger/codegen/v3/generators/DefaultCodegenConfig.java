@@ -151,7 +151,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String gitUserId, gitRepoId, releaseNote;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
-    protected TemplateEngine templateEngine;
+    protected TemplateEngine templateEngine = new MustacheTemplateEngine(this);;
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
