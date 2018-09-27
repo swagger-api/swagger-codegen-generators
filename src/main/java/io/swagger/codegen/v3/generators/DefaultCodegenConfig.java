@@ -3733,13 +3733,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 final CodegenParameter codegenParameter = codegenOperation
                         .pathParams
                         .stream()
-                        .filter(codegenParam -> codegenParam.paramName.equals(paramName))
+                        .filter(codegenParam -> codegenParam.baseName.equals(paramName))
                         .findFirst()
                         .get();
 
                 path = path.replace(pathParam, codegenParameter.testExample);
             }
-            codegenOperation.testPath = path.replace("{", "test-").replace("}", StringUtils.EMPTY);
         }
         codegenOperation.testPath = path;
     }

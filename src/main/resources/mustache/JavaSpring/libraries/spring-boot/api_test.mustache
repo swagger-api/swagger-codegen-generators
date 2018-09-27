@@ -27,7 +27,12 @@ public class {{classname}}ControllerIntegrationTest {
     @Test
     public void {{operationId}}Test() throws Exception {
         {{#allParams}}
+        {{^isFile}}
         {{{dataType}}} {{paramName}} = {{{example}}};
+        {{/isFile}}
+        {{#isFile}}
+        org.springframework.web.multipart.MultipartFile {{paramName}} = null;
+        {{/isFile}}
         {{/allParams}}
         ResponseEntity<{{>returnTypes}}> responseEntity = api.{{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
         assertEquals(HttpStatus.NOT_IMPLEMENTED, responseEntity.getStatusCode());

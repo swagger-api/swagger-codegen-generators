@@ -598,7 +598,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             type = p.dataType;
         }
 
-        if ("File".equals(type)) {
+        if ("File".equalsIgnoreCase(type)) {
             String example;
 
             if (p.defaultValue == null) {

@@ -22,7 +22,7 @@ public class {{classname}}ControllerIT {
     {{#vendorExtensions.x-is-get-method}}
     @Test
     public void {{operationId}}Test() throws Exception {
-        final String requestURL = "http://localhost:8002{{testPath}}{{#hasQueryParams}}?{{/hasQueryParams}}{{#queryParams}}{{paramName}}={{testExample}}{{#hasMore}}&{{/hasMore}}{{/queryParams}}";
+        final String requestURL = "http://localhost:8002{{^contextPath}}/{{/contextPath}}{{#contextPath}}{{contextPath}}{{/contextPath}}{{testPath}}{{#hasQueryParams}}?{{/hasQueryParams}}{{#queryParams}}{{paramName}}={{testExample}}{{#hasMore}}&{{/hasMore}}{{/queryParams}}";
         final HttpClient client = HttpClientBuilder.create().build();
         final HttpResponse response = client.execute(new HttpGet(requestURL));
         assertEquals(response.getStatusLine().getStatusCode(), 501);
