@@ -763,6 +763,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             if (example == null) {
                 example = p.paramName + "_example";
             }
+            p.testExample = example;
             example = "\"" + escapeText(example) + "\"";
         } else if ("Integer".equals(type) || "Short".equals(type)) {
             if (example == null) {
@@ -772,14 +773,17 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             if (example == null) {
                 example = "56";
             }
+            p.testExample = example;
             example = example + "L";
         } else if ("Float".equals(type)) {
             if (example == null) {
                 example = "3.4";
             }
+            p.testExample = example;
             example = example + "F";
         } else if ("Double".equals(type)) {
             example = "3.4";
+            p.testExample = example;
             example = example + "D";
         } else if ("Boolean".equals(type)) {
             if (example == null) {
@@ -795,6 +799,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if (!languageSpecificPrimitives.contains(type)) {
             // type is a model class, e.g. User
             example = "new " + type + "()";
+        }
+
+        if (p.testExample == null) {
+            p.testExample = example;
         }
 
         if (example == null) {

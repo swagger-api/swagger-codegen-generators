@@ -166,8 +166,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         modelDocTemplateFiles.remove("model_doc.mustache");
         apiDocTemplateFiles.remove("api_doc.mustache");
 
-        apiTestTemplateFiles.clear(); // TODO: add test template
-
         if (additionalProperties.containsKey(TITLE)) {
             this.setTitle((String) additionalProperties.get(TITLE));
         }
@@ -283,6 +281,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     additionalProperties.put(SINGLE_CONTENT_TYPES, "true");
                     this.setSingleContentTypes(true);
                 }
+                apiTestTemplateFiles.clear();
             } else {
                 apiTemplateFiles.put("apiController.mustache", "Controller.java");
                 supportingFiles.add(new SupportingFile("apiException.mustache",
@@ -590,13 +589,21 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
 
     @Override
+    public String toApiTestFilename(String name) {
+        if(library.equals(SPRING_MVC_LIBRARY)) {
+            return toApiName(name) + "ControllerIT";
+        }
+        return toApiName(name) + "ControllerIntegrationTest";
+    }
+
+    @Override
     public void setParameterExampleValue(CodegenParameter p) {
         String type = p.baseType;
         if (type == null) {
             type = p.dataType;
         }
 
-        if ("File".equals(type)) {
+        if ("File".equalsIgnoreCase(type)) {
             String example;
 
             if (p.defaultValue == null) {

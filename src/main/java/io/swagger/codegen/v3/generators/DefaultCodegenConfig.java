@@ -2104,6 +2104,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_DESTROY_EXT_NAME, codegenOperation.isRestfulDestroy());
         codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_EXT_NAME, codegenOperation.isRestful());
 
+        configureDataForTestTemplate(codegenOperation);
+
         return codegenOperation;
     }
 
@@ -3721,6 +3723,52 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenOperation.consumes = mediaTypeList;
         codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_CONSUMES_EXT_NAME, Boolean.TRUE);
+    }
+
+    protected void configureDataForTestTemplate(CodegenOperation codegenOperation) {
+        final String httpMethod = codegenOperation.httpMethod;
+        String path = codegenOperation.path;
+        if ("GET".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_GET_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("POST".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_POST_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("PUT".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_PUT_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("DELETE".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_DELETE_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("HEAD".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_HEAD_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("TRACE".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_TRACE_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("PATCH".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_PATCH_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+        if ("OPTIONS".equalsIgnoreCase(httpMethod)) {
+            codegenOperation.getVendorExtensions().put(CodegenConstants.IS_OPTIONS_METHOD_EXT_NAME, Boolean.TRUE);
+        }
+
+        if (path.contains("{")) {
+            while(path.contains("{")) {
+                final String pathParam = path.substring(path.indexOf("{"), path.indexOf("}") + 1);
+                final String paramName = pathParam.replace("{", StringUtils.EMPTY).replace("}", StringUtils.EMPTY);
+
+                final CodegenParameter codegenParameter = codegenOperation
+                        .pathParams
+                        .stream()
+                        .filter(codegenParam -> codegenParam.baseName.equals(paramName))
+                        .findFirst()
+                        .get();
+
+                path = path.replace(pathParam, codegenParameter.testExample);
+            }
+        }
+        codegenOperation.testPath = path;
     }
 
     protected Set<String> getConsumesInfo(Operation operation) {
