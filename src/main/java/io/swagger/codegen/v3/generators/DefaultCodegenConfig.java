@@ -3672,7 +3672,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     protected String getTemplateDir() {
-        return templateEngine.getName() + "/" + getDefaultTemplateDir();
+        return new StringBuilder()
+                .append(templateEngine.getName())
+                .append("/")
+                .append(getDefaultTemplateDir())
+                .toString();
     }
 
     private void setOauth2Info(CodegenSecurity codegenSecurity, OAuthFlow flow) {
