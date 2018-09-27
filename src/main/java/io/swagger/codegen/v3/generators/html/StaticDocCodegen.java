@@ -76,13 +76,7 @@ public class StaticDocCodegen extends DefaultCodegenConfig implements CodegenCon
     public void processOpts() {
         super.processOpts();
 
-        String templateVersion = getTemplateVersion();
-        if (StringUtils.isNotBlank(templateVersion)) {
-            embeddedTemplateDir = templateDir = String.format("%s/swagger-static", templateVersion);
-        }
-        else {
-            embeddedTemplateDir = templateDir = String.format("%s/swagger-static", DEFAULT_TEMPLATE_VERSION);
-        }
+        embeddedTemplateDir = templateDir = String.format("%s/swagger-static", DEFAULT_TEMPLATE_DIR);
     }
 
     @Override
