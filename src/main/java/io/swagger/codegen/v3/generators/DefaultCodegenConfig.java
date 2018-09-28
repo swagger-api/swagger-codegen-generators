@@ -151,7 +151,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String gitUserId, gitRepoId, releaseNote;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
-    protected TemplateEngine templateEngine = new MustacheTemplateEngine(this);;
+    protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);;
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
@@ -3663,7 +3663,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         String templateEngineKey = additionalProperties.get(CodegenConstants.TEMPLATE_ENGINE) != null ? additionalProperties.get(CodegenConstants.TEMPLATE_ENGINE).toString() : null;
 
         if (templateEngineKey == null) {
-            templateEngine = new MustacheTemplateEngine(this);
+            templateEngine = new HandlebarTemplateEngine(this);
         } else {
             if (CodegenConstants.HANDLEBARS_TEMPLATE_ENGINE.equalsIgnoreCase(templateEngineKey)) {
                 templateEngine = new HandlebarTemplateEngine(this);
