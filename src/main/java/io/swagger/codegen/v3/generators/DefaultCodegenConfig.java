@@ -408,7 +408,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     @Override
     public TemplateEngine getTemplateEngine() {
-        return new HandlebarTemplateEngine(this);
+        return this.templateEngine;
     }
 
     // override with any special text escaping logic

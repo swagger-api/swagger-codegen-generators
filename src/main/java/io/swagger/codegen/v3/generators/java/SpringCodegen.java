@@ -729,4 +729,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
     }
+
+    // todo: remove this once handlebar templates for this generator are implemented
+    @Override
+    protected void setTemplateEngine() {
+        templateEngine = new MustacheTemplateEngine(this);
+    }
 }
