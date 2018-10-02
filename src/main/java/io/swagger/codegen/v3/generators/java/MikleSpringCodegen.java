@@ -121,6 +121,15 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
     }
 
     @Override
+    public void setApiPackage(String apiPackage) {
+        super.setApiPackage(apiPackage);
+
+        this.modelPackage = apiPackage + ".model";
+        this.configPackage = apiPackage + ".configuration";
+        this.encoderPackage = apiPackage + ".encoder";
+    }
+
+    @Override
     public void processOpts() {
         setUseOas2(true);
         additionalProperties.put(CodegenConstants.USE_OAS2, true);
@@ -618,7 +627,7 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
     }
 
     public void setConfigPackage(String configPackage) {
-        this.configPackage = configPackage;
+//        this.configPackage = configPackage;
     }
 
     public void setBasePackage(String configPackage) {
