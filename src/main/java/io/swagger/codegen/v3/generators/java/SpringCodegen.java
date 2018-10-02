@@ -53,7 +53,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String RESPONSE_WRAPPER = "responseWrapper";
     public static final String USE_TAGS = "useTags";
     public static final String SPRING_MVC_LIBRARY = "spring-mvc";
-    public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
+    // TODO: uncomment this line once the support files for spring-cloud library have been included
+    // public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
 
@@ -105,7 +106,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
-        supportedLibraries.put(SPRING_CLOUD_LIBRARY, "Spring-Cloud-Feign client with Spring-Boot auto-configured settings.");
+        // TODO: uncomment this line once the support files for spring-cloud library have been included
+        // supportedLibraries.put(SPRING_CLOUD_LIBRARY, "Spring-Cloud-Feign client with Spring-Boot auto-configured settings.");
         setLibrary(DEFAULT_LIBRARY);
 
         CliOption library = new CliOption(CodegenConstants.LIBRARY, "library template (sub-template) to use");
@@ -271,6 +273,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 supportingFiles.add(new SupportingFile("application.properties",
                         ("src.main.resources").replace(".", java.io.File.separator), "swagger.properties"));
             }
+            /** TODO: uncomment this line once the support files for spring-cloud library have been included
             if (library.equals(SPRING_CLOUD_LIBRARY)) {
                 supportingFiles.add(new SupportingFile("apiKeyRequestInterceptor.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "ApiKeyRequestInterceptor.java"));
@@ -282,7 +285,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     this.setSingleContentTypes(true);
                 }
                 apiTestTemplateFiles.clear();
-            } else {
+            }*/
+            else {
                 apiTemplateFiles.put("apiController.mustache", "Controller.java");
                 supportingFiles.add(new SupportingFile("apiException.mustache",
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "ApiException.java"));
@@ -295,7 +299,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
             }
-        } else if ( this.swaggerDocketConfig && !library.equals(SPRING_CLOUD_LIBRARY)) {
+        } else if ( this.swaggerDocketConfig/** && !library.equals(SPRING_CLOUD_LIBRARY)*/) { // TODO: uncomment this line once the support files for spring-cloud library have been included
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
         }
@@ -303,7 +307,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if ("threetenbp".equals(dateLibrary)) {
             supportingFiles.add(new SupportingFile("customInstantDeserializer.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "CustomInstantDeserializer.java"));
-            if (library.equals(DEFAULT_LIBRARY) || library.equals(SPRING_CLOUD_LIBRARY)) {
+            if (library.equals(DEFAULT_LIBRARY)/** || library.equals(SPRING_CLOUD_LIBRARY)*/) { // TODO: uncomment this line once the support files for spring-cloud library have been included
                 supportingFiles.add(new SupportingFile("jacksonConfiguration.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "JacksonConfiguration.java"));
             }
@@ -568,6 +572,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
+        // TODO: uncomment this line once the support files for spring-cloud library have been included
+        /**
         if(library.equals(SPRING_CLOUD_LIBRARY)) {
             List<CodegenSecurity> authMethods = (List<CodegenSecurity>) objs.get("authMethods");
             if (authMethods != null) {
@@ -576,6 +582,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 }
             }
         }
+         */
         return objs;
     }
 
