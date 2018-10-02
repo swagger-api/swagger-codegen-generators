@@ -164,6 +164,6 @@ public class JavaCXFClientCodegen extends AbstractJavaCodegen implements BeanVal
 
     @Override
     public String getDefaultTemplateDir() {
-        return JAXRS_TEMPLATE_DIRECTORY_NAME;
+        return JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf";
     }
 }
