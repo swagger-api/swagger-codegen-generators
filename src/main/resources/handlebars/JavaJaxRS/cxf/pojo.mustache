@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 {{#if withXml}}
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 {{/description}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
   {{#vars}}{{#baseItems this}}{{#is this 'enum'}}
-{{>enumClass}}{{/is~}}{{/baseItems}}
+{{>modelInnerEnum}}{{/is~}}{{/baseItems}}
 {{#withXml}}
   @XmlElement(name="{{baseName}}"{{#required}}, required = {{required}}{{/required}})
 {{/withXml}}
@@ -71,7 +73,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {
     if ({{name}} == null) {
       return null;
     }
-    return {{name}}.value();
+    return {{name}}.getValue();
   }{{/isNot}}{{/isNot}}{{/is}}{{#is this 'enum'}}{{#is this 'list-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};
   }{{/is}}{{/is}}{{#is this 'enum'}}{{#is this 'map-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
