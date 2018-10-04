@@ -44,9 +44,6 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         apiPackage = "io.swagger.server.api";
         modelPackage = "io.swagger.server.model";
 
-        //TEMPLATING
-        embeddedTemplateDir = templateDir = getTemplateDir();
-
         apiTemplateFiles.put("api.mustache", ".scala");
         modelTemplateFiles.put("model.mustache", ".scala");
 
@@ -56,6 +53,12 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         supportingFiles.add(new SupportingFile("helper.mustache",
                 (sourceFolder + File.separator + invokerPackage).replace(".", java.io.File.separator), "AkkaHttpHelper.scala"));
 
+    }
+
+    @Override
+    public void processOpts() {
+        super.processOpts();
+        embeddedTemplateDir = templateDir = getTemplateDir();
     }
 
     @Override
