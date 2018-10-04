@@ -110,7 +110,7 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
     @Override
     public String getDefaultTemplateDir() {
-        return JAXRS_TEMPLATE_DIRECTORY_NAME;
+        return JAXRS_TEMPLATE_DIRECTORY_NAME + "/spec";
     }
 
     @Override
