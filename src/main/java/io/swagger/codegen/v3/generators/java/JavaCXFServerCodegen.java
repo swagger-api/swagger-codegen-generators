@@ -299,7 +299,7 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
 
     @Override
     public String getDefaultTemplateDir() {
-        return JAXRS_TEMPLATE_DIRECTORY_NAME;
+        return JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf";
     }
 
 }
