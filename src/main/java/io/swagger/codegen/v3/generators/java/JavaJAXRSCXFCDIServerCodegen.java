@@ -35,7 +35,7 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
 
     @Override
     public String getDefaultTemplateDir() {
-        return JAXRS_TEMPLATE_DIRECTORY_NAME;
+        return JAXRS_TEMPLATE_DIRECTORY_NAME + "/cxf-cdi";
     }
 
     @Override
