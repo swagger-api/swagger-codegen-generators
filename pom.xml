@@ -181,7 +181,7 @@
         <surefire-version>2.19.1</surefire-version>
         <jmockit-version>1.42</jmockit-version>
         <reflections-version>0.9.10</reflections-version>
-        <swagger-codegen-version>3.0.1</swagger-codegen-version>
+        <swagger-codegen-version>3.0.2-SNAPSHOT</swagger-codegen-version>
     </properties>
 
 </project>
