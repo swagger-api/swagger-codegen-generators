@@ -3765,6 +3765,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         .findFirst()
                         .get();
 
+                if (codegenParameter.testExample == null) {
+                    return;
+                }
+
                 path = path.replace(pathParam, codegenParameter.testExample);
             }
         }

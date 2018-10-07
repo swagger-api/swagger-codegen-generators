@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <build>
@@ -181,7 +181,7 @@
         <surefire-version>2.19.1</surefire-version>
         <jmockit-version>1.42</jmockit-version>
         <reflections-version>0.9.10</reflections-version>
-        <swagger-codegen-version>3.0.1-SNAPSHOT</swagger-codegen-version>
+        <swagger-codegen-version>3.0.2-SNAPSHOT</swagger-codegen-version>
     </properties>
 
 </project>

@@ -226,11 +226,6 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
-    @Override
-    public TemplateEngine getTemplateEngine() {
-        return new MustacheTemplateEngine(this);
-    }
-
     protected String formatIdentifier(String name, boolean capitalized) {
         String identifier = camelize(sanitizeName(name), true);
         if (capitalized) {
