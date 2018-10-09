@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.MODEL_PACKAGE;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
@@ -127,6 +128,11 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
         this.modelPackage = apiPackage + ".model";
         this.configPackage = apiPackage + ".configuration";
         this.encoderPackage = apiPackage + ".encoder";
+
+        additionalProperties.put(MODEL_PACKAGE, modelPackage);
+        additionalProperties.put(CONFIG_PACKAGE, configPackage);
+        additionalProperties.put(ENCODER_PACKAGE, encoderPackage);
+        additionalProperties.put(BASE_PACKAGE, apiPackage);
     }
 
     @Override
@@ -575,6 +581,7 @@ public class MikleSpringCodegen extends AbstractJavaCodegen implements BeanValid
                 }
             }
         }
+
         return objs;
     }
 
