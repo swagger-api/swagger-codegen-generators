@@ -36,14 +36,17 @@ public class SdkEncoder implements Encoder {
 
     private Encoder delegate;
 
+    private ObjectMapper objectMapper;
+
     private Map<ContentType, ContentProcessor> processors;
 
     public SdkEncoder () {
-        this(new Encoder.Default());
+        this(new Encoder.Default(), new ObjectMapper());
     }
 
-    public SdkEncoder (Encoder delegate) {
+    public SdkEncoder (Encoder delegate, ObjectMapper objectMapper) {
         this.delegate = delegate;
+        this.objectMapper = objectMapper;
 
         val list = asList(new MultipartFormContentProcessor(delegate),
                 new UrlencodedFormContentProcessor());
@@ -66,16 +69,10 @@ public class SdkEncoder implements Encoder {
 
         val charset = getCharset(contentTypeValue);
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> data = mapper.convertValue(object, new TypeReference<Map<String, Object>>() {});
-        Map filteredMap =
-            data.entrySet().stream()
-                .filter((x) -> x.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-            ;
+        Map<String, Object> data = objectMapper.convertValue(object, new TypeReference<Map<String, Object>>() {});
 
         try {
-            processors.get(contentType).process(template, charset, filteredMap);
+            processors.get(contentType).process(template, charset, data);
         } catch (Exception ex) {
             throw new EncodeException(ex.getMessage());
         }
