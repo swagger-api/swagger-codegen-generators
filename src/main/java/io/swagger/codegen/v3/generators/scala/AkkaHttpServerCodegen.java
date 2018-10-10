@@ -70,6 +70,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         Boolean hasComplexTypes = Boolean.FALSE;
+        Boolean hasCookieParams = Boolean.FALSE;
         Set<String> complexRequestTypes = new HashSet<>();
         Set<String> complexReturnTypes = new HashSet<>();
         for (CodegenOperation op : operationList) {
@@ -80,6 +81,9 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
                         hasComplexTypes = Boolean.TRUE;
                         complexRequestTypes.add(parameter.dataType);
                     }
+                }
+                if(parameter.getIsCookieParam()){
+                    hasCookieParams = Boolean.TRUE;
                 }
             }
             for(CodegenResponse response : op.responses) {
@@ -92,6 +96,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             op.getVendorExtensions().put("complexReturnTypes", complexOperationReturnTypes);
         }
         objs.put("hasComplexTypes", hasComplexTypes);
+        objs.put("hasCookieParams", hasCookieParams);
         objs.put("complexRequestTypes", complexRequestTypes);
         objs.put("complexReturnTypes", complexReturnTypes);
 
@@ -156,6 +161,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
     }};
 
     protected static String FALLBACK_DATA_TYPE = "String";
+    protected static String COOKIE_DATA_TYPE = "HttpCookiePair";
 
     private static LinkedList<TextOrMatcher> replacePathsWithMatchers(LinkedList<String> paths, CodegenOperation codegenOperation) {
         LinkedList<TextOrMatcher> result = new LinkedList<>();
@@ -238,6 +244,8 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
                 if(!primitiveParamTypes.contains(parameter.dataType)){
                     parameterCopy.dataType = FALLBACK_DATA_TYPE;
                 }
+            } else if(parameter.getIsCookieParam()){
+                parameterCopy.dataType = COOKIE_DATA_TYPE;
             }
             allParamsWithSupportedType.add(parameterCopy);
         }

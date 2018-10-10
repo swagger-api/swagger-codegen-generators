@@ -5,6 +5,8 @@ import akka.http.scaladsl.server.Route
 {{^operations.complexRequestTypes.isEmpty}}import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 {{/operations.complexRequestTypes.isEmpty}}
+{{#hasCookieParams}}import akka.http.scaladsl.model.headers.HttpCookiePair
+{{/hasCookieParams}}
 import {{invokerPackage}}.AkkaHttpHelper._
 {{#imports}}import {{import}}
 {{/imports}}
@@ -24,9 +26,11 @@ class {{classname}}(
         {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
           {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
             {{^formParams.isEmpty}}formFields({{#formParams}}"{{paramName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
-              {{#bodyParam}}{{^isPrimitiveType}}entity(as[{{dataType}}]){ body =>{{/isPrimitiveType}}{{/bodyParam}}
-                {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
-             {{#bodyParam}}{{^isPrimitiveType}} }{{/isPrimitiveType}}{{/bodyParam}}
+              {{#allParams}}{{#isCookieParam}}{{#required}}cookie({{/required}}{{^required}}optionalCookie({{/required}}"{{paramName}}"){ {{paramName}} => {{/isCookieParam}}{{/allParams}}
+                {{#bodyParam}}{{^isPrimitiveType}}entity(as[{{dataType}}]){ body =>{{/isPrimitiveType}}{{/bodyParam}}
+                  {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+               {{#bodyParam}}{{^isPrimitiveType}} }{{/isPrimitiveType}}{{/bodyParam}}
+             {{#allParams}}{{#isCookieParam}} }{{/isCookieParam}}{{/allParams}}
            {{^formParams.isEmpty}} }{{/formParams.isEmpty}}
          {{#headerParams}} }{{/headerParams}}
        {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
