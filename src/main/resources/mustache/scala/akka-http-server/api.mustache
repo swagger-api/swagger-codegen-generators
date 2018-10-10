@@ -49,7 +49,7 @@ trait {{classname}}Service {
 {{#responses}}   * {{#code}}Code: {{.}},{{/code}} {{#message}}Message: {{.}},{{/message}} {{#dataType}}DataType: {{.}}{{/dataType}}
    {{/responses}}
    */
-  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}Option[{{/required}}{{dataType}}{{^required}}]{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
+def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}{{^isBodyParam}}Option[{{/isBodyParam}}{{/required}}{{dataType}}{{^required}}{{^isBodyParam}}]{{/isBodyParam}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
       (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{.}}: ToEntityMarshaller[{{.}}]{{^-last}}, {{/-last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
 
 {{/operation}}
