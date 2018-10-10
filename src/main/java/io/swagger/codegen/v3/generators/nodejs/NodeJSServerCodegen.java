@@ -342,7 +342,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         String port = "8080";
         String basePath = null;
         if (url != null) {
-            port = String.valueOf(url.getPort());
+//            port = String.valueOf(url.getPort()); TODO: fix port resolving in URL.
             host = url.getHost();
             basePath = url.getPath();
         }
@@ -405,7 +405,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
 
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        OpenAPI openAPI = (OpenAPI) objs.get("openapi");
+        OpenAPI openAPI = (OpenAPI) objs.get("openAPI");
         if(openAPI != null) {
             try {
                 SimpleModule module = new SimpleModule();
