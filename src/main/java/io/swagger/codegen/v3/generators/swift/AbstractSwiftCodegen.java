@@ -145,7 +145,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isNotBlank(templateDir)) {
+        if (StringUtils.isBlank(templateDir)) {
             embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
