@@ -1999,11 +1999,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         allParams.add(codegenParameter);
                     }
                 }
-            } else {
-                bodyParam = fromRequestBody(body, schemas, imports);
-                bodyParams.add(bodyParam);
-                allParams.add(bodyParam);
             }
+            bodyParam = fromRequestBody(body, schemas, imports);
+            bodyParams.add(bodyParam);
+            allParams.add(bodyParam);
         }
 
         if (parameters != null) {
