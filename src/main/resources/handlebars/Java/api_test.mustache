@@ -35,9 +35,22 @@ public class {{classname}}Test {
     @Test
     public void {{operationId}}Test() throws ApiException {
         {{#allParams}}
+        {{^isFormParam}}
         {{{dataType}}} {{paramName}} = null;
+        {{/isFormParam}}
         {{/allParams}}
-        {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#allParams}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});
+        {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#allParams}}{{^isFormParam}}{{paramName}}{{#has this 'more-but-form-param'}}, {{/has}}{{/isFormParam}}{{/allParams}});
+
+        // TODO: test validations
+
+        {{#hasFormParams}}
+        {{#allParams}}
+        {{^isBodyParam}}
+        {{{dataType}}} {{paramName}} = null;
+        {{/isBodyParam}}
+        {{/allParams}}
+        response = api.{{operationId}}({{#allParams}}{{^isBodyParam}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/isBodyParam}}{{/allParams}});
+        {{/hasFormParams}}
 
         // TODO: test validations
     }

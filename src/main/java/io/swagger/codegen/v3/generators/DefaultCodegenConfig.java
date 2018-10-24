@@ -2086,6 +2086,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.formParams = addHasMore(formParams);
         codegenOperation.requiredParams = addHasMore(requiredParams);
         codegenOperation.externalDocs = operation.getExternalDocs();
+
+        if (codegenOperation.formParams != null && !codegenOperation.formParams.isEmpty()) {
+            addHasMoreButFormParams(allParams);
+        }
         // legacy support
         codegenOperation.nickname = codegenOperation.operationId;
 
@@ -2702,6 +2706,22 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         return objs;
+    }
+
+    private static void addHasMoreButFormParams(List<CodegenParameter> objs) {
+        if (objs == null || objs.isEmpty()) {
+            return;
+        }
+        final List<CodegenParameter> codegenParameters = objs.stream().filter(codegenParameter -> !codegenParameter.getIsFormParam()).collect(Collectors.toList());
+        if (codegenParameters == null || codegenParameters.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < codegenParameters.size(); i++) {
+            if (i < codegenParameters.size() - 1) {
+                CodegenParameter codegenParameter = codegenParameters.get(i);
+                codegenParameter.getVendorExtensions().put("x-has-more-but-form-param", Boolean.TRUE);
+            }
+        }
     }
 
     private static Map<String, Object> addHasMore(Map<String, Object> objs) {
