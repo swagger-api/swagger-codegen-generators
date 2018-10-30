@@ -1,17 +1,10 @@
 package io.swagger.codegen.v3.generators.openapi;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
-import io.swagger.v3.core.util.DeserializationModule;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,11 +72,7 @@ public class OpenAPIYamlGenerator extends DefaultCodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         try {
-            final ObjectMapper mapper = new ObjectMapper(new YAMLFactory()
-                    .configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true)
-                    .configure(YAMLGenerator.Feature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS, true));
-            configureMapper(mapper);
-            String valueAsString = mapper.writeValueAsString(openAPI);
+            String valueAsString = Yaml.pretty(openAPI);
             String outputFile = outputFolder + File.separator + this.outputFile;
             FileUtils.writeStringToFile(new File(outputFile), valueAsString);
             LOGGER.debug("wrote file to " + outputFile);
@@ -102,14 +91,5 @@ public class OpenAPIYamlGenerator extends DefaultCodegenConfig {
     public String escapeUnsafeCharacters(String input) {
         // just return the original string
         return input;
-    }
-
-    private void configureMapper(ObjectMapper mapper) {
-        Module deserializerModule = new DeserializationModule();
-        mapper.registerModule(deserializerModule);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 }
