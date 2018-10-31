@@ -1015,25 +1015,15 @@ public class JavaModelTest {
         Assert.assertTrue(co.imports.contains("Pet"));
     }
 
-    @Test(enabled = false, description = "disabled since templates have been moved.")
+    @Test(description = "disabled since templates have been moved.")
     public void generateModel() throws Exception {
-        folder.create();
-        final File output = folder.getRoot();
-        getClass().getClassLoader().getResourceAsStream("src/test/resources/3_0_0/petstore.json");
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("java")
-                .setLibrary("jersey2")
-                //.addAdditionalProperty("withXml", true)
-                .addAdditionalProperty(CodegenConstants.SERIALIZABLE_MODEL, true)
-                .setInputSpec("src/test/resources/3_0_0/petstore.json")
-                .setOutputDir(output.getAbsolutePath());
+                .setInputSpec("/Users/hugomercado/Documents/tempo/newissue.yaml")
+                .setOutputDir("/Users/hugomercado/Documents/tempo/v3");
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
-
-        File orderFile = new File(output, "src/main/java/io/swagger/client/model/Order.java");
-        Assert.assertTrue(orderFile.exists());
-        folder.delete();
     }
 }

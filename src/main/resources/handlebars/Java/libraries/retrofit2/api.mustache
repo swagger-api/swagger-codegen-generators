@@ -29,12 +29,13 @@ import java.util.Map;
 {{#operations}}
 public interface {{classname}} {
   {{#operation}}
+  {{#contents}}
   /**
    * {{summary}}
    * {{notes}}
-{{#allParams}}
+{{#parameters}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
    * @return Call&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Object{{/returnType}}&gt;
 {{#externalDocs}}
    * {{description}}
@@ -56,10 +57,11 @@ public interface {{classname}} {
   {{/prioritizedContentTypes}}
   {{/formParams}}  
   @{{httpMethod}}("{{{path}}}")
-  {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}({{^allParams}});{{/allParams}}
-    {{#allParams}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
-  );{{/hasNot}}{{/allParams}}
+  {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}({{^parameters}});{{/parameters}}
+    {{#parameters}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
+  );{{/hasNot}}{{/parameters}}
 
+  {{/contents}}
   {{/operation}}
 }
 {{/operations}}
