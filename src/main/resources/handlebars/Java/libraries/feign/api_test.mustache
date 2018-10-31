@@ -25,7 +25,7 @@ public class {{classname}}Test {
         api = new ApiClient().buildClient({{classname}}.class);
     }
 
-    {{#operations}}{{#operation}}
+    {{#operations}}{{#operation}}{{#contents}}{{#@first}}
     /**
      * {{summary}}
      *
@@ -33,10 +33,10 @@ public class {{classname}}Test {
      */
     @Test
     public void {{operationId}}Test() {
-        {{#allParams}}
+        {{#parameters}}
         {{{dataType}}} {{paramName}} = null;
-        {{/allParams}}
-        // {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#allParams}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});
+        {{/parameters}}
+        // {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#parameters}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}});
 
         // TODO: test validations
     }
@@ -52,19 +52,19 @@ public class {{classname}}Test {
      */
     @Test
     public void {{operationId}}TestQueryMap() {
-          {{#allParams}}
+          {{#parameters}}
             {{#isNot this 'query-param'}}
         {{{dataType}}} {{paramName}} = null;
             {{/isNot}}
-          {{/allParams}}
+          {{/parameters}}
         {{classname}}.{{operationIdCamelCase}}QueryParams queryParams = new {{classname}}.{{operationIdCamelCase}}QueryParams()
           {{#queryParams}}
             .{{paramName}}(null){{#hasNot this 'more'}};{{/hasNot}}
           {{/queryParams}}
-        // {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#allParams}}{{#isNot this 'query-param'}}{{paramName}}, {{/isNot}}{{/allParams}}queryParams);
+        // {{#returnType}}{{{returnType}}} response = {{/returnType}}api.{{operationId}}({{#parameters}}{{#isNot this 'query-param'}}{{paramName}}, {{/isNot}}{{/parameters}}queryParams);
 
     // TODO: test validations
     }
         {{/hasQueryParams}}
-    {{/operation}}{{/operations}}
+    {{/@first}}{{/contents}}{{/operation}}{{/operations}}
 }
