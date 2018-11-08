@@ -24,6 +24,7 @@ import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
@@ -151,7 +152,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String gitUserId, gitRepoId, releaseNote;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
-    protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);;
+    protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);
+    protected OpenAPIUtil openAPIUtil = null;
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
@@ -396,6 +398,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        this.openAPIUtil = new OpenAPIUtil(openAPI);
     }
 
     @Override
@@ -1296,7 +1299,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         continue;
                     }
                     Schema refSchema = null;
-                    String ref = getSimpleRef(interfaceSchema.get$ref());
+                    String ref = openAPIUtil.getSimpleRef(interfaceSchema.get$ref());
                     if (allDefinitions != null) {
                         refSchema = allDefinitions.get(ref);
                     }
@@ -1387,7 +1390,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return;
         }
         if(StringUtils.isNotBlank(schema.get$ref())) {
-            Schema interfaceSchema = allSchemas.get(getSimpleRef(schema.get$ref()));
+            Schema interfaceSchema = allSchemas.get(openAPIUtil.getSimpleRef(schema.get$ref()));
             addProperties(properties, required, interfaceSchema, allSchemas);
             return;
         }
@@ -1975,13 +1978,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (body != null) {
 
             if (StringUtils.isNotBlank(body.get$ref())) {
-                String bodyName = getSimpleRef(body.get$ref());
+                String bodyName = openAPIUtil.getSimpleRef(body.get$ref());
                 body = openAPI.getComponents().getRequestBodies().get(bodyName);
             }
             if (containsFormContentType(body)) {
                 Schema schema = getSchemaFromBody(body);
                 if (StringUtils.isNotBlank(schema.get$ref())) {
-                    String schemaName = getSimpleRef(schema.get$ref());
+                    String schemaName = openAPIUtil.getSimpleRef(schema.get$ref());
                     schema = schemas.get(schemaName);
                 }
                 final Map<String, Schema> propertyMap = schema.getProperties();
@@ -2420,7 +2423,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         String name = null;
         Schema schema = getSchemaFromBody(body);
         if (StringUtils.isNotBlank(schema.get$ref())) {
-            name = getSimpleRef(schema.get$ref());
+            name = openAPIUtil.getSimpleRef(schema.get$ref());
             schema = schemas.get(name);
         }
         if (isObjectSchema(schema)) {
@@ -2880,6 +2883,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 final CodegenProperty cp = fromProperty(key, propertySchema);
                 cp.required = mandatory.contains(key);
+
+                if (propertySchema.get$ref() != null) {
+                    openAPIUtil.addPropertiesFromRef(propertySchema, cp);
+                }
 
                 boolean hasRequired = getBooleanValue(codegenModel, HAS_REQUIRED_EXT_NAME) || cp.required;
                 boolean hasOptional = getBooleanValue(codegenModel, HAS_OPTIONAL_EXT_NAME) || !cp.required;
@@ -3819,7 +3826,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (StringUtils.isBlank(ref)) {
                 return null;
             }
-            ref = getSimpleRef(ref);
+            ref = openAPIUtil.getSimpleRef(ref);
             return allSchemas.get(ref);
         }
         return null;
@@ -3832,16 +3839,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (StringUtils.isBlank(ref)) {
                 return null;
             }
-            return getSimpleRef(ref);
+            return openAPIUtil.getSimpleRef(ref);
         }
         return null;
-    }
-
-    protected String getSimpleRef(String ref) {
-        if (ref.startsWith("#/components/")) {
-            ref = ref.substring(ref.lastIndexOf("/") + 1);
-        }
-        return ref;
     }
 
     protected String getCollectionFormat(Parameter parameter) {
