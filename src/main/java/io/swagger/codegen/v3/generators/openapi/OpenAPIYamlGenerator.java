@@ -71,6 +71,7 @@ public class OpenAPIYamlGenerator extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         try {
             String valueAsString = Yaml.pretty(openAPI);
             String outputFile = outputFolder + File.separator + this.outputFile;

@@ -52,6 +52,7 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         String outputString = Json.pretty(openAPI);
 
         try {
