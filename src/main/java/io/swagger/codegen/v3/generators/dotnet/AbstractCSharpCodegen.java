@@ -81,7 +81,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         importMapping.clear();
 
         outputFolder = "generated-code" + File.separator + this.getName();
-        embeddedTemplateDir = templateDir = this.getName();
 
         collectionTypes = new HashSet<String>(
                 Arrays.asList(
@@ -208,6 +207,10 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
 
         // {{packageVersion}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_VERSION)) {
@@ -941,6 +944,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         if (this.preserveNewLines) {
             Map<String, Schema> schemaMap = openAPI.getComponents() != null ? openAPI.getComponents().getSchemas() : null;
             if (schemaMap != null) {
@@ -989,6 +993,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 }
             }
         }
+    }
+
+    @Override
+    public String getDefaultTemplateDir() {
+        return getName();
     }
 
     public String preserveNewlines(String input, int tabstops) {

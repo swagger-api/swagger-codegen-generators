@@ -5,10 +5,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.samskivert.mustache.Mustache;
 
-import io.swagger.codegen.*;
-import io.swagger.models.*;
-import io.swagger.util.Json;
-
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,10 +173,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        Swagger swagger = (Swagger)objs.get("swagger");
-        if(swagger != null) {
+        OpenAPI openAPI = (OpenAPI)objs.get("openAPI");
+        if(openAPI != null) {
             try {
-                objs.put("swagger-json", Json.pretty().writeValueAsString(swagger).replace("\r\n", "\n"));
+                objs.put("swagger-json", Json.pretty().writeValueAsString(openAPI).replace("\r\n", "\n"));
             } catch (JsonProcessingException e) {
                 LOGGER.error(e.getMessage(), e);
             }
