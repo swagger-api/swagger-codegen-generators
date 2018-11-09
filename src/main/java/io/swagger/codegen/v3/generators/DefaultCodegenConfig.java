@@ -3635,6 +3635,22 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         additionalProperties.put(propertyKey, value);
     }
 
+    protected void addOption(String key, String description) {
+        addOption(key, description, null);
+    }
+    protected void addOption(String key, String description, String defaultValue) {
+        CliOption option = new CliOption(key, description);
+        if (defaultValue != null)
+            option.defaultValue(defaultValue);
+        cliOptions.add(option);
+    }
+    protected void addSwitch(String key, String description, Boolean defaultValue) {
+        CliOption option = CliOption.newBoolean(key, description);
+        if (defaultValue != null)
+            option.defaultValue(defaultValue.toString());
+        cliOptions.add(option);
+    }
+
     protected String getContentType(RequestBody requestBody) {
         if (requestBody == null || requestBody.getContent() == null || requestBody.getContent().isEmpty()) {
             return null;

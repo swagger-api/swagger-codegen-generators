@@ -2,17 +2,24 @@ package io.swagger.codegen.v3.generators.dotnet;
 
 import com.google.common.collect.ImmutableMap;
 import com.samskivert.mustache.Mustache;
-import io.swagger.codegen.*;
-import io.swagger.codegen.mustache.*;
-import io.swagger.codegen.utils.ModelUtils;
-import io.swagger.models.Model;
-import io.swagger.models.ModelImpl;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.Response;
-import io.swagger.models.Swagger;
-import io.swagger.models.parameters.Parameter;
-import io.swagger.models.properties.*;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.utils.ModelUtils;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractCSharpCodegen extends DefaultCodegen implements CodegenConfig {
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+
+public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
     protected boolean optionalAssemblyInfoFlag = true;
     protected boolean optionalProjectFileFlag = true;
@@ -84,8 +94,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                 Arrays.asList("IDictionary")
         );
 
-        // NOTE: C# uses camel cased reserved words, while models are title cased. We don't want lowercase comparisons.
-        reservedWords.addAll(
+        setReservedWordsLowerCase(
                 Arrays.asList(
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
@@ -315,9 +324,10 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         // This either updates additionalProperties with the above fixes, or sets the default if the option was not specified.
         additionalProperties.put(CodegenConstants.INTERFACE_PREFIX, interfacePrefix);
 
-        addMustacheLambdas(additionalProperties);
+        //addMustacheLambdas(additionalProperties);
     }
 
+    /** todo: write with OAS3 classes.
     private void addMustacheLambdas(Map<String, Object> objs) {
 
         Map<String, Mustache.Lambda> lambdas = new ImmutableMap.Builder<String, Mustache.Lambda>()
@@ -341,6 +351,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
             objs.put("lambda", lambdas);
         }
     }
+    */
 
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
@@ -367,7 +378,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     /**
-     * Invoked by {@link DefaultGenerator} after all models have been post-processed, allowing for a last pass of codegen-specific model cleanup.
+     * Invoked by {DefaultGenerator} after all models have been post-processed, allowing for a last pass of codegen-specific model cleanup.
      *
      * @param objs Current state of codegen object model.
      * @return An in-place modified state of the codegen object model.
@@ -393,7 +404,8 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         Map<String, CodegenModel> enumRefs = new HashMap<String, CodegenModel>();
         for (Map.Entry<String, Object> entry : models.entrySet()) {
             CodegenModel model = ModelUtils.getModelByName(entry.getKey(), models);
-            if (model.isEnum) {
+            boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
+            if (isEnum) {
                 enumRefs.put(entry.getKey(), model);
             }
         }
@@ -409,17 +421,16 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
                         var.allowableValues = refModel.allowableValues;
-                        var.isEnum = true;
-
                         updateCodegenPropertyEnum(var);
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
-                        var.isPrimitiveType = true;
+                        var.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
+                        var.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
                     }
                 }
 
                 // We're looping all models here.
-                if (model.isEnum) {
+                if (getBooleanValue(model, CodegenConstants.IS_ENUM_EXT_NAME)) {
                     // We now need to make allowableValues.enumVars look like the context of CodegenProperty
                     Boolean isString = false;
                     Boolean isInteger = false;
@@ -479,27 +490,27 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
             var.vendorExtensions = new HashMap<>();
         }
 
-        super.updateCodegenPropertyEnum(var);
+        ModelUtils.updateCodegenPropertyEnum(var);
 
         // Because C# uses nullable primitives for datatype, and datatype is used in DefaultCodegen for determining enum-ness, guard against weirdness here.
-        if (var.isEnum) {
+        if (getBooleanValue(var, CodegenConstants.IS_ENUM_EXT_NAME)) {
             if ("byte".equals(var.dataFormat)) {// C# Actually supports byte and short enums.
                 var.vendorExtensions.put("x-enum-byte", true);
-                var.isString = false;
-                var.isLong = false;
-                var.isInteger = false;
+                var.vendorExtensions.put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.FALSE);
+                var.vendorExtensions.put(CodegenConstants.IS_LONG_EXT_NAME, Boolean.FALSE);
+                var.vendorExtensions.put(CodegenConstants.IS_INTEGER_EXT_NAME, Boolean.FALSE);
             } else if ("int32".equals(var.dataFormat)) {
-                var.isInteger = true;
-                var.isString = false;
-                var.isLong = false;
+                var.vendorExtensions.put(CodegenConstants.IS_INTEGER_EXT_NAME, Boolean.TRUE);
+                var.vendorExtensions.put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.FALSE);
+                var.vendorExtensions.put(CodegenConstants.IS_LONG_EXT_NAME, Boolean.FALSE);
             } else if ("int64".equals(var.dataFormat)) {
-                var.isLong = true;
-                var.isString = false;
-                var.isInteger = false;
+                var.vendorExtensions.put(CodegenConstants.IS_LONG_EXT_NAME, Boolean.TRUE);
+                var.vendorExtensions.put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.FALSE);
+                var.vendorExtensions.put(CodegenConstants.IS_INTEGER_EXT_NAME, Boolean.FALSE);
             } else {// C# doesn't support non-integral enums, so we need to treat everything else as strings (e.g. to not lose precision or data integrity)
-                var.isString = true;
-                var.isInteger = false;
-                var.isLong = false;
+                var.vendorExtensions.put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.TRUE);
+                var.vendorExtensions.put(CodegenConstants.IS_LONG_EXT_NAME, Boolean.FALSE);
+                var.vendorExtensions.put(CodegenConstants.IS_INTEGER_EXT_NAME, Boolean.FALSE);
             }
         }
     }
@@ -524,7 +535,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                         }
 
                         if (this.collectionTypes.contains(typeMapping)) {
-                            operation.isListContainer = true;
+                            operation.getVendorExtensions().put(CodegenConstants.IS_LIST_CONTAINER_EXT_NAME, Boolean.TRUE);
                             operation.returnContainer = operation.returnType;
                             if (this.returnICollection && (
                                     typeMapping.startsWith("List") ||
@@ -537,7 +548,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                             }
                         } else {
                             operation.returnContainer = operation.returnType;
-                            operation.isMapContainer = this.mapTypes.contains(typeMapping);
+                            operation.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, this.mapTypes.contains(typeMapping));
                         }
                     }
 
@@ -657,100 +668,57 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     /**
      * Return the example value of the property
      *
-     * @param p Swagger property object
+     * @param schema Open API Schema object
      * @return string presentation of the example value of the property
      */
     @Override
-    public String toExampleValue(Property p) {
-        if (p instanceof StringProperty) {
-            StringProperty dp = (StringProperty) p;
-            if (dp.getExample() != null) {
-                return "\"" + dp.getExample().toString() + "\"";
-            }
-        } else if (p instanceof BooleanProperty) {
-            BooleanProperty dp = (BooleanProperty) p;
-            if (dp.getExample() != null) {
-                return dp.getExample().toString();
-            }
-        } else if (p instanceof DateProperty) {
-            // TODO
-        } else if (p instanceof DateTimeProperty) {
-            // TODO
-        } else if (p instanceof DoubleProperty) {
-            DoubleProperty dp = (DoubleProperty) p;
-            if (dp.getExample() != null) {
-                return dp.getExample().toString();
-            }
-        } else if (p instanceof FloatProperty) {
-            FloatProperty dp = (FloatProperty) p;
-            if (dp.getExample() != null) {
-                return dp.getExample().toString();
-            }
-        } else if (p instanceof IntegerProperty) {
-            IntegerProperty dp = (IntegerProperty) p;
-            if (dp.getExample() != null) {
-                return dp.getExample().toString();
-            }
-        } else if (p instanceof LongProperty) {
-            LongProperty dp = (LongProperty) p;
-            if (dp.getExample() != null) {
-                return dp.getExample().toString();
+    public String toExampleValue(Schema schema) {
+        if (schema instanceof StringSchema) {
+            if (schema.getExample() != null) {
+                return String.format("\"%s\"", schema.getExample().toString());
             }
         }
-
+        if (schema instanceof DateSchema || schema instanceof DateTimeSchema) {
+            // TODO still...
+            return null;
+        } else {
+            if (schema.getExample() != null) {
+                return schema.getExample().toString();
+            }
+        }
         return null;
     }
 
     /**
      * Return the default value of the property
      *
-     * @param p Swagger property object
+     * @param schema Schema object
      * @return string presentation of the default value of the property
      */
     @Override
-    public String toDefaultValue(Property p) {
-        if (p instanceof StringProperty) {
-            StringProperty dp = (StringProperty) p;
-            if (dp.getDefault() != null) {
-                String _default = dp.getDefault();
-                if (dp.getEnum() == null) {
-                    return "\"" + _default + "\"";
+    public String toDefaultValue(Schema schema) {
+        if (schema instanceof StringSchema) {
+            if (schema.getDefault() != null) {
+                String _default = schema.getDefault().toString();
+                if (schema.getEnum() == null) {
+                    return String.format("\"%s\"", _default);
                 } else {
                     // convert to enum var name later in postProcessModels
                     return _default;
                 }
             }
-        } else if (p instanceof BooleanProperty) {
-            BooleanProperty dp = (BooleanProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-        } else if (p instanceof DateProperty) {
-            // TODO
-        } else if (p instanceof DateTimeProperty) {
-            // TODO
-        } else if (p instanceof DoubleProperty) {
-            DoubleProperty dp = (DoubleProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-        } else if (p instanceof FloatProperty) {
-            FloatProperty dp = (FloatProperty) p;
-            if (dp.getDefault() != null) {
-                return String.format("%1$sF", dp.getDefault());
-            }
-        } else if (p instanceof IntegerProperty) {
-            IntegerProperty dp = (IntegerProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-        } else if (p instanceof LongProperty) {
-            LongProperty dp = (LongProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
+        }
+        if (schema instanceof DateSchema || schema instanceof DateTimeSchema) {
+            // TODO still...
+            return null;
+        } else {
+            if (schema.getDefault() != null) {
+                if(SchemaTypeUtil.INTEGER64_FORMAT.equals(schema.getFormat())) {
+                    return String.format("%1$sF", schema.getDefault());
+                }
+                return schema.getDefault().toString();
             }
         }
-
         return null;
     }
 
@@ -761,16 +729,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     @Override
-    public String getSwaggerType(Property p) {
-        String swaggerType = super.getSwaggerType(p);
+    public String getSchemaType(Schema propertySchema) {
+        String swaggerType = super.getSchemaType(propertySchema);
         String type;
 
         if (swaggerType == null) {
-            swaggerType = ""; // set swagger type to empty string if null
+            swaggerType = StringUtils.EMPTY; // set swagger type to empty string if null
         }
 
-        // NOTE: typeMapping here supports things like string/String, long/Long, datetime/DateTime as lowercase keys.
-        //       Should we require explicit casing here (values are not insensitive).
         // TODO avoid using toLowerCase as typeMapping should be case-sensitive
         if (typeMapping.containsKey(swaggerType.toLowerCase())) {
             type = typeMapping.get(swaggerType.toLowerCase());
@@ -788,12 +754,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
      * @param arr The input array property
      * @return The type declaration when the type is an array of arrays.
      */
-    private String getArrayTypeDeclaration(ArrayProperty arr) {
+    private String getArrayTypeDeclaration(ArraySchema arr) {
         // TODO: collection type here should be fully qualified namespace to avoid model conflicts
         // This supports arrays of arrays.
         String arrayType = typeMapping.get("array");
         StringBuilder instantiationType = new StringBuilder(arrayType);
-        Property items = arr.getItems();
+        Schema items = arr.getItems();
         String nestedType = getTypeDeclaration(items);
         // TODO: We may want to differentiate here between generics and primitive arrays.
         instantiationType.append("<").append(nestedType).append(">");
@@ -801,24 +767,23 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     @Override
-    public String toInstantiationType(Property p) {
-        if (p instanceof ArrayProperty) {
-            return getArrayTypeDeclaration((ArrayProperty) p);
+    public String toInstantiationType(Schema schema) {
+        if (schema instanceof ArraySchema) {
+            return getArrayTypeDeclaration((ArraySchema) schema);
         }
-        return super.toInstantiationType(p);
+        return super.toInstantiationType(schema);
     }
 
     @Override
-    public String getTypeDeclaration(Property p) {
-        if (p instanceof ArrayProperty) {
-            return getArrayTypeDeclaration((ArrayProperty) p);
-        } else if (p instanceof MapProperty) {
-            // Should we also support maps of maps?
-            MapProperty mp = (MapProperty) p;
-            Property inner = mp.getAdditionalProperties();
-            return getSwaggerType(p) + "<string, " + getTypeDeclaration(inner) + ">";
+    public String getTypeDeclaration(Schema propertySchema) {
+        if (propertySchema instanceof ArraySchema) {
+            Schema inner = ((ArraySchema) propertySchema).getItems();
+            return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
+            Schema inner = (Schema) propertySchema.getAdditionalProperties();
+            return String.format("%s<string, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
-        return super.getTypeDeclaration(p);
+        return super.getTypeDeclaration(propertySchema);
     }
 
     @Override
@@ -975,30 +940,30 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     @Override
-    public void preprocessSwagger(Swagger swagger) {
+    public void preprocessOpenAPI(OpenAPI openAPI) {
         if (this.preserveNewLines) {
-            if (swagger.getDefinitions() != null) {
-                for (String name : swagger.getDefinitions().keySet()) {
-                    Model model = swagger.getDefinitions().get(name);
-                    if (StringUtils.isNotBlank(model.getDescription())) {
-                        model.setDescription(preserveNewlines(model.getDescription(), 1));
+            Map<String, Schema> schemaMap = openAPI.getComponents() != null ? openAPI.getComponents().getSchemas() : null;
+            if (schemaMap != null) {
+                for (String name : schemaMap.keySet()) {
+                    Schema schema = schemaMap.get(name);
+                    if (StringUtils.isNotBlank(schema.getDescription())) {
+                        schema.setDescription(preserveNewlines(schema.getDescription(), 1));
                     }
-                    if (model instanceof ModelImpl) {
-                        ModelImpl impl = (ModelImpl) model;
-                        if (impl.getProperties() != null) {
-                            for (String propertyName : impl.getProperties().keySet()) {
-                                Property property = impl.getProperties().get(propertyName);
-                                if (StringUtils.isNotBlank(property.getDescription())) {
-                                    property.setDescription(preserveNewlines(property.getDescription(), 2));
-                                }
+                    Map<String, Schema> propertiesMap = schema.getProperties();
+                    if (propertiesMap!= null && !propertiesMap.isEmpty()) {
+
+                        for (String propertyName : propertiesMap.keySet()) {
+                            Schema propertySchema = propertiesMap.get(propertyName);
+                            if (StringUtils.isNotBlank(propertySchema.getDescription())) {
+                                propertySchema.setDescription(preserveNewlines(propertySchema.getDescription(), 2));
                             }
                         }
                     }
                 }
             }
-            for (String pathname : swagger.getPaths().keySet()) {
-                Path path = swagger.getPaths().get(pathname);
-                for (Operation op : path.getOperations()) {
+            for (String pathname : openAPI.getPaths().keySet()) {
+                PathItem path = openAPI.getPaths().get(pathname);
+                for (Operation op : path.readOperations()) {
                     if (StringUtils.isNotBlank(op.getDescription())) {
                         op.setDescription(preserveNewlines(op.getDescription(), 2));
                     }
@@ -1014,7 +979,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                     }
                     if (op.getResponses() != null) {
                         for (String responseCode : op.getResponses().keySet()) {
-                            Response response = op.getResponses().get(responseCode);
+                            ApiResponse response = op.getResponses().get(responseCode);
 
                             if (StringUtils.isNotBlank(response.getDescription())) {
                                 response.setDescription(preserveNewlines(response.getDescription(), 2));
