@@ -1,5 +1,6 @@
 io.swagger.codegen.v3.generators.dotnet.AspNetCoreServerCodegen
 io.swagger.codegen.v3.generators.dotnet.CSharpClientCodegen
+io.swagger.codegen.v3.generators.dotnet.CsharpDotNet2ClientCodegen
 io.swagger.codegen.v3.generators.html.StaticDocCodegen
 io.swagger.codegen.v3.generators.html.StaticHtmlCodegen
 io.swagger.codegen.v3.generators.html.StaticHtml2Codegen
