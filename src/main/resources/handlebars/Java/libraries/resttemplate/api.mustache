@@ -48,15 +48,16 @@ public class {{classname}} {
     }
 
     {{#operation}}
+    {{#contents}}
     /**
      * {{summary}}
      * {{notes}}
     {{#responses}}
      * <p><b>{{code}}</b>{{#message}} - {{message}}{{/message}}
     {{/responses}}
-    {{#allParams}}
+    {{#parameters}}
      * @param {{paramName}} {{description}}{{^description}}The {{paramName}} parameter{{/description}}
-    {{/allParams}}
+    {{/parameters}}
     {{#returnType}}
      * @return {{returnType}}
     {{/returnType}}
@@ -66,16 +67,16 @@ public class {{classname}} {
      * @see <a href="{{url}}">{{summary}} Documentation</a>
     {{/externalDocs}}
      */
-    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}) throws RestClientException {
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws RestClientException {
         Object {{localVariablePrefix}}postBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
-        {{#allParams}}
+        {{#parameters}}
         {{#required}}
         // verify the required parameter '{{paramName}}' is set
         if ({{paramName}} == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter '{{paramName}}' when calling {{operationId}}");
         }
         {{/required}}
-        {{/allParams}}
+        {{/parameters}}
         {{#hasPathParams}}
         // create path and map variables
         final Map<String, Object> uriVariables = new HashMap<String, Object>();
@@ -120,6 +121,7 @@ public class {{classname}} {
         {{#returnType}}ParameterizedTypeReference<{{{returnType}}}> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<{{{returnType}}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
         {{#returnType}}return {{/returnType}}{{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}path, HttpMethod.{{httpMethod}}, {{localVariablePrefix}}queryParams, {{localVariablePrefix}}postBody, {{localVariablePrefix}}headerParams, {{localVariablePrefix}}formParams, {{localVariablePrefix}}accept, {{localVariablePrefix}}contentType, {{localVariablePrefix}}authNames, {{localVariablePrefix}}returnType);
     }
+    {{/contents}}
     {{/operation}}
 }
 {{/operations}}
