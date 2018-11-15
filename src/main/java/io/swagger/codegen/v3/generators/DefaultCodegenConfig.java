@@ -1299,7 +1299,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         continue;
                     }
                     Schema refSchema = null;
-                    String ref = openAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                    String ref = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
                     if (allDefinitions != null) {
                         refSchema = allDefinitions.get(ref);
                     }
@@ -1390,7 +1390,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return;
         }
         if(StringUtils.isNotBlank(schema.get$ref())) {
-            Schema interfaceSchema = allSchemas.get(openAPIUtil.getSimpleRef(schema.get$ref()));
+            Schema interfaceSchema = allSchemas.get(OpenAPIUtil.getSimpleRef(schema.get$ref()));
             addProperties(properties, required, interfaceSchema, allSchemas);
             return;
         }
@@ -1978,13 +1978,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (body != null) {
 
             if (StringUtils.isNotBlank(body.get$ref())) {
-                String bodyName = openAPIUtil.getSimpleRef(body.get$ref());
+                String bodyName = OpenAPIUtil.getSimpleRef(body.get$ref());
                 body = openAPI.getComponents().getRequestBodies().get(bodyName);
             }
             if (containsFormContentType(body)) {
                 Schema schema = getSchemaFromBody(body);
                 if (StringUtils.isNotBlank(schema.get$ref())) {
-                    String schemaName = openAPIUtil.getSimpleRef(schema.get$ref());
+                    String schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
                     schema = schemas.get(schemaName);
                 }
                 final Map<String, Schema> propertyMap = schema.getProperties();
@@ -2423,7 +2423,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         String name = null;
         Schema schema = getSchemaFromBody(body);
         if (StringUtils.isNotBlank(schema.get$ref())) {
-            name = openAPIUtil.getSimpleRef(schema.get$ref());
+            name = OpenAPIUtil.getSimpleRef(schema.get$ref());
             schema = schemas.get(name);
         }
         if (isObjectSchema(schema)) {
@@ -2885,7 +2885,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 cp.required = mandatory.contains(key);
 
                 if (propertySchema.get$ref() != null) {
-                    openAPIUtil.addPropertiesFromRef(propertySchema, cp);
+                    if (openAPIUtil == null) {
+                        LOGGER.warn("open api utility object was not properly set.");
+                    } else {
+                        openAPIUtil.addPropertiesFromRef(propertySchema, cp);
+                    }
                 }
 
                 boolean hasRequired = getBooleanValue(codegenModel, HAS_REQUIRED_EXT_NAME) || cp.required;
@@ -3826,7 +3830,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (StringUtils.isBlank(ref)) {
                 return null;
             }
-            ref = openAPIUtil.getSimpleRef(ref);
+            ref = OpenAPIUtil.getSimpleRef(ref);
             return allSchemas.get(ref);
         }
         return null;
@@ -3839,7 +3843,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (StringUtils.isBlank(ref)) {
                 return null;
             }
-            return openAPIUtil.getSimpleRef(ref);
+            return OpenAPIUtil.getSimpleRef(ref);
         }
         return null;
     }

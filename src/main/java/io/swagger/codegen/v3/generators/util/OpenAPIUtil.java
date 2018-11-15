@@ -29,7 +29,7 @@ public class OpenAPIUtil {
         codegenProperty.maxLength = schema.getMaxLength();
     }
 
-    public String getSimpleRef(String ref) {
+    public static String getSimpleRef(String ref) {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf("/") + 1);
         }
