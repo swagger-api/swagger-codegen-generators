@@ -164,4 +164,8 @@ public class JavaHelper {
         builder.append("\"");
         return builder.toString();
     }
+
+    public CharSequence backslash() {
+        return "\\";
+    }
 }
