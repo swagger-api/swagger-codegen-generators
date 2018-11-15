@@ -1015,15 +1015,21 @@ public class JavaModelTest {
         Assert.assertTrue(co.imports.contains("Pet"));
     }
 
-    @Test(description = "disabled since templates have been moved.")
+    @Test(enabled = false, description = "disabled since templates have been moved.")
     public void generateModel() throws Exception {
+        folder.create();
+        final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("java")
-                .setInputSpec("/Users/hugomercado/Documents/tempo/newissue.yaml")
-                .setOutputDir("/Users/hugomercado/Documents/tempo/v3");
+                .setInputSpec("src/test/resources/3_0_0/petstore.json")
+                .setOutputDir(output.getAbsolutePath());
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
+
+        File orderFile = new File(output, "src/main/java/io/swagger/client/model/Order.java");
+        Assert.assertTrue(orderFile.exists());
+        folder.delete();
     }
 }

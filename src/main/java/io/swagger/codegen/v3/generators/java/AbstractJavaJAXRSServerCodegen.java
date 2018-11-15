@@ -7,6 +7,7 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -90,6 +91,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        this.openAPIUtil = new OpenAPIUtil(openAPI);
         if (!this.additionalProperties.containsKey("serverPort")) {
             final URL urlInfo = URLPathUtil.getServerURL(openAPI);
             String port = "8080"; // Default value for a JEE Server

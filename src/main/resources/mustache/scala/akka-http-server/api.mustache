@@ -23,10 +23,10 @@ class {{classname}}(
   {{#operation}}
     path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
       {{vendorExtensions.lowercaseHttpMethod}} {
-        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{paramName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
-          {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{paramName}}") { {{paramName}} => {{/headerParams}}
-            {{^formParams.isEmpty}}formFields({{#formParams}}"{{paramName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
-              {{#allParams}}{{#isCookieParam}}{{#required}}cookie({{/required}}{{^required}}optionalCookie({{/required}}"{{paramName}}"){ {{paramName}} => {{/isCookieParam}}{{/allParams}}
+        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{baseName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+          {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{baseName}}") { {{paramName}} => {{/headerParams}}
+            {{^formParams.isEmpty}}formFields({{#formParams}}"{{baseName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
+              {{#allParams}}{{#isCookieParam}}{{#required}}cookie({{/required}}{{^required}}optionalCookie({{/required}}"{{baseName}}"){ {{paramName}} => {{/isCookieParam}}{{/allParams}}
                 {{#bodyParam}}{{^isPrimitiveType}}entity(as[{{dataType}}]){ body =>{{/isPrimitiveType}}{{/bodyParam}}
                   {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
                {{#bodyParam}}{{^isPrimitiveType}} }{{/isPrimitiveType}}{{/bodyParam}}
@@ -46,7 +46,7 @@ trait {{classname}}Service {
     complete(({{code}}, {{#dataType}}response{{dataType}}{{/dataType}}{{^dataType}}"{{message}}"{{/dataType}}))
 {{/responses}}
   /**
-{{#responses}}   * {{#code}}Code: {{.}},{{/code}} {{#message}}Message: {{.}},{{/message}} {{#dataType}}DataType: {{.}}{{/dataType}}
+{{#responses}}   * {{#code}}Code: {{.}}{{/code}}{{#message}}, Message: {{.}}{{/message}}{{#dataType}}, DataType: {{.}}{{/dataType}}
    {{/responses}}
    */
   def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}{{^isBodyParam}}Option[{{/isBodyParam}}{{/required}}{{dataType}}{{^required}}{{^isBodyParam}}]{{/isBodyParam}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}

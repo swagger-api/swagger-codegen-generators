@@ -963,6 +963,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         if (openAPI == null || openAPI.getPaths() == null){
             return;
         }
