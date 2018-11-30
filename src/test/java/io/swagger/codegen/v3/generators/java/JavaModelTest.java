@@ -1019,13 +1019,9 @@ public class JavaModelTest {
     public void generateModel() throws Exception {
         folder.create();
         final File output = folder.getRoot();
-        getClass().getClassLoader().getResourceAsStream("src/test/resources/3_0_0/petstore.json");
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("java")
-                .setLibrary("jersey2")
-                //.addAdditionalProperty("withXml", true)
-                .addAdditionalProperty(CodegenConstants.SERIALIZABLE_MODEL, true)
                 .setInputSpec("src/test/resources/3_0_0/petstore.json")
                 .setOutputDir(output.getAbsolutePath());
 

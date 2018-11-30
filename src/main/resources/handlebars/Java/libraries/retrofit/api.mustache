@@ -18,13 +18,14 @@ import java.util.Map;
 {{#operations}}
 public interface {{classname}} {
   {{#operation}}
+  {{#contents}}
   /**
    * {{summary}}
    * Sync method
    * {{notes}}
-{{#allParams}}
+{{#parameters}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
 {{#returnType}}
    * @return {{returnType}}
 {{/returnType}}
@@ -44,16 +45,16 @@ public interface {{classname}} {
   {{/@first}}
   {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
-  {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}} {{operationId}}({{^allParams}});{{/allParams}}
-    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
-  );{{/hasNot}}{{/allParams}}
+  {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}} {{operationId}}({{^parameters}});{{/parameters}}
+    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
+  );{{/hasNot}}{{/parameters}}
 
   /**
    * {{summary}}
    * Async method
-{{#allParams}}
+{{#parameters}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
    * @param cb callback method
 {{#externalDocs}}
    * {{description}}
@@ -72,8 +73,9 @@ public interface {{classname}} {
   {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   void {{operationId}}(
-    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}, {{/allParams}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}> cb
+    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}, {{/parameters}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}> cb
   );
+  {{/contents}}
   {{/operation}}
 }
 {{/operations}}
