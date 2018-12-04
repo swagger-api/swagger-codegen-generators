@@ -394,6 +394,10 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
                         if(operation.getOperationId() == null) {
                             operation.setOperationId(getOrGenerateOperationId(operation, pathname, method.toString()));
                         }
+
+                        if (operation.getExtensions() == null) {
+                            operation.setExtensions(new HashMap<>());
+                        }
                         if(operation.getExtensions() != null && operation.getExtensions().get("x-swagger-router-controller") == null) {
                             operation.getExtensions().put("x-swagger-router-controller", sanitizeTag(tag));
                         }
