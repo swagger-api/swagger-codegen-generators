@@ -97,11 +97,11 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_REQUIRED_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_CONTAINER_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.v3.generators.CodegenHelper.getDefaultIncludes;
 import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
@@ -112,6 +112,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public static final String DEFAULT_TEMPLATE_DIR = "handlebars";
 
     protected String inputSpec;
+    protected String inputURL;
     protected String outputFolder = StringUtils.EMPTY;
     protected Set<String> defaultIncludes = new HashSet<String>();
     protected Map<String, String> typeMapping = new HashMap<String, String>();
@@ -595,6 +596,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public void setInputSpec(String inputSpec) {
         this.inputSpec = inputSpec;
+    }
+
+    public String getInputURL() {
+        return inputURL;
+    }
+
+    public void setInputURL(String inputSpec) {
+        this.inputURL = inputURL;
     }
 
     public void setTemplateDir(String templateDir) {
