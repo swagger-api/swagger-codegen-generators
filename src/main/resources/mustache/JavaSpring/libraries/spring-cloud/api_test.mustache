@@ -25,19 +25,21 @@ private {{classname}} api;
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
     @Test
     public void {{operationId}}Test() throws Exception {
-    {{#allParams}}
+    {{#parameters}}
     {{^isFile}}
         {{{dataType}}} {{paramName}} = {{{example}}};
     {{/isFile}}
     {{#isFile}}
         org.springframework.web.multipart.MultipartFile {{paramName}} = null;
     {{/isFile}}
-    {{/allParams}}
-        api.{{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+    {{/parameters}}
+        api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         // todo: add verifications
     }
+{{/contents}}
 {{/operation}}
 {{/operations}}
 }
