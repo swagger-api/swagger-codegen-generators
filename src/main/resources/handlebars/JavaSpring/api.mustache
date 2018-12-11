@@ -40,6 +40,7 @@ import javax.validation.constraints.*;
 import java.io.IOException;
 {{/jdk8-no-delegate}}
 import java.util.List;
+import java.util.Map;
 {{#jdk8-no-delegate}}
 import java.util.Optional;
 {{/jdk8-no-delegate}}
@@ -79,15 +80,15 @@ public interface {{classname}} {
 {{#operation}}
 {{#contents}}
 
-    @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#has this 'auth-methods'}}, authorizations = {
-        {{#authMethods}}@Authorization(value = "{{name}}"{{#is this 'oauth'}}, scopes = {
+    @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
+        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
             {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
             {{/hasMore}}{{/scopes}}
-            }{{/is}}){{#hasMore}},
+            }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
-    }{{/has}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
+    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#has this 'more'}},{{/has}}{{/responses}} })
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     {{#implicitHeaders}}
     @ApiImplicitParams({
     {{#headerParams}}
@@ -95,19 +96,19 @@ public interface {{classname}} {
     {{/headerParams}}
     })
     {{/implicitHeaders}}
-    @RequestMapping(value = "{{{path}}}",{{#if singleContentTypes}}{{#has this 'produces'}}
-        produces = "{{{vendorExtensions.x-accepts}}}", {{/has}}{{#has this 'consumes'}}
-        consumes = "{{{vendorExtensions.x-contentType}}}",{{/has}}{{/if}}{{#unless singleContentTypes}}{{#has this 'produces'}}
-        produces = { {{#produces}}"{{{mediaType}}}"{{#has ../this 'more'}}, {{/has}}{{/produces}} }, {{/has}}{{#has this 'consumes'}}
-        consumes = { {{#consumes}}"{{{mediaType}}}"{{#has ../this 'more'}}, {{/has}}{{/consumes}} },{{/has}}{{/unless}}
+    @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
+        produces = "{{{vendorExtensions.x-accepts}}}", {{/hasProduces}}{{#hasConsumes}}
+        consumes = "{{{vendorExtensions.x-contentType}}}",{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}}
+        produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
+        consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
         method = RequestMethod.{{httpMethod}})
-    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#has this 'more'}},{{/has}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
+    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
         {{#delegate-method}}
-        return {{operationId}}({{#parameters}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}});
+        return {{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
     }
 
     // Override this method
-    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{#isNot this 'file'}}{{{dataType}}}{{/isNot}}{{#is this 'file'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},{{/has}}{{/parameters}}) {
+    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isFile}}{{{dataType}}}{{/isFile}}{{#isFile}}MultipartFile{{/isFile}} {{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{/delegate-method}}
         {{^isDelegate}}
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
@@ -127,7 +128,7 @@ public interface {{classname}} {
         return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
         {{/isDelegate}}
         {{#isDelegate}}
-        return getDelegate().{{operationId}}({{#parameters}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}});
+        return getDelegate().{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{/isDelegate}}
     }{{/jdk8}}
 
