@@ -7,6 +7,8 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.Map;
 
+import static io.swagger.codegen.v3.CodegenConstants.HAS_VALIDATION_EXT_NAME;
+
 public class OpenAPIUtil {
 
     private OpenAPI openAPI;
@@ -27,6 +29,9 @@ public class OpenAPIUtil {
         codegenProperty.pattern = schema.getPattern();
         codegenProperty.minLength = schema.getMinLength();
         codegenProperty.maxLength = schema.getMaxLength();
+        if (codegenProperty.pattern != null || codegenProperty.minLength != null || codegenProperty.maxLength != null) {
+            codegenProperty.getVendorExtensions().put(HAS_VALIDATION_EXT_NAME, Boolean.TRUE);
+        }
     }
 
     public static String getSimpleRef(String ref) {
