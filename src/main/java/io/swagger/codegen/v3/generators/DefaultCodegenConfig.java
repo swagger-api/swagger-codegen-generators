@@ -1455,6 +1455,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.defaultValue = toDefaultValue(propertySchema);
         codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, propertySchema);
         codegenProperty.jsonSchema = Json.pretty(propertySchema);
+        if (propertySchema.getNullable() != null) {
+            codegenProperty.nullable = propertySchema.getNullable();
+        }
         if (propertySchema.getReadOnly() != null) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
         }
@@ -2270,6 +2273,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (parameter.getRequired() != null) {
             codegenParameter.required = parameter.getRequired();
         }
+        if (parameter.getRequired() != null) {
+            codegenParameter.required = parameter.getRequired();
+        }
         codegenParameter.jsonSchema = Json.pretty(parameter);
 
         if (System.getProperty("debugParser") != null) {
@@ -2326,10 +2332,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 LOGGER.warn("warning!  Schema not found for parameter \"" + parameter.getName() + "\", using String");
                 parameterSchema = new StringSchema().description("//TODO automatically added by swagger-codegen.");
             }
+            if (Boolean.TRUE.equals(parameterSchema.getNullable())) {
+                codegenParameter.nullable = true;
+            }
             CodegenProperty codegenProperty = fromProperty(parameter.getName(), parameterSchema);
 
             // set boolean flag (e.g. isString)
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
+            setParameterNullable(codegenParameter, codegenProperty);
 
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
@@ -2501,6 +2511,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
                 setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
+                setParameterNullable(codegenParameter, codegenProperty);
             }
         }
         else if (schema instanceof ArraySchema) {
@@ -2534,6 +2545,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_LIST_CONTAINER_EXT_NAME, Boolean.TRUE);
 
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
+            setParameterNullable(codegenParameter, codegenProperty);
 
             while (codegenProperty != null) {
                 imports.add(codegenProperty.baseType);
@@ -3993,5 +4005,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (CodegenParameter codegenParameter : codegenParameters) {
             codegenContent.getParameters().add(codegenParameter.copy());
         }
+    }
+
+    protected void setParameterNullable(CodegenParameter parameter, CodegenProperty property) {
+        parameter.nullable = property.nullable;
     }
 }
