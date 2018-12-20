@@ -36,8 +36,6 @@ public class Swift4OptionsTest extends AbstractOptionsTest {
             times = 1;
             clientCodegen.setLenientTypeCast(Boolean.valueOf(Swift4OptionsProvider.LENIENT_TYPE_CAST_VALUE));
             times = 1;
-            clientCodegen.setUseReactiveAPI(Boolean.valueOf(Swift4OptionsProvider.SWIFT_USE_REACTIVE_API));
-            times = 1;
         }};
     }
 }

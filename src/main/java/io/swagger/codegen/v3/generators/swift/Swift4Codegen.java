@@ -5,7 +5,6 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.swift.AbstractSwiftCodegen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -123,7 +122,6 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         cliOptions.add(new CliOption(SWIFT_USE_API_NAMESPACE,
                 "Flag to make all the API classes inner-class "
                         + "of {{projectName}}API"));
-        cliOptions.add(new CliOption(SWIFT_USE_REACTIVE_API,"Flag to use ReactiveAPI"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP,
                         CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
                 .defaultValue(Boolean.TRUE.toString()));
