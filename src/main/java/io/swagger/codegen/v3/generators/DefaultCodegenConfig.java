@@ -1852,6 +1852,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return fromOperation(path, httpMethod, operation, schemas, null);
     }
 
+    /**
+     * Transform path to perform path substitutions.
+     * @param path path of the Swagger API
+     * @return it simply returns the passed path
+     */
     public String transformPath(String path) {
         return path;
     }
@@ -2117,7 +2122,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         codegenOperation.bodyParam = bodyParam;
-        codegenOperation.httpMethod = httpMethod.toUpperCase();
+        codegenOperation.httpMethod = transformHttpMethod(httpMethod);
 
         // move "required" parameters in front of "optional" parameters
         if (sortParamsByRequiredFlag) {
@@ -2162,6 +2167,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         configureDataForTestTemplate(codegenOperation);
 
         return codegenOperation;
+    }
+
+    /**
+     * Performs operations on the HTTP method
+     * @param httpMethod Swagger API HTTP Method
+     * @return if returns the HTTP method uppercased
+     */
+    public String transformHttpMethod(String httpMethod) {
+        return httpMethod.toUpperCase();
     }
 
     /**

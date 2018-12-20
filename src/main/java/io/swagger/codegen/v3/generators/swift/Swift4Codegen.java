@@ -137,6 +137,11 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
     }
 
     @Override
+    public String transformHttpMethod(String httpMethod) {
+        return httpMethod.toLowerCase();
+    }
+
+    @Override
     public String getName() {
         return "swift4";
     }
