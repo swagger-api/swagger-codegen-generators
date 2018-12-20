@@ -76,10 +76,10 @@ public class KotlinClientCodegenModelTest {
 
         final CodegenProperty property1 = cm.vars.get(0);
         Assert.assertEquals(property1.baseName, "id");
-        Assert.assertEquals(property1.datatype, "kotlin.Long");
+        Assert.assertEquals(property1.datatype, "Long");
         Assert.assertEquals(property1.name, "id");
         Assert.assertEquals(property1.defaultValue, "null");
-        Assert.assertEquals(property1.baseType, "kotlin.Long");
+        Assert.assertEquals(property1.baseType, "Long");
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertTrue(property1.required);
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
@@ -87,10 +87,10 @@ public class KotlinClientCodegenModelTest {
 
         final CodegenProperty property2 = cm.vars.get(1);
         Assert.assertEquals(property2.baseName, "first-name");
-        Assert.assertEquals(property2.datatype, "kotlin.String");
+        Assert.assertEquals(property2.datatype, "String");
         Assert.assertEquals(property2.name, "firstName");
         Assert.assertEquals(property2.defaultValue, "null");
-        Assert.assertEquals(property2.baseType, "kotlin.String");
+        Assert.assertEquals(property2.baseType, "String");
         Assert.assertTrue(getBooleanValue(property2, CodegenConstants.HAS_MORE_EXT_NAME));          
         Assert.assertTrue(property2.required);
         Assert.assertTrue(getBooleanValue(property2, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
@@ -167,7 +167,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
 
-    @Test(description = "convert a model with array property to default kotlin.Array")
+    @Test(description = "convert a model with array property to default kotlin Array")
     public void arrayPropertyTest() {
         final Schema schema = getArrayTestSchema();
 
@@ -183,10 +183,10 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property.baseName, "examples");
         Assert.assertEquals(property.getter, "getExamples");
         Assert.assertEquals(property.setter, "setExamples");
-        Assert.assertEquals(property.datatype, "kotlin.Array<kotlin.String>");
+        Assert.assertEquals(property.datatype, "Array<String>");
         Assert.assertEquals(property.name, "examples");
         Assert.assertEquals(property.defaultValue, "null");
-        Assert.assertEquals(property.baseType, "kotlin.Array");
+        Assert.assertEquals(property.baseType, "Array");
         Assert.assertEquals(property.containerType, "array");
         Assert.assertFalse(property.required);
         Assert.assertTrue(getBooleanValue(property, CodegenConstants.IS_CONTAINER_EXT_NAME));
@@ -205,9 +205,9 @@ public class KotlinClientCodegenModelTest {
 
         final CodegenProperty property1 = cm.vars.get(0);
         Assert.assertEquals(property1.baseName, "mapping");
-        Assert.assertEquals(property1.datatype, "kotlin.collections.Map<kotlin.String, kotlin.String>");
+        Assert.assertEquals(property1.datatype, "Map<String, String>");
         Assert.assertEquals(property1.name, "mapping");
-        Assert.assertEquals(property1.baseType, "kotlin.collections.Map");
+        Assert.assertEquals(property1.baseType, "Map");
         Assert.assertEquals(property1.containerType, "map");
         Assert.assertFalse(property1.required);
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_CONTAINER_EXT_NAME));
