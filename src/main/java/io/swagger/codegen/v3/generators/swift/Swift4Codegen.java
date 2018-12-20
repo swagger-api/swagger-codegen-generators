@@ -123,6 +123,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         cliOptions.add(new CliOption(SWIFT_USE_API_NAMESPACE,
                 "Flag to make all the API classes inner-class "
                         + "of {{projectName}}API"));
+        cliOptions.add(new CliOption(SWIFT_USE_REACTIVE_API,"Flag to use ReactiveAPI"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP,
                         CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
                 .defaultValue(Boolean.TRUE.toString()));

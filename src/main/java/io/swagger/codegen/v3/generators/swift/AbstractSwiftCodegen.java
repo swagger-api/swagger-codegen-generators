@@ -50,6 +50,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public static final String SWIFT_USE_API_NAMESPACE = "swiftUseApiNamespace";
     public static final String DEFAULT_POD_AUTHORS = "Swagger Codegen";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
+    public static final String SWIFT_USE_REACTIVE_API = "useReactiveAPI";
 
     private static final String LIBRARY_PROMISE_KIT = "PromiseKit";
     private static final String LIBRARY_RX_SWIFT = "RxSwift";
@@ -58,6 +59,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     private boolean unwrapRequired;
     private boolean objcCompatible = false;
     private boolean lenientTypeCast = false;
+    private boolean useReactiveAPI = false;
     private boolean swiftUseApiNamespace;
     private String[] responseAs = new String[0];
     protected String sourceFolder = "Classes" + File.separator + "Swaggers";
@@ -192,6 +194,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         // classes inner-class of {{projectName}}API
         if (additionalProperties.containsKey(SWIFT_USE_API_NAMESPACE)) {
             setSwiftUseApiNamespace(convertPropertyToBooleanAndWriteBack(SWIFT_USE_API_NAMESPACE));
+        }
+
+        if (additionalProperties.containsKey(SWIFT_USE_REACTIVE_API)) {
+            setUseReactiveAPI(convertPropertyToBooleanAndWriteBack(SWIFT_USE_REACTIVE_API));
         }
 
         if (!additionalProperties.containsKey(POD_AUTHORS)) {
@@ -505,6 +511,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     public void setSwiftUseApiNamespace(boolean swiftUseApiNamespace) {
         this.swiftUseApiNamespace = swiftUseApiNamespace;
+    }
+
+    public void setUseReactiveAPI(boolean swiftUseReactiveAPI) {
+        this.useReactiveAPI = swiftUseReactiveAPI;
     }
 
     @Override
