@@ -1852,6 +1852,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return fromOperation(path, httpMethod, operation, schemas, null);
     }
 
+    public String transformPath(String path) {
+        return path;
+    }
+
     /**
      * Convert Swagger Operation object to Codegen Operation object
      *
@@ -1878,7 +1882,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         operationId = removeNonNameElementToCamelCase(operationId);
-        codegenOperation.path = path;
+        codegenOperation.path = transformPath(path);
         codegenOperation.operationId = toOperationId(operationId);
         codegenOperation.summary = escapeText(operation.getSummary());
         codegenOperation.unescapedNotes = operation.getDescription();
