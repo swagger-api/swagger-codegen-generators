@@ -1,14 +1,3 @@
-{{#hasEnums}}import com.google.gson.annotations.SerializedName{{/hasEnums}}
-{{#hasEnums}}{{#vars}}{{#isEnum}}
-    /**
-    * {{{description}}}
-    * Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
-    */
-    enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
-    {{#allowableValues}}{{#enumVars}}    @SerializedName({{{value}}}) {{&name}}({{{value}}}){{^@last}},
-    {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
-    }
-{{/isEnum}}{{/vars}}{{/hasEnums}}
 /**
 * {{{description}}}
 {{#vars}}
@@ -17,8 +6,22 @@
 */
 data class {{classname}} (
 {{#requiredVars}}
-    {{>data_class_req_var}}{{^@last}},
-    {{/@last}}{{/requiredVars}}{{#hasRequired}}{{#hasOptional}},
-{{/hasOptional}}{{/hasRequired}}{{#optionalVars}}{{>data_class_opt_var}}{{^@last}},
-{{/@last}}{{/optionalVars}}
+{{>data_class_req_var}}{{^@last}},
+{{/@last}}{{/requiredVars~}}{{#has this 'required'}}{{#has this 'optional'}},{{/has}}{{/has}}
+{{#optionalVars}}
+{{>data_class_opt_var}}{{^@last}},{{/@last}}
+{{/optionalVars}}
 )
+
+
+{{#has this 'enums'}}{{#vars}}{{#is this 'enum'}}
+/**
+* {{{description}}}
+* Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
+*/
+enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
+{{#allowableValues}}{{#enumVars}}
+    {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+{{/enumVars}}{{/allowableValues}}
+}
+{{/is}}{{/vars}}{{/has}}

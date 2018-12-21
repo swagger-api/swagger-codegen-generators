@@ -24,10 +24,10 @@ interface {{classname}} {
     {{/prioritizedContentTypes}}
     {{/formParams}}
     @{{httpMethod}}("{{{path}}}")
-    fun {{operationId}}({{^allParams}}){{/allParams}}
-        {{#contents}}{{#parameters}}
-        {{#isQueryParam}}{{>libraries/retrofit2/queryParams~}}{{/isQueryParam~}}{{#isPathParam}}{{>libraries/retrofit2/pathParams~}}{{/isPathParam~}}{{#isHeaderParam}}{{>libraries/retrofit2/headerParams~}}{{/isHeaderParam~}}{{#isBodyParam}}{{>libraries/retrofit2/bodyParams~}}{{/isBodyParam~}}{{#isFormParam}}{{>libraries/retrofit2/formParams~}}{{/isFormParam~}}{{#hasMore}},{{/hasMore}}
-        {{/parameters}}{{/contents}}
+    fun {{operationId}}(
+    {{#contents}}{{#parameters}}
+    {{#isQueryParam}}{{>libraries/retrofit2/queryParams~}}{{/isQueryParam~}}{{#isPathParam}}{{>libraries/retrofit2/pathParams~}}{{/isPathParam~}}{{#isHeaderParam}}{{>libraries/retrofit2/headerParams~}}{{/isHeaderParam~}}{{#isBodyParam}}{{>libraries/retrofit2/bodyParams~}}{{/isBodyParam~}}{{#isFormParam}}{{>libraries/retrofit2/formParams~}}{{/isFormParam~}}{{#hasMore}},{{/hasMore}}
+    {{/parameters}}{{/contents}}
         ) : {{#returnType}}Single<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{{returnType}}}{{/isResponseFile}}>{{/returnType}}{{^returnType}}Completable{{/returnType}}
 
 

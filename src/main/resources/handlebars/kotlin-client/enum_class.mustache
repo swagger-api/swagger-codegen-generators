@@ -1,11 +1,9 @@
-import com.google.gson.annotations.SerializedName
-
 /**
 * {{{description}}}
 * Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
 */
 enum class {{classname}}(val value: {{dataType}}){
 {{#allowableValues}}{{#enumVars}}
-    @SerializedName({{{value}}}) {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+    {{&name}}({{{value}}}){{^@last}},{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }

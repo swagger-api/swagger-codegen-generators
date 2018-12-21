@@ -1,16 +1,13 @@
 package {{modelPackage}}
 
-{{#imports}}import {{import}}
-{{/imports}}
-
 {{#models}}
-    {{#model}}
-        {{#is this 'alias'}}
-            typealias {{classname}} = {{dataType}}
-        {{/is}}
-        {{#isNot this 'alias'}}
-            {{#is this 'enum'}}{{>enum_class}}{{/is}}
-            {{#isNot this 'enum'}}{{>data_class}}{{/isNot}}
-        {{/isNot}}
-    {{/model}}
+{{#model}}
+{{#is this 'alias'}}
+typealias {{classname}} = {{dataType}}
+{{/is}}
+{{#isNot this 'alias'}}
+{{#is this 'enum'}}{{>enum_class}}{{/is}}
+{{#isNot this 'enum'}}{{>data_class}}{{/isNot}}
+{{/isNot}}
+{{/model}}
 {{/models}}
