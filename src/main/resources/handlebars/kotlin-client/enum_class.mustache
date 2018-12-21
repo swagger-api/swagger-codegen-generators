@@ -4,6 +4,6 @@
 */
 enum class {{classname}}(val value: {{dataType}}){
 {{#allowableValues}}{{#enumVars}}
-    {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+    {{&name}}({{{value}}}){{^@last}},{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }
