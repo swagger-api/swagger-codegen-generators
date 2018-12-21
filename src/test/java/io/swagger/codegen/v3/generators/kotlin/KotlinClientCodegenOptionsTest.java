@@ -37,6 +37,9 @@ public class KotlinClientCodegenOptionsTest extends AbstractOptionsTest {
             codegen.setEnumPropertyNaming(KotlinClientCodegenOptionsProvider.ENUM_PROPERTY_NAMING);
             times = 1;
             codegen.setDateLibrary(KotlinClientCodegenOptionsProvider.DATE_LIBRARY);
+            times = 1;
+            codegen.setUseRxRetrofit2(KotlinClientCodegenOptionsProvider.RX_RETROFIT_2);
+            times = 1;
         }};
     }
 }

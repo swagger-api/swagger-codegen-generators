@@ -14,10 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 
 public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
-    public static final String DATE_LIBRARY = "dateLibrary";    
+    public static final String DATE_LIBRARY = "dateLibrary";
+    public static final String USE_RX_RETROFIT_2 = "useRxRetrofit2";
+
     private static Logger LOGGER = LoggerFactory.getLogger(KotlinClientCodegen.class);
 
     protected String dateLibrary = DateLibrary.JAVA8.value;
+    protected boolean useRxRetrofit2 = false;
 
     public enum DateLibrary {
         STRING("string"),
@@ -55,6 +58,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         dateOptions.put(DateLibrary.JAVA8.value, "Java 8 native JSR310");
         dateLibrary.setEnum(dateOptions);
         cliOptions.add(dateLibrary);
+        cliOptions.add(new CliOption(USE_RX_RETROFIT_2, "Use RxJava 2 with Retrofit 2"));
     }
 
     @Override
@@ -76,6 +80,10 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     public void setDateLibrary(String library) {
         this.dateLibrary = library;
+    }
+
+    public void setUseRxRetrofit2(boolean useRxRetrofit2) {
+        this.useRxRetrofit2 = useRxRetrofit2;
     }
 
     @Override
@@ -105,6 +113,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         } else if (DateLibrary.JAVA8.value.equals(dateLibrary)) {
             additionalProperties.put(DateLibrary.JAVA8.value, true);
         }
+
+        if (additionalProperties.containsKey(USE_RX_RETROFIT_2)) {
+            setUseRxRetrofit2(convertPropertyToBoolean(additionalProperties.get(USE_RX_RETROFIT_2).toString()));
+        }
+        additionalProperties.put(USE_RX_RETROFIT_2, useRxRetrofit2);
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
