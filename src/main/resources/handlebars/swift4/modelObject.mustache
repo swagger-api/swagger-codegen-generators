@@ -2,7 +2,9 @@
 public struct {{classname}}: Codable {
 
 {{#allVars}}{{#is this 'enum'}}{{> modelInlineEnumDeclaration}}{{/is}}{{/allVars}}{{#allVars}}{{#is this 'enum'}}    {{#description}}/** {{description}} */
-    {{/description}}public var {{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{/is}}
+    {{/description}}
+
+    public var {{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{/is}}
 {{#isNot this 'enum'}}    {{#description}}/** {{description}} */
     {{/description}}public var {{name}}: {{{datatype}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{#objcCompatible}}{{#vendorExtensions.x-swift-optional-scalar}}
     public var {{name}}Num: NSNumber? {
