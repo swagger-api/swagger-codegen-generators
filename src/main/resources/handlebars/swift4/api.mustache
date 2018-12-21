@@ -38,7 +38,7 @@ final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}
         return request(.{{httpMethod}}, baseUrl.joinPath("{{{path}}}"),
             parameters: {{#hasQueryParams}}[{{#contents}}{{#parameters}}
                 {{#isNot this 'header'}}{{> _param}}{{/isNot}}{{/parameters}}{{/contents}}
-            ].compactMapValues{ $0 }{{/hasQueryParams}}{{^hasQueryParams}}{{#bodyParams}}{{paramName}}.dictionary{{/bodyParams}}{{^bodyParams}}nil{{/bodyParams}}{{/hasQueryParams}},
+            ]{{/hasQueryParams}}{{^hasQueryParams}}{{#bodyParams}}{{paramName}}.dictionary{{/bodyParams}}{{^bodyParams}}nil{{/bodyParams}}{{/hasQueryParams}},
             headers: {{#hasHeaderParams}}[{{#headerParams}}
             {{> _param}}{{#hasMore}},{{/hasMore}}{{/headerParams}}
             ].compactMapValues{ $0 }{{/hasHeaderParams}}{{^hasHeaderParams}}nil{{/hasHeaderParams}})
