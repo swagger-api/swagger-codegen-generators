@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 {{/jdk8}}
 import java.util.List;
+import java.util.Map;
 {{#jdk8}}
 import java.util.Optional;
 {{/jdk8}}
@@ -62,8 +63,8 @@ public interface {{classname}}Delegate {
     /**
      * @see {{classname}}#{{operationId}}
      */
-    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{#isNot this 'file'}} {{>optionalDataType}} {{/isNot}}{{#is this 'file'}}MultipartFile{{/is}} {{paramName}}{{#has this 'more'}},
-        {{/has}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
+    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isFile}} {{>optionalDataType}} {{/isFile}}{{#isFile}}MultipartFile{{/isFile}} {{paramName}}{{#hasMore}},
+        {{/hasMore}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
         {{#examples}}
             if (getAcceptHeader().get().contains("{{{contentType}}}")) {
