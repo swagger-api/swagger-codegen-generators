@@ -4,6 +4,7 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
@@ -505,6 +507,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
                 if(implicitHeaders){
                     removeHeadersFromAllParams(operation.allParams);
+                    removeHeadersFromContents(operation.contents);
                 }
             }
         }
@@ -565,6 +568,25 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             }
         }
         allParams.get(allParams.size()-1).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.FALSE);
+    }
+
+    private void removeHeadersFromContents(List<CodegenContent> contents) {
+        if(contents == null || contents.isEmpty()){
+            return;
+        }
+        for(int index = 0; index < contents.size(); index++) {
+            final CodegenContent codegenContent = contents.get(index);
+            final List<CodegenParameter> parameters = codegenContent.getParameters();
+            if (parameters == null || parameters.isEmpty()) {
+                continue;
+            }
+            final List<CodegenParameter> filteredParameters = parameters.stream()
+                    .filter(codegenParameter -> !getBooleanValue(codegenParameter, CodegenConstants.IS_HEADER_PARAM_EXT_NAME))
+                    .collect(Collectors.toList());
+            parameters.clear();
+            parameters.addAll(filteredParameters);
+            parameters.get(parameters.size()-1).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.FALSE);
+        }
     }
 
     @Override
@@ -628,11 +650,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public String toBooleanGetter(String name) {
         return getterAndSetterCapitalize(name);
-    }
-
-    @Override
-    public TemplateEngine getTemplateEngine() {
-        return new MustacheTemplateEngine(this);
     }
 
     public void setTitle(String title) {
@@ -732,11 +749,5 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
-    }
-
-    // todo: remove this once handlebar templates for this generator are implemented
-    @Override
-    protected void setTemplateEngine() {
-        templateEngine = new MustacheTemplateEngine(this);
     }
 }
