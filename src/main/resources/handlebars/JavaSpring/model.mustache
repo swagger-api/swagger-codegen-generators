@@ -23,11 +23,11 @@ import javax.xml.bind.annotation.*;
 
 {{#models}}
 {{#model}}
-{{#is this 'enum'}}
+{{#isEnum}}
 {{>enumOuterClass}}
-{{/is}}
-{{#isNot this 'enum'}}
+{{/isEnum}}
+{{^isEnum}}
 {{>pojo}}
-{{/isNot}}
+{{/isEnum}}
 {{/model}}
 {{/models}}
