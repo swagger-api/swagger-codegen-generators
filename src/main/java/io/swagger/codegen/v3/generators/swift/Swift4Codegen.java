@@ -5,6 +5,7 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -151,15 +152,17 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
     public void processOpts() {
         super.processOpts();
 
-        supportingFiles.add(new SupportingFile("CodableHelper.mustache",
-                sourceFolder,
-                "CodableHelper.swift"));
-        supportingFiles.add(new SupportingFile("JSONEncodableEncoding.mustache",
-                sourceFolder,
-                "JSONEncodableEncoding.swift"));
-        supportingFiles.add(new SupportingFile("JSONEncodingHelper.mustache",
-                sourceFolder,
-                "JSONEncodingHelper.swift"));
+        if (!additionalProperties.containsKey("useReactiveAPI")) {
+            supportingFiles.add(new SupportingFile("CodableHelper.mustache",
+                    sourceFolder,
+                    "CodableHelper.swift"));
+            supportingFiles.add(new SupportingFile("JSONEncodableEncoding.mustache",
+                    sourceFolder,
+                    "JSONEncodableEncoding.swift"));
+            supportingFiles.add(new SupportingFile("JSONEncodingHelper.mustache",
+                    sourceFolder,
+                    "JSONEncodingHelper.swift"));
+        }
     }
 
     @Override
