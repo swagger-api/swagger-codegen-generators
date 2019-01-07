@@ -5,17 +5,14 @@
 // https://github.com/swagger-api/swagger-codegen
 //
 
-import Foundation
-import Alamofire{{#usePromiseKit}}
+import Foundation{{#usePromiseKit}}
 import PromiseKit{{/usePromiseKit}}{{#useRxSwift}}
 import RxSwift{{/useRxSwift}}{{#useReactiveAPI}}
 import RxSwift{{/useReactiveAPI}}
 
-
 {{#swiftUseApiNamespace}}
 extension {{projectName}}API {
 {{/swiftUseApiNamespace}}
-
 {{#description}}
 /** {{description}} */{{/description~}}
 final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
@@ -33,15 +30,12 @@ final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}
      - parameter completion: completion handler to receive the data and the error objects
      */
     {{#if useReactiveAPI}}
-    func {{operationId}}({{#contents}}{{#parameters}}
-            {{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/parameters}}{{/contents}}) -> Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
-        return request(.{{httpMethod}}, baseUrl.joinPath("{{{path}}}"),
-            parameters: {{#hasQueryParams}}[{{#contents}}{{#parameters}}
-                {{#isNot this 'header'}}{{> _param}}{{/isNot}}{{/parameters}}{{/contents}}
-            ]{{/hasQueryParams}}{{^hasQueryParams}}{{#bodyParams}}{{paramName}}.dictionary{{/bodyParams}}{{^bodyParams}}nil{{/bodyParams}}{{/hasQueryParams}},
-            headers: {{#hasHeaderParams}}[{{#headerParams}}
-            {{> _param}}{{#hasMore}},{{/hasMore}}{{/headerParams}}
-            ].compactMapValues{ $0 }{{/hasHeaderParams}}{{^hasHeaderParams}}nil{{/hasHeaderParams}})
+    func {{operationId}}({{#contents}}{{#parameters}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/parameters}}{{/contents}}) -> Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+        return request(.{{httpMethod}}, url: absoluteURL("{{{path}}}"){{#hasHeaderParams}},
+            headers: [{{#headerParams}}{{> _param}}{{/headerParams}}]{{/hasHeaderParams}}{{#hasQueryParams}},
+            queryParams: [{{#queryParams}}{{> _param}}{{/queryParams}}]{{/hasQueryParams}}{{#bodyParams}},
+            bodyParams: {{paramName}}.dictionary{{/bodyParams}}
+          )
         }
     {{else}}
         open class func {{operationId}}({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}{{#has this 'params'}}, {{/has}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
