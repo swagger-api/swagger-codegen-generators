@@ -3154,6 +3154,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             word = word.substring(0, 1).toLowerCase() + word.substring(1);
         }
 
+        // fix removing underscores. Names beginning with a number should have an underscore as first character
+        if (Character.isDigit(word.charAt(0))) {
+            word = "_" + word;
+        }
+
         return word;
     }
 
