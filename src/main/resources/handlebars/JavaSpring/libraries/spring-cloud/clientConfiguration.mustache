@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 public class ClientConfiguration {
 
 {{#authMethods}}
-    {{#is this 'basic'}}
+    {{#isBasic}}
   {{=<% %>=}}@Value("${<%title%>.security.<%name%>.username:}")<%={{ }}=%>
   private String {{{name}}}Username;
 
@@ -36,26 +36,26 @@ public class ClientConfiguration {
     return new BasicAuthRequestInterceptor(this.{{{name}}}Username, this.{{{name}}}Password);
   }
 
-    {{/is}}
-    {{#is this 'api-key'}}
+    {{/isBasic}}
+    {{#isApiKey}}
   {{=<% %>=}}@Value("${<%title%>.security.<%name%>.key:}")<%={{ }}=%>
   private String {{{name}}}Key;
 
   @Bean
   @ConditionalOnProperty(name = "{{{title}}}.security.{{{name}}}.key")
   public ApiKeyRequestInterceptor {{{name}}}RequestInterceptor() {
-    return new ApiKeyRequestInterceptor({{#is this 'key-in-header'}}"header"{{/is}}{{#isNot this 'key-in-header'}}"query"{{/isNot}}, "{{{keyParamName}}}", this.{{{name}}}Key);
+    return new ApiKeyRequestInterceptor({{#isKeyInHeader}}"header"{{/isKeyInHeader}}{{^isKeyInHeader}}"query"{{/isKeyInHeader}}, "{{{keyParamName}}}", this.{{{name}}}Key);
   }
 
-    {{/is}}
-    {{#is this 'oauth'}}
+    {{/isApiKey}}
+    {{#isOAuth}}
   @Bean
   @ConditionalOnProperty("{{{title}}}.security.{{{name}}}.client-id")
   public OAuth2FeignRequestInterceptor {{{name}}}RequestInterceptor() {
     return new OAuth2FeignRequestInterceptor(new DefaultOAuth2ClientContext(), {{{name}}}ResourceDetails());
   }
 
-        {{#is this 'code'}}
+        {{#isCode}}
   @Bean
   @ConditionalOnProperty("{{{title}}}.security.{{{name}}}.client-id")
   @ConfigurationProperties("{{{title}}}.security.{{{name}}}")
@@ -66,8 +66,8 @@ public class ClientConfiguration {
     return details;
   }
 
-        {{/is}}
-        {{#is this 'password'}}
+        {{/isCode}}
+        {{#isPassword}}
   @Bean
   @ConditionalOnProperty("{{{title}}}.security.{{{name}}}.client-id")
   @ConfigurationProperties("{{{title}}}.security.{{{name}}}")
@@ -77,8 +77,8 @@ public class ClientConfiguration {
     return details;
   }
 
-        {{/is}}
-        {{#is this 'application'}}
+        {{/isPassword}}
+        {{#isApplication}}
   @Bean
   @ConditionalOnProperty("{{{title}}}.security.{{{name}}}.client-id")
   @ConfigurationProperties("{{{title}}}.security.{{{name}}}")
@@ -88,8 +88,8 @@ public class ClientConfiguration {
     return details;
   }
 
-        {{/is}}
-        {{#is this 'implicit'}}
+        {{/isApplication}}
+        {{#isImplicit}}
   @Bean
   @ConditionalOnProperty("{{{title}}}.security.{{{name}}}.client-id")
   @ConfigurationProperties("{{{title}}}.security.{{{name}}}")
@@ -99,7 +99,7 @@ public class ClientConfiguration {
     return details;
   }
 
-        {{/is}}
-    {{/is}}
+        {{/isImplicit}}
+    {{/isOAuth}}
 {{/authMethods}}
 }

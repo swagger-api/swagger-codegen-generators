@@ -1,1 +1,1 @@
-{{#is this 'header-param'}}@ApiImplicitParam(name = "{{{paramName}}}", value = "{{{description}}}", {{#required}}required=true,{{/required}} dataType = "{{{dataType}}}", paramType = "header"){{#has this 'more'}},{{/has}}{{/is}}
+{{#isHeaderParam}}@ApiImplicitParam(name = "{{{paramName}}}", value = "{{{description}}}", {{#required}}required=true,{{/required}} dataType = "{{{dataType}}}", paramType = "header"){{#hasMore}},{{/hasMore}}{{/isHeaderParam}}
