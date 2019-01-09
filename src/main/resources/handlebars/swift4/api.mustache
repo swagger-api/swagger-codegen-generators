@@ -9,6 +9,7 @@ import Foundation{{#usePromiseKit}}{{^useReactiveAPI}}
 import Alamofire {{/useReactiveAPI}}
 import PromiseKit{{/usePromiseKit}}{{#useRxSwift}}
 import RxSwift{{/useRxSwift}}{{#useReactiveAPI}}
+import CoreNetwork
 import RxSwift{{/useReactiveAPI}}
 
 {{#swiftUseApiNamespace}}
@@ -24,6 +25,7 @@ final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}
         case {{name}} = {{#is ../../this 'container'}}"{{/is}}{{#is ../../this 'string'}}"{{/is}}{{{value}}}{{#is ../../this 'string'}}"{{/is}}{{#is ../../this 'container'}}"{{/is}}{{/enumVars}}{{/allowableValues}}
     }
 {{/is~}}{{/allParams}}
+    
     /**
      {{#summary}}{{{summary}}}
      {{/summary}}{{#allParams}}
