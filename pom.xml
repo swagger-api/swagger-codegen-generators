@@ -4,15 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>5</version>
+        <groupId>io.swagger.codegen.v3</groupId>
+        <artifactId>swagger-codegen-project</artifactId>
+        <version>3.0.3-MB</version>
+        <relativePath>../..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
+<<<<<<< HEAD
     <version>1.0.4-SNAPSHOT</version>
+=======
+>>>>>>> v1.0.3_typescript_angular_fix
     <packaging>jar</packaging>
 
     <build>
