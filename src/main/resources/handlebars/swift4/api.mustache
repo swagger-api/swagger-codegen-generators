@@ -23,9 +23,7 @@ extension {{projectName}}API {
      */
     public enum {{enumName}}_{{operationId}}: {{#isNot this 'container'}}{{{dataType}}}{{/isNot}}{{#is this 'container'}}String{{/is}} { {{#allowableValues}}{{#enumVars}}
         case {{name}} = {{#is ../../this 'container'}}"{{/is}}{{#is ../../this 'string'}}"{{/is}}{{{value}}}{{#is ../../this 'string'}}"{{/is}}{{#is ../../this 'container'}}"{{/is}}{{/enumVars}}{{/allowableValues}}
-    }
-{{/is~}}{{/allParams}}
-    
+    }{{/is~}}{{/allParams}}
     /**
      {{#summary}}{{{summary}}}
      {{/summary}}{{#allParams}}
@@ -37,11 +35,9 @@ extension {{projectName}}API {
         return request(.{{httpMethod}}, url: absoluteURL("{{{path}}}"){{#hasHeaderParams}},
             headers: [{{#headerParams}}{{> _param}}{{/headerParams}}]{{/hasHeaderParams}}{{#hasQueryParams}},
             queryParams: [{{#queryParams}}{{> _param}}{{/queryParams}}]{{/hasQueryParams}}{{#bodyParams}},
-            body: {{paramName}}{{/bodyParams}}
-          )
-        }
-    {{else}}
-        open class func {{operationId}}({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}{{#has this 'params'}}, {{/has}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
+            body: {{paramName}}{{/bodyParams}})
+    }
+    {{else}}open class func {{operationId}}({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}{{#has this 'params'}}, {{/has}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
         {{operationId}}WithRequestBuilder({{#allParams}}{{paramName}}: {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}).execute { (response, error) -> Void in{{#returnType}}
             completion(response?.body, error){{/returnType~}}{{^returnType}}
             if error == nil {
