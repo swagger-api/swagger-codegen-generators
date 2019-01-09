@@ -5,7 +5,8 @@
 // https://github.com/swagger-api/swagger-codegen
 //
 
-import Foundation{{#usePromiseKit}}
+import Foundation{{#usePromiseKit}}{{^useReactiveAPI}}
+import Alamofire {{/useReactiveAPI}}
 import PromiseKit{{/usePromiseKit}}{{#useRxSwift}}
 import RxSwift{{/useRxSwift}}{{#useReactiveAPI}}
 import RxSwift{{/useReactiveAPI}}
@@ -34,7 +35,7 @@ final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}
         return request(.{{httpMethod}}, url: absoluteURL("{{{path}}}"){{#hasHeaderParams}},
             headers: [{{#headerParams}}{{> _param}}{{/headerParams}}]{{/hasHeaderParams}}{{#hasQueryParams}},
             queryParams: [{{#queryParams}}{{> _param}}{{/queryParams}}]{{/hasQueryParams}}{{#bodyParams}},
-            bodyParams: {{paramName}}.dictionary{{/bodyParams}}
+            body: {{paramName}}{{/bodyParams}}
           )
         }
     {{else}}
