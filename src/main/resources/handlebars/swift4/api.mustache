@@ -17,7 +17,7 @@ extension {{projectName}}API {
 {{/swiftUseApiNamespace}}
 {{#description}}
 /** {{description}} */{{/description~}}
-final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
+{{#if useReactiveAPI}}open{{else}}final{{/if}} class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
     /**
      * enum for parameter {{paramName}}
      */
@@ -33,7 +33,7 @@ final class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}
      - parameter completion: completion handler to receive the data and the error objects
      */
     {{#if useReactiveAPI}}
-    func {{operationId}}({{#contents}}{{#parameters}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/parameters}}{{/contents}}) -> Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+    public func {{operationId}}({{#contents}}{{#parameters}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/parameters}}{{/contents}}) -> Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
         return request(.{{httpMethod}}, url: absoluteURL("{{{path}}}"){{#hasHeaderParams}},
             headers: [{{#headerParams}}{{> _param}}{{/headerParams}}]{{/hasHeaderParams}}{{#hasQueryParams}},
             queryParams: [{{#queryParams}}{{> _param}}{{/queryParams}}]{{/hasQueryParams}}{{#bodyParams}},
