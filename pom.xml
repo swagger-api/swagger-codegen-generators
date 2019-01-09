@@ -12,10 +12,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>swagger-codegen-generators</artifactId>
-<<<<<<< HEAD
-    <version>1.0.4-SNAPSHOT</version>
-=======
->>>>>>> v1.0.3_typescript_angular_fix
     <packaging>jar</packaging>
 
     <build>
