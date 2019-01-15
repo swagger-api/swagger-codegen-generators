@@ -385,7 +385,16 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         if (name.length() == 0) {
             return "DefaultAPI";
         }
-        return initialCaps(name) + "API";
+
+        if (!StringUtils.isEmpty(modelNameSuffix)) { // set api suffix
+            name = name + "_" + modelNameSuffix;
+        }
+
+        if (!StringUtils.isEmpty(modelNamePrefix)) { // set api prefix
+            name = modelNamePrefix + "_" + name;
+        }
+
+        return camelize(name) + "API";
     }
 
     @Override
