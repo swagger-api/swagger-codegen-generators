@@ -1,12 +1,20 @@
+{{>licenseInfo}}
 package {{apiPackage}}
-
-import io.reactivex.*
-import it.sky.msa.sdk.codegenSupport.*
-import retrofit2.http.*
 
 {{#imports}}import {{import}}
 {{/imports}}
 
+import {{packageName}}.infrastructure.*
+{{#threetenbp}}
+import org.threeten.bp.LocalDateTime
+{{/threetenbp}}
+{{#useRxRetrofit2}}
+import io.reactivex.*
+import it.sky.msa.sdk.codegenSupport.*
+import retrofit2.http.*
+{{/useRxRetrofit2}}
+
+{{#if useRxRetrofit2}}
 {{#operations}}
 interface {{classname}} {
 
@@ -26,7 +34,7 @@ interface {{classname}} {
     @{{httpMethod}}("{{{path}}}")
     fun {{operationId}}(
     {{#contents}}{{#parameters}}
-    {{#isQueryParam}}{{>libraries/retrofit2/queryParams~}}{{/isQueryParam~}}{{#isPathParam}}{{>libraries/retrofit2/pathParams~}}{{/isPathParam~}}{{#isHeaderParam}}{{>libraries/retrofit2/headerParams~}}{{/isHeaderParam~}}{{#isBodyParam}}{{>libraries/retrofit2/bodyParams~}}{{/isBodyParam~}}{{#isFormParam}}{{>libraries/retrofit2/formParams~}}{{/isFormParam~}}{{#hasMore}},{{/hasMore}}
+    {{#isQueryParam}}{{>libraries/rxretrofit2/queryParams~}}{{/isQueryParam~}}{{#isPathParam}}{{>libraries/rxretrofit2/pathParams~}}{{/isPathParam~}}{{#isHeaderParam}}{{>libraries/rxretrofit2/headerParams~}}{{/isHeaderParam~}}{{#isBodyParam}}{{>libraries/rxretrofit2/bodyParams~}}{{/isBodyParam~}}{{#isFormParam}}{{>libraries/rxretrofit2/formParams~}}{{/isFormParam~}}{{#hasMore}},{{/hasMore}}
     {{/parameters}}{{/contents}}
         ) : {{#returnType}}Single<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{{returnType}}}{{/isResponseFile}}>{{/returnType}}{{^returnType}}Completable{{/returnType}}
 
@@ -34,3 +42,44 @@ interface {{classname}} {
 {{/operation}}
 }
 {{/operations}}
+{{else}}
+{{#operations}}
+class {{classname}}(basePath: kotlin.String = "{{{basePath}}}") : ApiClient(basePath) {
+
+    {{#operation}}
+    /**
+    * {{summary}}
+    * {{notes}}
+    {{#allParams}}* @param {{paramName}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+    {{/allParams}}* @return {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}
+    */{{#returnType}}
+    @Suppress("UNCHECKED_CAST"){{/returnType}}
+    fun {{operationId}}({{#allParams}}{{paramName}}: {{{dataType}}}{{#has this 'more'}}, {{/has}}{{/allParams}}) : {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Unit{{/returnType}} {
+        val localVariableBody: kotlin.Any? = {{#hasBodyParam}}{{#bodyParams}}{{paramName}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}null{{/hasFormParams}}{{#hasFormParams}}mapOf({{#formParams}}"{{{baseName}}}" to "${{paramName}}"{{#has this 'more'}}, {{/has}}{{/formParams}}){{/hasFormParams}}{{/hasBodyParam}}
+        val localVariableQuery: MultiValueMap = {{^hasQueryParams}}mapOf(){{/hasQueryParams}}{{#hasQueryParams}}mapOf({{#queryParams}}"{{baseName}}" to {{#is this 'container'}}toMultiValue({{paramName}}.toList(), "{{collectionFormat}}"){{/is}}{{#isNot this 'container'}}listOf("${{paramName}}"){{/isNot}}{{#has this 'more'}}, {{/has}}{{/queryParams}}){{/hasQueryParams}}
+        val localVariableHeaders: kotlin.collections.Map<kotlin.String,kotlin.String> = mapOf({{#hasFormParams}}"Content-Type" to "multipart/form-data"{{/hasFormParams}}{{^hasHeaderParams}}){{/hasHeaderParams}}{{#hasHeaderParams}}{{#hasFormParams}}, {{/hasFormParams}}{{#headerParams}}"{{baseName}}" to {{#is this 'container'}}{{paramName}}.joinToString(separator = collectionDelimiter("{{collectionFormat}}"){{/is}}{{#isNot this 'container'}}{{paramName}}{{/isNot}}{{#has this 'more'}}, {{/has}}{{/headerParams}}){{/hasHeaderParams}}
+        val localVariableConfig = RequestConfig(
+            RequestMethod.{{httpMethod}},
+            "{{path}}"{{#pathParams}}.replace("{"+"{{baseName}}"+"}", "${{paramName}}"){{/pathParams}},
+            query = localVariableQuery,
+            headers = localVariableHeaders
+        )
+        val response = request<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Any?{{/returnType}}>(
+            localVariableConfig,
+            localVariableBody
+        )
+
+        return when (response.responseType) {
+            ResponseType.Success -> {{#returnType}}(response as Success<*>).data as {{{returnType}}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
+            ResponseType.Informational -> TODO()
+            ResponseType.Redirection -> TODO()
+            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
+            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            else -> throw kotlin.IllegalStateException("Undefined ResponseType.")
+        }
+    }
+
+    {{/operation}}
+}
+{{/operations}}
+{{/if}}
