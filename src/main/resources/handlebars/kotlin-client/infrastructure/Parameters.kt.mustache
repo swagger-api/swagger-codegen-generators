@@ -1,0 +1,18 @@
+package {{packageName}}.infrastructure
+
+
+class CSVParams(private val params: List<String>) {
+    override fun toString() = params.joinToString(",")
+}
+
+class SSVParams(private val params: List<String>) {
+    override fun toString() = params.joinToString(" ")
+}
+
+class TSVParams(private val params: List<String>) {
+    override fun toString() = params.joinToString("\t")
+}
+
+class PIPESParams(private val params: List<String>) {
+    override fun toString() = params.joinToString("|")
+}
