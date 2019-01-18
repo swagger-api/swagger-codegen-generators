@@ -124,10 +124,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         supportingFiles.add(new SupportingFile("build.gradle.mustache", "", "build.gradle"));
         supportingFiles.add(new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
 
-        final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", "/");
+        final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
 
         if (useRxRetrofit2) {
-            supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", infrastructureFolder, "Parameters.kt"));
+            final String apiInfrastructureFolder = (sourceFolder + File.separator + apiPackage + File.separator + "infrastructure").replace(".", File.separator);
+            supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", apiInfrastructureFolder, "Parameters.kt"));
         } else {
             supportingFiles.add(new SupportingFile("infrastructure/ApiClient.kt.mustache", infrastructureFolder, "ApiClient.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/ApiAbstractions.kt.mustache", infrastructureFolder, "ApiAbstractions.kt"));
@@ -138,9 +139,19 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
             supportingFiles.add(new SupportingFile("infrastructure/ResponseExtensions.kt.mustache", infrastructureFolder, "ResponseExtensions.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/Serializer.kt.mustache", infrastructureFolder, "Serializer.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/Errors.kt.mustache", infrastructureFolder, "Errors.kt"));
-
         }
 
+    }
+
+    @Override
+    public String transformPath(String path) {
+        // Retrofit needs path to not start with / to be able to use relative paths
+        if (useRxRetrofit2 && path.startsWith("/")) {
+            return path.substring(1);
+        }
+
+
+        return super.transformPath(path);
     }
 
 }
