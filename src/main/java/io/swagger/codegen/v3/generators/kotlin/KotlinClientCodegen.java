@@ -115,12 +115,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         }
 
         if (additionalProperties.containsKey(USE_RX_RETROFIT_2)) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!" );
-            System.out.println("FOUND useRxRetrofit2" );
-            System.out.println("Value: " + additionalProperties.get(USE_RX_RETROFIT_2).toString());
-            System.out.println("Converted Value: " + convertPropertyToBoolean(USE_RX_RETROFIT_2));
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!" );
-
             setUseRxRetrofit2(convertPropertyToBoolean(USE_RX_RETROFIT_2));
         }
         additionalProperties.put(USE_RX_RETROFIT_2, useRxRetrofit2);
