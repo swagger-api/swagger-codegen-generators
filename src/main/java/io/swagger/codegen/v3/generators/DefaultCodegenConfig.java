@@ -602,7 +602,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return inputURL;
     }
 
-    public void setInputURL(String inputSpec) {
+    public void setInputURL(String inputURL) {
         this.inputURL = inputURL;
     }
 

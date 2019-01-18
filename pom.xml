@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <build>
@@ -165,7 +165,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-parser-version>2.0.7</swagger-parser-version>
+        <swagger-parser-version>2.0.9-SNAPSHOT</swagger-parser-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
         <swagger-core-version>2.0.6</swagger-core-version>
@@ -181,7 +181,7 @@
         <surefire-version>2.19.1</surefire-version>
         <jmockit-version>1.42</jmockit-version>
         <reflections-version>0.9.10</reflections-version>
-        <swagger-codegen-version>3.0.4-SNAPSHOT</swagger-codegen-version>
+        <swagger-codegen-version>3.0.5-SNAPSHOT</swagger-codegen-version>
     </properties>
 
 </project>
