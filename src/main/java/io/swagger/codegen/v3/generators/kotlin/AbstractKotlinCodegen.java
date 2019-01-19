@@ -440,7 +440,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 break;
         }
 
-        if (reservedWords.contains(modified)) {
+        if (reservedWords.contains(modified) || Character.isDigit(modified.charAt(0))) {
             return escapeReservedWord(modified);
         }
 
