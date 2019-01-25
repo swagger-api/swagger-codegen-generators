@@ -66,7 +66,7 @@ Please follow the [installation procedure](#installation--usage) and then run th
 ```php
 <?php
 require_once(__DIR__ . '/vendor/autoload.php');
-{{#apiInfo}}{{#apis}}{{#-first}}{{#operations}}{{#operation}}{{#-first}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
+{{#apiInfo}}{{#apis}}{{#-first}}{{#operations}}{{#operation}}{{#contents}}{{#-first}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
 // Configure HTTP basic authorization: {{{name}}}
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()
     ->setUsername('YOUR_USERNAME')
@@ -85,16 +85,16 @@ $apiInstance = new {{invokerPackage}}\Api\{{classname}}(
     new GuzzleHttp\Client(){{#hasAuthMethods}},
     $config{{/hasAuthMethods}}
 );
-{{#allParams}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{description}}}
-{{/allParams}}
+{{#parameters}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{description}}}
+{{/parameters}}
 
 try {
-    {{#returnType}}$result = {{/returnType}}$apiInstance->{{{operationId}}}({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+    {{#returnType}}$result = {{/returnType}}$apiInstance->{{{operationId}}}({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
     print_r($result);{{/returnType}}
 } catch (Exception $e) {
     echo 'Exception when calling {{classname}}->{{operationId}}: ', $e->getMessage(), PHP_EOL;
 }
-{{/-first}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
+{{/-first}}{{/contents}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
 ?>
 ```
 
