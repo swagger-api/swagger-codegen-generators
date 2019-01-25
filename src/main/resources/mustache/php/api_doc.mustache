@@ -10,8 +10,9 @@ Method | HTTP request | Description
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
 # **{{{operationId}}}**
-> {{#returnType}}{{{returnType}}} {{/returnType}}{{{operationId}}}({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+> {{#returnType}}{{{returnType}}} {{/returnType}}{{{operationId}}}({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
 
 {{{summary}}}{{#notes}}
 
@@ -41,11 +42,11 @@ $apiInstance = new {{invokerPackage}}\Api\{{classname}}(
     new GuzzleHttp\Client(){{#hasAuthMethods}},
     $config{{/hasAuthMethods}}
 );
-{{#allParams}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{description}}}
-{{/allParams}}
+{{#parameters}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{description}}}
+{{/parameters}}
 
 try {
-    {{#returnType}}$result = {{/returnType}}$apiInstance->{{{operationId}}}({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+    {{#returnType}}$result = {{/returnType}}$apiInstance->{{{operationId}}}({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
     print_r($result);{{/returnType}}
 } catch (Exception $e) {
     echo 'Exception when calling {{classname}}->{{operationId}}: ', $e->getMessage(), PHP_EOL;
@@ -54,11 +55,11 @@ try {
 ```
 
 ### Parameters
-{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#-last}}
+{{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#-last}}
 Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------{{/-last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
-{{/allParams}}
+------------- | ------------- | ------------- | -------------{{/-last}}{{/parameters}}
+{{#parameters}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**](../Model/{{baseType}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}
+{{/parameters}}
 
 ### Return type
 
@@ -75,5 +76,6 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)
 
+{{/contents}}
 {{/operation}}
 {{/operations}}
