@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
@@ -2008,7 +2009,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
 
                 if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType)) {
-                    final CodegenContent codegenContent = new CodegenContent();
+                    final CodegenContent codegenContent = new CodegenContent(contentType);
                     codegenContent.getVendorExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
 
                     final Map<String, Schema> propertyMap = schema.getProperties();
@@ -2048,7 +2049,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    final CodegenContent codegenContent = new CodegenContent();
+                    final CodegenContent codegenContent = new CodegenContent(contentType);
                     codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
@@ -2474,6 +2475,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenParameter.description = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+
+        codegenParameter.jsonSchema = Json.pretty(body);
 
         if (schema == null) {
             schema = getSchemaFromBody(body);
