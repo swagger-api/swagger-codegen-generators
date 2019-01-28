@@ -3760,7 +3760,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String getTemplateDir() {
         return new StringBuilder()
                 .append(templateEngine.getName())
-                .append("/")
+                .append(File.separator)
                 .append(getDefaultTemplateDir())
                 .toString();
     }
