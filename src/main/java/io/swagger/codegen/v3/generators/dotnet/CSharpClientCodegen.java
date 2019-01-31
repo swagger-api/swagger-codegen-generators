@@ -513,47 +513,49 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     @Override
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
         CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
-        if (allDefinitions != null && codegenModel != null && codegenModel.parent != null) {
-            final Schema parentModel = allDefinitions.get(toModelName(codegenModel.parent));
-            if (parentModel != null) {
-                final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel);
-                boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
-                if (hasEnums) {
-                    codegenModel = this.reconcileInlineEnums(codegenModel, parentCodegenModel);
-                }
 
-                Map<String, CodegenProperty> propertyHash = new HashMap<>(codegenModel.vars.size());
-                for (final CodegenProperty property : codegenModel.vars) {
-                    propertyHash.put(property.name, property);
-                }
+        if (allDefinitions != null && codegenModel.parentSchema != null) {
+            final Schema parentModel = allDefinitions.get(codegenModel.parentSchema);
+            final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allDefinitions);
+            boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
+            if (hasEnums) {
+              codegenModel = this.reconcileInlineEnums(codegenModel, parentCodegenModel);
+            }
 
+            Map<String, CodegenProperty> propertyHash = new HashMap<>(codegenModel.vars.size());
+            for (final CodegenProperty property : codegenModel.vars) {
+                propertyHash.put(property.name, property);
+            }
+
+            if (parentCodegenModel.discriminator != null) {
                 for (final CodegenProperty property : codegenModel.readWriteVars) {
-                    if (property.defaultValue == null && property.baseName.equals(parentCodegenModel.discriminator)) {
+                    if (property.defaultValue == null && property.baseName.equals(parentCodegenModel.discriminator.getPropertyName())) {
                         property.defaultValue = "\"" + name + "\"";
                     }
                 }
+            }
 
-                CodegenProperty last = null;
-                for (final CodegenProperty property : parentCodegenModel.vars) {
-                    // helper list of parentVars simplifies templating
-                    if (!propertyHash.containsKey(property.name)) {
-                        final CodegenProperty parentVar = property.clone();
-                        parentVar.getVendorExtensions().put(CodegenConstants.IS_INHERITED_EXT_NAME, Boolean.TRUE);
-                        parentVar.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
-                        last = parentVar;
-                        LOGGER.info("adding parent variable {}", property.name);
-                        codegenModel.parentVars.add(parentVar);
-                    }
-                }
-
-                if (last != null) {
-                    last.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.FALSE);
+            CodegenProperty last = null;
+            for (final CodegenProperty property : parentCodegenModel.vars) {
+                // helper list of parentVars simplifies templating
+                if (!propertyHash.containsKey(property.name)) {
+                    final CodegenProperty parentVar = property.clone();
+                    parentVar.getVendorExtensions().put(CodegenConstants.IS_INHERITED_EXT_NAME, Boolean.TRUE);
+                    parentVar.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
+                    last = parentVar;
+                    LOGGER.info("adding parent variable {}", property.name);
+                    codegenModel.parentVars.add(parentVar);
                 }
             }
+
+            if (last != null) {
+                last.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.FALSE);
+            }
+
         }
 
         // Cleanup possible duplicates. Currently, readWriteVars can contain the same property twice. May or may not be isolated to C#.
-        if (codegenModel != null && codegenModel.readWriteVars != null && codegenModel.readWriteVars.size() > 1) {
+        if (codegenModel.readWriteVars != null && codegenModel.readWriteVars.size() > 1) {
             int length = codegenModel.readWriteVars.size() - 1;
             for (int i = length; i > (length / 2); i--) {
                 final CodegenProperty codegenProperty = codegenModel.readWriteVars.get(i);
