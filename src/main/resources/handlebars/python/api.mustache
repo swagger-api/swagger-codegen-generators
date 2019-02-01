@@ -25,8 +25,9 @@ class {{classname}}(object):
             api_client = ApiClient()
         self.api_client = api_client
 {{#operation}}
+{{#contents}}
 
-    def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
+    def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
         """{{#summary}}{{{.}}}{{/summary}}{{^summary}}{{operationId}}{{/summary}}  # noqa: E501
 
 {{#notes}}
@@ -35,29 +36,29 @@ class {{classname}}(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 {{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}async_req=True)
+        >>> thread = api.{{operationId}}({{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}async_req=True)
 {{/sortParamsByRequiredFlag}}
 {{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}async_req=True)
+        >>> thread = api.{{operationId}}({{#parameters}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/parameters}}async_req=True)
 {{/sortParamsByRequiredFlag}}
         >>> result = thread.get()
 
         :param async_req bool
-{{#allParams}}
+{{#parameters}}
         :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional){{/optional}}
-{{/allParams}}
+{{/parameters}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs)  # noqa: E501
+            return self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}{{/sortParamsByRequiredFlag}}**kwargs)  # noqa: E501
         else:
-            (data) = self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs)  # noqa: E501
+            (data) = self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}{{/sortParamsByRequiredFlag}}**kwargs)  # noqa: E501
             return data
 
-    def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
+    def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
         """{{#summary}}{{{.}}}{{/summary}}{{^summary}}{{operationId}}{{/summary}}  # noqa: E501
 
 {{#notes}}
@@ -66,23 +67,23 @@ class {{classname}}(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 {{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}async_req=True)
+        >>> thread = api.{{operationId}}_with_http_info({{#parameters}}{{#required}}{{paramName}}, {{/required}}{{/parameters}}async_req=True)
 {{/sortParamsByRequiredFlag}}
 {{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}async_req=True)
+        >>> thread = api.{{operationId}}_with_http_info({{#parameters}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/parameters}}async_req=True)
 {{/sortParamsByRequiredFlag}}
         >>> result = thread.get()
 
         :param async_req bool
-{{#allParams}}
+{{#parameters}}
         :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
-{{/allParams}}
+{{/parameters}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = [{{#allParams}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/allParams}}]  # noqa: E501
+        all_params = [{{#parameters}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/parameters}}]  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -97,16 +98,16 @@ class {{classname}}(object):
                 )
             params[key] = val
         del params['kwargs']
-{{#allParams}}
+{{#parameters}}
 {{#required}}
         # verify the required parameter '{{paramName}}' is set
         if ('{{paramName}}' not in params or
                 params['{{paramName}}'] is None):
             raise ValueError("Missing the required parameter `{{paramName}}` when calling `{{operationId}}`")  # noqa: E501
 {{/required}}
-{{/allParams}}
+{{/parameters}}
 
-{{#allParams}}
+{{#parameters}}
 {{#hasValidation}}
     {{#maxLength}}
         if ('{{paramName}}' in params and
@@ -143,7 +144,7 @@ class {{classname}}(object):
 {{/hasValidation}}
 {{#@last}}
 {{/@last}}
-{{/allParams}}
+{{/parameters}}
         collection_formats = {}
 
         path_params = {}
@@ -210,5 +211,6 @@ class {{classname}}(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+{{/contents}}
 {{/operation}}
 {{/operations}}

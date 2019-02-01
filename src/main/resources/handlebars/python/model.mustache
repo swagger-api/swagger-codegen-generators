@@ -24,8 +24,8 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
     allowed enum values
     """
 {{#enumVars}}
-    {{name}} = {{{value}}}{{^-last}}
-{{/-last}}
+    {{name}} = {{{value}}}{{^@last}}
+{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 
     """
@@ -49,8 +49,8 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
 {{#discriminator}}
 
     discriminator_value_class_map = {
-        {{#children}}'{{^vendorExtensions.x-discriminator-value}}{{name}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{vendorExtensions.x-discriminator-value}}}{{/vendorExtensions.x-discriminator-value}}': '{{{classname}}}'{{^-last}},
-        {{/-last}}{{/children}}
+        {{#children}}'{{^vendorExtensions.x-discriminator-value}}{{name}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{vendorExtensions.x-discriminator-value}}}{{/vendorExtensions.x-discriminator-value}}': '{{{classname}}}'{{^@last}},
+        {{/@last}}{{/children}}
     }
 {{/discriminator}}
 

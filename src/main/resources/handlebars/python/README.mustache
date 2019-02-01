@@ -58,7 +58,7 @@ import time
 import {{{packageName}}}
 from {{{packageName}}}.rest import ApiException
 from pprint import pprint
-{{#apiInfo}}{{#apis}}{{#@first}}{{#operations}}{{#operation}}{{#@first}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
+{{#apiInfo}}{{#apis}}{{#@first}}{{#operations}}{{#operation}}{{#contents}}{{#@first}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
 # Configure HTTP basic authorization: {{{name}}}
 configuration = {{{packageName}}}.Configuration()
 configuration.username = 'YOUR_USERNAME'
@@ -75,16 +75,16 @@ configuration.access_token = 'YOUR_ACCESS_TOKEN'{{/isOAuth}}{{/authMethods}}
 
 # create an instance of the API class
 api_instance = {{{packageName}}}.{{{classname}}}({{{packageName}}}.ApiClient(configuration))
-{{#allParams}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
-{{/allParams}}
+{{#parameters}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+{{/parameters}}
 
 try:
 {{#summary}}    # {{{.}}}
-{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#allParams}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}){{#returnType}}
+{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#parameters}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#returnType}}
     pprint(api_response){{/returnType}}
 except ApiException as e:
     print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
-{{/@first}}{{/operation}}{{/operations}}{{/@first}}{{/apis}}{{/apiInfo}}
+{{/@first}}{{/contents}}{{/operation}}{{/operations}}{{/@first}}{{/apis}}{{/apiInfo}}
 ```
 
 ## Documentation for API Endpoints

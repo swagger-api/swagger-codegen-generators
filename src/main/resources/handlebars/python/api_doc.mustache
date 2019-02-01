@@ -10,8 +10,10 @@ Method | HTTP request | Description
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
+{{#@first}}
 # **{{{operationId}}}**
-> {{#returnType}}{{{returnType}}} {{/returnType}}{{{operationId}}}({{#allParams}}{{#required}}{{{paramName}}}{{/required}}{{^required}}{{{paramName}}}={{{paramName}}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+> {{#returnType}}{{{returnType}}} {{/returnType}}{{{operationId}}}({{#parameters}}{{#required}}{{{paramName}}}{{/required}}{{^required}}{{{paramName}}}={{{paramName}}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
 
 {{{summary}}}{{#notes}}
 
@@ -40,31 +42,31 @@ configuration.access_token = 'YOUR_ACCESS_TOKEN'{{/isOAuth}}{{/authMethods}}
 
 # create an instance of the API class
 api_instance = {{{packageName}}}.{{{classname}}}({{{packageName}}}.ApiClient(configuration))
-{{#allParams}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
-{{/allParams}}
+{{#parameters}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+{{/parameters}}
 {{/hasAuthMethods}}
 {{^hasAuthMethods}}
 
 # create an instance of the API class
 api_instance = {{{packageName}}}.{{{classname}}}()
-{{#allParams}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
-{{/allParams}}
+{{#parameters}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+{{/parameters}}
 {{/hasAuthMethods}}
 
 try:
 {{#summary}}    # {{{.}}}
-{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#allParams}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}){{#returnType}}
+{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#parameters}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#returnType}}
     pprint(api_response){{/returnType}}
 except ApiException as e:
     print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
 ```
 
 ### Parameters
-{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#-last}}
+{{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------{{/-last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{dataType}}**]({{baseType}}.md){{/isPrimitiveType}}{{/isFile}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
-{{/allParams}}
+------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
+{{#parameters}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{dataType}}**]({{baseType}}.md){{/isPrimitiveType}}{{/isFile}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
+{{/parameters}}
 
 ### Return type
 
@@ -72,7 +74,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{{name}}}](../README.md#{{{name}}}){{^-last}}, {{/-last}}{{/authMethods}}
+{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{{name}}}](../README.md#{{{name}}}){{^@last}}, {{/@last}}{{/authMethods}}
 
 ### HTTP request headers
 
@@ -81,5 +83,7 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+{{/@first}}
+{{/contents}}
 {{/operation}}
 {{/operations}}
