@@ -1161,7 +1161,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
-     * Output the Getter name, e.g. getSize
+     * Output the Setter name, e.g. setSize
      *
      * @param name the name of the property
      * @return setter name based on naming convention

@@ -1314,11 +1314,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public void setSupportJava6(boolean value) {
         this.supportJava6 = value;
     }
-    
+
+    @Override
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
 
+    @Override
     public boolean convertPropertyToBoolean(String propertyKey) {
         boolean booleanValue = false;
         if (additionalProperties.containsKey(propertyKey)) {
@@ -1328,6 +1330,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         return booleanValue;
     }
 
+    @Override
     public void writePropertyBack(String propertyKey, boolean value) {
         additionalProperties.put(propertyKey, value);
     }
@@ -1338,9 +1341,33 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
      * @param name the name of the property
      * @return getter name based on naming convention
      */
+    @Override
     public String toBooleanGetter(String name) {
         return "is" + getterAndSetterCapitalize(name);
     }
+
+    /**
+     * Output the partial Getter name for boolean property, e.g. Active
+     * Camelize the method name of the getter and setter for Java
+     * Except when the second letter of the field name is already uppercase
+     * Refer to section 8.8: Capitalization of inferred names of the JavaBeans API specification
+     * http://download.oracle.com/otn-pub/jcp/7224-javabeans-1.01-fr-spec-oth-JSpec/beans.101.pdf)
+     *
+     * @param name the name of the property
+     * @return partial getter name based on naming convention
+     * @param name string to be camelized
+     * @return Camelized string
+     */
+    @Override
+    public String getterAndSetterCapitalize(String name) {
+            if (name == null || name.length() == 0) {
+                return name;
+            }
+            if (name.length() > 1 && Character.isUpperCase(name.charAt(1))){
+                return name;
+            }
+            return camelize(toVarName(name));
+        }
 
     @Override
     public String sanitizeTag(String tag) {
