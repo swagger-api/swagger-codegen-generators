@@ -2024,7 +2024,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            formParams.add(formParameter);
+                            formParams.add(formParameter.copy());
                             allParams.add(formParameter);
 
                             codegenContent.getParameters().add(formParameter.copy());
@@ -2035,7 +2035,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
                     if (foundSchemas.isEmpty()) {
                         // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
-                        bodyParams.add(bodyParam);
+                        bodyParams.add(bodyParam.copy());
                         allParams.add(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
