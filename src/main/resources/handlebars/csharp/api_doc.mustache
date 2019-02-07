@@ -10,9 +10,11 @@ Method | HTTP request | Description
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
+{{#@first}}
 <a name="{{{operationIdLowerCase}}}"></a>
 # **{{{operationId}}}**
-> {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{operationId}} ({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = null{{/optionalMethodArgument}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+> {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{operationId}} ({{#parameters}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = null{{/optionalMethodArgument}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
 
 {{{summary}}}{{#notes}}
 
@@ -53,21 +55,21 @@ namespace Example
 
             {{/hasAuthMethods}}
             var apiInstance = new {{classname}}();
-            {{#allParams}}
+            {{#parameters}}
             {{#isPrimitiveType}}
             var {{paramName}} = {{{example}}};  // {{{dataType}}} | {{{description}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
             {{/isPrimitiveType}}
             {{^isPrimitiveType}}
             var {{paramName}} = new {{{dataType}}}(); // {{{dataType}}} | {{{description}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
             {{/isPrimitiveType}}
-            {{/allParams}}
+            {{/parameters}}
 
             try
             {
                 {{#summary}}
                 // {{{.}}}
                 {{/summary}}
-                {{#returnType}}{{returnType}} result = {{/returnType}}apiInstance.{{{operationId}}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+                {{#returnType}}{{returnType}} result = {{/returnType}}apiInstance.{{{operationId}}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
                 Debug.WriteLine(result);{{/returnType}}
             }
             catch (Exception e)
@@ -80,11 +82,11 @@ namespace Example
 ```
 
 ### Parameters
-{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
+{{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**]({{#isContainer}}{{baseType}}{{/isContainer}}{{^isContainer}}{{dataType}}{{/isContainer}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
-{{/allParams}}
+------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
+{{#parameters}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**]({{#isContainer}}{{baseType}}{{/isContainer}}{{^isContainer}}{{dataType}}{{/isContainer}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
+{{/parameters}}
 
 ### Return type
 
@@ -100,6 +102,7 @@ Name | Type | Description  | Notes
  - **Accept**: {{#produces}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/produces}}{{^produces}}Not defined{{/produces}}
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
+{{/@first}}
+{{/contents}}
 {{/operation}}
 {{/operations}}
