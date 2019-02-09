@@ -2274,9 +2274,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (parameter.getRequired() != null) {
             codegenParameter.required = parameter.getRequired();
         }
-        if (parameter.getRequired() != null) {
-            codegenParameter.required = parameter.getRequired();
-        }
         codegenParameter.jsonSchema = Json.pretty(parameter);
 
         if (System.getProperty("debugParser") != null) {
