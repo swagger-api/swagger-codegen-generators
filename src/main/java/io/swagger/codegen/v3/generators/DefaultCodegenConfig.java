@@ -1890,7 +1890,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenOperation.getVendorExtensions().put(CodegenConstants.IS_DEPRECATED_EXT_NAME, operation.getDeprecated());
         }
 
-        addConsumesInfo(operation, codegenOperation);
+        addConsumesInfo(operation, codegenOperation, openAPI);
 
         if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             ApiResponse methodResponse = findMethodResponse(operation.getResponses());
@@ -3805,11 +3805,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    protected void addConsumesInfo(Operation operation, CodegenOperation codegenOperation) {
-        if(operation.getRequestBody() == null || operation.getRequestBody().getContent() == null || operation.getRequestBody().getContent().isEmpty()) {
+    protected void addConsumesInfo(Operation operation, CodegenOperation codegenOperation, OpenAPI openAPI) {
+        RequestBody body = operation.getRequestBody();
+        if (body == null) {
             return;
         }
-        Set<String> consumes = operation.getRequestBody().getContent().keySet();
+        if (StringUtils.isNotBlank(body.get$ref())) {
+            String bodyName = OpenAPIUtil.getSimpleRef(body.get$ref());
+            body = openAPI.getComponents().getRequestBodies().get(bodyName);
+        }
+        
+        if (body.getContent() == null || body.getContent().isEmpty()) {
+            return;
+        }
+        
+        Set<String> consumes = body.getContent().keySet();
         List<Map<String, String>> mediaTypeList = new ArrayList<>();
         int count = 0;
         for (String key : consumes) {
