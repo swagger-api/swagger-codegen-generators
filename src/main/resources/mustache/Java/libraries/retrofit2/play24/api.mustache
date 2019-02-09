@@ -25,12 +25,13 @@ import retrofit2.Response;
 {{#operations}}
 public interface {{classname}} {
   {{#operation}}
+  {{#contents}}
   /**
    * {{summary}}
    * {{notes}}
-{{#allParams}}
+{{#parameters}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
    * @return Call&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
    */
   {{#formParams}}
@@ -48,10 +49,11 @@ public interface {{classname}} {
   {{/prioritizedContentTypes}}
   {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
-  F.Promise<Response<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> {{operationId}}({{^allParams}});{{/allParams}}
-    {{#allParams}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}
-  );{{/hasMore}}{{/allParams}}
+  F.Promise<Response<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> {{operationId}}({{^parameters}});{{/parameters}}
+    {{#parameters}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}
+  );{{/hasMore}}{{/parameters}}
 
+  {{/contents}}
   {{/operation}}
 }
 {{/operations}}

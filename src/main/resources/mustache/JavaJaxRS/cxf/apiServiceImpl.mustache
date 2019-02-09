@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 public class {{classname}}ServiceImpl implements {{classname}} {
 {{#operations}}
 {{#operation}}
+{{#contents}}
     {{#summary}}
     /**
      * {{summary}}
@@ -48,12 +49,13 @@ public class {{classname}}ServiceImpl implements {{classname}} {
      {{/notes}}
      */
     {{/summary}}
-    public {{>returnTypes}} {{nickname}}({{#allParams}}{{>queryParamsImpl}}{{>pathParamsImpl}}{{>headerParamsImpl}}{{>bodyParamsImpl}}{{>formParamsImpl}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) {
+    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParamsImpl}}{{>pathParamsImpl}}{{>headerParamsImpl}}{{>bodyParamsImpl}}{{>formParamsImpl}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
         // TODO: Implement...
         
         {{#useGenericResponse}}return Response.ok().entity("magic!").build();{{/useGenericResponse}}{{^useGenericResponse}}{{^vendorExtensions.x-java-is-response-void}}return null;{{/vendorExtensions.x-java-is-response-void}}{{/useGenericResponse}}
     }
     
+{{/contents}}
 {{/operation}}
 }
 {{/operations}}
