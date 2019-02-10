@@ -2,14 +2,26 @@ package io.swagger.codegen.v3.generators;
 
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 
 public class DefaultCodegenConfigTest {
@@ -78,6 +90,38 @@ public class DefaultCodegenConfigTest {
 
         Assert.assertEquals(codegenProperty.minimum, "50");
         Assert.assertEquals(codegenProperty.maximum, "1000");
+    }
+
+    @Test
+    public void testFromOperation_BodyParamsUnique() {
+        PathItem dummyPath = new PathItem()
+            .post(new Operation())
+            .get(new Operation());
+      
+        OpenAPI openAPI = new OpenAPI()
+            .path("dummy", dummyPath);
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        codegen.setEnsureUniqueParams(false);
+        final Operation operation = new Operation();
+
+        RequestBody body = new RequestBody();
+        body.setDescription("A list of list of values");
+        body.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new ArraySchema().items(new IntegerSchema())))));
+        operation.setRequestBody(body);
+        Parameter param = new Parameter().in("query").name("testParameter");
+        operation.addParametersItem(param);
+        
+        CodegenOperation codegenOperation = codegen.fromOperation("/path", "GET", operation, null, openAPI);
+
+        Assert.assertEquals(true, codegenOperation.allParams.get(0).getVendorExtensions().get("x-has-more"));
+        Assert.assertEquals(false, codegenOperation.bodyParams.get(0).getVendorExtensions().get("x-has-more"));
+
+        codegenOperation.allParams.get(0).getVendorExtensions().put("x-has-more", false);
+        codegenOperation.bodyParams.get(0).getVendorExtensions().put("x-has-more", true);
+
+        Assert.assertEquals(false, codegenOperation.allParams.get(0).getVendorExtensions().get("x-has-more"));
+        Assert.assertEquals(true, codegenOperation.bodyParams.get(0).getVendorExtensions().get("x-has-more"));
     }
 
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
