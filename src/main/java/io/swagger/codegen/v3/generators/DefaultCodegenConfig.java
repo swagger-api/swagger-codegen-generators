@@ -1,6 +1,5 @@
 package io.swagger.codegen.v3.generators;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
@@ -3078,6 +3077,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public static String camelize(String word, boolean lowercaseFirstLetter) {
         // Replace all slashes with dots (package separator)
+        String originalWord = word;
+        LOGGER.trace("camelize start - " + originalWord);
         Pattern p = Pattern.compile("\\/(.?)");
         Matcher m = p.matcher(word);
         while (m.find()) {
@@ -3135,7 +3136,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (lowercaseFirstLetter && word.length() > 0) {
             word = word.substring(0, 1).toLowerCase() + word.substring(1);
         }
-
+        LOGGER.trace("camelize end - {} (new: {})", originalWord, word);
         return word;
     }
 
