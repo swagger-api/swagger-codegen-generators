@@ -74,7 +74,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{/parent}}
   {{#gson}}
   {{#discriminator}}
-    this.{{discriminator.propertyName}} = this.getClass().getSimpleName();
+    this.{{discriminator}} = this.getClass().getSimpleName();
   {{/discriminator}}
   {{/gson}}
   }
@@ -83,7 +83,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{#gson}}
   {{#discriminator}}
   public {{classname}}() {
-    this.{{discriminator.propertyName}} = this.getClass().getSimpleName();
+    this.{{discriminator}} = this.getClass().getSimpleName();
   }
   {{/discriminator}}
   {{/gson}}
@@ -139,6 +139,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
 {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
 {{/vendorExtensions.extraAnnotation}}
+  @JsonProperty("{{name}}")
   public {{{datatypeWithEnum}}} {{#isBoolean}}is{{/isBoolean}}{{getter}}() {
     return {{name}};
   }
