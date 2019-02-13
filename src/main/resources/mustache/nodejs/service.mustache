@@ -2,6 +2,7 @@
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
 
 /**
  {{#summary}}
@@ -11,9 +12,9 @@
  * {{{notes}}}
  {{/notes}}
  *
-{{#allParams}}
+{{#parameters}}
  * {{paramName}} {{{dataType}}} {{{description}}}{{^required}} (optional){{/required}}
-{{/allParams}}
+{{/parameters}}
 {{^returnType}}
  * no response value expected for this operation
 {{/returnType}}
@@ -21,7 +22,7 @@
  * returns {{{returnType}}}
 {{/returnType}}
  **/
-exports.{{{operationId}}} = function({{#allParams}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+exports.{{{operationId}}} = function({{#parameters}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
   return new Promise(function(resolve, reject) {
   {{#returnType}}
     var examples = {};
@@ -40,5 +41,6 @@ exports.{{{operationId}}} = function({{#allParams}}{{paramName}}{{#hasMore}},{{/
   });
 }
 
+{{/contents}}
 {{/operation}}
 {{/operations}}

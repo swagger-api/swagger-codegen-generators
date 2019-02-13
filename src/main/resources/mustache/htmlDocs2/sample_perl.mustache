@@ -14,11 +14,11 @@ ${{{perlModuleName}}}::Configuration::access_token = 'YOUR_ACCESS_TOKEN';{{/isOA
 {{/hasAuthMethods}}
 
 my $api_instance = {{perlModuleName}}::{{classname}}->new();
-{{#allParams}}my ${{paramName}} = {{#isListContainer}}[{{/isListContainer}}{{#isBodyParam}}{{{perlModuleName}}}::Object::{{dataType}}->new(){{/isBodyParam}}{{^isBodyParam}}{{{example}}}{{/isBodyParam}}{{#isListContainer}}]{{/isListContainer}}; # {{{dataType}}} | {{{unescapedDescription}}}
-{{/allParams}}
+{{#parameters}}my ${{paramName}} = {{#isListContainer}}[{{/isListContainer}}{{#isBodyParam}}{{{perlModuleName}}}::Object::{{dataType}}->new(){{/isBodyParam}}{{^isBodyParam}}{{{example}}}{{/isBodyParam}}{{#isListContainer}}]{{/isListContainer}}; # {{{dataType}}} | {{{unescapedDescription}}}
+{{/parameters}}
 
 eval { 
-    {{#returnType}}my $result = {{/returnType}}$api_instance->{{{operationId}}}({{#allParams}}{{paramName}} => ${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+    {{#returnType}}my $result = {{/returnType}}$api_instance->{{{operationId}}}({{#parameters}}{{paramName}} => ${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
     print Dumper($result);{{/returnType}}
 };
 if ($@) {

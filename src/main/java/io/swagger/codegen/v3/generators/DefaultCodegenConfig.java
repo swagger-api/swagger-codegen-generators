@@ -2023,7 +2023,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            formParams.add(formParameter);
+                            formParams.add(formParameter.copy());
                             allParams.add(formParameter);
 
                             codegenContent.getParameters().add(formParameter.copy());
@@ -2034,7 +2034,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
                     if (foundSchemas.isEmpty()) {
                         // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
-                        bodyParams.add(bodyParam);
+                        bodyParams.add(bodyParam.copy());
                         allParams.add(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
@@ -2270,9 +2270,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenParameter.baseName = parameter.getName();
         codegenParameter.description = escapeText(parameter.getDescription());
         codegenParameter.unescapedDescription = parameter.getDescription();
-        if (parameter.getRequired() != null) {
-            codegenParameter.required = parameter.getRequired();
-        }
         if (parameter.getRequired() != null) {
             codegenParameter.required = parameter.getRequired();
         }
@@ -3079,6 +3076,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public static String camelize(String word, boolean lowercaseFirstLetter) {
         // Replace all slashes with dots (package separator)
+        String originalWord = word;
+        LOGGER.trace("camelize start - " + originalWord);
         Pattern p = Pattern.compile("\\/(.?)");
         Matcher m = p.matcher(word);
         while (m.find()) {
@@ -3136,7 +3135,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (lowercaseFirstLetter && word.length() > 0) {
             word = word.substring(0, 1).toLowerCase() + word.substring(1);
         }
-
+        LOGGER.trace("camelize end - {} (new: {})", originalWord, word);
         return word;
     }
 

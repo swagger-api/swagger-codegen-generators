@@ -53,6 +53,7 @@ import javax.validation.Valid;
 public interface {{classname}}  {
 {{#operations}}
 {{#operation}}
+{{#contents}}
 
     {{#summary}}
     /**
@@ -66,23 +67,24 @@ public interface {{classname}}  {
     {{/summary}}
     @{{httpMethod}}
     {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
-{{#has this 'consumes'}}
+{{#hasConsumes}}
     @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
-{{/has}}
-{{#has this 'produces'}}
+{{/hasConsumes}}
+{{#hasProduces}}
     @Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
-{{/has}}
+{{/hasProduces}}
     {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#has this 'more'}},{{/has}}{{/responses}} })
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     {{/useOas2}}
     {{^useOas2}}
     @Operation(summary = "{{{summary}}}", tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#has this 'more'}},{{/has}}{{/responses}} })
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     {{/useOas2}}
-    public {{>returnTypes}} {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#has this 'more'}}, {{/has}}{{/allParams}});
+    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+{{/contents}}
 {{/operation}}
 }
 {{/operations}}
