@@ -697,7 +697,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
 
             return String.format(pattern, typeDeclaration);
-        } else if (schema instanceof MapSchema) {
+        } else if (schema instanceof MapSchema || (schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema))) {
             final String pattern;
             if (fullJavaUtil) {
                 pattern = "new java.util.HashMap<%s>()";
