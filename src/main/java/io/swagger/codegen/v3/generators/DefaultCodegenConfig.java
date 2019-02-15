@@ -85,6 +85,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -3840,12 +3841,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 final String pathParam = path.substring(path.indexOf("{"), path.indexOf("}") + 1);
                 final String paramName = pathParam.replace("{", StringUtils.EMPTY).replace("}", StringUtils.EMPTY);
 
-                final CodegenParameter codegenParameter = codegenOperation
+                final Optional<CodegenParameter> optionalCodegenParameter = codegenOperation
                         .pathParams
                         .stream()
                         .filter(codegenParam -> codegenParam.baseName.equals(paramName))
-                        .findFirst()
-                        .get();
+                        .findFirst();
+
+                if (!optionalCodegenParameter.isPresent()) {
+                    return;
+                }
+
+                final CodegenParameter codegenParameter = optionalCodegenParameter.get();
 
                 if (codegenParameter.testExample == null) {
                     return;
