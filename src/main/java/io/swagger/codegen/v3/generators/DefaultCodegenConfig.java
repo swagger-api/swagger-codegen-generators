@@ -3925,13 +3925,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return null;
     }
 
+    // See: https://swagger.io/docs/specification/serialization/#query
     protected String getCollectionFormat(Parameter parameter) {
-        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle())) {
-            if (parameter.getExplode() != null && parameter.getExplode()) {
-                return "csv";
-            } else {
-                return "multi";
-            }
+        // "explode: true" is the default and always results in "multi", no matter the style.
+        if (parameter.getExplode() == null || parameter.getExplode()) {
+            return "multi";
+        }
+        
+        // Form is the default, if no style is specified.
+        if (parameter.getStyle() == null || Parameter.StyleEnum.FORM.equals(parameter.getStyle())) {
+            return "csv";
         }
         else if (Parameter.StyleEnum.PIPEDELIMITED.equals(parameter.getStyle())) {
             return "pipe";

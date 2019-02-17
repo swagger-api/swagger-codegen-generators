@@ -3,6 +3,7 @@ package io.swagger.codegen.v3.generators;
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -18,10 +19,13 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class DefaultCodegenConfigTest {
@@ -124,6 +128,46 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(true, codegenOperation.bodyParams.get(0).getVendorExtensions().get("x-has-more"));
     }
 
+    @Test(dataProvider = "testGetCollectionFormatProvider")
+    public void testGetCollectionFormat(Parameter.StyleEnum style, Boolean explode, String expectedCollectionFormat) {
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        
+        ArraySchema paramSchema = new ArraySchema()
+                .items(new IntegerSchema());
+        Parameter param = new Parameter()
+                .in("query")
+                .name("testParameter")
+                .schema(paramSchema)
+                .style(style)
+                .explode(explode);
+        
+        CodegenParameter codegenParameter = codegen.fromParameter(param, new HashSet<>());
+        
+        Assert.assertEquals(codegenParameter.collectionFormat, expectedCollectionFormat);
+    }
+    
+    @DataProvider(name = "testGetCollectionFormatProvider")
+    public Object[][] provideData_testGetCollectionFormat() {
+        // See: https://swagger.io/docs/specification/serialization/#query
+        return new Object[][] {
+            { null,                                 null,           "multi" },
+            { Parameter.StyleEnum.FORM,             null,           "multi" },
+            { null,                                 Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.FORM,             Boolean.TRUE,   "multi" },
+            
+            { null,                                 Boolean.FALSE,  "csv" },
+            { Parameter.StyleEnum.FORM,             Boolean.FALSE,  "csv" },
+            
+            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.FALSE,  "space" },
+            { Parameter.StyleEnum.SPACEDELIMITED,   null,           "multi" },
+            
+            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.FALSE,  "pipe" },
+            { Parameter.StyleEnum.PIPEDELIMITED,    null,           "multi" },
+        };
+    }
+    
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
         @Override
         public String getArgumentsLocation() {
