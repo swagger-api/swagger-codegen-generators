@@ -3082,11 +3082,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         LOGGER.trace("camelize start - " + originalWord);
         Pattern p = Pattern.compile("\\/(.?)");
         Matcher m = p.matcher(word);
+        int i = 0;
+        int MAX = 100;
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst("." + m.group(1)/*.toUpperCase()*/); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
             m = p.matcher(word);
         }
-
+        i = 0;
         // case out dots
         String[] parts = word.split("\\.");
         StringBuilder f = new StringBuilder();
@@ -3099,10 +3106,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         m = p.matcher(word);
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst("" + Character.toUpperCase(m.group(1).charAt(0)) + m.group(1).substring(1)/*.toUpperCase()*/);
             m = p.matcher(word);
         }
-
+        i = 0;
         // Uppercase the class name.
         p = Pattern.compile("(\\.?)(\\w)([^\\.]*)$");
         m = p.matcher(word);
@@ -3116,6 +3128,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         p = Pattern.compile("(_)(.)");
         m = p.matcher(word);
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             String original = m.group(2);
             String upperCase = original.toUpperCase();
             if (original.equals(upperCase)) {
@@ -3129,7 +3146,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         // Remove all hyphens (hyphen-case to camelCase)
         p = Pattern.compile("(-)(.)");
         m = p.matcher(word);
+        i = 0;
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst(m.group(2).toUpperCase());
             m = p.matcher(word);
         }
