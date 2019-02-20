@@ -17,14 +17,13 @@ import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 
 import org.testng.Assert;
-import org.testng.ITestContext;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -168,6 +167,25 @@ public class DefaultCodegenConfigTest {
         };
     }
     
+    /**
+     * Tests that {@link DefaultCodegenConfig#fromOperation(String, String, Operation, java.util.Map, OpenAPI)} correctly
+     * resolves the consumes list when the request body is specified via reference rather than inline.
+     */
+    @Test
+    public void testRequestBodyRefConsumesList() {
+        final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requestBodyRefTest.json");
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final String path = "/test/requestBodyRefTest";
+        final Operation op = openAPI.getPaths().get(path).getPost();
+        final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
+
+        Assert.assertTrue(codegenOp.getHasConsumes());
+        Assert.assertNotNull(codegenOp.consumes);
+        Assert.assertEquals(codegenOp.consumes.size(), 2);
+        Assert.assertEquals(codegenOp.consumes.get(0).get("mediaType"), "application/json");
+        Assert.assertEquals(codegenOp.consumes.get(1).get("mediaType"), "application/xml");
+    }
+
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
         @Override
         public String getArgumentsLocation() {
