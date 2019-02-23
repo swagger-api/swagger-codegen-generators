@@ -3752,8 +3752,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return null;
         }
         Schema schema = null;
-        for (MediaType mediaType : response.getContent().values()) {
-            schema = mediaType.getSchema();
+        for (String contentType : response.getContent().keySet()) {
+            schema = response.getContent().get(contentType).getSchema();
+            schema.addExtension("x-content-type", contentType);
             break;
         }
         return schema;

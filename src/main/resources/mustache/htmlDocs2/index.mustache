@@ -344,7 +344,7 @@
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {{{jsonSchema}}};
-                                        var schema = schemaWrapper.content[{{contentType}}].schema;
+                                        var schema = schemaWrapper.content["{{extensions.x-content-type}}"].schema;
                                         var schema = schemaWrapper.schema;
                                         if (schema.$ref != null) {
                                           schema = defsParser.$refs.get(schema.$ref);
