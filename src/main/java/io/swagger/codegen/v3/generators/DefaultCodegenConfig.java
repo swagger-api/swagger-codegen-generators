@@ -2470,6 +2470,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenParameter.baseName = REQUEST_BODY_NAME;
         codegenParameter.paramName = REQUEST_BODY_NAME;
         codegenParameter.description = body.getDescription();
+        codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
 
@@ -2566,6 +2567,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         setParameterExampleValue(codegenParameter);
+        postProcessParameter(codegenParameter);
         return codegenParameter;
     }
 
