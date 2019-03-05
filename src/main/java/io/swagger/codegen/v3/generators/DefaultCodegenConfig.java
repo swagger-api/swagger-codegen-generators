@@ -2010,7 +2010,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                 if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType)) {
                     final CodegenContent codegenContent = new CodegenContent(contentType);
-                    //todo: uncomment line once changes on codegen repo has been merged codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
+                    codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
 
                     final Map<String, Schema> propertyMap = schema.getProperties();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
