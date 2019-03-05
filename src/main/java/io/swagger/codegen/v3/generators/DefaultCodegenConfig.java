@@ -3984,7 +3984,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     private boolean isObjectSchema (Schema schema) {
-        if (schema instanceof ObjectSchema) {
+        if (schema instanceof ObjectSchema ||schema instanceof ComposedSchema) {
             return true;
         }
         if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && !(schema instanceof MapSchema)) {
