@@ -5,10 +5,13 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
@@ -17,6 +20,7 @@ import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
 import org.testng.Assert;
@@ -24,6 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -184,6 +189,29 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(codegenOp.consumes.size(), 2);
         Assert.assertEquals(codegenOp.consumes.get(0).get("mediaType"), "application/json");
         Assert.assertEquals(codegenOp.consumes.get(1).get("mediaType"), "application/xml");
+    }
+
+    @Test
+    public void testFromResponse_referenceHeaders() {
+        final String RESPONSE_CODE = "200";
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.addHeaderObject("header1", new Header().$ref("#/components/ref-header1"));
+
+        OpenAPI openAPI = new OpenAPI().components(new Components().responses(new HashMap<>()));
+        Header referencedHeader = new Header().schema(new Schema().description("This is header1").type("string").example("header_val"));
+        openAPI.getComponents().addHeaders("ref-header1", referencedHeader);
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse, openAPI);
+
+        Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
+
+        CodegenProperty headerProperty = codegenResponse.headers.get(0);
+        Assert.assertNotNull(headerProperty);
+        Assert.assertEquals(headerProperty.description, referencedHeader.getSchema().getDescription());
+        Assert.assertEquals(headerProperty.datatype, "String");
+        Assert.assertEquals(headerProperty.example, referencedHeader.getSchema().getExample());
     }
 
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
