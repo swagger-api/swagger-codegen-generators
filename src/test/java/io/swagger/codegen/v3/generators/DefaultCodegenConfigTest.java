@@ -192,6 +192,29 @@ public class DefaultCodegenConfigTest {
     }
 
     @Test
+    public void testFromResponse_inlineHeaders() {
+        final String RESPONSE_CODE = "200";
+
+        ApiResponse apiResponse = new ApiResponse();
+        Header inlineHeader = new Header().description("This is header1").schema(new Schema().type("string").example("header_val"));
+        apiResponse.addHeaderObject("header1", inlineHeader);
+
+        OpenAPI openAPI = new OpenAPI().components(new Components().responses(new HashMap<>()));
+        openAPI.getComponents().addHeaders("ref-header1", inlineHeader);
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse, openAPI);
+
+        Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
+
+        CodegenProperty headerProperty = codegenResponse.headers.get(0);
+        Assert.assertNotNull(headerProperty);
+        Assert.assertEquals(headerProperty.description, inlineHeader.getSchema().getDescription());
+        Assert.assertEquals(headerProperty.datatype, "String");
+        Assert.assertEquals(headerProperty.example, inlineHeader.getSchema().getExample());
+    }
+
+    @Test
     public void testFromResponse_referenceHeaders() {
         final String RESPONSE_CODE = "200";
 
