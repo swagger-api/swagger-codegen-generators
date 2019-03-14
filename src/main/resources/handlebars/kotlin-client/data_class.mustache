@@ -21,6 +21,7 @@ data class {{classname}} (
 */
 enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
 {{#allowableValues}}{{#enumVars}}
+    @SerializedName({{{value}}})
     {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }

@@ -4,6 +4,7 @@
 */
 enum class {{classname}}(val value: {{dataType}}){
 {{#allowableValues}}{{#enumVars}}
+    @SerializedName({{{value}}})
     {{name}}({{{value}}}){{^@last}},{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }
