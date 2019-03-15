@@ -3770,7 +3770,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         Schema schema = null;
         for (String contentType : response.getContent().keySet()) {
             schema = response.getContent().get(contentType).getSchema();
-            schema.addExtension("x-content-type", contentType);
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
             break;
         }
         return schema;
