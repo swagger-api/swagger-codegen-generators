@@ -2000,18 +2000,33 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             List<Schema> foundSchemas = new ArrayList<>();
 
             for (String contentType : body.getContent().keySet()) {
+                boolean isForm = "application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType);
 
                 String schemaName = null;
                 Schema schema = body.getContent().get(contentType).getSchema();
-                if (StringUtils.isNotBlank(schema.get$ref())) {
+                if (schema != null && StringUtils.isNotBlank(schema.get$ref())) {
                     schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
                     schema = schemas.get(schemaName);
                 }
+                final CodegenContent codegenContent = new CodegenContent(contentType);
+                codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, isForm);
 
-                if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType)) {
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
-                    codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
+                if (schema == null) {
+                    CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+                    codegenParameter.description = body.getDescription();
+                    codegenParameter.unescapedDescription = body.getDescription();
+                    codegenParameter.baseName = REQUEST_BODY_NAME;
+                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    codegenParameter.dataType = "Object";
+                    codegenParameter.baseType = "Object";
 
+                    codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
+                    if (!isForm) {
+                        codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+                    }
+                    continue;
+                }
+                if (isForm) {
                     final Map<String, Schema> propertyMap = schema.getProperties();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
                     if (propertyMap != null && !propertyMap.isEmpty()) {
@@ -2049,7 +2064,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
                     codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
