@@ -20,8 +20,8 @@ paths:
 
   /test_optional:
     post:
-      summary: Operation with form body that is required
-      operationId: get_with_required_body
+      summary: Operation with form body that is optional
+      operationId: get_with_optional_body
       requestBody:
         required: false
         content:
