@@ -2033,6 +2033,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         for (String propertyName : propertyMap.keySet()) {
                             CodegenParameter formParameter = fromParameter(new Parameter()
                                     .name(propertyName)
+                                    .required(body.getRequired())
                                     .schema(propertyMap.get(propertyName)), imports);
                             if (isMultipart) {
                                 formParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
@@ -2040,6 +2041,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
                             formParams.add(formParameter.copy());
+                            if (body.getRequired()) {
+                                requiredParams.add(formParameter.copy());
+                            }
                             allParams.add(formParameter);
 
                             codegenContent.getParameters().add(formParameter.copy());
