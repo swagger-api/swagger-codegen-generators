@@ -2041,7 +2041,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
                             formParams.add(formParameter.copy());
-                            if (body.getRequired()) {
+                            if (body.getRequired() != null && body.getRequired()) {
                                 requiredParams.add(formParameter.copy());
                             }
                             allParams.add(formParameter);
