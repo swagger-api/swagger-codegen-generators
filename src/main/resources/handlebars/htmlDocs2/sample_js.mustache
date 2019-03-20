@@ -18,14 +18,14 @@ var {{{name}}} = defaultClient.authentications['{{{name}}}'];
 {{/hasAuthMethods}}
 
 var api = new {{{jsModuleName}}}.{{{classname}}}(){{#hasParams}}
-{{#vendorExtensions.x-codegen-hasRequiredParams}}{{#allParams}}{{#required}}
+{{#vendorExtensions.x-codegen-hasRequiredParams}}{{#parameters}}{{#required}}
 var {{{paramName}}} = {{{example}}}; // {{braces "left" 2}}{{&dataType}}{{braces "right" 2}} {{{unescapedDescription}}}
-{{/required}}{{/allParams}}{{/vendorExtensions.x-codegen-hasRequiredParams}}{{#hasOptionalParams}}
-var opts = { {{#allParams}}{{^required}}
-  '{{{paramName}}}': {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} // {{braces "left" 2}}{{&dataType}}{{braces "right" 2}} {{{unescapedDescription}}}{{/required}}{{/allParams}}
+{{/required}}{{/parameters}}{{/vendorExtensions.x-codegen-hasRequiredParams}}{{#hasOptionalParams}}
+var opts = { {{#parameters}}{{^required}}
+  '{{{paramName}}}': {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} // {{braces "left" 2}}{{&dataType}}{{braces "right" 2}} {{{unescapedDescription}}}{{/required}}{{/parameters}}
 };{{/hasOptionalParams}}{{/hasParams}}
 {{#usePromises}}
-api.{{{operationId}}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}).then(function({{#returnType}}data{{/returnType}}) {
+api.{{{operationId}}}({{#parameters}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}).then(function({{#returnType}}data{{/returnType}}) {
   {{#returnType}}console.log('API called successfully. Returned data: ' + data);{{/returnType}}{{^returnType}}console.log('API called successfully.');{{/returnType}}
 }, function(error) {
   console.error(error);
@@ -39,5 +39,5 @@ var callback = function(error, data, response) {
     {{#returnType}}console.log('API called successfully. Returned data: ' + data);{{/returnType}}{{^returnType}}console.log('API called successfully.');{{/returnType}}
   }
 };
-api.{{{operationId}}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}{{#hasParams}}, {{/hasParams}}callback);
+api.{{{operationId}}}({{#parameters}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}{{#hasParams}}, {{/hasParams}}callback);
 {{/usePromises}}

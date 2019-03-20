@@ -12,11 +12,21 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.ext.multipart.*;
 
+{{#useOas2}}
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.jaxrs.PATCH;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+{{/useOas2}}
 {{#useBeanValidation}}
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -33,7 +43,9 @@ import javax.validation.Valid;
  */
 {{/appName}}
 @Path("{{^useAnnotatedBasePath}}/{{/useAnnotatedBasePath}}{{#useAnnotatedBasePath}}{{contextPath}}{{/useAnnotatedBasePath}}")
+{{#useOas2}}
 @Api(value = "/", description = "{{description}}")
+{{/useOas2}}
 {{#addConsumesProducesJson}}
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +53,7 @@ import javax.validation.Valid;
 public interface {{classname}}  {
 {{#operations}}
 {{#operation}}
+{{#contents}}
 
     {{#summary}}
     /**
@@ -60,11 +73,18 @@ public interface {{classname}}  {
 {{#hasProduces}}
     @Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
 {{/hasProduces}}
+    {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
         @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
-    public {{>returnTypes}} {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+    {{/useOas2}}
+    {{^useOas2}}
+    @Operation(summary = "{{{summary}}}", tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+    @ApiResponses(value = { {{#responses}}
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
+    {{/useOas2}}
+    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+{{/contents}}
 {{/operation}}
 }
 {{/operations}}
-

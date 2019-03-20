@@ -50,7 +50,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * <p>{{{appDescription}}}
  *
  {{/appDescription}}
- * API tests for {{classname}} 
+ * API tests for {{classname}}
  */
 {{#generateSpringBootApplication}}
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,33 +63,33 @@ public class {{classname}}Test {
 {{#generateSpringBootApplication}}
     @Value("${local.server.port}")
     private int serverPort;
-{{/generateSpringBootApplication}}    
+{{/generateSpringBootApplication}}
 
     private {{classname}} api;
-    
+
     @Before
     public void setup() {
         JacksonJsonProvider provider = new JacksonJsonProvider();
         List providers = new ArrayList();
         providers.add(provider);
-        
-{{#generateSpringBootApplication}}        
+
+{{#generateSpringBootApplication}}
         api = JAXRSClientFactory.create("http://localhost:" + serverPort + "/services", {{classname}}.class, providers);
-{{/generateSpringBootApplication}}        
+{{/generateSpringBootApplication}}
 {{^generateSpringBootApplication}}
         api = JAXRSClientFactory.create("{{{basePath}}}", {{classname}}.class, providers);
 {{/generateSpringBootApplication}}
         org.apache.cxf.jaxrs.client.Client client = WebClient.client(api);
-        
-        ClientConfiguration config = WebClient.getConfig(client); 
-{{#useGzipFeatureForTests}}        
+
+        ClientConfiguration config = WebClient.getConfig(client);
+{{#useGzipFeatureForTests}}
         // Example for using Gzipping
         GZIPOutInterceptor gzipOutInterceptor = new GZIPOutInterceptor();
         // use Gzipping for first request sent to server
         //gzipOutInterceptor.setForce(true);
         config.getOutInterceptors().add(gzipOutInterceptor);
-        
-        config.getInInterceptors().add(new GZIPInInterceptor()); 
+
+        config.getInInterceptors().add(new GZIPInInterceptor());
 {{/useGzipFeatureForTests}}
 {{#useLoggingFeatureForTests}}
         LoggingOutInterceptor loggingOutInterceptor = new LoggingOutInterceptor();
@@ -97,7 +97,7 @@ public class {{classname}}Test {
 {{/useLoggingFeatureForTests}}
     }
 
-    {{#operations}}{{#operation}}
+    {{#operations}}{{#operation}}{{#contents}}{{#-first}}
     /**
      {{#summary}}
      * {{summary}}
@@ -112,14 +112,14 @@ public class {{classname}}Test {
      */
     @Test
     public void {{operationId}}Test() {
-        {{#allParams}}
+        {{#parameters}}
         {{^isFile}}{{{dataType}}} {{paramName}} = null;{{/isFile}}{{#isFile}}org.apache.cxf.jaxrs.ext.multipart.Attachment {{paramName}} = null;{{/isFile}}
-        {{/allParams}}
-        //{{^vendorExtensions.x-java-is-response-void}}{{>returnTypes}} response = {{/vendorExtensions.x-java-is-response-void}}api.{{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        {{/parameters}}
+        //{{^vendorExtensions.x-java-is-response-void}}{{>returnTypes}} response = {{/vendorExtensions.x-java-is-response-void}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{^vendorExtensions.x-java-is-response-void}}//assertNotNull(response);{{/vendorExtensions.x-java-is-response-void}}
         // TODO: test validations
         
         
     }
-    {{/operation}}{{/operations}}
+    {{/-first}}{{/contents}}{{/operation}}{{/operations}}
 }

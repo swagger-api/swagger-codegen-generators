@@ -1,6 +1,5 @@
 package io.swagger.codegen.v3.generators;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
@@ -86,6 +85,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -1890,7 +1890,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenOperation.getVendorExtensions().put(CodegenConstants.IS_DEPRECATED_EXT_NAME, operation.getDeprecated());
         }
 
-        addConsumesInfo(operation, codegenOperation);
+        addConsumesInfo(operation, codegenOperation, openAPI);
 
         if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             ApiResponse methodResponse = findMethodResponse(operation.getResponses());
@@ -2000,31 +2000,50 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             List<Schema> foundSchemas = new ArrayList<>();
 
             for (String contentType : body.getContent().keySet()) {
+                boolean isForm = "application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType);
 
                 String schemaName = null;
                 Schema schema = body.getContent().get(contentType).getSchema();
-                if (StringUtils.isNotBlank(schema.get$ref())) {
+                if (schema != null && StringUtils.isNotBlank(schema.get$ref())) {
                     schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
                     schema = schemas.get(schemaName);
                 }
+                final CodegenContent codegenContent = new CodegenContent(contentType);
+                codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, isForm);
 
-                if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType)) {
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
-                    codegenContent.getVendorExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
+                if (schema == null) {
+                    CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+                    codegenParameter.description = body.getDescription();
+                    codegenParameter.unescapedDescription = body.getDescription();
+                    codegenParameter.baseName = REQUEST_BODY_NAME;
+                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    codegenParameter.dataType = "Object";
+                    codegenParameter.baseType = "Object";
 
+                    codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
+                    if (!isForm) {
+                        codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+                    }
+                    continue;
+                }
+                if (isForm) {
                     final Map<String, Schema> propertyMap = schema.getProperties();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
                     if (propertyMap != null && !propertyMap.isEmpty()) {
                         for (String propertyName : propertyMap.keySet()) {
                             CodegenParameter formParameter = fromParameter(new Parameter()
                                     .name(propertyName)
+                                    .required(body.getRequired())
                                     .schema(propertyMap.get(propertyName)), imports);
                             if (isMultipart) {
                                 formParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            formParams.add(formParameter);
+                            formParams.add(formParameter.copy());
+                            if (body.getRequired() != null && body.getRequired()) {
+                                requiredParams.add(formParameter.copy());
+                            }
                             allParams.add(formParameter);
 
                             codegenContent.getParameters().add(formParameter.copy());
@@ -2035,7 +2054,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
                     if (foundSchemas.isEmpty()) {
                         // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
-                        bodyParams.add(bodyParam);
+                        bodyParams.add(bodyParam.copy());
                         allParams.add(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
@@ -2049,7 +2068,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
                     codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
@@ -2274,9 +2292,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (parameter.getRequired() != null) {
             codegenParameter.required = parameter.getRequired();
         }
-        if (parameter.getRequired() != null) {
-            codegenParameter.required = parameter.getRequired();
-        }
         codegenParameter.jsonSchema = Json.pretty(parameter);
 
         if (System.getProperty("debugParser") != null) {
@@ -2473,6 +2488,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenParameter.baseName = REQUEST_BODY_NAME;
         codegenParameter.paramName = REQUEST_BODY_NAME;
         codegenParameter.description = body.getDescription();
+        codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
 
@@ -2569,6 +2585,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         setParameterExampleValue(codegenParameter);
+        postProcessParameter(codegenParameter);
         return codegenParameter;
     }
 
@@ -3081,13 +3098,22 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     public static String camelize(String word, boolean lowercaseFirstLetter) {
         // Replace all slashes with dots (package separator)
+        String originalWord = word;
+        LOGGER.trace("camelize start - " + originalWord);
         Pattern p = Pattern.compile("\\/(.?)");
         Matcher m = p.matcher(word);
+        int i = 0;
+        int MAX = 100;
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst("." + m.group(1)/*.toUpperCase()*/); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
             m = p.matcher(word);
         }
-
+        i = 0;
         // case out dots
         String[] parts = word.split("\\.");
         StringBuilder f = new StringBuilder();
@@ -3100,10 +3126,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         m = p.matcher(word);
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst("" + Character.toUpperCase(m.group(1).charAt(0)) + m.group(1).substring(1)/*.toUpperCase()*/);
             m = p.matcher(word);
         }
-
+        i = 0;
         // Uppercase the class name.
         p = Pattern.compile("(\\.?)(\\w)([^\\.]*)$");
         m = p.matcher(word);
@@ -3117,6 +3148,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         p = Pattern.compile("(_)(.)");
         m = p.matcher(word);
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             String original = m.group(2);
             String upperCase = original.toUpperCase();
             if (original.equals(upperCase)) {
@@ -3130,7 +3166,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         // Remove all hyphens (hyphen-case to camelCase)
         p = Pattern.compile("(-)(.)");
         m = p.matcher(word);
+        i = 0;
         while (m.find()) {
+            if (i > MAX) {
+                LOGGER.error("camelize reached find limit - {} / {}", originalWord, word);
+                break;
+            }
+            i++;
             word = m.replaceFirst(m.group(2).toUpperCase());
             m = p.matcher(word);
         }
@@ -3138,7 +3180,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (lowercaseFirstLetter && word.length() > 0) {
             word = word.substring(0, 1).toLowerCase() + word.substring(1);
         }
-
+        LOGGER.trace("camelize end - {} (new: {})", originalWord, word);
         return word;
     }
 
@@ -3730,8 +3772,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return null;
         }
         Schema schema = null;
-        for (MediaType mediaType : response.getContent().values()) {
-            schema = mediaType.getSchema();
+        for (String contentType : response.getContent().keySet()) {
+            schema = response.getContent().get(contentType).getSchema();
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
             break;
         }
         return schema;
@@ -3783,11 +3828,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    protected void addConsumesInfo(Operation operation, CodegenOperation codegenOperation) {
-        if(operation.getRequestBody() == null || operation.getRequestBody().getContent() == null || operation.getRequestBody().getContent().isEmpty()) {
+    protected void addConsumesInfo(Operation operation, CodegenOperation codegenOperation, OpenAPI openAPI) {
+        RequestBody body = operation.getRequestBody();
+        if (body == null) {
             return;
         }
-        Set<String> consumes = operation.getRequestBody().getContent().keySet();
+        if (StringUtils.isNotBlank(body.get$ref())) {
+            String bodyName = OpenAPIUtil.getSimpleRef(body.get$ref());
+            body = openAPI.getComponents().getRequestBodies().get(bodyName);
+        }
+        
+        if (body.getContent() == null || body.getContent().isEmpty()) {
+            return;
+        }
+        
+        Set<String> consumes = body.getContent().keySet();
         List<Map<String, String>> mediaTypeList = new ArrayList<>();
         int count = 0;
         for (String key : consumes) {
@@ -3842,12 +3897,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 final String pathParam = path.substring(path.indexOf("{"), path.indexOf("}") + 1);
                 final String paramName = pathParam.replace("{", StringUtils.EMPTY).replace("}", StringUtils.EMPTY);
 
-                final CodegenParameter codegenParameter = codegenOperation
+                final Optional<CodegenParameter> optionalCodegenParameter = codegenOperation
                         .pathParams
                         .stream()
                         .filter(codegenParam -> codegenParam.baseName.equals(paramName))
-                        .findFirst()
-                        .get();
+                        .findFirst();
+
+                if (!optionalCodegenParameter.isPresent()) {
+                    return;
+                }
+
+                final CodegenParameter codegenParameter = optionalCodegenParameter.get();
 
                 if (codegenParameter.testExample == null) {
                     return;
@@ -3921,13 +3981,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return null;
     }
 
+    // See: https://swagger.io/docs/specification/serialization/#query
     protected String getCollectionFormat(Parameter parameter) {
-        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle())) {
-            if (parameter.getExplode() != null && parameter.getExplode()) {
-                return "csv";
-            } else {
-                return "multi";
-            }
+        // "explode: true" is the default and always results in "multi", no matter the style.
+        if (parameter.getExplode() == null || parameter.getExplode()) {
+            return "multi";
+        }
+        
+        // Form is the default, if no style is specified.
+        if (parameter.getStyle() == null || Parameter.StyleEnum.FORM.equals(parameter.getStyle())) {
+            return "csv";
         }
         else if (Parameter.StyleEnum.PIPEDELIMITED.equals(parameter.getStyle())) {
             return "pipe";
@@ -3941,7 +4004,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     private boolean isObjectSchema (Schema schema) {
-        if (schema instanceof ObjectSchema) {
+        if (schema instanceof ObjectSchema ||schema instanceof ComposedSchema) {
             return true;
         }
         if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && !(schema instanceof MapSchema)) {
