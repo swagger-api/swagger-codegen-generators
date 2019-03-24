@@ -241,19 +241,41 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
+        // Index all CodegenModels by model name.
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            String modelName = toModelName(entry.getKey());
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                CodegenModel cm = (CodegenModel) mo.get("model");
+                allModels.put(modelName, cm);
+            }
+        }
         if (supportsInheritance) {
-            // Index all CodegenModels by model name.
-            Map<String, CodegenModel> allModels = new HashMap<>();
-            for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
-                String modelName = toModelName(entry.getKey());
-                Map<String, Object> inner = (Map<String, Object>) entry.getValue();
-                List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
-                for (Map<String, Object> mo : models) {
-                    CodegenModel cm = (CodegenModel) mo.get("model");
-                    allModels.put(modelName, cm);
+            processCodegenModels(allModels);
+        }
+        for (String modelName : allModels.keySet()) {
+            final CodegenModel codegenModel = allModels.get(modelName);
+            if (!codegenModel.vendorExtensions.containsKey("x-is-interface")) {
+                continue;
+            }
+            List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
+            if (modelNames == null || modelNames.isEmpty()) {
+                continue;
+            }
+            for (String name : modelNames) {
+                final CodegenModel model = allModels.get(name);
+                if (model == null) {
+                    continue;
+                }
+                if (model.interfaceModels == null) {
+                    model.interfaceModels = new ArrayList<>();
+                }
+                if (!model.interfaceModels.stream().anyMatch(value -> value.name.equalsIgnoreCase(modelName))) {
+                    model.interfaceModels.add(codegenModel);
                 }
             }
-            processCodegenModels(allModels);
         }
         return processedModels;
     }
@@ -1298,14 +1320,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             final String parentName = getParentName(composed);
             final Schema parent = StringUtils.isBlank(parentName) ? null : allDefinitions.get(parentName);
 
-            List<Schema> interfaces = getInterfaces(composed);
+            final List<Schema> allOf = composed.getAllOf();
+            final List<Schema> oneOf = composed.getOneOf();
+            final List<Schema> anyOf = composed.getAnyOf();
 
             // interfaces (intermediate models)
-            if (interfaces != null) {
-                if (codegenModel.interfaces == null) {
-                    codegenModel.interfaces = new ArrayList<String>();
-                }
-                for (Schema interfaceSchema : interfaces) {
+            if (allOf != null && !allOf.isEmpty()) {
+                for (Schema interfaceSchema : allOf) {
                     if (StringUtils.isBlank(interfaceSchema.get$ref())) {
                         continue;
                     }
@@ -1326,6 +1347,28 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                 }
+            }
+            if (oneOf != null && !oneOf.isEmpty()) {
+                String oneOfModelName = "OneOf" + name;
+                final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
+                oneOfModel.name = oneOfModelName;
+                oneOfModel.classname = toModelName(oneOfModelName);
+                oneOfModel.classVarName = toVarName(oneOfModelName);
+                oneOfModel.classFilename = toModelFilename(oneOfModelName);
+                oneOfModel.vendorExtensions.put("x-is-interface", Boolean.TRUE);
+
+                final List<String> modelNames = new ArrayList<>();
+
+                for (Schema interfaceSchema : oneOf) {
+                    String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                    modelNames.add(toModelName(schemaName));
+                }
+                oneOfModel.vendorExtensions.put("x-model-names", modelNames);
+                codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+                if (codegenModel.interfaceModels == null) {
+                    codegenModel.interfaceModels = new ArrayList<>();
+                }
+                codegenModel.interfaceModels.add(oneOfModel);
             }
             if (parent != null) {
                 codegenModel.parentSchema = parentName;

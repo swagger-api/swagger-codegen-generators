@@ -2,9 +2,47 @@
 
 package {{package}};
 
-{{getModelImports}}
+{{^x-is-interface}}
+{{^supportJava6}}
+import java.util.Objects;
+import java.util.Arrays;
+{{/supportJava6}}
+{{#supportJava6}}
+import org.apache.commons.lang3.ObjectUtils;
+{{/supportJava6}}
+{{#imports}}
+import {{import}};
+{{/imports}}
+{{#serializableModel}}
+import java.io.Serializable;
+{{/serializableModel}}
+{{#jackson}}
+{{#withXml}}
+import com.fasterxml.jackson.dataformat.xml.annotation.*;
+{{/withXml}}
+{{/jackson}}
+{{#withXml}}
+import javax.xml.bind.annotation.*;
+{{/withXml}}
+{{#parcelableModel}}
+import android.os.Parcelable;
+import android.os.Parcel;
+{{/parcelableModel}}
+{{#useBeanValidation}}
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/useBeanValidation}}
+{{/x-is-interface}}
+{{#vendorExtensions.x-is-interface}}
+// ok ok ok ok ok . . .
+{{/vendorExtensions.x-is-interface}}
 {{#models}}
 {{#model}}
+{{#vendorExtensions.x-is-interface}}
+{{>interface}}
+{{/vendorExtensions.x-is-interface}}
+{{^vendorExtensions.x-is-interface}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{/vendorExtensions.x-is-interface}}
 {{/model}}
 {{/models}}
