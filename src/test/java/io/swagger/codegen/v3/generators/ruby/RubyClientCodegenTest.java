@@ -1,11 +1,8 @@
 package io.swagger.codegen.v3.generators.ruby;
 
 import io.swagger.codegen.v3.*;
-import io.swagger.models.Swagger;
 import io.swagger.parser.OpenAPIParser;
-import io.swagger.parser.SwaggerParser;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 import org.testng.Assert;
