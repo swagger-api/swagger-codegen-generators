@@ -61,7 +61,7 @@ Please follow the [installation](#installation) procedure and then run the follo
 ```ruby
 # Load the gem
 require '{{{gemName}}}'
-{{#apiInfo}}{{#apis}}{{@first}}{{#operations}}{{#operation}}{{@first}}{{#hasAuthMethods}}
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#hasAuthMethods}}
 # Setup authorization
 {{{moduleName}}}.configure do |config|{{#authMethods}}{{#isBasic}}
   # Configure HTTP basic authorization: {{{name}}}
@@ -91,7 +91,7 @@ begin
 rescue {{{moduleName}}}::ApiError => e
   puts "Exception when calling {{classname}}->{{{operationId}}}: #{e}"
 end
-{{/-first}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
+{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 ```
 
 ## Documentation for API Endpoints

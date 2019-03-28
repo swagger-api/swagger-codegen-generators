@@ -51,14 +51,6 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
         modelPackage = "models";
         apiPackage = "api";
         outputFolder = "generated-code" + File.separator + "ruby";
-        modelTemplateFiles.put("model.mustache", ".rb");
-        apiTemplateFiles.put("api.mustache", ".rb");
-        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-        apiDocTemplateFiles.put("api_doc.mustache", ".md");
-        embeddedTemplateDir = templateDir = "ruby";
-
-        modelTestTemplateFiles.put("model_test.mustache", ".rb");
-        apiTestTemplateFiles.put("api_test.mustache", ".rb");
 
         // default HIDE_GENERATION_TIMESTAMP to true
         hideGenerationTimestamp = Boolean.TRUE;
@@ -121,9 +113,9 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
         cliOptions.removeIf(opt -> CodegenConstants.MODEL_PACKAGE.equals(opt.getOpt()) ||
                 CodegenConstants.API_PACKAGE.equals(opt.getOpt()));
         cliOptions.add(new CliOption(GEM_NAME, "gem name (convention: underscore_case).")
-                .defaultValue("swagger_client"));
-        cliOptions.add(new CliOption(MODULE_NAME, "top module name (convention: CamelCase, usually corresponding" +
-                " to gem name).").defaultValue("SwaggerClient"));
+                .defaultValue("openapi_client"));
+        cliOptions.add(new CliOption(MODULE_NAME, "top module name (convention: CamelCase, usually corresponding to gem name).")
+                .defaultValue("OpenAPIClient"));
         cliOptions.add(new CliOption(GEM_VERSION, "gem version.")
                 .defaultValue("1.0.0"));
         cliOptions.add(new CliOption(GEM_LICENSE, "gem license. ")
@@ -133,9 +125,9 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(GEM_HOMEPAGE, "gem homepage. ")
                 .defaultValue("http://swagger.io"));
         cliOptions.add(new CliOption(GEM_SUMMARY, "gem summary. ")
-                .defaultValue("A ruby wrapper for the swagger APIs"));
+                .defaultValue("A ruby wrapper for the open APIs"));
         cliOptions.add(new CliOption(GEM_DESCRIPTION, "gem description. ")
-                .defaultValue("This gem maps to a swagger API"));
+                .defaultValue("This gem maps to a open API"));
         cliOptions.add(new CliOption(GEM_AUTHOR, "gem author (only one is supported)."));
         cliOptions.add(new CliOption(GEM_AUTHOR_EMAIL, "gem author email (only one is supported)."));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
@@ -145,6 +137,18 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
+
+        modelTemplateFiles.put("model.mustache", ".rb");
+        apiTemplateFiles.put("api.mustache", ".rb");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+
+        modelTestTemplateFiles.put("model_test.mustache", ".rb");
+        apiTestTemplateFiles.put("api_test.mustache", ".rb");
 
         if (additionalProperties.containsKey(GEM_NAME)) {
             setGemName((String) additionalProperties.get(GEM_NAME));

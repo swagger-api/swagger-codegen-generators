@@ -51,8 +51,8 @@ module {{moduleName}}
       {{#isEnum}}
       {{^isContainer}}
       # verify enum value
-      if @api_client.config.client_side_validation && ![{{#allowableValues}}{{#values}}'{{{this}}}'{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}].include?({{{paramName}}})
-        fail ArgumentError, "invalid value for '{{{paramName}}}', must be one of {{#allowableValues}}{{#values}}{{{this}}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}"
+      if @api_client.config.client_side_validation && ![{{#allowableValues}}{{#values}}'{{{this}}}'{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}].include?({{{paramName}}})
+        fail ArgumentError, "invalid value for '{{{paramName}}}', must be one of {{#allowableValues}}{{#values}}{{{this}}}{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}"
       end
       {{/isContainer}}
       {{/isEnum}}
@@ -60,13 +60,13 @@ module {{moduleName}}
       {{^required}}
       {{#isEnum}}
       {{#collectionFormat}}
-      if @api_client.config.client_side_validation && opts[:'{{{paramName}}}'] && !opts[:'{{{paramName}}}'].all? { |item| [{{#allowableValues}}{{#values}}'{{{this}}}'{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}].include?(item) }
-        fail ArgumentError, 'invalid value for "{{{paramName}}}", must include one of {{#allowableValues}}{{#values}}{{{this}}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}'
+      if @api_client.config.client_side_validation && opts[:'{{{paramName}}}'] && !opts[:'{{{paramName}}}'].all? { |item| [{{#allowableValues}}{{#values}}'{{{this}}}'{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}].include?(item) }
+        fail ArgumentError, 'invalid value for "{{{paramName}}}", must include one of {{#allowableValues}}{{#values}}{{{this}}}{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}'
       end
       {{/collectionFormat}}
       {{^collectionFormat}}
-      if @api_client.config.client_side_validation && opts[:'{{{paramName}}}'] && ![{{#allowableValues}}{{#values}}'{{{this}}}'{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}].include?(opts[:'{{{paramName}}}'])
-        fail ArgumentError, 'invalid value for "{{{paramName}}}", must be one of {{#allowableValues}}{{#values}}{{{this}}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}'
+      if @api_client.config.client_side_validation && opts[:'{{{paramName}}}'] && ![{{#allowableValues}}{{#values}}'{{{this}}}'{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}].include?(opts[:'{{{paramName}}}'])
+        fail ArgumentError, 'invalid value for "{{{paramName}}}", must be one of {{#allowableValues}}{{#values}}{{{this}}}{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}'
       end
       {{/collectionFormat}}
       {{/isEnum}}
