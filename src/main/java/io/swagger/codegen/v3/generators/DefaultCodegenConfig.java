@@ -2004,24 +2004,40 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             List<Schema> foundSchemas = new ArrayList<>();
 
             for (String contentType : body.getContent().keySet()) {
+                boolean isForm = "application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType);
 
                 String schemaName = null;
                 Schema schema = body.getContent().get(contentType).getSchema();
-                if (StringUtils.isNotBlank(schema.get$ref())) {
+                if (schema != null && StringUtils.isNotBlank(schema.get$ref())) {
                     schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
                     schema = schemas.get(schemaName);
                 }
+                final CodegenContent codegenContent = new CodegenContent(contentType);
+                codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, isForm);
 
-                if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType) || "multipart/form-data".equalsIgnoreCase(contentType)) {
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
-                    codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, Boolean.TRUE);
+                if (schema == null) {
+                    CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
+                    codegenParameter.description = body.getDescription();
+                    codegenParameter.unescapedDescription = body.getDescription();
+                    codegenParameter.baseName = REQUEST_BODY_NAME;
+                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    codegenParameter.dataType = "Object";
+                    codegenParameter.baseType = "Object";
 
+                    codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
+                    if (!isForm) {
+                        codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
+                    }
+                    continue;
+                }
+                if (isForm) {
                     final Map<String, Schema> propertyMap = schema.getProperties();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
                     if (propertyMap != null && !propertyMap.isEmpty()) {
                         for (String propertyName : propertyMap.keySet()) {
                             CodegenParameter formParameter = fromParameter(new Parameter()
                                     .name(propertyName)
+                                    .required(body.getRequired())
                                     .schema(propertyMap.get(propertyName)), imports);
                             if (isMultipart) {
                                 formParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
@@ -2029,6 +2045,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
                             formParams.add(formParameter.copy());
+                            if (body.getRequired() != null && body.getRequired()) {
+                                requiredParams.add(formParameter.copy());
+                            }
                             allParams.add(formParameter);
 
                             codegenContent.getParameters().add(formParameter.copy());
@@ -2053,7 +2072,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    final CodegenContent codegenContent = new CodegenContent(contentType);
                     codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
@@ -2153,12 +2171,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_REQUIRED_PARAMS_EXT_NAME, hasRequiredParams);
 
         // set Restful Flag
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_SHOW_EXT_NAME, codegenOperation.isRestfulShow());
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_INDEX_EXT_NAME, codegenOperation.isRestfulIndex());
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_CREATE_EXT_NAME, codegenOperation.isRestfulCreate());
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_UPDATE_EXT_NAME, codegenOperation.isRestfulUpdate());
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_DESTROY_EXT_NAME, codegenOperation.isRestfulDestroy());
-        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_EXT_NAME, codegenOperation.isRestful());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_SHOW_EXT_NAME, codegenOperation.getIsRestfulShow());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_INDEX_EXT_NAME, codegenOperation.getIsRestfulIndex());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_CREATE_EXT_NAME, codegenOperation.getIsRestfulCreate());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_UPDATE_EXT_NAME, codegenOperation.getIsRestfulUpdate());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_DESTROY_EXT_NAME, codegenOperation.getIsRestfulDestroy());
+        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_EXT_NAME, codegenOperation.getIsRestful());
 
         configureDataForTestTemplate(codegenOperation);
 
@@ -3786,7 +3804,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         Schema schema = null;
         for (String contentType : response.getContent().keySet()) {
             schema = response.getContent().get(contentType).getSchema();
-            schema.addExtension("x-content-type", contentType);
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
             break;
         }
         return schema;

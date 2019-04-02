@@ -191,6 +191,77 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(codegenOp.consumes.get(1).get("mediaType"), "application/xml");
     }
 
+    /**
+     * Tests when a 'application/x-www-form-urlencoded' request body is marked as required that all form
+     * params are also marked as required.
+     * 
+     * @see #testOptionalFormParams()
+     */
+    @Test
+    public void testRequiredFormParams() {
+        // Setup
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+
+        final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
+        final String path = "/test_required";
+        
+        final Operation op = openAPI.getPaths().get(path).getPost();
+        Assert.assertNotNull(op);
+        
+        // Test
+        final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
+        
+        // Verification
+        List<CodegenParameter> formParams = codegenOp.getFormParams();
+        Assert.assertNotNull(formParams);
+        Assert.assertEquals(formParams.size(), 2);
+        
+        for (CodegenParameter formParam : formParams) {
+            Assert.assertTrue(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not required.");
+        }
+
+        // Required params must be updated as well.
+        List<CodegenParameter> requiredParams = codegenOp.getRequiredParams();
+        Assert.assertNotNull(requiredParams);
+        Assert.assertEquals(requiredParams.size(), 2);
+        requiredParams.get(0).getParamName().equals("id");
+        requiredParams.get(1).getParamName().equals("name");
+    }
+
+    /**
+     * Tests when a 'application/x-www-form-urlencoded' request body is marked as optional that all form
+     * params are also marked as optional.
+     * 
+     * @see #testRequiredFormParams()
+     */
+    @Test
+    public void testOptionalFormParams() {
+        // Setup
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+
+        final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
+        final String path = "/test_optional";
+        
+        final Operation op = openAPI.getPaths().get(path).getPost();
+        Assert.assertNotNull(op);
+        
+        // Test
+        final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
+        
+        // Verification
+        List<CodegenParameter> formParams = codegenOp.getFormParams();
+        Assert.assertNotNull(formParams);
+        Assert.assertEquals(formParams.size(), 2);
+        
+        for (CodegenParameter formParam : formParams) {
+            Assert.assertFalse(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is required.");
+        }
+
+        // Required params must be updated as well.
+        List<CodegenParameter> requiredParams = codegenOp.getRequiredParams();
+        Assert.assertTrue(requiredParams == null || requiredParams.size() == 0);
+    }
+
     @Test
     public void testFromResponse_inlineHeaders() {
         final String RESPONSE_CODE = "200";
