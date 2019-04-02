@@ -173,16 +173,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
         } else if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             // guess from api package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from api package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from api package name: " + derivedInvokerPackage);
         } else if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             // guess from model package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from model package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from model package name: " + derivedInvokerPackage);
         } else if (StringUtils.isNotEmpty(invokerPackage)) {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
