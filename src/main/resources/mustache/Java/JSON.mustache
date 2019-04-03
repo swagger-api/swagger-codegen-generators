@@ -26,7 +26,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 {{/threetenbp}}
 
 {{#parent.length}}
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 {{/parent.length}}
 import okio.ByteString;
 
