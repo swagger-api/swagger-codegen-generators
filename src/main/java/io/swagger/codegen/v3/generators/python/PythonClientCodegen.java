@@ -254,6 +254,16 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toApiImport(String name) {
+        String apiImport = "";
+        if (!"".equals(apiPackage())) {
+            apiImport += apiPackage() + ".";
+        }
+        apiImport += toApiFilename(name);
+        return apiImport;
+    }
+
+    @Override
     public Map<String, Object> postProcessModels(Map<String, Object> objs) {
         // process enum in models
         return postProcessModelsEnum(objs);
