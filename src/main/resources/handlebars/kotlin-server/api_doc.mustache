@@ -23,7 +23,7 @@ Method | HTTP request | Description
 ```kotlin
 // Import classes:
 //import {{{packageName}}}.infrastructure.*
-//import {{{modelPackage}}}.*
+//{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{! TODO: Auth method documentation examples}}
 val apiInstance = {{{classname}}}()
