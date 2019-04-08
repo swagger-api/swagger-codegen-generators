@@ -368,7 +368,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toApiImport(String name) {
-        return apiPackage() + File.separator + toApiFilename(name);
+        return apiPackage() + "/" + toApiFilename(name);
     }
 
     @Override
@@ -378,7 +378,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelImport(String name) {
-        return modelPackage() + File.separator + toModelFilename(name);
+        return modelPackage() + "/" + toModelFilename(name);
     }
 
     public String getNpmName() {
