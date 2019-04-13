@@ -257,7 +257,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         for (String modelName : allModels.keySet()) {
             final CodegenModel codegenModel = allModels.get(modelName);
-            if (!codegenModel.vendorExtensions.containsKey("x-is-interface")) {
+            if (!codegenModel.vendorExtensions.containsKey("x-is-one-of")) {
                 continue;
             }
             List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
@@ -1355,7 +1355,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 oneOfModel.classname = toModelName(oneOfModelName);
                 oneOfModel.classVarName = toVarName(oneOfModelName);
                 oneOfModel.classFilename = toModelFilename(oneOfModelName);
-                oneOfModel.vendorExtensions.put("x-is-interface", Boolean.TRUE);
+                oneOfModel.vendorExtensions.put("x-is-one-of", Boolean.TRUE);
 
                 final List<String> modelNames = new ArrayList<>();
 
