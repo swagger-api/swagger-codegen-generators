@@ -2,7 +2,7 @@
 
 package {{package}};
 
-{{^x-is-interface}}
+{{^x-is-one-of}}
 {{^supportJava6}}
 import java.util.Objects;
 import java.util.Arrays;
@@ -32,17 +32,14 @@ import android.os.Parcel;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 {{/useBeanValidation}}
-{{/x-is-interface}}
-{{#vendorExtensions.x-is-interface}}
-// ok ok ok ok ok . . .
-{{/vendorExtensions.x-is-interface}}
+{{/x-is-one-of}}
 {{#models}}
 {{#model}}
-{{#vendorExtensions.x-is-interface}}
+{{#vendorExtensions.x-is-one-of}}
 {{>interface}}
-{{/vendorExtensions.x-is-interface}}
-{{^vendorExtensions.x-is-interface}}
+{{/vendorExtensions.x-is-one-of}}
+{{^vendorExtensions.x-is-one-of}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
-{{/vendorExtensions.x-is-interface}}
+{{/vendorExtensions.x-is-one-of}}
 {{/model}}
 {{/models}}
