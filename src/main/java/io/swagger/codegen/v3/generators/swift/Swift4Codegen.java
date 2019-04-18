@@ -135,7 +135,10 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
 
     @Override
     public String transformPath(String path) {
-        return path.replace("{", "\\(").replace("}", ")");
+        return path
+                .replace("{", "\\(")
+                .replace("}", ")")
+                .replace("(id)", "(_id)");
     }
 
     @Override
