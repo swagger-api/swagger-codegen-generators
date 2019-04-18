@@ -3095,6 +3095,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return camelized string
      */
     public static String camelize(String word, boolean lowercaseFirstLetter) {
+
+        if (word.isEmpty()) {
+            return word;
+        }
+
         // Replace all slashes with dots (package separator)
         Pattern p = Pattern.compile("\\/(.?)");
         Matcher m = p.matcher(word);
