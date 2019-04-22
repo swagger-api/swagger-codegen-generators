@@ -34,6 +34,7 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
@@ -2525,6 +2526,19 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
 
         codegenParameter.jsonSchema = Json.pretty(body);
+
+        if (body.getContent() != null && !body.getContent().isEmpty()) {
+            Object example = new ArrayList<>(body.getContent().values()).get(0).getExample();
+            if (example != null) {
+                codegenParameter.example = Json.pretty(example);
+            } else {
+                Map<String, Example> examples = new ArrayList<>(body.getContent().values()).get(0).getExamples();
+                if (examples != null && !examples.isEmpty()) {
+                    // get the first.. or concat all as json?
+                    codegenParameter.example = Json.pretty(new ArrayList<>(examples.values()).get(0));
+                }
+            }
+        }
 
         if (schema == null) {
             schema = getSchemaFromBody(body);
