@@ -258,7 +258,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         for (String modelName : allModels.keySet()) {
             final CodegenModel codegenModel = allModels.get(modelName);
-            if (!codegenModel.vendorExtensions.containsKey("x-is-one-of")) {
+            if (!codegenModel.vendorExtensions.containsKey("x-is-composed-model")) {
                 continue;
             }
             List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
@@ -1350,26 +1350,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             if (oneOf != null && !oneOf.isEmpty()) {
-                String oneOfModelName = "OneOf" + name;
-                final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-                oneOfModel.name = oneOfModelName;
-                oneOfModel.classname = toModelName(oneOfModelName);
-                oneOfModel.classVarName = toVarName(oneOfModelName);
-                oneOfModel.classFilename = toModelFilename(oneOfModelName);
-                oneOfModel.vendorExtensions.put("x-is-one-of", Boolean.TRUE);
-
-                final List<String> modelNames = new ArrayList<>();
-
-                for (Schema interfaceSchema : oneOf) {
-                    String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-                    modelNames.add(toModelName(schemaName));
-                }
-                oneOfModel.vendorExtensions.put("x-model-names", modelNames);
-                codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
-                if (codegenModel.interfaceModels == null) {
-                    codegenModel.interfaceModels = new ArrayList<>();
-                }
-                codegenModel.interfaceModels.add(oneOfModel);
+                this.schemaHandler.configureOneOfModel(codegenModel, oneOf);
+            }
+            if (anyOf != null && !anyOf.isEmpty()) {
+                this.schemaHandler.configureAnyOfModel(codegenModel, anyOf);
             }
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
@@ -3008,21 +2992,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenProperty.required = mandatory.contains(key);
 
             if (codegenProperty.vendorExtensions.containsKey("oneOf-model")) {
-                String name = "OneOf" + toModelName(codegenModel.name);
-                name += toModelName(codegenProperty.name);
-                CodegenModel oneOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("oneOf-model");
-                oneOfModel.name = name;
-                oneOfModel.classname = toModelName(name);
-                oneOfModel.classVarName = toVarName(name);
-                oneOfModel.classFilename = toModelFilename(name);
-                oneOfModel.vendorExtensions.put("x-is-one-of", Boolean.TRUE);
-                codegenProperty.vendorExtensions.remove("oneOf-model");
+                this.schemaHandler.configureOneOfModelFromProperty(codegenProperty, codegenModel);
+            }
 
-                codegenProperty.datatype = name;
-                codegenProperty.datatypeWithEnum = name;
-                codegenProperty.baseType = name;
-
-                codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+            if (codegenProperty.vendorExtensions.containsKey("anyOf-model")) {
+                this.schemaHandler.configureAnyOfModelFromProperty(codegenProperty, codegenModel);
             }
 
             if (propertySchema.get$ref() != null) {
