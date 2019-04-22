@@ -1328,7 +1328,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-                for (Schema interfaceSchema : allOf) {
+                List<Schema> interfaces = getInterfaces(composed);
+                if (codegenModel.interfaces == null) {
+                    codegenModel.interfaces = new ArrayList<String>();
+                }
+                for (Schema interfaceSchema : interfaces) {
                     if (StringUtils.isBlank(interfaceSchema.get$ref())) {
                         continue;
                     }
