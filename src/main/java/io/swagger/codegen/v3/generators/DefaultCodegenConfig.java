@@ -112,6 +112,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public static final String REQUEST_BODY_NAME = "body";
     public static final String DEFAULT_TEMPLATE_DIR = "handlebars";
 
+    protected OpenAPI openAPI;
     protected String inputSpec;
     protected String inputURL;
     protected String outputFolder = StringUtils.EMPTY;
@@ -156,7 +157,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
     protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);
-    protected OpenAPIUtil openAPIUtil = null;
+    protected SchemaHandler schemaHandler = new SchemaHandler(this);
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
@@ -248,8 +249,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             Map<String, Object> inner = (Map<String, Object>) entry.getValue();
             List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
             for (Map<String, Object> mo : models) {
-                CodegenModel cm = (CodegenModel) mo.get("model");
-                allModels.put(modelName, cm);
+                CodegenModel codegenModel = (CodegenModel) mo.get("model");
+                allModels.put(modelName, codegenModel);
             }
         }
         if (supportsInheritance) {
@@ -423,7 +424,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
-        this.openAPIUtil = new OpenAPIUtil(openAPI);
+        this.openAPI = openAPI;
     }
 
     @Override
@@ -1725,6 +1726,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // handle inner property
             CodegenProperty cp = fromProperty("inner", (Schema) propertySchema.getAdditionalProperties());
             updatePropertyForMap(codegenProperty, cp);
+        } else if (propertySchema instanceof ComposedSchema) {
+            ComposedSchema composedProperty = (ComposedSchema) propertySchema;
+            Map<String, Schema> schemas = this.openAPI.getComponents() != null ? this.openAPI.getComponents().getSchemas() : null;
+            this.schemaHandler.createCodegenModel(composedProperty, codegenProperty);
         } else {
             setNonArrayMapProperty(codegenProperty, type);
         }
@@ -2997,70 +3002,88 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             if (propertySchema == null) {
                 LOGGER.warn("null property for " + key);
-            } else {
-                final CodegenProperty cp = fromProperty(key, propertySchema);
-                cp.required = mandatory.contains(key);
+                continue;
+            }
+            final CodegenProperty codegenProperty = fromProperty(key, propertySchema);
+            codegenProperty.required = mandatory.contains(key);
 
-                if (propertySchema.get$ref() != null) {
-                    if (openAPIUtil == null) {
-                        LOGGER.warn("open api utility object was not properly set.");
-                    } else {
-                        openAPIUtil.addPropertiesFromRef(propertySchema, cp);
-                    }
+            if (codegenProperty.vendorExtensions.containsKey("oneOf-model")) {
+                String name = "OneOf" + toModelName(codegenModel.name);
+                name += toModelName(codegenProperty.name);
+                CodegenModel oneOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("oneOf-model");
+                oneOfModel.name = name;
+                oneOfModel.classname = toModelName(name);
+                oneOfModel.classVarName = toVarName(name);
+                oneOfModel.classFilename = toModelFilename(name);
+                oneOfModel.vendorExtensions.put("x-is-one-of", Boolean.TRUE);
+                codegenProperty.vendorExtensions.remove("oneOf-model");
+
+                codegenProperty.datatype = name;
+                codegenProperty.datatypeWithEnum = name;
+                codegenProperty.baseType = name;
+
+                codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+            }
+
+            if (propertySchema.get$ref() != null) {
+                if (this.openAPI == null) {
+                    LOGGER.warn("open api utility object was not properly set.");
+                } else {
+                    OpenAPIUtil.addPropertiesFromRef(this.openAPI, propertySchema, codegenProperty);
                 }
+            }
 
-                boolean hasRequired = getBooleanValue(codegenModel, HAS_REQUIRED_EXT_NAME) || cp.required;
-                boolean hasOptional = getBooleanValue(codegenModel, HAS_OPTIONAL_EXT_NAME) || !cp.required;
+            boolean hasRequired = getBooleanValue(codegenModel, HAS_REQUIRED_EXT_NAME) || codegenProperty.required;
+            boolean hasOptional = getBooleanValue(codegenModel, HAS_OPTIONAL_EXT_NAME) || !codegenProperty.required;
 
-                codegenModel.getVendorExtensions().put(HAS_REQUIRED_EXT_NAME, hasRequired);
-                codegenModel.getVendorExtensions().put(HAS_OPTIONAL_EXT_NAME, hasOptional);
+            codegenModel.getVendorExtensions().put(HAS_REQUIRED_EXT_NAME, hasRequired);
+            codegenModel.getVendorExtensions().put(HAS_OPTIONAL_EXT_NAME, hasOptional);
 
-                boolean isEnum = getBooleanValue(cp, IS_ENUM_EXT_NAME);
-                if (isEnum) {
-                    // FIXME: if supporting inheritance, when called a second time for allProperties it is possible for
-                    // m.hasEnums to be set incorrectly if allProperties has enumerations but properties does not.
-                    codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, true);
+            boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
+            if (isEnum) {
+                // FIXME: if supporting inheritance, when called a second time for allProperties it is possible for
+                // m.hasEnums to be set incorrectly if allProperties has enumerations but properties does not.
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, true);
+            }
+
+            // set model's hasOnlyReadOnly to false if the property is read-only
+            if (!getBooleanValue(codegenProperty, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
+                codegenModel.getVendorExtensions().put(HAS_ONLY_READ_ONLY_EXT_NAME, Boolean.FALSE);
+            }
+
+            if (i+1 != totalCount) {
+                codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
+                // check the next entry to see if it's read only
+                if (!Boolean.TRUE.equals(propertyList.get(i+1).getValue().getReadOnly())) {
+                    codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_NON_READ_ONLY_EXT_NAME, Boolean.TRUE);
                 }
+            }
 
-                // set model's hasOnlyReadOnly to false if the property is read-only
-                if (!getBooleanValue(cp, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
-                    codegenModel.getVendorExtensions().put(HAS_ONLY_READ_ONLY_EXT_NAME, Boolean.FALSE);
-                }
+            if (getBooleanValue(codegenProperty, CodegenConstants.IS_CONTAINER_EXT_NAME)) {
+                addImport(codegenModel, typeMapping.get("array"));
+            }
 
-                if (i+1 != totalCount) {
-                    cp.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
-                    // check the next entry to see if it's read only
-                    if (!Boolean.TRUE.equals(propertyList.get(i+1).getValue().getReadOnly())) {
-                        cp.getVendorExtensions().put(CodegenConstants.HAS_MORE_NON_READ_ONLY_EXT_NAME, Boolean.TRUE);
-                    }
-                }
+            addImport(codegenModel, codegenProperty.baseType);
+            CodegenProperty innerCp = codegenProperty;
+            while(innerCp != null) {
+                addImport(codegenModel, innerCp.complexType);
+                innerCp = innerCp.items;
+            }
+            vars.add(codegenProperty);
 
-                if (getBooleanValue(cp, CodegenConstants.IS_CONTAINER_EXT_NAME)) {
-                    addImport(codegenModel, typeMapping.get("array"));
-                }
+            // if required, add to the list "requiredVars"
+            if (Boolean.TRUE.equals(codegenProperty.required)) {
+                codegenModel.requiredVars.add(codegenProperty);
+            } else { // else add to the list "optionalVars" for optional property
+                codegenModel.optionalVars.add(codegenProperty);
+            }
 
-                addImport(codegenModel, cp.baseType);
-                CodegenProperty innerCp = cp;
-                while(innerCp != null) {
-                    addImport(codegenModel, innerCp.complexType);
-                    innerCp = innerCp.items;
-                }
-                vars.add(cp);
-
-                // if required, add to the list "requiredVars"
-                if (Boolean.TRUE.equals(cp.required)) {
-                    codegenModel.requiredVars.add(cp);
-                } else { // else add to the list "optionalVars" for optional property
-                    codegenModel.optionalVars.add(cp);
-                }
-
-                // if readonly, add to readOnlyVars (list of properties)
-                if (getBooleanValue(cp, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
-                    codegenModel.readOnlyVars.add(cp);
-                } else { // else add to readWriteVars (list of properties)
-                    // FIXME: readWriteVars can contain duplicated properties. Debug/breakpoint here while running C# generator (Dog and Cat models)
-                    codegenModel.readWriteVars.add(cp);
-                }
+            // if readonly, add to readOnlyVars (list of properties)
+            if (getBooleanValue(codegenProperty, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
+                codegenModel.readOnlyVars.add(codegenProperty);
+            } else { // else add to readWriteVars (list of properties)
+                // FIXME: readWriteVars can contain duplicated properties. Debug/breakpoint here while running C# generator (Dog and Cat models)
+                codegenModel.readWriteVars.add(codegenProperty);
             }
         }
     }
