@@ -57,11 +57,12 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     protected void addAdditionPropertiesToCodeGenModel(CodegenModel codegenModel, Schema schema) {
-        if (schema.getAdditionalProperties() == null) {
-            return;
+        if (schema instanceof MapSchema  && hasSchemaProperties(schema)) {
+            codegenModel.additionalPropertiesType = getTypeDeclaration((Schema) schema.getAdditionalProperties());
+            addImport(codegenModel, codegenModel.additionalPropertiesType);
+        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
+            codegenModel.additionalPropertiesType = getTypeDeclaration(new ObjectSchema());
         }
-        codegenModel.additionalPropertiesType = getTypeDeclaration((Schema) schema.getAdditionalProperties());
-        addImport(codegenModel, codegenModel.additionalPropertiesType);
     }
 
     @Override
@@ -185,8 +186,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             ArraySchema arraySchema = (ArraySchema)propertySchema;
             inner = arraySchema.getItems();
             return this.getSchemaType(propertySchema) + "<" + this.getTypeDeclaration(inner) + ">";
-        } else if(propertySchema instanceof MapSchema && propertySchema.getAdditionalProperties() != null) {
+        } else if(propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
             inner = (Schema) propertySchema.getAdditionalProperties();
+            return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            inner = new ObjectSchema();
             return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
         } else if(propertySchema instanceof FileSchema) {
             return "Blob";
