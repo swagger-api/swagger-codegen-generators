@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
@@ -181,7 +182,7 @@ public class TypeScriptAngularModelTest {
 
     @Test(description = "convert a map model")
     public void mapModelTest() {
-        final Schema model = new Schema()
+        final Schema model = new MapSchema()
                 .description("a map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new TypeScriptAngularClientCodegen();
