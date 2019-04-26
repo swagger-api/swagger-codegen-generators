@@ -969,7 +969,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return string presentation of the instantiation type of the property
      */
     public String toInstantiationType(Schema property) {
-        if (property instanceof MapSchema || (property.getAdditionalProperties() != null && (property.getAdditionalProperties() instanceof Schema))) {
+        if (property instanceof MapSchema && hasSchemaProperties(property)) {
             Schema additionalProperties = (Schema) property.getAdditionalProperties();
             String type = additionalProperties.getType();
             if (null == type) {
@@ -977,6 +977,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         + "\tIn Property: " + property);
             }
             String inner = getSchemaType(additionalProperties);
+            return instantiationTypes.get("map") + "<String, " + inner + ">";
+        } else if (property instanceof MapSchema && hasTrueAdditionalProperties(property)) {
+            String inner = getSchemaType(new ObjectSchema());
             return instantiationTypes.get("map") + "<String, " + inner + ">";
         } else if (property instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) property;
@@ -1095,7 +1098,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return "string";
         } else {
             if (schema != null) {
-                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
+                if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema))) {
                     return "map";
                 } else {
                     return schema.getType();
@@ -1280,6 +1283,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             addParentContainer(codegenModel, name, schema);
+            if (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema)) {
+                addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+            }
+
         }
         else if (schema instanceof ComposedSchema) {
             final ComposedSchema composed = (ComposedSchema) schema;
@@ -1381,9 +1388,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 // comment out below as allowableValues is not set in post processing model enum
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
-            }
-            if (schema.getAdditionalProperties() != null && (schema.getAdditionalProperties() instanceof Schema)) {
-                addAdditionPropertiesToCodeGenModel(codegenModel, schema);
             }
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
@@ -1703,7 +1707,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             Schema items = ((ArraySchema) propertySchema).getItems();
             CodegenProperty innerCodegenProperty = fromProperty(itemName, items);
             updatePropertyForArray(codegenProperty, innerCodegenProperty);
-        } else if (propertySchema instanceof MapSchema || ((propertySchema.getAdditionalProperties() != null && (propertySchema.getAdditionalProperties() instanceof Schema)))) {
+        } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
 
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -1719,6 +1723,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             ComposedSchema composedProperty = (ComposedSchema) propertySchema;
             Map<String, Schema> schemas = this.openAPI.getComponents() != null ? this.openAPI.getComponents().getSchemas() : null;
             this.schemaHandler.createCodegenModel(composedProperty, codegenProperty);
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
+            codegenProperty.containerType = "map";
+            codegenProperty.baseType = getSchemaType(propertySchema);
+            codegenProperty.minItems = propertySchema.getMinProperties();
+            codegenProperty.maxItems = propertySchema.getMaxProperties();
+
+            // handle inner property
+            CodegenProperty cp = fromProperty("inner", new ObjectSchema());
+            updatePropertyForMap(codegenProperty, cp);
         } else {
             setNonArrayMapProperty(codegenProperty, type);
         }
@@ -1967,9 +1983,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         ArraySchema arraySchema = (ArraySchema) responseSchema;
                         CodegenProperty innerProperty = fromProperty("response", arraySchema.getItems());
                         codegenOperation.returnBaseType = innerProperty.baseType;
-                    } else if (responseSchema instanceof MapSchema) {
+                    } else if (responseSchema instanceof MapSchema  && hasSchemaProperties(responseSchema)) {
                         MapSchema mapSchema = (MapSchema) responseSchema;
                         CodegenProperty innerProperty = fromProperty("response", (Schema) mapSchema.getAdditionalProperties());
+                        codegenOperation.returnBaseType = innerProperty.baseType;
+                    } else if (responseSchema instanceof MapSchema  && hasTrueAdditionalProperties(responseSchema)) {
+                        CodegenProperty innerProperty = fromProperty("response", new ObjectSchema());
                         codegenOperation.returnBaseType = innerProperty.baseType;
                     } else {
                         if (codegenProperty.complexType != null) {
@@ -2365,8 +2384,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     imports.add(codegenProperty.baseType);
                     codegenProperty = codegenProperty.items;
                 }
-            } else if (parameterSchema instanceof MapSchema) { // for map parameter
+            } else if (parameterSchema instanceof MapSchema  && hasSchemaProperties(parameterSchema)) { // for map parameter
                 CodegenProperty codegenProperty = fromProperty("inner", (Schema) parameterSchema.getAdditionalProperties());
+                codegenParameter.items = codegenProperty;
+                codegenParameter.baseType = codegenProperty.datatype;
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
+                // recursively add import
+                while (codegenProperty != null) {
+                    imports.add(codegenProperty.baseType);
+                    codegenProperty = codegenProperty.items;
+                }
+                collectionFormat = getCollectionFormat(parameter);
+            } else if (parameterSchema instanceof MapSchema  && hasTrueAdditionalProperties(parameterSchema)) { // for map parameter
+                CodegenProperty codegenProperty = fromProperty("inner", new ObjectSchema());
                 codegenParameter.items = codegenProperty;
                 codegenParameter.baseType = codegenProperty.datatype;
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -4089,6 +4120,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected static boolean hasSchemaProperties(Schema schema) {
         final Object additionalProperties = schema.getAdditionalProperties();
         return additionalProperties != null && additionalProperties instanceof Schema;
+    }
+
+    protected static boolean hasTrueAdditionalProperties(Schema schema) {
+        final Object additionalProperties = schema.getAdditionalProperties();
+        return additionalProperties != null && Boolean.TRUE.equals(additionalProperties);
     }
 
     protected void configuresParameterForMediaType(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
