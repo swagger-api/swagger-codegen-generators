@@ -389,7 +389,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         OpenAPI swagger = (OpenAPI) objs.get("openapi");
         if(swagger != null) {
             try {
-                objs.put("opennapi-yaml", Yaml.mapper().writeValueAsString(swagger));
+                objs.put("openapi-yaml", Yaml.mapper().writeValueAsString(swagger));
             } catch (JsonProcessingException e) {
                 LOGGER.error(e.getMessage(), e);
             }

@@ -23,8 +23,8 @@ class {{classname}}(Model):
     allowed enum values
     """
 {{#enumVars}}
-    {{name}} = {{{value}}}{{^-last}}
-{{/-last}}
+    {{name}} = {{{value}}}{{^@last}}
+{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 
     def __init__(self{{#vars}}, {{name}}{{^supportPython2}}: {{datatype}}{{/supportPython2}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}):  # noqa: E501
@@ -46,8 +46,8 @@ class {{classname}}(Model):
             '{{name}}': '{{baseName}}'{{#hasMore}},{{/hasMore}}
 {{/vars}}
         }
-{{#vars}}{{#-first}}
-{{/-first}}
+{{#vars}}{{#@first}}
+{{/@first}}
         self._{{name}} = {{name}}
 {{/vars}}
 
@@ -60,9 +60,9 @@ class {{classname}}(Model):
         :return: The {{name}} of this {{classname}}.  # noqa: E501
         :rtype: {{classname}}
         """
-        return util.deserialize_model(dikt, cls){{#vars}}{{#-first}}
+        return util.deserialize_model(dikt, cls){{#vars}}{{#@first}}
 
-{{/-first}}
+{{/@first}}
     @property
     def {{name}}(self){{^supportPython2}} -> {{datatype}}{{/supportPython2}}:
         """Gets the {{name}} of this {{classname}}.
@@ -88,7 +88,7 @@ class {{classname}}(Model):
         :type {{name}}: {{datatype}}
         """
 {{#isEnum}}
-        allowed_values = [{{#allowableValues}}{{#values}}"{{{this}}}"{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}]  # noqa: E501
+        allowed_values = [{{#allowableValues}}{{#values}}"{{{this}}}"{{^@last}}, {{/@last}}{{/values}}{{/allowableValues}}]  # noqa: E501
 {{#isContainer}}
 {{#isListContainer}}
         if not set({{{name}}}).issubset(set(allowed_values)):
@@ -138,7 +138,7 @@ class {{classname}}(Model):
             raise ValueError("Invalid value for `{{name}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")  # noqa: E501
 {{/minimum}}
 {{#pattern}}
-        if {{name}} is not None and not re.search(r'{{{vendorExtensions.x-regex}}}', {{name}}{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):  # noqa: E501
+        if {{name}} is not None and not re.search(r'{{{vendorExtensions.x-regex}}}', {{name}}{{#vendorExtensions.x-modifiers}}{{#@first}}, flags={{/@first}}re.{{.}}{{^@last}} | {{/@last}}{{/vendorExtensions.x-modifiers}}):  # noqa: E501
             raise ValueError("Invalid value for `{{name}}`, must be a follow pattern or equal to `{{{pattern}}}`")  # noqa: E501
 {{/pattern}}
 {{#maxItems}}
@@ -152,9 +152,9 @@ class {{classname}}(Model):
 {{/hasValidation}}
 {{/isEnum}}
 
-        self._{{name}} = {{name}}{{^-last}}
+        self._{{name}} = {{name}}{{^@last}}
 
-{{/-last}}
+{{/@last}}
 {{/vars}}
 
 {{/model}}
