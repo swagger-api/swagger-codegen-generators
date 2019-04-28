@@ -482,7 +482,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getDefaultTemplateDir() {
-        return "changeme";
+        return "pythonFlaskConnexion";
     }
 
     @Override
