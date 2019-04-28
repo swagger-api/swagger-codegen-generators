@@ -80,7 +80,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = String.format("%s" + File.separator + "typescript-angular", DEFAULT_TEMPLATE_DIR);
             embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
@@ -372,7 +371,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toApiImport(String name) {
-        return apiPackage() + File.separator + toApiFilename(name);
+        return apiPackage() + "/" + toApiFilename(name);
     }
 
     @Override
@@ -382,7 +381,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelImport(String name) {
-        return modelPackage() + File.separator + toModelFilename(name);
+        return modelPackage() + "/" + toModelFilename(name);
     }
 
     public String getNpmName() {
