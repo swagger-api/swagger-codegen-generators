@@ -92,9 +92,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         modelPackage = "model";
 
         supportingFiles.add(
-                new SupportingFile("models.mustache", modelPackage().replace('.', File.separatorChar), "models.ts"));
+                new SupportingFile("models.mustache", modelPackage().replace('.', '/'), "models.ts"));
         supportingFiles
-                .add(new SupportingFile("apis.mustache", apiPackage().replace('.', File.separatorChar), "api.ts"));
+                .add(new SupportingFile("apis.mustache", apiPackage().replace('.', '/'), "api.ts"));
         supportingFiles.add(new SupportingFile("index.mustache", getIndexDirectory(), "index.ts"));
         supportingFiles.add(new SupportingFile("api.module.mustache", getIndexDirectory(), "api.module.ts"));
         supportingFiles.add(new SupportingFile("configuration.mustache", getIndexDirectory(), "configuration.ts"));
