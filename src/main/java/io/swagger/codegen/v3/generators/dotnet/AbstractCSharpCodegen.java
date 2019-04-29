@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -785,7 +786,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             return String.format("%s<string, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
+            return String.format("%s<string, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
+
         return super.getTypeDeclaration(propertySchema);
     }
 
