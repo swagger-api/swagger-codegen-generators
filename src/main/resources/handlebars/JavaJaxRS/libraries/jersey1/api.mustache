@@ -57,7 +57,7 @@ public class {{classname}}  {
         {{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}},
         {{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#parameters}}{{#isFile}}inputStream, fileDetail{{/isFile}}{{^isFile}}{{paramName}}{{/isFile}},{{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}inputStream, fileDetail{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
     }
 {{/contents}}
 {{/operation}}

@@ -269,11 +269,11 @@ export class {{classname}} {
         let useForm = false;
         let convertFormParamsToString = false;
 {{#formParams}}
-{{#isFile}}
+{{#isBinary}}
         // use FormData to transmit files using content-type "multipart/form-data"
         // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
         useForm = canConsumeForm;
-{{/isFile}}
+{{/isBinary}}
 {{/formParams}}
         if (useForm) {
             formParams = new FormData();
