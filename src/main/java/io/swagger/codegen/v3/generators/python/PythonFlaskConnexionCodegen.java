@@ -93,12 +93,6 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         apiTestTemplateFiles().put("controller_test.mustache", ".py");
 
         /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        embeddedTemplateDir = templateDir = "flaskConnexion";
-
-        /*
          * Additional Properties.  These values can be passed to the templates and
          * are available in models, apis, and supporting files
          */
@@ -146,6 +140,11 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
         //apiTemplateFiles.clear();
+        /*
+         * Template Location.  This is the location which templates will be read from.  The generator
+         * will use the resource stream to attempt to read the templates.
+         */
+        embeddedTemplateDir = templateDir = getTemplateDir();
 
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
@@ -309,7 +308,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
-        // need vendor extensions for x-swagger-router-controller
+        // need vendor extensions for x-openapi-router-controller
         Paths paths = openAPI.getPaths();
         if(paths != null) {
             for(String pathname : paths.keySet()) {
@@ -326,12 +325,13 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
                         if(operationId == null) {
                             operationId = getOrGenerateOperationId(operation, pathname, method.toString());
                         }
+
                         operation.setOperationId(toOperationId(operationId));
-                        if(operation.getExtensions().get("x-swagger-router-controller") == null) {
-                            operation.getExtensions().put(
-                                    "x-swagger-router-controller",
-                                    controllerPackage + "." + toApiFilename(tag)
-                            );
+                        if (operation.getExtensions() == null || operation.getExtensions().get("x-openapi-router-controller") == null) {
+                            operation.addExtension("x-openapi-router-controller", controllerPackage + "." + toApiFilename(tag));
+                        }
+                        if (operation.getParameters() == null || operation.getParameters().isEmpty()) {
+                            continue;
                         }
                         for (Parameter param: operation.getParameters()) {
                             // sanitize the param name but don't underscore it since it's used for request mapping
@@ -386,10 +386,10 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        OpenAPI swagger = (OpenAPI) objs.get("openapi");
-        if(swagger != null) {
+        OpenAPI openAPI = (OpenAPI) objs.get("openAPI");
+        if(openAPI != null) {
             try {
-                objs.put("openapi-yaml", Yaml.mapper().writeValueAsString(swagger));
+                objs.put("openapi-yaml", Yaml.mapper().writeValueAsString(openAPI));
             } catch (JsonProcessingException e) {
                 LOGGER.error(e.getMessage(), e);
             }
