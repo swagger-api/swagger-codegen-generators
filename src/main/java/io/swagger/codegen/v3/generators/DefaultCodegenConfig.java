@@ -76,19 +76,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -2082,14 +2070,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                     continue;
                 }
+
                 if (isForm) {
                     final Map<String, Schema> propertyMap = schema.getProperties();
+                    final List<String> requiredFields = schema.getRequired() != null ? schema.getRequired() : new LinkedList<>();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
                     if (propertyMap != null && !propertyMap.isEmpty()) {
                         for (String propertyName : propertyMap.keySet()) {
                             CodegenParameter formParameter = fromParameter(new Parameter()
                                     .name(propertyName)
-                                    .required(body.getRequired())
+                                    .required(requiredFields.contains(propertyName) && (body.getRequired() != null ? body.getRequired() : false))
                                     .schema(propertyMap.get(propertyName)), imports);
                             if (isMultipart) {
                                 formParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
@@ -2097,7 +2087,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
                             formParams.add(formParameter.copy());
-                            if (body.getRequired() != null && body.getRequired()) {
+                            if (formParameter.getRequired()) {
                                 requiredParams.add(formParameter.copy());
                             }
                             allParams.add(formParameter);

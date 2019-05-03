@@ -188,7 +188,7 @@ public class DefaultCodegenConfigTest {
 
     /**
      * Tests when a 'application/x-www-form-urlencoded' request body is marked as required that all form
-     * params are also marked as required.
+     * params are using their per-property required flag.
      * 
      * @see #testOptionalFormParams()
      */
@@ -210,17 +210,20 @@ public class DefaultCodegenConfigTest {
         List<CodegenParameter> formParams = codegenOp.getFormParams();
         Assert.assertNotNull(formParams);
         Assert.assertEquals(formParams.size(), 2);
-        
+
         for (CodegenParameter formParam : formParams) {
-            Assert.assertTrue(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not required.");
+            if (formParam.getParamName().equals("id")) {
+                Assert.assertTrue(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not required.");
+            } else {
+                Assert.assertFalse(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not optional.");
+            }
         }
 
         // Required params must be updated as well.
         List<CodegenParameter> requiredParams = codegenOp.getRequiredParams();
         Assert.assertNotNull(requiredParams);
-        Assert.assertEquals(requiredParams.size(), 2);
+        Assert.assertEquals(requiredParams.size(), 1);
         requiredParams.get(0).getParamName().equals("id");
-        requiredParams.get(1).getParamName().equals("name");
     }
 
     /**
