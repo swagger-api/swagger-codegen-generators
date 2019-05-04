@@ -2482,6 +2482,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_VALIDATION_EXT_NAME, Boolean.TRUE);
             }
 
+            Object defaultValue = parameterSchema.getDefault();
+            if (defaultValue != null) {
+                codegenParameter.defaultValue = defaultValue.toString();
+            }
         }
 
         // Issue #2561 (neilotoole) : Set the is<TYPE>Param flags.
