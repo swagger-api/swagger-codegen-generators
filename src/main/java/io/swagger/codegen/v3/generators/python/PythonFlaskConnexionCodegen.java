@@ -5,12 +5,23 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-//import io.swagger.codegen.*;
-import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -19,6 +30,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +68,8 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("date");
         languageSpecificPrimitives.add("file");
         languageSpecificPrimitives.add("object");
+        languageSpecificPrimitives.add("byte");
+        languageSpecificPrimitives.add("bytearray");
 
         typeMapping.clear();
         typeMapping.put("integer", "int");
@@ -72,6 +86,8 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         typeMapping.put("object", "object");
         typeMapping.put("file", "file");
         typeMapping.put("UUID", "str");
+        typeMapping.put("byte", "bytearray");
+        typeMapping.put("ByteArray", "bytearray");
 
         // from https://docs.python.org/3/reference/lexical_analysis.html#keywords
         setReservedWordsLowerCase(
@@ -183,6 +199,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         supportingFiles.add(new SupportingFile("base_model_.mustache", packageName + File.separatorChar + modelPackage, "base_model_.py"));
         supportingFiles.add(new SupportingFile("__init__test.mustache", packageName + File.separatorChar + testPackage, "__init__.py"));
         supportingFiles.add(new SupportingFile("swagger.mustache", packageName + File.separatorChar + "swagger", "swagger.yaml"));
+        supportingFiles.add(new SupportingFile("authorization_controller.mustache", packageName + File.separatorChar + controllerPackage, "authorization_controller.py"));
 
         modelPackage = packageName + "." + modelPackage;
         controllerPackage = packageName + "." + controllerPackage;
@@ -308,44 +325,10 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
-        // need vendor extensions for x-openapi-router-controller
-        Paths paths = openAPI.getPaths();
-        if(paths != null) {
-            for(String pathname : paths.keySet()) {
-                PathItem path = paths.get(pathname);
-                Map<PathItem.HttpMethod, Operation> operationMap = path.readOperationsMap();
-                if(operationMap != null) {
-                    for(PathItem.HttpMethod method : operationMap.keySet()) {
-                        Operation operation = operationMap.get(method);
-                        String tag = "default";
-                        if(operation.getTags() != null && operation.getTags().size() > 0) {
-                            tag = operation.getTags().get(0);
-                        }
-                        String operationId = operation.getOperationId();
-                        if(operationId == null) {
-                            operationId = getOrGenerateOperationId(operation, pathname, method.toString());
-                        }
-
-                        operation.setOperationId(toOperationId(operationId));
-                        if (operation.getExtensions() == null || operation.getExtensions().get("x-openapi-router-controller") == null) {
-                            operation.addExtension("x-openapi-router-controller", controllerPackage + "." + toApiFilename(tag));
-                        }
-                        if (operation.getParameters() == null || operation.getParameters().isEmpty()) {
-                            continue;
-                        }
-                        for (Parameter param: operation.getParameters()) {
-                            // sanitize the param name but don't underscore it since it's used for request mapping
-                            String name = param.getName();
-                            String paramName = sanitizeName(name);
-                            if (!paramName.equals(name)) {
-                                LOGGER.warn(name + " cannot be used as parameter name with flask-connexion and was sanitized as " + paramName);
-                            }
-                            param.setName(paramName);
-                        }
-                    }
-                }
-            }
-        }
+        final Paths paths = openAPI.getPaths();
+        addRouterControllerExtensions(paths);
+        final Map<String, SecurityScheme> securitySchemes = openAPI.getComponents() != null ? openAPI.getComponents().getSecuritySchemes() : null;
+        addSecurityExtensions(securitySchemes);
     }
 
     @SuppressWarnings("unchecked")
@@ -709,6 +692,74 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
             vendorExtensions.put("x-regex", regex);
             vendorExtensions.put("x-modifiers", modifiers);
+        }
+    }
+
+    protected void addRouterControllerExtensions(Paths paths) {
+        if(paths == null || paths.isEmpty()) {
+            return;
+        }
+        // need vendor extensions for x-openapi-router-controller
+        for(String pathname : paths.keySet()) {
+            final PathItem path = paths.get(pathname);
+            final Map<PathItem.HttpMethod, Operation> operationMap = path.readOperationsMap();
+
+            if(operationMap == null || operationMap.isEmpty()) {
+                continue;
+            }
+            for(PathItem.HttpMethod method : operationMap.keySet()) {
+                Operation operation = operationMap.get(method);
+                String tag = "default";
+                if(operation.getTags() != null && operation.getTags().size() > 0) {
+                    tag = operation.getTags().get(0);
+                }
+                String operationId = operation.getOperationId();
+                if(operationId == null) {
+                    operationId = getOrGenerateOperationId(operation, pathname, method.toString());
+                }
+
+                operation.setOperationId(toOperationId(operationId));
+                if (operation.getExtensions() == null || operation.getExtensions().get("x-openapi-router-controller") == null) {
+                    operation.addExtension("x-openapi-router-controller", controllerPackage + "." + toApiFilename(tag));
+                }
+                if (operation.getParameters() == null || operation.getParameters().isEmpty()) {
+                    continue;
+                }
+                for (Parameter param: operation.getParameters()) {
+                    // sanitize the param name but don't underscore it since it's used for request mapping
+                    String name = param.getName();
+                    String paramName = sanitizeName(name);
+                    if (!paramName.equals(name)) {
+                        LOGGER.warn(name + " cannot be used as parameter name with flask-connexion and was sanitized as " + paramName);
+                    }
+                    param.setName(paramName);
+                }
+            }
+        }
+    }
+
+    protected void addSecurityExtensions(Map<String, SecurityScheme> securitySchemes) {
+        if (securitySchemes == null || securitySchemes.isEmpty()) {
+            return;
+        }
+        for (String securityName : securitySchemes.keySet()) {
+            final SecurityScheme securityScheme = securitySchemes.get(securityName);
+            final String functionName = controllerPackage + ".authorization_controller.check_" + securityName;
+
+            if (SecurityScheme.Type.OAUTH2.equals(securityScheme.getType())) {
+                securityScheme.addExtension("x-tokenInfoFunc", functionName);
+                securityScheme.addExtension("x-scopeValidateFunc", controllerPackage + ".authorization_controller.validate_scope_" + securityName);
+            } else if (SecurityScheme.Type.HTTP.equals(securityScheme.getType())) {
+                if ("basic".equals(securityScheme.getScheme())) {
+                    securityScheme.addExtension("x-basicInfoFunc", functionName);
+                } else if ("bearer".equals(securityScheme.getScheme())) {
+                    securityScheme.addExtension("x-bearerInfoFunc", functionName);
+                }
+            } else if (SecurityScheme.Type.APIKEY.equals(securityScheme.getType())) {
+                securityScheme.addExtension("x-apikeyInfoFunc", functionName);
+            } else {
+                LOGGER.warn("Security type " + securityScheme.getType().toString() + " is not supported.");
+            }
         }
     }
 }
