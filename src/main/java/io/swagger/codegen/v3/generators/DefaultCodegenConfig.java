@@ -1380,6 +1380,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             addProperties(properties, required, composed, allDefinitions);
+            if (supportsInheritance) {
+                addProperties(allProperties, allRequired, composed, allDefinitions);
+            }
+
             addVars(codegenModel, properties, required, allProperties, allRequired);
         } else {
             codegenModel.dataType = getSchemaType(schema);
