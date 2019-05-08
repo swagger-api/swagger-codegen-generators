@@ -1146,10 +1146,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         // remove everything else other than word, number and _
         // $php_variable => php_variable
         if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
-            name = Pattern.compile("\\W-[\\$]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
+            name = Pattern.compile("[\\W&&[^$]]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
         }
         else {
-            name = name.replaceAll("\\W-[\\$]", StringUtils.EMPTY);
+            name = name.replaceAll("[\\W&&[^$]]", StringUtils.EMPTY);
         }
         return name;
     }
