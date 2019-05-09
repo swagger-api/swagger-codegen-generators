@@ -2,6 +2,7 @@ package io.swagger.codegen.v3.generators;
 
 import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.util.Json;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -45,6 +46,7 @@ public class SchemaHandler {
         oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
         oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
         oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+        oneOfModel.modelJson = Json.pretty(null);
 
         final List<String> modelNames = new ArrayList<>();
 
@@ -68,6 +70,7 @@ public class SchemaHandler {
         oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
         oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
         oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+        oneOfModel.modelJson = Json.pretty(null);
 
         final List<String> modelNames = new ArrayList<>();
 
