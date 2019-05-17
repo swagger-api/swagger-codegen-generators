@@ -1088,7 +1088,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if(SchemaTypeUtil.INTEGER64_FORMAT.equals(schema.getFormat())) {
                 return "long";
             } else {
-                return schema.getType();
+                return "integer";
             }
         } else if (schema instanceof MapSchema) {
             return "map";
