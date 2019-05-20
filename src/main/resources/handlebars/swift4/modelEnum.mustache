@@ -1,4 +1,4 @@
-public enum {{classname}}: {{dataType}}, Codable, Hashable {
+public enum {{classname}}: {{dataType}}, Codable, Hashable, CaseIterable {
 {{#allowableValues}}{{#enumVars}}    case {{name}} = "{{{value}}}"
 {{/enumVars}}{{/allowableValues}}
 }
