@@ -421,10 +421,10 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
     public String toParamName(String name) {
         // don't do name =removeNonNameElementToCamelCase(name); // this breaks connexion, which does not modify param names before sending them
         if (reservedWords.contains(name)) {
-            return escapeReservedWord(name);
+            name = escapeReservedWord(name);
         }
         // Param name is already sanitized in swagger spec processing
-        return name;
+        return toVarName(name);
     }
 
     @Override
