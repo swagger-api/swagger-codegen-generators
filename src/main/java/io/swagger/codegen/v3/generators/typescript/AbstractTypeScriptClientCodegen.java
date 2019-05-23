@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
@@ -226,8 +227,11 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         if (propertySchema instanceof ArraySchema) {
             Schema inner = ((ArraySchema) propertySchema).getItems();
             return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
-        } else if (propertySchema instanceof MapSchema && propertySchema.getAdditionalProperties() != null) {
+        } else if (propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
+            return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
         }
         return super.getTypeDeclaration(propertySchema);
