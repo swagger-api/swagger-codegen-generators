@@ -1,6 +1,6 @@
 package {{package}};
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 import {{package}}.{{classname}}Service;
 
 {{#useOas2}}
@@ -38,9 +38,9 @@ import javax.validation.constraints.*;
 {{/useBeanValidation}}
 {{#operations}}
 {{#operation}}
-{{#is this 'multipart'}}
+{{#isMultipart}}
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-{{/is}}
+{{/isMultipart}}
 {{/operation}}
 {{/operations}}
 @Path("/{{{baseName}}}")
@@ -56,39 +56,41 @@ public class {{classname}}  {
     @Inject {{classname}}Service service;
 
 {{#operation}}
+{{#contents}}
     @{{httpMethod}}
     {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
-    {{#has this 'consumes'}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/has}}
-    {{#has this 'produces'}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/has}}
+    {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
+    {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
     {{#useOas2}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#is this 'oauth'}}, scopes = {
+        {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
             {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},{{/hasMore}}
             {{/scopes}}
-        }{{/is}}){{#hasMore}},{{/hasMore}}
+        }{{/isOAuth}}){{#hasMore}},{{/hasMore}}
         {{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
     @io.swagger.annotations.ApiResponses(value = {
         {{#responses}}
-        @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#has this 'more'}},{{/has}}
+        @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},{{/hasMore}}
         {{/responses}} })
     {{/useOas2}}
     {{^useOas2}}
-    @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#has this 'auth-methods'}}, security = {
-        {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#is this 'oauth'}}, scopes = {
+    @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
+        {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
             {{#scopes}}"{{scope}}"{{#hasMore}},{{/hasMore}}
             {{/scopes}}
-        }{{/is}}){{#hasMore}},{{/hasMore}}
+        }{{/isOAuth}}){{#hasMore}},{{/hasMore}}
         {{/authMethods}}
-    }{{/has}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#has this 'more'}},
-        {{/has}}{{/responses}} })
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
+        {{/hasMore}}{{/responses}} })
     {{/useOas2}}
-    public Response {{nickname}}({{#is this 'multipart'}}MultipartFormDataInput input,{{/is}}{{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{#isNot this 'multipart'}}{{>formParams}},{{/isNot}}{{#is this 'multipart'}}{{#isNot this 'form-param'}},{{/isNot}}{{/is}}{{/allParams}}@Context SecurityContext securityContext)
+    public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{^isMultipart}}{{>formParams}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return service.{{nickname}}({{#is this 'multipart'}}input,{{/is}}{{#allParams}}{{#isNot this 'multipart'}}{{paramName}},{{/isNot}}{{#is this 'multipart'}}{{#isNot this 'form-param'}}{{paramName}},{{/isNot}}{{/is}}{{/allParams}}securityContext);
+        return service.{{nickname}}({{#isMultipart}}input,{{/isMultipart}}{{#parameters}}{{^isMultipart}}{{paramName}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}}{{paramName}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}securityContext);
     }
+{{/contents}}
 {{/operation}}
 }
 {{/operations}}

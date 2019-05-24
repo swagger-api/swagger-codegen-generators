@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -653,13 +654,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
             return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
             // return getSwaggerType(propertySchema) + "<" + getTypeDeclaration(inner) + ">";
-        } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
+        } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
                 // TODO maybe better defaulting to StringProperty than returning null
                 return null;
             }
+            return getSchemaType(propertySchema) + "<String, " + getTypeDeclaration(inner) + ">";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return getSchemaType(propertySchema) + "<String, " + getTypeDeclaration(inner) + ">";
         }
         return super.getTypeDeclaration(propertySchema);
@@ -697,7 +701,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
 
             return String.format(pattern, typeDeclaration);
-        } else if (schema instanceof MapSchema) {
+        } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             final String pattern;
             if (fullJavaUtil) {
                 pattern = "new java.util.HashMap<%s>()";
@@ -709,6 +713,27 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
 
             String typeDeclaration = String.format("String, %s", getTypeDeclaration((Schema) schema.getAdditionalProperties()));
+            Object java8obj = additionalProperties.get("java8");
+            if (java8obj != null) {
+                Boolean java8 = Boolean.valueOf(java8obj.toString());
+                if (java8 != null && java8) {
+                    typeDeclaration = "";
+                }
+            }
+
+            return String.format(pattern, typeDeclaration);
+        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
+            final String pattern;
+            if (fullJavaUtil) {
+                pattern = "new java.util.HashMap<%s>()";
+            } else {
+                pattern = "new HashMap<%s>()";
+            }
+            if (schema.getAdditionalProperties() == null) {
+                return null;
+            }
+            Schema inner = new ObjectSchema();
+            String typeDeclaration = String.format("String, %s", getTypeDeclaration(inner));
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
                 Boolean java8 = Boolean.valueOf(java8obj.toString());

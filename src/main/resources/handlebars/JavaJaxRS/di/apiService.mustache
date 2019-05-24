@@ -1,7 +1,7 @@
 package {{package}};
 
 import {{package}}.*;
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
@@ -22,7 +22,9 @@ import javax.validation.constraints.*;
 {{#operations}}
 public interface {{classname}}Service {
     {{#operation}}
-    public Response {{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}},{{/allParams}}SecurityContext securityContext);
+    {{#contents}}
+    public Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}},{{/parameters}}SecurityContext securityContext);
+    {{/contents}}
     {{/operation}}
 }
 {{/operations}}

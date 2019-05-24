@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Test Api
+  version: '3.0.0'
+
+paths:
+  /test_required:
+    post:
+      summary: Operation with form body that is required
+      operationId: get_with_required_body
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        "200":
+          description: Success
+
+  /test_optional:
+    post:
+      summary: Operation with form body that is optional
+      operationId: get_with_optional_body
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        "200":
+          description: Success
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string

@@ -26,7 +26,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 {{/threetenbp}}
 
 {{#parent.length}}
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 {{/parent.length}}
 import okio.ByteString;
 
@@ -73,7 +73,7 @@ public class JSON {
                 classByDiscriminatorValue.put("{{classname}}".toUpperCase(), {{classname}}.class);
                 return getClassByDiscriminator(
                                            classByDiscriminatorValue,
-                                           getDiscriminatorValue(readElement, "{{discriminator}}"));
+                                           getDiscriminatorValue(readElement, "{{discriminator.propertyName}}"));
             }
           })
         {{/parent}}

@@ -23,21 +23,21 @@ namespace Example
             {{/hasAuthMethods}}
 
             var apiInstance = new {{classname}}();
-            {{#allParams}}
+            {{#parameters}}
             {{#isPrimitiveType}}
             var {{paramName}} = {{{example}}};  // {{{dataType}}} | {{{unescapedDescription}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
             {{/isPrimitiveType}}
             {{^isPrimitiveType}}
             var {{paramName}} = new {{{dataType}}}(); // {{{dataType}}} | {{{unescapedDescription}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
             {{/isPrimitiveType}}
-            {{/allParams}}
+            {{/parameters}}
 
             try
             {
                 {{#summary}}
                 // {{{.}}}
                 {{/summary}}
-                {{#returnType}}{{{.}}} result = {{/returnType}}apiInstance.{{{operationId}}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+                {{#returnType}}{{{.}}} result = {{/returnType}}apiInstance.{{{operationId}}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
                 Debug.WriteLine(result);{{/returnType}}
             }
             catch (Exception e)
