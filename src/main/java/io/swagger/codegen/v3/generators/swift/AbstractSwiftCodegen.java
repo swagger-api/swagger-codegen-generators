@@ -9,6 +9,7 @@ import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -131,13 +132,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
         final Object additionalProperties = schema.getAdditionalProperties();
 
-        // TODO - not sure that this is the correct implementation...
-        if (additionalProperties != null) {
-            if (additionalProperties instanceof Schema) {
-                codegenModel.additionalPropertiesType = getSchemaType((Schema) additionalProperties);
-            } else {
-                codegenModel.additionalPropertiesType = getSchemaType(schema);
-            }
+        if (schema instanceof MapSchema  && hasSchemaProperties(schema)) {
+            codegenModel.additionalPropertiesType = getSchemaType((Schema) additionalProperties);
+        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
+            codegenModel.additionalPropertiesType = getSchemaType(new ObjectSchema());
         }
     }
 
@@ -263,9 +261,12 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
             ArraySchema arraySchema = (ArraySchema) propertySchema;
             Schema inner = arraySchema.getItems();
             return "[" + getTypeDeclaration(inner) + "]";
-        } else if (propertySchema instanceof MapSchema) {
+        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
             MapSchema mapSchema = (MapSchema) propertySchema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
+            return "[String:" + getTypeDeclaration(inner) + "]";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return "[String:" + getTypeDeclaration(inner) + "]";
         }
         return super.getTypeDeclaration(propertySchema);
@@ -362,10 +363,13 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toInstantiationType(Schema schema) {
-        if (schema instanceof MapSchema) {
+        if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             MapSchema mapSchema = (MapSchema) schema;
             String inner = getSchemaType((Schema) mapSchema.getAdditionalProperties());
             return inner;
+        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
+            Schema inner = new ObjectSchema();
+            return getSchemaType(inner);
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             String inner = getSchemaType(arraySchema.getItems());

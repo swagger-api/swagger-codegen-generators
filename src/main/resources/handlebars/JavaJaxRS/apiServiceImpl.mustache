@@ -1,7 +1,7 @@
 package {{package}}.impl;
 
 import {{package}}.*;
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{#imports}}import {{import}};
 {{/imports}}
