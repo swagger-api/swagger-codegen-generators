@@ -1,6 +1,6 @@
 package {{package}};
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{#useOas2}}
 import io.swagger.annotations.ApiParam;

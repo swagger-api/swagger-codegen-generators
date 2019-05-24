@@ -11,14 +11,8 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_VALIDATION_EXT_NAME;
 
 public class OpenAPIUtil {
 
-    private OpenAPI openAPI;
-
-    public OpenAPIUtil(OpenAPI openAPI) {
-        this.openAPI = openAPI;
-    }
-
-    public void addPropertiesFromRef(Schema refSchema, CodegenProperty codegenProperty) {
-        final Map<String, Schema> allSchemas = this.openAPI.getComponents().getSchemas();
+    public static void addPropertiesFromRef(OpenAPI openAPI, Schema refSchema, CodegenProperty codegenProperty) {
+        final Map<String, Schema> allSchemas = openAPI.getComponents().getSchemas();
         if (allSchemas == null || allSchemas.isEmpty()) {
             return;
         }
