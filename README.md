@@ -24,7 +24,7 @@ Also you need to keep in mind that **Handlebars** is used as template engines an
 License
 -------
  
-Copyright 2018 SmartBear Software
+Copyright 2019 SmartBear Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

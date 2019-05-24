@@ -1,5 +1,5 @@
 controllerPackage: {{invokerPackage}}
-modelPackage:  {{modelPackage}}
+{{#hasModel}}modelPackage:  {{modelPackage}}{{/hasModel}}
 swaggerUrl: ./src/main/swagger/swagger.yaml
 modelMappings:
   # to enable explicit mappings, use this syntax:

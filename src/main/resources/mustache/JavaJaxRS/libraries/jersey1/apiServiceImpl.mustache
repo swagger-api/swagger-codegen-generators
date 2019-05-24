@@ -1,7 +1,7 @@
 package {{package}}.impl;
 
 import {{package}}.*;
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 import com.sun.jersey.multipart.FormDataParam;
 
@@ -25,12 +25,14 @@ import javax.validation.constraints.*;
 {{#operations}}
 public class {{classname}}ServiceImpl extends {{classname}}Service {
     {{#operation}}
+    {{#contents}}
     @Override
-    public Response {{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}, {{/allParams}}SecurityContext securityContext)
+    public Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}, {{/parameters}}SecurityContext securityContext)
     throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
+    {{/contents}}
     {{/operation}}
 }
 {{/operations}}
