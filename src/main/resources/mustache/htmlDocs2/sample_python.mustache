@@ -17,12 +17,12 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = {{{pythonPackageName}}}.{{{classname}}}()
-{{#allParams}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{unescapedDescription}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
-{{/allParams}}
+{{#parameters}}{{paramName}} = {{{example}}} # {{{dataType}}} | {{{unescapedDescription}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+{{/parameters}}
 
 try: 
 {{#summary}}    # {{{.}}}
-{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationIdSnakeCase}}}({{#allParams}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}){{#returnType}}
+{{/summary}}    {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationIdSnakeCase}}}({{#parameters}}{{#required}}{{paramName}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#returnType}}
     pprint(api_response){{/returnType}}
 except ApiException as e:
     print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)

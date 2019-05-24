@@ -78,6 +78,7 @@ use {{invokerPackage}}\ObjectSerializer;
     }
 
 {{#operation}}
+{{#contents}}
     /**
      * Operation {{{operationId}}}
 {{#summary}}
@@ -89,17 +90,17 @@ use {{invokerPackage}}\ObjectSerializer;
      * {{.}}
      *
 {{/description}}
-{{#allParams}}
+{{#parameters}}
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
      *
      * @throws \{{invokerPackage}}\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}
      */
-    public function {{operationId}}({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public function {{operationId}}({{#parameters}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     {
-        {{#returnType}}list($response) = {{/returnType}}$this->{{operationId}}WithHttpInfo({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+        {{#returnType}}list($response) = {{/returnType}}$this->{{operationId}}WithHttpInfo({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
         return $response;{{/returnType}}
     }
 
@@ -114,18 +115,18 @@ use {{invokerPackage}}\ObjectSerializer;
      * {{.}}
      *
 {{/description}}
-{{#allParams}}
+{{#parameters}}
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
      *
      * @throws \{{invokerPackage}}\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}null{{/returnType}}, HTTP status code, HTTP response headers (array of strings)
      */
-    public function {{operationId}}WithHttpInfo({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public function {{operationId}}WithHttpInfo({{#parameters}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     {
         $returnType = '{{returnType}}';
-        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        $request = $this->{{operationId}}Request({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
 
         try {
             $options = $this->createHttpClientOption();
@@ -204,16 +205,16 @@ use {{invokerPackage}}\ObjectSerializer;
      * {{.}}
      *
 {{/description}}
-{{#allParams}}
+{{#parameters}}
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function {{operationId}}Async({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public function {{operationId}}Async({{#parameters}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     {
-        return $this->{{operationId}}AsyncWithHttpInfo({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        return $this->{{operationId}}AsyncWithHttpInfo({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
             ->then(
                 function ($response) {
                     return $response[0];
@@ -230,17 +231,17 @@ use {{invokerPackage}}\ObjectSerializer;
      * {{.}}
      *
 {{/description}}
-{{#allParams}}
+{{#parameters}}
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function {{operationId}}AsyncWithHttpInfo({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public function {{operationId}}AsyncWithHttpInfo({{#parameters}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     {
         $returnType = '{{returnType}}';
-        $request = $this->{{operationId}}Request({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        $request = $this->{{operationId}}Request({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -287,16 +288,16 @@ use {{invokerPackage}}\ObjectSerializer;
     /**
      * Create request for operation '{{{operationId}}}'
      *
-{{#allParams}}
+{{#parameters}}
      * @param  {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{/parameters}}
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function {{operationId}}Request({{#allParams}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    protected function {{operationId}}Request({{#parameters}}${{paramName}}{{^required}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     {
-        {{#allParams}}
+        {{#parameters}}
         {{#required}}
         // verify the required parameter '{{paramName}}' is set
         if (${{paramName}} === null || (is_array(${{paramName}}) && count(${{paramName}}) === 0)) {
@@ -343,7 +344,7 @@ use {{invokerPackage}}\ObjectSerializer;
         {{/minItems}}
 
         {{/hasValidation}}
-        {{/allParams}}
+        {{/parameters}}
 
         $resourcePath = '{{{path}}}';
         $formParams = [];
@@ -493,6 +494,7 @@ use {{invokerPackage}}\ObjectSerializer;
         );
     }
 
+    {{/contents}}
     {{/operation}}
     /**
      * Create http client option

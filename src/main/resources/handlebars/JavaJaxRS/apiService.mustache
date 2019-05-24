@@ -1,7 +1,7 @@
 package {{package}};
 
 import {{package}}.*;
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
@@ -23,7 +23,9 @@ import javax.validation.constraints.*;
 {{#operations}}
 public abstract class {{classname}}Service {
     {{#operation}}
-    public abstract Response {{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}},{{/allParams}}SecurityContext securityContext) throws NotFoundException;
+    {{#contents}}
+    public abstract Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}},{{/parameters}}SecurityContext securityContext) throws NotFoundException;
+    {{/contents}}
     {{/operation}}
 }
 {{/operations}}

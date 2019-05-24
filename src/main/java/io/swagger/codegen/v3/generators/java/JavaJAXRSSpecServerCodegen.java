@@ -165,7 +165,7 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
-        this.openAPIUtil = new OpenAPIUtil(openAPI);
+//        this.openAPIUtil = new OpenAPIUtil(openAPI);
         // copy input swagger to output folder
         try {
             String swaggerJson = Json.pretty(openAPI);

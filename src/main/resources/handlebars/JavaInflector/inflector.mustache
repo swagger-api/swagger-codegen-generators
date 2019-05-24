@@ -1,5 +1,5 @@
 controllerPackage: {{invokerPackage}}
-modelPackage:  {{modelPackage}}
+{{#hasModel}}modelPackage:  {{modelPackage}}{{/hasModel}}
 swaggerUrl: ./src/main/resources/openapi3.yaml
 modelMappings:
   # to enable explicit mappings, use this syntax:

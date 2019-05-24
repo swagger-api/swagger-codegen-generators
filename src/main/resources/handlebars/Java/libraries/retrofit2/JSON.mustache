@@ -25,7 +25,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 {{/threetenbp}}
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -68,7 +68,7 @@ public class JSON {
                 classByDiscriminatorValue.put("{{classname}}".toUpperCase(), {{classname}}.class);
                 return getClassByDiscriminator(
                             classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, "{{discriminator}}"));
+                            getDiscriminatorValue(readElement, "{{discriminator.propertyName}}"));
             }
           })
         {{/parent}}
