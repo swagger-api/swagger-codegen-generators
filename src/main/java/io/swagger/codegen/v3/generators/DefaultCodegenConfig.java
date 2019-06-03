@@ -223,7 +223,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         if (additionalProperties.containsKey(CodegenConstants.REMOVE_OPERATION_ID_PREFIX)) {
-            this.setSortParamsByRequiredFlag(Boolean.valueOf(additionalProperties
+            this.setRemoveOperationIdPrefix(Boolean.valueOf(additionalProperties
                     .get(CodegenConstants.REMOVE_OPERATION_ID_PREFIX).toString()));
         }
 
@@ -315,15 +315,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 int truncateIdx = commonPrefix.length();
                 for (Object value : values) {
                     Map<String, String> enumVar = new HashMap<String, String>();
-                    String enumName;
-                    if (truncateIdx == 0) {
-                        enumName = value.toString();
-                    } else {
-                        enumName = value.toString().substring(truncateIdx);
-                        if ("".equals(enumName)) {
-                            enumName = value.toString();
-                        }
-                    }
+                    String enumName = findEnumName(truncateIdx, value);
                     enumVar.put("name", toEnumVarName(enumName, cm.dataType));
                     enumVar.put("value", toEnumValue(value.toString(), cm.dataType));
                     enumVars.add(enumVar);
@@ -337,6 +329,19 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 updateCodegenPropertyEnum(var);
             }
         }
+    }
+
+    private String findEnumName(int truncateIdx, Object value) {
+        String enumName;
+        if (truncateIdx == 0) {
+            enumName = value.toString();
+        } else {
+            enumName = value.toString().substring(truncateIdx);
+            if ("".equals(enumName)) {
+                enumName = value.toString();
+            }
+        }
+        return enumName;
     }
 
     /**
@@ -1380,6 +1385,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             addProperties(properties, required, composed, allDefinitions);
+            if (supportsInheritance) {
+                addProperties(allProperties, allRequired, composed, allDefinitions);
+            }
+
             addVars(codegenModel, properties, required, allProperties, allRequired);
         } else {
             codegenModel.dataType = getSchemaType(schema);
@@ -1519,18 +1528,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 codegenProperty.getVendorExtensions().put(CodegenConstants.IS_INTEGER_EXT_NAME, Boolean.TRUE);
             }
-            if (propertySchema.getMinimum() != null) {
-                codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
-            }
-            if (propertySchema.getMaximum() != null) {
-                codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
-            }
-            if (propertySchema.getExclusiveMinimum() != null) {
-                codegenProperty.exclusiveMinimum = propertySchema.getExclusiveMinimum();
-            }
-            if (propertySchema.getExclusiveMaximum() != null) {
-                codegenProperty.exclusiveMaximum = propertySchema.getExclusiveMaximum();
-            }
+            handleMinMaxValues(propertySchema, codegenProperty);
 
             // check if any validation rule defined
             // exclusive* are noop without corresponding min/max
@@ -1613,18 +1611,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else {
                 codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DOUBLE_EXT_NAME, Boolean.TRUE);
             }
-            if (propertySchema.getMinimum() != null) {
-                codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
-            }
-            if (propertySchema.getMaximum() != null) {
-                codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
-            }
-            if (propertySchema.getExclusiveMinimum() != null) {
-                codegenProperty.exclusiveMinimum = propertySchema.getExclusiveMinimum();
-            }
-            if (propertySchema.getExclusiveMaximum() != null) {
-                codegenProperty.exclusiveMaximum = propertySchema.getExclusiveMaximum();
-            }
+            handleMinMaxValues(propertySchema, codegenProperty);
             if (propertySchema.getEnum() != null && !propertySchema.getEnum().isEmpty()) {
                 List<Number> _enum = propertySchema.getEnum();
                 codegenProperty._enum = _enum.stream().map(number -> number.toString()).collect(Collectors.toList());
@@ -1638,35 +1625,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         if (propertySchema instanceof DateSchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DATE_EXT_NAME, Boolean.TRUE);
-            if (propertySchema.getEnum() != null) {
-                List<String> _enum = propertySchema.getEnum();
-                codegenProperty._enum = new ArrayList<String>();
-                for(String i : _enum) {
-                    codegenProperty._enum.add(i);
-                }
-                codegenProperty.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
-
-                // legacy support
-                Map<String, Object> allowableValues = new HashMap<String, Object>();
-                allowableValues.put("values", _enum);
-                codegenProperty.allowableValues = allowableValues;
-            }
+            handlePropertySchema(propertySchema, codegenProperty);
         }
         if (propertySchema instanceof DateTimeSchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DATE_TIME_EXT_NAME, Boolean.TRUE);
-            if (propertySchema.getEnum() != null) {
-                List<String> _enum = propertySchema.getEnum();
-                codegenProperty._enum = new ArrayList<String>();
-                for(String i : _enum) {
-                    codegenProperty._enum.add(i);
-                }
-                codegenProperty.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
-
-                // legacy support
-                Map<String, Object> allowableValues = new HashMap<String, Object>();
-                allowableValues.put("values", _enum);
-                codegenProperty.allowableValues = allowableValues;
-            }
+            handlePropertySchema(propertySchema, codegenProperty);
         }
         codegenProperty.datatype = getTypeDeclaration(propertySchema);
         codegenProperty.dataFormat = propertySchema.getFormat();
@@ -1741,6 +1704,37 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return codegenProperty;
     }
 
+    private void handleMinMaxValues(Schema propertySchema, CodegenProperty codegenProperty) {
+        if (propertySchema.getMinimum() != null) {
+            codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
+        }
+        if (propertySchema.getMaximum() != null) {
+            codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
+        }
+        if (propertySchema.getExclusiveMinimum() != null) {
+            codegenProperty.exclusiveMinimum = propertySchema.getExclusiveMinimum();
+        }
+        if (propertySchema.getExclusiveMaximum() != null) {
+            codegenProperty.exclusiveMaximum = propertySchema.getExclusiveMaximum();
+        }
+    }
+
+    private void handlePropertySchema(Schema propertySchema, CodegenProperty codegenProperty) {
+        if (propertySchema.getEnum() != null) {
+            List<String> _enum = propertySchema.getEnum();
+            codegenProperty._enum = new ArrayList<String>();
+            for (String i : _enum) {
+                codegenProperty._enum.add(i);
+            }
+            codegenProperty.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
+
+            // legacy support
+            Map<String, Object> allowableValues = new HashMap<String, Object>();
+            allowableValues.put("values", _enum);
+            codegenProperty.allowableValues = allowableValues;
+        }
+    }
+
     /**
      * Update property for array(list) container
      * @param property Codegen property
@@ -1752,11 +1746,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return;
         }
         property.dataFormat = innerProperty.dataFormat;
-        if (!languageSpecificPrimitives.contains(innerProperty.baseType)) {
-            property.complexType = innerProperty.baseType;
-        } else {
-            property.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
-        }
+        decideIfComplex(property, innerProperty);
         property.items = innerProperty;
         // inner item is Enum
         if (isPropertyInnerMostEnum(property)) {
@@ -1772,6 +1762,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     }
 
+    private void decideIfComplex(CodegenProperty property, CodegenProperty innerProperty) {
+        if (!languageSpecificPrimitives.contains(innerProperty.baseType)) {
+            property.complexType = innerProperty.baseType;
+        } else {
+            property.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
+        }
+    }
+
     /**
      * Update property for map container
      * @param property Codegen property
@@ -1782,11 +1780,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             LOGGER.warn("skipping invalid map property " + Json.pretty(property));
             return;
         }
-        if (!languageSpecificPrimitives.contains(innerProperty.baseType)) {
-            property.complexType = innerProperty.baseType;
-        } else {
-            property.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
-        }
+        decideIfComplex(property, innerProperty);
         property.items = innerProperty;
         property.dataFormat = innerProperty.dataFormat;
         // inner item is Enum
@@ -3475,15 +3469,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         // cases in the future.
 
         // better error handling when map/array type is invalid
-        if (name == null) {
-            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
-            return Object.class.getSimpleName();
-        }
+        if (maybeHandleEmptyName(name)) return Object.class.getSimpleName();
 
         // if the name is just '$', map it to 'value' for the time being.
-        if ("$".equals(name)) {
-            return "value";
-        }
+        if (maybeHandleDollarName(name)) return "value";
 
         // input[] => input
         name = name.replaceAll("\\[\\]", ""); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
@@ -3515,6 +3504,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         return name;
+    }
+
+    private boolean maybeHandleDollarName(String name) {
+        if ("$".equals(name)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean maybeHandleEmptyName(String name) {
+        if (name == null) {
+            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -3720,15 +3724,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         int truncateIdx = commonPrefix.length();
         for (Object value : values) {
             Map<String, String> enumVar = new HashMap<String, String>();
-            String enumName;
-            if (truncateIdx == 0) {
-                enumName = value.toString();
-            } else {
-                enumName = value.toString().substring(truncateIdx);
-                if ("".equals(enumName)) {
-                    enumName = value.toString();
-                }
-            }
+            String enumName = findEnumName(truncateIdx, value);
             enumVar.put("name", toEnumVarName(enumName, var.datatype));
             enumVar.put("value", toEnumValue(value.toString(), var.datatype));
             enumVars.add(enumVar);
@@ -3936,11 +3932,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         int count = 0;
         for (String key : consumes) {
             Map<String, String> mediaType = new HashMap<>();
-            if ("*/*".equals(key)) {
-                mediaType.put("mediaType", key);
-            } else {
-                mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
-            }
+            decideMediaType(key, mediaType);
             count += 1;
             if (count < consumes.size()) {
                 mediaType.put("hasMore", "true");
@@ -3951,6 +3943,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenOperation.consumes = mediaTypeList;
         codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_CONSUMES_EXT_NAME, Boolean.TRUE);
+    }
+
+    private void decideMediaType(String key, Map<String, String> mediaType) {
+        if ("*/*".equals(key)) {
+            mediaType.put("mediaType", key);
+        } else {
+            mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
+        }
     }
 
     protected void configureDataForTestTemplate(CodegenOperation codegenOperation) {
@@ -4026,11 +4026,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (String key : produces) {
             Map<String, String> mediaType = new HashMap<String, String>();
             // escape quotation to avoid code injection
-            if ("*/*".equals(key)) { // "*/*" is a special case, do nothing
-                mediaType.put("mediaType", key);
-            } else {
-                mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
-            }
+            decideMediaType(key, mediaType);
             mediaType.put("hasMore", "true");
             codegenOperation.produces.add(mediaType);
             codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_PRODUCES_EXT_NAME, Boolean.TRUE);
