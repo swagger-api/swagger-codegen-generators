@@ -87,9 +87,9 @@ public class AkkaHttpServerCodegenTest {
 
         Assert.assertEquals(result.get("hasComplexTypes"), Boolean.TRUE);
         Assert.assertEquals(result.get("complexRequestTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
-        Assert.assertEquals(result.get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
-        Assert.assertEquals(codegenOperation1.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Collections.singletonList("Pet"));}});
-        Assert.assertEquals(codegenOperation2.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
+        Assert.assertEquals(result.get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{addAll(Arrays.asList(response1, response2, response3));}});
+        Assert.assertEquals(codegenOperation1.getVendorExtensions().get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{add(response1);}});
+        Assert.assertEquals(codegenOperation2.getVendorExtensions().get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{addAll(Arrays.asList(response1, response3));}});
     }
 
     @Test
