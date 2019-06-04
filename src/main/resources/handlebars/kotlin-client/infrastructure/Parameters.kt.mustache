@@ -1,6 +1,10 @@
 package {{apiPackage}}.infrastructure
 
 
+class Params(private val params: List<String>) {
+    override fun toString() = params.joinToString(",")
+}
+
 class CSVParams(private val params: List<String>) {
     override fun toString() = params.joinToString(",")
 }

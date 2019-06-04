@@ -6,9 +6,9 @@ package {{apiPackage}}
 
 {{#useRxRetrofit2}}
 import io.reactivex.*
+import {{apiPackage}}.infrastructure.*
 import retrofit2.http.*
 {{/useRxRetrofit2}}
-
 {{#if useRxRetrofit2}}
 {{#operations}}
 interface {{classname}} {
