@@ -84,7 +84,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         typeMapping.put("char", "Character");
         typeMapping.put("short", "Int");
         typeMapping.put("int", "Int");
-        typeMapping.put("long", "Int64");
+        typeMapping.put("long", "Int");
         typeMapping.put("integer", "Int");
         typeMapping.put("Integer", "Int");
         typeMapping.put("float", "Float");
