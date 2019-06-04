@@ -5,12 +5,10 @@
 {{/vars}}
 */
 data class {{classname}} (
-{{#requiredVars}}
-{{>data_class_req_var}}{{^@last}},
-{{/@last}}{{/requiredVars~}}{{#has this 'required'}}{{#has this 'optional'}},{{/has}}{{/has}}
-{{#optionalVars}}
-{{>data_class_opt_var}}{{^@last}},{{/@last}}
-{{/optionalVars}}
+{{#allVars}}
+{{>data_class_val}}{{^@last}},
+{{/@last}}
+{{/allVars}}
 )
 
 
