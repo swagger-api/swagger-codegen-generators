@@ -172,6 +172,8 @@
                 <section id="api-{{baseName}}">
                   <h1>{{baseName}}</h1>
                   {{#operation}}
+                  {{#contents}}
+                  {{#@first}}
                     <div id="api-{{baseName}}-{{nickname}}">
                       <article id="api-{{baseName}}-{{nickname}}-0" data-group="User" data-name="{{nickname}}" data-version="0">
                         <div class="pull-left">
@@ -342,11 +344,12 @@
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {{{jsonSchema}}};
-                                        var schema = schemaWrapper.schema;
+                                        var schema = schemaWrapper.content["{{extensions.x-content-type}}"].schema;
                                         if (schema.$ref != null) {
                                           schema = defsParser.$refs.get(schema.$ref);
                                         } else {
-                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          schemaWrapper.components = {};
+                                          schemaWrapper.components.schemas = Object.assign({}, defs);
                                           $RefParser.dereference(schemaWrapper).catch(function(err) {
                                             console.log(err);
                                           });
@@ -395,6 +398,8 @@
                         </article>
                       </div>
                       <hr>
+                    {{/@first}}
+                    {{/contents}}
                     {{/operation}}
                   </section>
                 {{/operations}}
@@ -434,7 +439,8 @@
   {{>js_webfontloader}}
   <script>
     var schemaWrapper = {};
-    schemaWrapper.definitions = Object.assign({}, defs);
+    schemaWrapper.components = {};
+    schemaWrapper.components.schemas = Object.assign({}, defs);
     defsParser = new $RefParser();
     defsParser.dereference(schemaWrapper).catch(function(err) {
       console.log(err);

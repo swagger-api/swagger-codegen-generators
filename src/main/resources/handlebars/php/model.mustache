@@ -20,12 +20,12 @@
  */
 
 namespace {{modelPackage}};
-{{#isNot this 'enum'}}
+{{^isEnum}}
 {{^parentSchema}}
 
 use \ArrayAccess;
 {{/parentSchema}}
-{{/isNot}}
+{{/isEnum}}
 use {{backSlash}}{{invokerPackage}}\ObjectSerializer;
 
 /**
@@ -39,5 +39,5 @@ use {{backSlash}}{{invokerPackage}}\ObjectSerializer;
  * @author   Swagger Codegen team
  * @link     https://github.com/swagger-api/swagger-codegen
  */
-{{#is this 'enum'}}{{>model_enum}}{{/is}}{{#isNot this 'enum'}}{{>model_generic}}{{/isNot}}
+{{#isEnum}}{{>model_enum}}{{/isEnum}}{{^isEnum}}{{>model_generic}}{{/isEnum}}
 {{/model}}{{/models}}

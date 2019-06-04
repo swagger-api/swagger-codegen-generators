@@ -205,7 +205,7 @@ public class KotlinClientCodegenModelTest {
 
         final CodegenProperty property1 = cm.vars.get(0);
         Assert.assertEquals(property1.baseName, "mapping");
-        Assert.assertEquals(property1.datatype, "Map<String, String>");
+        Assert.assertEquals(property1.datatype, "Map<kotlin.String, String>");
         Assert.assertEquals(property1.name, "mapping");
         Assert.assertEquals(property1.baseType, "Map");
         Assert.assertEquals(property1.containerType, "map");

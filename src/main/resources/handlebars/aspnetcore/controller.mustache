@@ -23,18 +23,19 @@ namespace {{packageName}}.Controllers
     [Description("{{description}}")]{{/description}}
     public class {{classname}}Controller : Controller
     { {{#operation}}
+      {{#contents}}
         /// <summary>
         /// {{#summary}}{{summary}}{{/summary}}
         /// </summary>
-        {{#notes}}/// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
-        /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
+        {{#notes}}/// <remarks>{{notes}}</remarks>{{/notes}}{{#parameters}}
+        /// <param name="{{paramName}}">{{description}}</param>{{/parameters}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
         [Route("{{{basePathWithoutHost}}}{{{path}}}")]
         [ValidateModelState]
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}
-        public virtual IActionResult {{operationId}}({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        public virtual IActionResult {{operationId}}({{#parameters}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
         { {{#responses}}
 {{#dataType}}
             //TODO: Uncomment the next line to return response {{code}} or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -55,6 +56,7 @@ namespace {{packageName}}.Controllers
             return new ObjectResult(example);{{/returnType}}{{^returnType}}
             throw new NotImplementedException();{{/returnType}}
         }
+        {{/contents}}
         {{/operation}}
     }
 {{/operations}}

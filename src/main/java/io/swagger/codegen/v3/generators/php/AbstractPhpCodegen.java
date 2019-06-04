@@ -308,13 +308,16 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
                 return "";
             }
             return getTypeDeclaration(inner) + "[]";
-        } else if (propertySchema instanceof MapSchema) {
+        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
             MapSchema mapSchema = (MapSchema) propertySchema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
                 return "";
             }
+            return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
         }
 

@@ -5,11 +5,12 @@
 <script>
 $(document).ready(function() {
   var schemaWrapper = {{{jsonSchema}}};
-  var schema = schemaWrapper.schema;
+  var schema = schemaWrapper.content["{{contentType}}"].schema;
   if (schema.$ref != null) {
     schema = defsParser.$refs.get(schema.$ref);
   } else {
-    schemaWrapper.definitions = Object.assign({}, defs);
+    schemaWrapper.components = {};
+    schemaWrapper.components.schemas = Object.assign({}, defs);
     $RefParser.dereference(schemaWrapper).catch(function(err) {
       console.log(err);
     });
