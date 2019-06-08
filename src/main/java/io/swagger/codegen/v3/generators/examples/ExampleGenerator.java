@@ -230,7 +230,7 @@ public class ExampleGenerator {
         } else if (!StringUtils.isEmpty(schema.get$ref())) { // model
             String simpleName = OpenAPIUtil.getSimpleRef(schema.get$ref());
             Schema model = null;
-            if (openAPI.getComponents() != null && openAPI.getComponents().getSchemas() != null) {
+            if (openAPI != null && openAPI.getComponents() != null && openAPI.getComponents().getSchemas() != null) {
                 model = openAPI.getComponents().getSchemas().get(simpleName);
             }
 
