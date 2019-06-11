@@ -42,7 +42,7 @@ public class CamelCaseLambda implements Lambda {
         String executed = template.apply(o);
         String text = DefaultCodegenConfig.camelize(executed, true);
         if (generator != null) {
-            text = generator.sanitizeName(text);
+            text = ((DefaultCodegenConfig)generator).sanitizeName(text);
             if (generator.reservedWords().contains(text)) {
                 // Escaping must be done *after* camelize, because generators may escape using characters removed by camelize function.
                 text = generator.escapeReservedWord(text);

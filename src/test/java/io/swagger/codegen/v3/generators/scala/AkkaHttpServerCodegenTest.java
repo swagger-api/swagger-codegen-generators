@@ -1,9 +1,16 @@
 package io.swagger.codegen.v3.generators.scala;
 
 import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.config.CodegenConfigurator;
+import org.junit.rules.TemporaryFolder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class AkkaHttpServerCodegenTest {
@@ -80,9 +87,9 @@ public class AkkaHttpServerCodegenTest {
 
         Assert.assertEquals(result.get("hasComplexTypes"), Boolean.TRUE);
         Assert.assertEquals(result.get("complexRequestTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
-        Assert.assertEquals(result.get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
-        Assert.assertEquals(codegenOperation1.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Collections.singletonList("Pet"));}});
-        Assert.assertEquals(codegenOperation2.getVendorExtensions().get("complexReturnTypes"), new HashSet<String>(){{addAll(Arrays.asList("Pet","User"));}});
+        Assert.assertEquals(result.get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{addAll(Arrays.asList(response1, response2, response3));}});
+        Assert.assertEquals(codegenOperation1.getVendorExtensions().get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{add(response1);}});
+        Assert.assertEquals(codegenOperation2.getVendorExtensions().get("complexReturnTypes"), new LinkedList<CodegenResponse>(){{addAll(Arrays.asList(response1, response3));}});
     }
 
     @Test
@@ -226,5 +233,40 @@ public class AkkaHttpServerCodegenTest {
             add(petForm2WithString);
         }};
         Assert.assertEquals((LinkedList<CodegenParameter>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PARAMS_WITH_SUPPORTED_TYPE), expectedMatchedPathParams);
+    }
+
+    @Test
+    public void testFileGeneration() throws IOException {
+        TemporaryFolder folder = new TemporaryFolder();
+
+        folder.create();
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+                .setLang("scala-akka-http-server")
+                .setInputSpecURL("src/test/resources/3_0_0/petstore.yaml")
+                .setOutputDir(output.getAbsolutePath());
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/Controller.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/AkkaHttpHelper.scala").exists());
+
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/api/DefaultApi.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/api/PetApi.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/api/StoreApi.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/api/UserApi.scala").exists());
+
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/ApiResponse.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Body.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Category.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Order.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Pet.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Tag.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Tag.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Test.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/User.scala").exists());
+        folder.delete();
     }
 }
