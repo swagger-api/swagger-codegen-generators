@@ -17,6 +17,7 @@ import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.utils.SemVer;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
@@ -191,7 +192,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
             inner = new ObjectSchema();
             return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
-        } else if(propertySchema instanceof FileSchema) {
+        } else if(propertySchema instanceof FileSchema || propertySchema instanceof BinarySchema) {
             return "Blob";
         } else if(propertySchema instanceof ObjectSchema) {
             return "any";
