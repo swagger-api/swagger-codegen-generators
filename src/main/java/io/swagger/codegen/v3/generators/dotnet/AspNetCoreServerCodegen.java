@@ -154,11 +154,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("appsettings.json", packageFolder, "appsettings.json"));
 
         supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-        supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
+
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
         supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
-
-        supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
 
         supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
 
@@ -235,5 +233,64 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         // To avoid unexpected behaviors when options are passed programmatically such as { "useCollection": "" }
         return super.processCompiler(compiler).emptyStringIsFalse(true);
+    }
+
+    @Override
+    public List<CodegenSecurity> fromSecurity(Map<String, SecurityScheme> securitySchemeMap) {
+        final List<CodegenSecurity> securities = super.fromSecurity(securitySchemeMap);
+        if (securities == null || securities.isEmpty()) {
+            return securities;
+        }
+        boolean hasBasic = false;
+        boolean hasBearer = false;
+        boolean hasApiKey = false;
+        for (int index = 0; index < securities.size(); index++) {
+            final CodegenSecurity codegenSecurity = securities.get(index);
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BASIC_EXT_NAME)) {
+                hasBasic = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BEARER_EXT_NAME)) {
+                hasBearer = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_API_KEY_EXT_NAME)) {
+                hasApiKey = true;
+            }
+        }
+        final String packageFolder = sourceFolder + File.separator + packageName;
+        if (hasBasic) {
+            supportingFiles.add(new SupportingFile("Security/BasicAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BasicAuthenticationHandler.cs"));
+        }
+        if (hasBearer) {
+            supportingFiles.add(new SupportingFile("Security/BearerAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BearerAuthenticationHandler.cs"));
+        }
+        if (hasApiKey) {
+            supportingFiles.add(new SupportingFile("Security/ApiKeyAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "ApiKeyAuthenticationHandler.cs"));
+        }
+        return securities;
+    }
+
+
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/aspnetcore.yaml";
+    }
+
+    private void setAspNetCoreVersion() {
+        final List<CodegenArgument> codegenArguments = getLanguageArguments();
+        if (codegenArguments != null && !codegenArguments.isEmpty()) {
+            Optional<CodegenArgument> codegenArgumentOptional = codegenArguments
+                .stream()
+                .filter(argument -> argument.getOption().equalsIgnoreCase(ASP_NET_CORE_VERSION_OPTION))
+                .findAny();
+
+            if (codegenArgumentOptional.isPresent()) {
+                final CodegenArgument codegenArgument = codegenArgumentOptional.get();
+                this.aspNetCoreVersion = codegenArgument.getValue();
+                if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
+                    LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
+                    this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
+                }
+            }
+        }
     }
 }
