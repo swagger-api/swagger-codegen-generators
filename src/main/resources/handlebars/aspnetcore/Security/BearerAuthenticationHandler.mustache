@@ -12,6 +12,8 @@ namespace {{packageName}}.Security
 {
     public class BearerAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
+        public const string SchemeName = "Bearer";
+
         public BearerAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
         {
         }
