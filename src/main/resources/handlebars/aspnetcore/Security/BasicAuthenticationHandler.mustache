@@ -10,14 +10,23 @@ using Microsoft.Extensions.Options;
 
 namespace {{packageName}}.Security
 {
+    /// <summary>
+    /// class to handle basic authentication.
+    /// </summary>
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
+        /// <summary>
+        /// scheme name for authentication handler.
+        /// </summary>
         public const string SchemeName = "Basic";
 
         public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
         {
         }
 
+        /// <summary>
+        /// verify that require authorization header exists and handle decode data.
+        /// </summary>
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("Authorization"))

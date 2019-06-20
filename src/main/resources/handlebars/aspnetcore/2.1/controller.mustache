@@ -7,6 +7,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using {{packageName}}.Attributes;
+using {{packageName}}.Security;
 using Microsoft.AspNetCore.Authorization;
 using {{modelPackage}};
 
@@ -29,9 +30,17 @@ namespace {{packageName}}.Controllers
         [{{httpMethod}}]
         [Route("{{{basePathWithoutHost}}}{{{path}}}")]
         {{#authMethods}}
+        {{#@first}}
+        {{#isBasic}}
+        [Authorize(AuthenticationSchemes = BasicAuthenticationHandler.SchemeName)]
+        {{/isBasic}}
         {{#isBearer}}
-        [Authorize{{#hasScopes}}(Roles = "{{#scopes}}{{scope}}{{#hasMore}},{{/hasMore}}{{/scopes}}"){{/hasScopes}}]
+        [Authorize(AuthenticationSchemes = BearerAuthenticationHandler.SchemeName)]
         {{/isBearer}}
+        {{#isApiKey}}
+        [Authorize(AuthenticationSchemes = ApiKeyAuthenticationHandler.SchemeName)]
+        {{/isApiKey}}
+        {{/@first}}
         {{/authMethods}}
         [ValidateModelState]
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
