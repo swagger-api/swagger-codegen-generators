@@ -17,6 +17,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
 import io.swagger.codegen.v3.generators.handlebars.BaseItemsHelper;
 import io.swagger.codegen.v3.generators.handlebars.BracesHelper;
 import io.swagger.codegen.v3.generators.handlebars.HasHelper;
@@ -1074,7 +1075,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else if (schema instanceof BinarySchema) {
             return SchemaTypeUtil.BINARY_FORMAT;
         } else if (schema instanceof FileSchema) {
-            return "file";
+            return "file"; // FIXME: this type does not exist in the OpenAPI 3.0 specification
         } else if (schema instanceof BooleanSchema) {
             return SchemaTypeUtil.BOOLEAN_TYPE;
         } else if (schema instanceof DateSchema) {
@@ -1584,12 +1585,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_BOOLEAN_EXT_NAME, Boolean.TRUE);
             codegenProperty.getter = toBooleanGetter(name);
         }
-        if (propertySchema instanceof BinarySchema) {
-            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
-            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.TRUE);
-        }
-        if (propertySchema instanceof FileSchema) {
+        if (propertySchema instanceof FileSchema || propertySchema instanceof BinarySchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.TRUE);
         }
         if (propertySchema instanceof EmailSchema) {
@@ -1991,7 +1989,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             codegenOperation.returnBaseType = codegenProperty.baseType;
                         }
                     }
-                    //TODO: codegenOperation.examples = new ExampleGenerator(schemas).generate(methodResponse.getExamples(), operation.getProduces(), responseProperty);
+                    codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
                     codegenOperation.defaultResponse = toDefaultValue(responseSchema);
                     codegenOperation.returnType = codegenProperty.datatype;
                     boolean hasReference = schemas != null && schemas.containsKey(codegenOperation.returnBaseType);
@@ -2402,7 +2400,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenProperty = codegenProperty.items;
                 }
                 collectionFormat = getCollectionFormat(parameter);
-            } else if (parameterSchema instanceof FileSchema) {
+            } else if (parameterSchema instanceof FileSchema || parameterSchema instanceof BinarySchema) {
+                codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
                 codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
             }
 
