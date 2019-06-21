@@ -1,29 +1,35 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.samskivert.mustache.Mustache;
-
+import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.UUID.randomUUID;
 
 public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase() + "}";
+    private static final String ASP_NET_CORE_VERSION_OPTION = "--aspnet-core-version";
+    private final String DEFAULT_ASP_NET_CORE_VERSION = "2.2";
+    private String aspNetCoreVersion;
 
     @SuppressWarnings("hiding")
     protected Logger LOGGER = LoggerFactory.getLogger(AspNetCoreServerCodegen.class);
@@ -33,9 +39,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         setSourceFolder("src");
         outputFolder = "generated-code" + File.separator + this.getName();
-
-        modelTemplateFiles.put("model.mustache", ".cs");
-        apiTemplateFiles.put("controller.mustache", ".cs");
 
         // contextually reserved words
         // NOTE: C# uses camel cased reserved words, while models are title cased. We don't want lowercase comparisons.
@@ -82,6 +85,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         addSwitch(CodegenConstants.RETURN_ICOLLECTION,
                 CodegenConstants.RETURN_ICOLLECTION_DESC,
                 this.returnICollection);
+
+        this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
     }
 
     @Override
@@ -103,6 +108,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public void processOpts() {
         super.processOpts();
 
+        setAspNetCoreVersion();
+
+        modelTemplateFiles.put("model.mustache", ".cs");
+
+
         if (additionalProperties.containsKey(CodegenConstants.OPTIONAL_PROJECT_GUID)) {
             setPackageGuid((String) additionalProperties.get(CodegenConstants.OPTIONAL_PROJECT_GUID));
         }
@@ -110,10 +120,29 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         additionalProperties.put("dockerTag", this.packageName.toLowerCase());
 
-        apiPackage = packageName + ".Controllers";
-        modelPackage = packageName + ".Models";
+        additionalProperties.put("aspNetCoreVersion", aspNetCoreVersion);
 
         String packageFolder = sourceFolder + File.separator + packageName;
+
+        if (aspNetCoreVersion.equals("2.0")) {
+            apiTemplateFiles.put("controller.mustache", ".cs");
+            supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
+            supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+        } else{
+            apiTemplateFiles.put("2.1/controller.mustache", ".cs");
+            supportingFiles.add(new SupportingFile("2.1/Program.mustache", packageFolder, "Program.cs"));
+            supportingFiles.add(new SupportingFile("2.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
+            apiPackage = packageName + ".Controllers";
+            additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
+            modelPackage = packageName + ".Models";
+            additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
+        }
 
         supportingFiles.add(new SupportingFile("NuGet.Config", "", "NuGet.Config"));
         supportingFiles.add(new SupportingFile("build.sh.mustache", "", "build.sh"));
@@ -125,11 +154,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("appsettings.json", packageFolder, "appsettings.json"));
 
         supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-        supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
+
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
         supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
-
-        supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
 
         supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
 
@@ -206,5 +233,64 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         // To avoid unexpected behaviors when options are passed programmatically such as { "useCollection": "" }
         return super.processCompiler(compiler).emptyStringIsFalse(true);
+    }
+
+    @Override
+    public List<CodegenSecurity> fromSecurity(Map<String, SecurityScheme> securitySchemeMap) {
+        final List<CodegenSecurity> securities = super.fromSecurity(securitySchemeMap);
+        if (securities == null || securities.isEmpty()) {
+            return securities;
+        }
+        boolean hasBasic = false;
+        boolean hasBearer = false;
+        boolean hasApiKey = false;
+        for (int index = 0; index < securities.size(); index++) {
+            final CodegenSecurity codegenSecurity = securities.get(index);
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BASIC_EXT_NAME)) {
+                hasBasic = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BEARER_EXT_NAME)) {
+                hasBearer = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_API_KEY_EXT_NAME)) {
+                hasApiKey = true;
+            }
+        }
+        final String packageFolder = sourceFolder + File.separator + packageName;
+        if (hasBasic) {
+            supportingFiles.add(new SupportingFile("Security/BasicAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BasicAuthenticationHandler.cs"));
+        }
+        if (hasBearer) {
+            supportingFiles.add(new SupportingFile("Security/BearerAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BearerAuthenticationHandler.cs"));
+        }
+        if (hasApiKey) {
+            supportingFiles.add(new SupportingFile("Security/ApiKeyAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "ApiKeyAuthenticationHandler.cs"));
+        }
+        return securities;
+    }
+
+
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/aspnetcore.yaml";
+    }
+
+    private void setAspNetCoreVersion() {
+        final List<CodegenArgument> codegenArguments = getLanguageArguments();
+        if (codegenArguments != null && !codegenArguments.isEmpty()) {
+            Optional<CodegenArgument> codegenArgumentOptional = codegenArguments
+                .stream()
+                .filter(argument -> argument.getOption().equalsIgnoreCase(ASP_NET_CORE_VERSION_OPTION))
+                .findAny();
+
+            if (codegenArgumentOptional.isPresent()) {
+                final CodegenArgument codegenArgument = codegenArgumentOptional.get();
+                this.aspNetCoreVersion = codegenArgument.getValue();
+                if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
+                    LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
+                    this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
+                }
+            }
+        }
     }
 }
