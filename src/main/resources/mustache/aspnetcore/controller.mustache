@@ -32,6 +32,19 @@ namespace {{packageName}}.Controllers
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
         [Route("{{{basePathWithoutHost}}}{{{path}}}")]
+        {{#authMethods}}
+        {{#@first}}
+        {{#isBasic}}
+        [Authorize(AuthenticationSchemes = BasicAuthenticationHandler.SchemeName)]
+        {{/isBasic}}
+        {{#isBearer}}
+        [Authorize(AuthenticationSchemes = BearerAuthenticationHandler.SchemeName)]
+        {{/isBearer}}
+        {{#isApiKey}}
+        [Authorize(AuthenticationSchemes = ApiKeyAuthenticationHandler.SchemeName)]
+        {{/isApiKey}}
+        {{/@first}}
+        {{/authMethods}}
         [ValidateModelState]
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}
