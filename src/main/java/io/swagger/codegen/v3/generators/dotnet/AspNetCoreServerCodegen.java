@@ -128,10 +128,12 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             apiTemplateFiles.put("controller.mustache", ".cs");
             supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
         } else{
             apiTemplateFiles.put("2.1/controller.mustache", ".cs");
             supportingFiles.add(new SupportingFile("2.1/Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("2.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            supportingFiles.add(new SupportingFile("2.1/Dockerfile.mustache", packageFolder, "Dockerfile"));
         }
 
         if (!additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
@@ -149,7 +151,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("build.bat.mustache", "", "build.bat"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("Solution.mustache", "", this.packageName + ".sln"));
-        supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
         supportingFiles.add(new SupportingFile("gitignore", packageFolder, ".gitignore"));
         supportingFiles.add(new SupportingFile("appsettings.json", packageFolder, "appsettings.json"));
 
