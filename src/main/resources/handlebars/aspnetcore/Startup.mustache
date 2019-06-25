@@ -52,7 +52,8 @@ namespace {{packageName}}
                     opts.SerializerSettings.Converters.Add(new StringEnumConverter {
                         CamelCaseText = true
                     });
-                });
+                })
+                .AddXmlSerializerFormatters();
 
             {{#authMethods}}
             {{#isBasic}}
