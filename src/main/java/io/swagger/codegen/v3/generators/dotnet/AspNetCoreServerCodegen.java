@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.UUID.randomUUID;
@@ -228,6 +230,15 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         // Converts, for example, PUT to HttpPut for controller attributes
         operation.httpMethod = "Http" + operation.httpMethod.substring(0, 1) + operation.httpMethod.substring(1).toLowerCase();
+
+        if (operation.getContents() != null && !operation.getContents().isEmpty()) {
+            List <CodegenContent> contents = operation.getContents()
+                    .stream()
+                    .filter(codegenContent -> !codegenContent.getIsForm())
+                    .collect(Collectors.toList());
+            operation.getContents().clear();
+            operation.getContents().addAll(contents);
+        }
     }
 
     @Override
