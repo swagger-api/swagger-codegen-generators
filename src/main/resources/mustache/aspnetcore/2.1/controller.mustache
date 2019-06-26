@@ -18,7 +18,7 @@ namespace {{packageName}}.Controllers
     /// </summary>{{#description}}
     [Description("{{description}}")]{{/description}}
     [ApiController]
-    public class {{classname}}Controller : ControllerBase
+    public class {{classname}}Controller : ControllerBase{{#interfaceController}}, I{{classname}}Controller{{/interfaceController}}
     { {{#operation}}
       {{#contents}}
         /// <summary>
