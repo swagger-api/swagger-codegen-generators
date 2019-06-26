@@ -3616,6 +3616,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return null;
     }
 
+    protected String getOptionValue(String optionName) {
+        final List<CodegenArgument> codegenArguments = getLanguageArguments();
+        if (codegenArguments == null || codegenArguments.isEmpty()) {
+            return null;
+        }
+        Optional<CodegenArgument> codegenArgumentOptional = codegenArguments
+            .stream()
+            .filter(argument -> argument.getOption().equalsIgnoreCase(optionName))
+            .findAny();
+        if (!codegenArgumentOptional.isPresent()) {
+            return null;
+        }
+        return codegenArgumentOptional.get().getValue();
+    }
+
     /**
      * Only write if the file doesn't exist
      *
