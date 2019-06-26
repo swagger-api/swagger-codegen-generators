@@ -302,10 +302,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         boolean interfaceOnly = Boolean.valueOf(getOptionValue(INTERFACE_ONLY_OPTION));
         boolean interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
 
-        System.out.println("aspNetCoreVersion::::::::::::::::::::::::::: " + aspNetCoreVersion);
-        System.out.println("interfaceOnly::::::::::::::::::::::::::: " + interfaceOnly);
-        System.out.println("interfaceController::::::::::::::::::::::::::: " + interfaceController);
-
         if (interfaceController) {
             apiTemplateFiles.put("icontroller.mustache", ".cs");
             additionalProperties.put("interfaceController", Boolean.TRUE);
