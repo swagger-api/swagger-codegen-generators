@@ -92,6 +92,19 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
                 this.returnICollection);
 
         this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
+
+        addSwitch(INTERFACE_ONLY_OPTION.substring(2),
+            "Only generate interfaces for controllers",
+            false);
+
+        addSwitch(INTERFACE_CONTROLLER_OPTION.substring(2),
+            "Generate interfaces for controllers, implemented by a default controller implementation",
+            false);
+
+        addOption(ASP_NET_CORE_VERSION_OPTION.substring(2),
+            "ASP.NET Core version",
+            DEFAULT_ASP_NET_CORE_VERSION);
+
     }
 
     @Override
@@ -299,8 +312,25 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     }
 
     private void addInterfaceControllerTemplate() {
-        boolean interfaceOnly = Boolean.valueOf(getOptionValue(INTERFACE_ONLY_OPTION));
-        boolean interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
+        String interfaceOnlyOption = getOptionValue(INTERFACE_ONLY_OPTION);
+        boolean interfaceOnly = false;
+        if (StringUtils.isNotBlank(interfaceOnlyOption)) {
+            interfaceOnly = Boolean.valueOf(getOptionValue(INTERFACE_ONLY_OPTION));
+        } else {
+            if (additionalProperties.get(INTERFACE_ONLY_OPTION.substring(2)) != null) {
+                interfaceOnly = Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY_OPTION.substring(2)).toString());
+            }
+        }
+
+        String interfaceControllerOption = getOptionValue(INTERFACE_CONTROLLER_OPTION);
+        boolean interfaceController = false;
+        if (StringUtils.isNotBlank(interfaceControllerOption)) {
+            interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
+        } else {
+            if (additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)) != null) {
+                interfaceController = Boolean.valueOf(additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)).toString());
+            }
+        }
 
         if (interfaceController) {
             apiTemplateFiles.put("icontroller.mustache", ".cs");
@@ -321,9 +351,14 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private void setAspNetCoreVersion() {
         String optionValue = getOptionValue(ASP_NET_CORE_VERSION_OPTION);
         if (StringUtils.isBlank(optionValue)) {
-            return;
+            if (additionalProperties.get(ASP_NET_CORE_VERSION_OPTION.substring(2)) != null) {
+                this.aspNetCoreVersion = additionalProperties.get(ASP_NET_CORE_VERSION_OPTION.substring(2)).toString();
+            } else {
+                return;
+            }
+        } else {
+            this.aspNetCoreVersion = optionValue;
         }
-        this.aspNetCoreVersion = optionValue;
         if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
             LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
             this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;

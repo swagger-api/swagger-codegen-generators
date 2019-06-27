@@ -3590,9 +3590,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             String shortOption = argument.findValue("shortOption") != null ? argument.findValue("shortOption").textValue() : null;
             String type = argument.findValue("type") != null ? argument.findValue("type").textValue() : "string";
             boolean isArray = argument.findValue("isArray") != null ? argument.findValue("isArray").booleanValue() : false;
-            if (StringUtils.isBlank(option)) {
-                continue;
-            }
+
             languageArguments.add(new CodegenArgument()
                     .option(option)
                     .shortOption(shortOption)
