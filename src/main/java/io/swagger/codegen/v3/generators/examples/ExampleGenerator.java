@@ -238,7 +238,7 @@ public class ExampleGenerator {
                 return "{}";
             }
             return resolveSchemaToExample(propertyName, mediaType, model, processedModels);
-        } else if (schema instanceof ObjectSchema) {
+        } else if (schema instanceof ObjectSchema || schema.getProperties() != null) {
             Map<String, Object> values = new HashMap<>();
             if (schema.getProperties() != null) {
                 logger.debug("Creating example from model values");

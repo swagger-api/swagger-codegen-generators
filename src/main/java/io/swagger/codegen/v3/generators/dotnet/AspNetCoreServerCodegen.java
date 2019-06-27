@@ -13,6 +13,7 @@ import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase() + "}";
     private static final String ASP_NET_CORE_VERSION_OPTION = "--aspnet-core-version";
+    private static final String INTERFACE_ONLY_OPTION = "--interface-only";
+    private static final String INTERFACE_CONTROLLER_OPTION = "--interface-controller";
     private final String DEFAULT_ASP_NET_CORE_VERSION = "2.2";
     private String aspNetCoreVersion;
 
@@ -128,11 +131,15 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         if (aspNetCoreVersion.equals("2.0")) {
             apiTemplateFiles.put("controller.mustache", ".cs");
+            addInterfaceControllerTemplate();
+
             supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
         } else{
             apiTemplateFiles.put("2.1/controller.mustache", ".cs");
+            addInterfaceControllerTemplate();
+
             supportingFiles.add(new SupportingFile("2.1/Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("2.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             supportingFiles.add(new SupportingFile("2.1/Dockerfile.mustache", packageFolder, "Dockerfile"));
@@ -193,6 +200,16 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     @Override
     public String apiFileFolder() {
         return outputFolder + File.separator + sourceFolder + File.separator + packageName + File.separator + "Controllers";
+    }
+
+    @Override
+    public String apiFilename(String templateName, String tag) {
+        boolean isInterface = templateName.equalsIgnoreCase("icontroller.mustache");
+        String suffix = apiTemplateFiles().get(templateName);
+        if (isInterface) {
+            return apiFileFolder() + "/I" + toApiFilename(tag) + suffix;
+        }
+        return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
     }
 
     @Override
@@ -281,6 +298,20 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         return securities;
     }
 
+    private void addInterfaceControllerTemplate() {
+        boolean interfaceOnly = Boolean.valueOf(getOptionValue(INTERFACE_ONLY_OPTION));
+        boolean interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
+
+        if (interfaceController) {
+            apiTemplateFiles.put("icontroller.mustache", ".cs");
+            additionalProperties.put("interfaceController", Boolean.TRUE);
+        }
+        if (interfaceOnly) {
+            apiTemplateFiles.clear();
+            apiTemplateFiles.put("icontroller.mustache", ".cs");
+        }
+    }
+
 
     @Override
     public String getArgumentsLocation() {
@@ -288,21 +319,14 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     }
 
     private void setAspNetCoreVersion() {
-        final List<CodegenArgument> codegenArguments = getLanguageArguments();
-        if (codegenArguments != null && !codegenArguments.isEmpty()) {
-            Optional<CodegenArgument> codegenArgumentOptional = codegenArguments
-                .stream()
-                .filter(argument -> argument.getOption().equalsIgnoreCase(ASP_NET_CORE_VERSION_OPTION))
-                .findAny();
-
-            if (codegenArgumentOptional.isPresent()) {
-                final CodegenArgument codegenArgument = codegenArgumentOptional.get();
-                this.aspNetCoreVersion = codegenArgument.getValue();
-                if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
-                    LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
-                    this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
-                }
-            }
+        String optionValue = getOptionValue(ASP_NET_CORE_VERSION_OPTION);
+        if (StringUtils.isBlank(optionValue)) {
+            return;
+        }
+        this.aspNetCoreVersion = optionValue;
+        if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
+            LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
+            this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
         }
     }
 }
