@@ -76,7 +76,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         typeMapping.put("array", "Array");
         typeMapping.put("List", "Array");
         typeMapping.put("map", "Dictionary");
-        typeMapping.put("date", "Date");
+        typeMapping.put("date", "YearMonthDay");
         typeMapping.put("Date", "Date");
         typeMapping.put("DateTime", "Date");
         typeMapping.put("boolean", "Bool");
@@ -166,6 +166,10 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
                     sourceFolder,
                     "JSONEncodingHelper.swift"));
         }
+
+        supportingFiles.add(new SupportingFile("YearMonthDay.mustache",
+                    sourceFolder,
+                    "YearMonthDate.swift"));
     }
 
     @Override

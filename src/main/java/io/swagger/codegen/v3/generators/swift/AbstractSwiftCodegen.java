@@ -98,6 +98,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
                 Arrays.asList(
                         "Data",
                         "Date",
+                        "YearMonthDay",
                         "URL", // for file
                         "UUID",
                         "Array",
