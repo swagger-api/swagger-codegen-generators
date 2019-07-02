@@ -8,12 +8,20 @@
 import Foundation
 
 public struct YearMonthDay {
-    let year: Int
-    let month: Int
-    let day: Int
+    public let year: Int
+    public let month: Int
+    public let day: Int
 }
 
-extension YearMonthDay: Codable, Equatable, Hashable {
+extension YearMonthDay: Codable, Equatable, Hashable, Comparable {
+    public init(from date: Date = Date()) {
+        let calendar = Calendar(identifier: .iso8601)
+
+        year = calendar.component(.year, from: date)
+        month = calendar.component(.month, from: date)
+        day = calendar.component(.day, from: date)
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawDate = try container.decode(String.self)
@@ -38,9 +46,7 @@ extension YearMonthDay: Codable, Equatable, Hashable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        let rawDate = [year, month, day]
-            .map{String($0)}
-            .joined(separator: "-")
+        let rawDate = String(describing: self)
 
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = .withFullDate
@@ -48,5 +54,39 @@ extension YearMonthDay: Codable, Equatable, Hashable {
             else { throw EncodingError.invalidValue(self, EncodingError.Context(codingPath: container.codingPath,
                                                                                 debugDescription: "Cannot encode \(self)")) }
         try container.encode(rawDate)
+    }
+
+    public static func < (lhs: YearMonthDay, rhs: YearMonthDay) -> Bool {
+        if lhs.year < rhs.year {
+            return true
+        } else if lhs.year > rhs.year {
+            return false
+        } else {
+            if lhs.month < rhs.month {
+                return true
+            } else if lhs.month > rhs.month {
+                return false
+            } else {
+                return lhs.day < rhs.day
+            }
+        }
+    }
+
+    public func add(years: Int = 0, months: Int = 0, days: Int = 0) -> YearMonthDay? {
+        var dateComponents = DateComponents()
+        dateComponents.year = year + years
+        dateComponents.month = month + months
+        dateComponents.day = day + days
+
+        guard let date = Calendar(identifier: .iso8601).date(from: dateComponents)
+            else { return nil }
+
+        return YearMonthDay(from: date)
+    }
+}
+
+extension YearMonthDay: CustomStringConvertible {
+    public var description: String {
+        return [String(format: "%04d", year), String(format: "%02d", month), String(format: "%02d", day)].joined(separator: "-")
     }
 }
