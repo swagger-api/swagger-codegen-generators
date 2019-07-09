@@ -274,7 +274,8 @@ public class DefaultCodegenConfigTest {
         openAPI.getComponents().addHeaders("ref-header1", inlineHeader);
 
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
-        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse, openAPI);
+        codegen.preprocessOpenAPI(openAPI);
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse);
 
         Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
 
@@ -297,7 +298,8 @@ public class DefaultCodegenConfigTest {
         openAPI.getComponents().addHeaders("ref-header1", referencedHeader);
 
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
-        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse, openAPI);
+        codegen.preprocessOpenAPI(openAPI);
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse);
 
         Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
 

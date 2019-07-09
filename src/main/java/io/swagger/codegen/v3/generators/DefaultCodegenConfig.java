@@ -1945,7 +1945,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                 addProducesInfo(response, codegenOperation);
 
-                CodegenResponse codegenResponse = fromResponse(key, response, openAPI);
+                CodegenResponse codegenResponse = fromResponse(key, response);
                 codegenResponse.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
                 if (codegenResponse.baseType != null && !defaultIncludes.contains(codegenResponse.baseType) && !languageSpecificPrimitives.contains(codegenResponse.baseType)) {
                     imports.add(codegenResponse.baseType);
@@ -2237,22 +2237,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @param responseCode HTTP response code
      * @param response Swagger Response object
      * @return Codegen Response object
-     * @deprecated use {@link #fromResponse(String, ApiResponse, OpenAPI)}
      */
-    @Deprecated
     public CodegenResponse fromResponse(String responseCode, ApiResponse response) {
-        return fromResponse(responseCode, response, null);
-    }
-
-    /**
-     * Convert Swagger Response object to Codegen Response object
-     *
-     * @param responseCode HTTP response code
-     * @param response Swagger Response object
-     * @param openAPI
-     * @return Codegen Response object
-     */
-    public CodegenResponse fromResponse(String responseCode, ApiResponse response, OpenAPI openAPI) {
         final CodegenResponse codegenResponse = CodegenModelFactory.newInstance(CodegenModelType.RESPONSE);
         if ("default".equals(responseCode)) {
             codegenResponse.code = "0";
