@@ -1,12 +1,19 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
-import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.handlebars.csharp.CsharpHelper;
+import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -15,6 +22,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -157,10 +165,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         typeMapping.put("bytearray", "byte[]");
         typeMapping.put("boolean", "bool?");
         typeMapping.put("integer", "int?");
+        typeMapping.put("int", "int?");
         typeMapping.put("float", "float?");
         typeMapping.put("long", "long?");
         typeMapping.put("double", "double?");
         typeMapping.put("number", "decimal?");
+        typeMapping.put("BigDecimal", "decimal?");
         typeMapping.put("datetime", "DateTime?");
         typeMapping.put("date", "DateTime?");
         typeMapping.put("file", "System.IO.Stream");
@@ -327,13 +337,13 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         // This either updates additionalProperties with the above fixes, or sets the default if the option was not specified.
         additionalProperties.put(CodegenConstants.INTERFACE_PREFIX, interfacePrefix);
 
-        //addMustacheLambdas(additionalProperties);
+        addHandlebarsLambdas(additionalProperties);
     }
 
-    /** todo: write with OAS3 classes.
-    private void addMustacheLambdas(Map<String, Object> objs) {
+    private void addHandlebarsLambdas(Map<String, Object> objs) {
 
-        Map<String, Mustache.Lambda> lambdas = new ImmutableMap.Builder<String, Mustache.Lambda>()
+
+        Map<String, Lambda> lambdas = new ImmutableMap.Builder<String, Lambda>()
                 .put("lowercase", new LowercaseLambda().generator(this))
                 .put("uppercase", new UppercaseLambda())
                 .put("titlecase", new TitlecaseLambda())
@@ -345,6 +355,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 .put("indented_16", new IndentedLambda(16, " "))
                 .build();
 
+
         if (objs.containsKey("lambda")) {
             LOGGER.warn("An property named 'lambda' already exists. Mustache lambdas renamed from 'lambda' to '_lambda'. " +
                     "You'll likely need to use a custom template, " +
@@ -354,7 +365,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             objs.put("lambda", lambdas);
         }
     }
-    */
 
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
@@ -493,7 +503,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             var.vendorExtensions = new HashMap<>();
         }
 
-        ModelUtils.updateCodegenPropertyEnum(var);
+        super.updateCodegenPropertyEnum(var);
 
         // Because C# uses nullable primitives for datatype, and datatype is used in DefaultCodegen for determining enum-ness, guard against weirdness here.
         if (getBooleanValue(var, CodegenConstants.IS_ENUM_EXT_NAME)) {
@@ -785,7 +795,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             return String.format("%s<string, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
+            return String.format("%s<string, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
+
         return super.getTypeDeclaration(propertySchema);
     }
 
@@ -1024,4 +1038,22 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
         return intermediate;
     }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(new CsharpHelper());
+    }
+
+/*
+    TODO: uncomment if/when switching to stream for file upload
+    @Override
+    public void postProcessParameter(CodegenParameter parameter) {
+        if (parameter.getIsBinary()) {
+            parameter.dataType = "System.IO.Stream";
+        }
+        super.postProcessParameter(parameter);
+    }
+*/
+
 }

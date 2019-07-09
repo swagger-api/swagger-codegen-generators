@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
@@ -254,6 +255,16 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toApiImport(String name) {
+        String apiImport = "";
+        if (!"".equals(apiPackage())) {
+            apiImport += apiPackage() + ".";
+        }
+        apiImport += toApiFilename(name);
+        return apiImport;
+    }
+
+    @Override
     public Map<String, Object> postProcessModels(Map<String, Object> objs) {
         // process enum in models
         return postProcessModelsEnum(objs);
@@ -377,10 +388,13 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
             ArraySchema ap = (ArraySchema) schema;
             Schema inner = ap.getItems();
             return getSchemaType(schema) + "[" + getTypeDeclaration(inner) + "]";
-        } else if (schema instanceof MapSchema) {
+        } else if (schema instanceof MapSchema  && hasSchemaProperties(schema)) {
             MapSchema mapSchema = (MapSchema) schema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
 
+            return getSchemaType(schema) + "(str, " + getTypeDeclaration(inner) + ")";
+        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
+            Schema inner = new ObjectSchema();
             return getSchemaType(schema) + "(str, " + getTypeDeclaration(inner) + ")";
         }
         return super.getTypeDeclaration(schema);

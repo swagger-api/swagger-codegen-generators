@@ -42,15 +42,15 @@ class {{classname}}(
 trait {{classname}}Service {
 
 {{#operation}}
-{{#responses}}  def {{operationId}}{{code}}{{#dataType}}(response{{dataType}}: {{dataType}}){{^isPrimitiveType}}(implicit toEntityMarshaller{{dataType}}: ToEntityMarshaller[{{dataType}}]){{/isPrimitiveType}}{{/dataType}}: Route =
-    complete(({{code}}, {{#dataType}}response{{dataType}}{{/dataType}}{{^dataType}}"{{message}}"{{/dataType}}))
+{{#responses}}  def {{operationId}}{{code}}{{#baseType}}(response{{baseType}}{{containerType}}: {{dataType}}){{^isPrimitiveType}}(implicit toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]){{/isPrimitiveType}}{{/baseType}}: Route =
+    complete(({{code}}, {{#baseType}}response{{baseType}}{{containerType}}{{/baseType}}{{^baseType}}"{{message}}"{{/baseType}}))
 {{/responses}}
   /**
 {{#responses}}   * {{#code}}Code: {{.}}{{/code}}{{#message}}, Message: {{.}}{{/message}}{{#dataType}}, DataType: {{.}}{{/dataType}}
    {{/responses}}
    */
   def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}{{^isBodyParam}}Option[{{/isBodyParam}}{{/required}}{{dataType}}{{^required}}{{^isBodyParam}}]{{/isBodyParam}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
-      (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{.}}: ToEntityMarshaller[{{.}}]{{^-last}}, {{/-last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
+      (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]{{^-last}}, {{/-last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
 
 {{/operation}}
 }
@@ -61,7 +61,7 @@ trait {{classname}}Marshaller {
 
 {{/complexRequestTypes}}
 
-{{#complexReturnTypes}}  implicit def toEntityMarshaller{{.}}: ToEntityMarshaller[{{.}}]
+{{#complexReturnTypes}}  implicit def toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]
 
 {{/complexReturnTypes}}
 }
