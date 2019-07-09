@@ -1,0 +1,10 @@
+arguments:
+  - option: "--aspnet-core-version"
+    description: "aspnetcore version to use, current options are: 2.0, 2.1 and 2.2 (default)"
+    type: "string"
+  - option: "--interface-only"
+    description: "creates interfaces controller only"
+    type: "boolean"
+  - option: "--interface-controller"
+    description: "creates interfaces and default implementation for controllers"
+    type: "boolean"

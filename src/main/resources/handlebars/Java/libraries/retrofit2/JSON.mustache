@@ -25,7 +25,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 {{/threetenbp}}
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 import java.io.IOException;
 import java.io.StringReader;

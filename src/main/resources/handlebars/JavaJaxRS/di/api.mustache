@@ -1,6 +1,6 @@
 package {{package}};
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 import {{package}}.{{classname}}Service;
 
 {{#useOas2}}

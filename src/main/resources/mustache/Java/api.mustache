@@ -6,7 +6,7 @@ import com.sun.jersey.api.client.GenericType;
 import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.Configuration;
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 import {{invokerPackage}}.Pair;
 
 {{#imports}}import {{import}};
