@@ -50,38 +50,46 @@ public class SchemaHandler {
         final List<String> modelNames = new ArrayList<>();
 
         for (Schema interfaceSchema : oneOf) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+            if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
+                String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                modelNames.add(codegenConfig.toModelName(schemaName));
+            }
         }
         oneOfModel.vendorExtensions.put("x-model-names", modelNames);
-        codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
-        if (codegenModel.interfaceModels == null) {
-            codegenModel.interfaceModels = new ArrayList<>();
+        if (!modelNames.isEmpty()) {
+            codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+            if (codegenModel.interfaceModels == null) {
+                codegenModel.interfaceModels = new ArrayList<>();
+            }
+            codegenModel.interfaceModels.add(oneOfModel);
         }
-        codegenModel.interfaceModels.add(oneOfModel);
     }
 
-    public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
-        String oneOfModelName = "AnyOf" + codegenModel.name;
-        final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        oneOfModel.name = oneOfModelName;
-        oneOfModel.classname = codegenConfig.toModelName(oneOfModelName);
-        oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+    public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> anyOf) {
+        String anyOfModelName = "AnyOf" + codegenModel.name;
+        final CodegenModel anyOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
+        anyOfModel.name = anyOfModelName;
+        anyOfModel.classname = codegenConfig.toModelName(anyOfModelName);
+        anyOfModel.classVarName = codegenConfig.toVarName(anyOfModelName);
+        anyOfModel.classFilename = codegenConfig.toModelFilename(anyOfModelName);
+        anyOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
 
         final List<String> modelNames = new ArrayList<>();
 
-        for (Schema interfaceSchema : oneOf) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+        for (Schema interfaceSchema : anyOf) {
+            if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
+                String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                modelNames.add(codegenConfig.toModelName(schemaName));
+            }
         }
-        oneOfModel.vendorExtensions.put("x-model-names", modelNames);
-        codegenModel.vendorExtensions.put("anyOf-model", oneOfModel);
-        if (codegenModel.interfaceModels == null) {
-            codegenModel.interfaceModels = new ArrayList<>();
+        anyOfModel.vendorExtensions.put("x-model-names", modelNames);
+        if (!modelNames.isEmpty()) {
+            codegenModel.vendorExtensions.put("anyOf-model", anyOfModel);
+            if (codegenModel.interfaceModels == null) {
+                codegenModel.interfaceModels = new ArrayList<>();
+            }
+            codegenModel.interfaceModels.add(anyOfModel);
         }
-        codegenModel.interfaceModels.add(oneOfModel);
     }
 
     public void configureOneOfModelFromProperty(CodegenProperty codegenProperty, CodegenModel codegenModel) {
@@ -118,10 +126,6 @@ public class SchemaHandler {
         codegenProperty.baseType = name;
 
         codegenModel.vendorExtensions.put("anyOf-model", anyOfModel);
-    }
-
-    public void configureAnyOfModelFromProperty() {
-
     }
 
     private CodegenModel createFromOneOfSchemas(List<Schema> schemas) {
