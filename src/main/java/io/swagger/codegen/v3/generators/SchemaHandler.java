@@ -4,6 +4,7 @@ import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,8 +129,10 @@ public class SchemaHandler {
         final List<String> modelNames = new ArrayList<>();
 
         for (Schema interfaceSchema : schemas) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+            if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
+                String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                modelNames.add(codegenConfig.toModelName(schemaName));
+            }
         }
         codegenModel.vendorExtensions.put("x-model-names", modelNames);
         return codegenModel;
