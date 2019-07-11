@@ -221,6 +221,12 @@ var JSONSchemaView = (function () {
 
       this.element.innerHTML = this.template();
 
+      if (this.schema && this.schema.example) {
+        var exampleDiv = document.createElement('div');
+        exampleDiv.innerHTML = '<div style="display: block" class="example">\n          <span style="color: #808080" class="name">example: ' + this.schema.example + '</span>\n        </div>';
+        this.element.appendChild(exampleDiv.querySelector('.example'));
+      }
+
       if (!this.schema) {
         return this.element;
       }
