@@ -189,6 +189,9 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
             op.returnType = normalizeType(op.returnType);
         }
 
+        op.operationId = op.operationId.replace(" ", "_");
+        op.nickname = op.operationId;
+
         // path is an unescaped variable in the mustache template api.mustache
         // line 82 '<&path>'
         op.path = sanitizePath(op.path);
