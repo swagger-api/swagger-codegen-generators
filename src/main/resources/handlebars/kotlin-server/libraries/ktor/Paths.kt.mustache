@@ -7,7 +7,7 @@ import io.ktor.locations.*
 import io.ktor.pipeline.PipelineContext
 import io.ktor.routing.Route
 import io.ktor.routing.method
-import {{modelPackage}}.*
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{#imports}}
 import {{import}}

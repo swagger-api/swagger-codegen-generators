@@ -128,6 +128,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("object", "object");
         typeMapping.put("binary", "string");
         typeMapping.put("ByteArray", "string");
+        typeMapping.put("BigDecimal", "float");
         typeMapping.put("UUID", "string");
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
@@ -370,13 +371,16 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
                 return "";
             }
             return getTypeDeclaration(inner) + "[]";
-        } else if (propertySchema instanceof MapSchema) {
+        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
             MapSchema mapSchema = (MapSchema) propertySchema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
                 return "";
             }
+            return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return getSchemaType(propertySchema) + "[string," + getTypeDeclaration(inner) + "]";
         } else if (StringUtils.isNotBlank(propertySchema.get$ref())) {
             String type = super.getTypeDeclaration(propertySchema);
