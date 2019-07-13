@@ -5,6 +5,7 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -271,7 +272,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String getTypeDeclaration(Schema propertySchema) {
         if (propertySchema instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) propertySchema);
-        } else if (propertySchema instanceof MapSchema || propertySchema.getAdditionalProperties() != null) {
+        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
@@ -279,6 +280,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 return null;
             }
             // Maps will be keyed only by primitive Kotlin string
+            return String.format("%s<kotlin.String, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return String.format("%s<kotlin.String, %s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
         return super.getTypeDeclaration(propertySchema);

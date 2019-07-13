@@ -14,12 +14,14 @@ namespace {{apiPackage}}
     public interface I{{classname}}
     {
         {{#operation}}
+        {{#contents}}
         /// <summary>
         /// {{summary}} {{notes}}
         /// </summary>
-        {{#allParams}}/// <param name="{{paramName}}">{{description}}</param>
-        {{/allParams}}/// <returns>{{#returnType}}{{returnType}}{{/returnType}}</returns>
-        {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{nickname}} ({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+        {{#parameters}}/// <param name="{{paramName}}">{{description}}</param>
+        {{/parameters}}/// <returns>{{#returnType}}{{returnType}}{{/returnType}}</returns>
+        {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{nickname}} ({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+        {{/contents}}
         {{/operation}}
     }
   
@@ -77,17 +79,18 @@ namespace {{apiPackage}}
         public ApiClient ApiClient {get; set;}
     
         {{#operation}}
+        {{#contents}}
         /// <summary>
         /// {{summary}} {{notes}}
         /// </summary>
-        {{#allParams}}/// <param name="{{paramName}}">{{description}}</param> 
-        {{/allParams}}/// <returns>{{#returnType}}{{returnType}}{{/returnType}}</returns>            
-        public {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{nickname}} ({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        {{#parameters}}/// <param name="{{paramName}}">{{description}}</param>
+        {{/parameters}}/// <returns>{{#returnType}}{{returnType}}{{/returnType}}</returns>
+        public {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}} {{nickname}} ({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
         {
-            {{#allParams}}{{#required}}
+            {{#parameters}}{{#required}}
             // verify the required parameter '{{paramName}}' is set
             if ({{paramName}} == null) throw new ApiException(400, "Missing required parameter '{{paramName}}' when calling {{nickname}}");
-            {{/required}}{{/allParams}}
+            {{/required}}{{/parameters}}
     
             var path = "{{{path}}}";
             path = path.Replace("{format}", "json");
@@ -123,6 +126,7 @@ namespace {{apiPackage}}
             {{#returnType}}return ({{{returnType}}}) ApiClient.Deserialize(response.Content, typeof({{{returnType}}}), response.Headers);{{/returnType}}{{^returnType}}return;{{/returnType}}
         }
     
+        {{/contents}}
         {{/operation}}
     }
     {{/operations}}

@@ -8,7 +8,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import java.io.File;
 import java.util.List;
 
-import {{modelPackage}}.*;
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{#imports}}import {{import}};
 {{/imports}}
@@ -23,12 +23,14 @@ public class {{classname}}  {
    **/
 
 {{#operation}}
+{{#contents}}
   /*
-    public ResponseContext {{operationId}}(RequestContext request {{#allParams}}, {{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{/allParams}}) {
+    public ResponseContext {{operationId}}(RequestContext request {{#parameters}}, {{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{/parameters}}) {
         return new ResponseContext().status(Status.INTERNAL_SERVER_ERROR).entity( "Not implemented" );
     }
   */
 
+{{/contents}}
 {{/operation}}
 }
 {{/operations}}

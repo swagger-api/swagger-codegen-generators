@@ -10,9 +10,10 @@ Method | HTTP request | Description
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
 <a name="{{operationId}}"></a>
 # **{{operationId}}**
-> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}({{#allParams}}{{{paramName}}}{{#has this 'more'}}, {{/has}}{{/allParams}})
+> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}({{#parameters}}{{{paramName}}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
 
 {{summary}}{{#notes}}
 
@@ -22,15 +23,15 @@ Method | HTTP request | Description
 ```kotlin
 // Import classes:
 //import {{{packageName}}}.infrastructure.*
-//import {{{modelPackage}}}.*
+//{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{! TODO: Auth method documentation examples}}
 val apiInstance = {{{classname}}}()
-{{#allParams}}
+{{#parameters}}
 val {{{paramName}}} : {{{dataType}}} = {{{example}}} // {{{dataType}}} | {{{description}}}
-{{/allParams}}
+{{/parameters}}
 try {
-    {{#returnType}}val result : {{{returnType}}} = {{/returnType}}apiInstance.{{{operationId}}}({{#allParams}}{{{paramName}}}{{#has this 'more'}}, {{/has}}{{/allParams}}){{#returnType}}
+    {{#returnType}}val result : {{{returnType}}} = {{/returnType}}apiInstance.{{{operationId}}}({{#parameters}}{{{paramName}}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#returnType}}
     println(result){{/returnType}}
 } catch (e: ClientException) {
     println("4xx response calling {{{classname}}}#{{{operationId}}}")
@@ -42,11 +43,11 @@ try {
 ```
 
 ### Parameters
-{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
+{{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#is this 'primitiveType'}}**{{dataType}}**{{/is}}{{#isNot this 'primitiveType'}}{{#is this 'file'}}**{{dataType}}**{{/is}}{{#isNot this 'file'}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
-{{/allParams}}
+------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
+{{#parameters}} **{{paramName}}** | {{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isFile}}{{/isPrimitiveType}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
+{{/parameters}}
 
 ### Return type
 
@@ -58,8 +59,9 @@ Name | Type | Description  | Notes
 
 ### HTTP request headers
 
- - **Content-Type**: {{#if consumes}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/if}}{{#unless consumes}}Not defined{{/unless}}
- - **Accept**: {{#if produces}}{{{mediaType}}}{{#has this 'more'}}, {{/has}}{{/if}}{{#unless produces}}Not defined{{/unless}}
+ - **Content-Type**: {{#consumes}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
+ - **Accept**: {{#produces}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/produces}}{{^produces}}Not defined{{/produces}}
 
+{{/contents}}
 {{/operation}}
 {{/operations}}

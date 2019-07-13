@@ -7,7 +7,7 @@ import io.ktor.locations.*
 import io.ktor.pipeline.PipelineContext
 import io.ktor.routing.Route
 import io.ktor.routing.method
-import {{modelPackage}}.*
+{{#hasModel}}import {{modelPackage}}.*;{{/hasModel}}
 
 {{#imports}}
 import {{import}}
@@ -27,15 +27,17 @@ object Paths {
 {{#apis}}
 {{#operations}}
     {{#operation}}
+    {{#contents}}
     {{^bodyAllowed}}
     /**
      * {{summary}}
      * {{#unescapedNotes}}{{.}}{{/unescapedNotes}}
-     {{#allParams}}* @param {{paramName}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-     {{/allParams}}*/
-    @Location("{{path}}") class {{operationId}}({{#allParams}}val {{paramName}}: {{{dataType}}}{{^required}}? = null{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}})
+     {{#parameters}}* @param {{paramName}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+     {{/parameters}}*/
+    @Location("{{path}}") class {{operationId}}({{#parameters}}val {{paramName}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
 
     {{/bodyAllowed}}
+    {{/contents}}
     {{/operation}}
 {{/operations}}
 {{/apis}}

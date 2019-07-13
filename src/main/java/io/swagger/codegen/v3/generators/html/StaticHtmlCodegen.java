@@ -1,7 +1,6 @@
 package io.swagger.codegen.v3.generators.html;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
@@ -16,14 +15,16 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenConfig {
+public class StaticHtmlCodegen extends DefaultCodegenConfig {
     protected String invokerPackage = "io.swagger.client";
     protected String groupId = "io.swagger";
     protected String artifactId = "swagger-client";
@@ -105,8 +106,11 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenCo
             Schema inner = ((ArraySchema) propertySchema).getItems();
             return String.format("%s[%s]", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
-        else if (propertySchema instanceof MapSchema) {
+        else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
+            return String.format("%s[String, %s]", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return String.format("%s[String, %s]", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
         return super.getTypeDeclaration(propertySchema);
@@ -130,8 +134,9 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig implements CodegenCo
     @Override
     public void processOpts() {
         super.processOpts();
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
     }
 
     @Override

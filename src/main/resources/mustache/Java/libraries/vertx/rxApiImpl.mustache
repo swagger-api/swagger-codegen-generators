@@ -24,31 +24,33 @@ public class {{classname}} {
 	}
 
     {{#operation}}
+    {{#contents}}
     /**
      * {{summary}}
      * {{notes}}
-     {{#allParams}}
+     {{#parameters}}
      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-     {{/allParams}}
+     {{/parameters}}
      * @param resultHandler Asynchronous result handler
      */
-    public void {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}, {{/allParams}}Handler<AsyncResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> resultHandler) {
-        delegate.{{operationId}}({{#allParams}}{{paramName}}, {{/allParams}}resultHandler);
+    public void {{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}Handler<AsyncResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> resultHandler) {
+        delegate.{{operationId}}({{#parameters}}{{paramName}}, {{/parameters}}resultHandler);
     }
 
     /**
      * {{summary}}
      * {{notes}}
-     {{#allParams}}
+     {{#parameters}}
      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-     {{/allParams}}
+     {{/parameters}}
      * @return Asynchronous result handler (RxJava Single)
      */
-    public Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> rx{{operationIdCamelCase}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) {
+    public Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> rx{{operationIdCamelCase}}({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
         return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {
-            delegate.{{operationId}}({{#allParams}}{{paramName}}, {{/allParams}}fut);
+            delegate.{{operationId}}({{#parameters}}{{paramName}}, {{/parameters}}fut);
         }));
     }
+    {{/contents}}
     {{/operation}}
 
     public static {{classname}} newInstance({{package}}.{{classname}} arg) {

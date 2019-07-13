@@ -1,4 +1,4 @@
-{{#pattern}}@Pattern(regexp="{{{pattern}}}") {{/pattern}}{{!
+{{#pattern}}@Pattern(regexp="{{{pattern}}}"{{#vendorExtensions.x-pattern-message}}, message="{{vendorExtensions.x-pattern-message}}"{{/vendorExtensions.x-pattern-message}}) {{/pattern}}{{!
 minLength && maxLength set
 }}{{#minLength}}{{#maxLength}}@Size(min={{minLength}},max={{maxLength}}) {{/maxLength}}{{/minLength}}{{!
 minLength set, maxLength not
@@ -13,8 +13,8 @@ minLength not set, maxLength set
 }}{{^minItems}}{{#maxItems}}@Size(max={{maxItems}}) {{/maxItems}}{{/minItems}}{{!
 check for integer or long / all others=decimal type with @Decimal*
 isInteger set
-}}{{#is this 'integer'}}{{#minimum}}@Min({{minimum}}){{/minimum}}{{#maximum}} @Max({{maximum}}) {{/maximum}}{{/is}}{{!
+}}{{#isInteger}}{{#minimum}}@Min({{minimum}}){{/minimum}}{{#maximum}} @Max({{maximum}}) {{/maximum}}{{/isInteger}}{{!
 isLong set
-}}{{#is this 'long'}}{{#minimum}}@Min({{minimum}}L){{/minimum}}{{#maximum}} @Max({{maximum}}L) {{/maximum}}{{/is}}{{!
+}}{{#isLong}}{{#minimum}}@Min({{minimum}}L){{/minimum}}{{#maximum}} @Max({{maximum}}L) {{/maximum}}{{/isLong}}{{!
 Not Integer, not Long => we have a decimal value!
-}}{{#isNot this 'integer'}}{{#isNot this 'long'}}{{#minimum}}@DecimalMin("{{minimum}}"){{/minimum}}{{#maximum}} @DecimalMax("{{maximum}}") {{/maximum}}{{/isNot}}{{/isNot}}
+}}{{^isInteger}}{{^isLong}}{{#minimum}}@DecimalMin("{{minimum}}"){{/minimum}}{{#maximum}} @DecimalMax("{{maximum}}") {{/maximum}}{{/isLong}}{{/isInteger}}

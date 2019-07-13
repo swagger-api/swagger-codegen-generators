@@ -1,0 +1,23 @@
+'use strict';
+
+var utils = require('../utils/writer.js');
+{{#operations}}
+var {{classname}} = require('../{{implFolder}}/{{classname}}Service');
+{{#operation}}
+{{#contents}}
+
+module.exports.{{nickname}} = function {{nickname}} (req, res, next) {
+  {{#parameters}}
+  var {{paramName}} = req.swagger.params['{{baseName}}'].value;
+  {{/parameters}}
+  {{classname}}.{{nickname}}({{#parameters}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}})
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+{{/contents}}
+{{/operation}}
+{{/operations}}

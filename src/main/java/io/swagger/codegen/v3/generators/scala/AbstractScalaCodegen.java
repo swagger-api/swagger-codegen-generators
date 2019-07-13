@@ -12,9 +12,9 @@ import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
-import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
@@ -157,7 +157,11 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
         } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             return String.format("%s[String, %s]", getSchemaType(propertySchema), getTypeDeclaration(inner));
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
+            return String.format("%s[String, %s]", getSchemaType(propertySchema), getTypeDeclaration(inner));
         }
+
         return super.getTypeDeclaration(propertySchema);
     }
 
@@ -179,6 +183,9 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
         if (schemaProperty instanceof MapSchema && hasSchemaProperties(schemaProperty)) {
             String inner = getSchemaType((Schema) schemaProperty.getAdditionalProperties());
             return String.format("%s[%s]", instantiationTypes.get("map"), inner);
+        } else if (schemaProperty instanceof MapSchema && hasTrueAdditionalProperties(schemaProperty)) {
+            Schema inner = new ObjectSchema();
+            return String.format("%s[%s]", instantiationTypes.get("map"), inner);
         } else if (schemaProperty instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schemaProperty;
             String inner = getSchemaType(arraySchema.getItems());
@@ -192,6 +199,9 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
     public String toDefaultValue(Schema propertySchema) {
         if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             String inner = getSchemaType((Schema) propertySchema.getAdditionalProperties());
+            return String.format("new HashMap[String, %s]()", inner);
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            Schema inner = new ObjectSchema();
             return String.format("new HashMap[String, %s]()", inner);
         } else if(propertySchema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) propertySchema;

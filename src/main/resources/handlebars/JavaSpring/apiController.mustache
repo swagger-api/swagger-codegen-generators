@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.io.IOException;
     {{/isDelegate}}
 import java.util.List;
+import java.util.Map;
     {{#async}}
 import java.util.concurrent.Callable;
     {{/async}}
@@ -98,7 +99,8 @@ public class {{classname}}Controller implements {{classname}} {
 {{/isDelegate}}
 {{^jdk8}}
 {{#operation}}
-    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#has this 'more'}},{{/has}}{{/allParams}}) {
+{{#contents}}
+    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{^isDelegate}}
         {{^async}}
         String accept = request.getHeader("Accept");
@@ -137,10 +139,11 @@ public class {{classname}}Controller implements {{classname}} {
         {{/async}}
         {{/isDelegate}}
         {{#isDelegate}}
-        return delegate.{{operationId}}({{#allParams}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}});
+        return delegate.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{/isDelegate}}
     }
 
+{{/contents}}
 {{/operation}}
 {{/jdk8}}
 }

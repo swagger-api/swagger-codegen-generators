@@ -13,11 +13,11 @@ require_once(__DIR__ . '/vendor/autoload.php');
 {{/hasAuthMethods}}
 
 $api_instance = new Swagger\Client\Api\{{classname}}();
-{{#allParams}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{unescapedDescription}}}
-{{/allParams}}
+{{#parameters}}${{paramName}} = {{{example}}}; // {{{dataType}}} | {{{unescapedDescription}}}
+{{/parameters}}
 
 try {
-    {{#returnType}}$result = {{/returnType}}$api_instance->{{{operationId}}}({{#allParams}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});{{#returnType}}
+    {{#returnType}}$result = {{/returnType}}$api_instance->{{{operationId}}}({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
     print_r($result);{{/returnType}}
 } catch (Exception $e) {
     echo 'Exception when calling {{classname}}->{{operationId}}: ', $e->getMessage(), PHP_EOL;
