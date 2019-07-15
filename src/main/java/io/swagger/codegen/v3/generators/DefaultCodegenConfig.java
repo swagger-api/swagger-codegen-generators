@@ -3918,7 +3918,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String getTemplateDir() {
         return new StringBuilder()
                 .append(templateEngine.getName())
-                .append("/")
+                .append(File.separatorChar)
                 .append(getDefaultTemplateDir())
                 .toString();
     }
