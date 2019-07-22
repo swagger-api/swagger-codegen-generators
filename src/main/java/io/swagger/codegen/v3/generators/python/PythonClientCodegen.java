@@ -159,7 +159,10 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         super.processOpts();
         Boolean excludeTests = false;
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            String templateVersion = getTemplateVersion();
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
 
         if(additionalProperties.containsKey(CodegenConstants.EXCLUDE_TESTS)) {
             excludeTests = Boolean.valueOf(additionalProperties.get(CodegenConstants.EXCLUDE_TESTS).toString());
