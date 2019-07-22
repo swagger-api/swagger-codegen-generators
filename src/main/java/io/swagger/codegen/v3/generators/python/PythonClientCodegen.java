@@ -160,7 +160,6 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         Boolean excludeTests = false;
 
         if (StringUtils.isBlank(templateDir)) {
-            String templateVersion = getTemplateVersion();
             embeddedTemplateDir = templateDir = getTemplateDir();
         }
 
