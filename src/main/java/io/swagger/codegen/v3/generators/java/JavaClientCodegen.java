@@ -11,6 +11,7 @@ import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -559,6 +560,10 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             }
             parent.put("children", childrenList);
             parent.put("discriminator", parentModel.discriminator);
+            if(parentModel.discriminator != null && parentModel.discriminator.getMapping() != null)
+            {
+                parentModel.discriminator.getMapping().replaceAll((key, value) -> OpenAPIUtil.getSimpleRef(value));
+            }
             parentsList.add(parent);
         }
         return parentsList;
