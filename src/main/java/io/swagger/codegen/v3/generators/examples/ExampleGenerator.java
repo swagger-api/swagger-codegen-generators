@@ -160,7 +160,9 @@ public class ExampleGenerator {
         if (processedModels.contains(schema.get$ref())) {
             return schema.getExample();
         }
-        processedModels.add(schema.get$ref());
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            processedModels.add(schema.get$ref());
+        }
         if (schema.getExample() != null) {
             logger.debug("Example set in swagger spec, returning example: '{}'", schema.getExample().toString());
             return schema.getExample();
@@ -275,7 +277,9 @@ public class ExampleGenerator {
         if (processedModels.contains(schema.get$ref())) {
             return schema.getExample();
         }
-        processedModels.add(schema.get$ref());
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            processedModels.add(schema.get$ref());
+        }
         Map<String, Object> values = new HashMap<>();
 
         logger.debug("Resolving model '{}' to example", name);
