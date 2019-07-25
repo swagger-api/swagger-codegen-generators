@@ -157,7 +157,10 @@ public class ExampleGenerator {
     }
 
     private Object resolveSchemaToExample(String propertyName, String mediaType, Schema schema, Set<String> processedModels) {
-//        logger.debug("Resolving example for property {}...", schema);
+        if (processedModels.contains(schema.get$ref())) {
+            return schema.getExample();
+        }
+        processedModels.add(schema.get$ref());
         if (schema.getExample() != null) {
             logger.debug("Example set in swagger spec, returning example: '{}'", schema.getExample().toString());
             return schema.getExample();
@@ -269,10 +272,10 @@ public class ExampleGenerator {
     }
 
     private Object resolveModelToExample(String name, String mediaType, Schema schema, Set<String> processedModels) {
-        if (processedModels.contains(name)) {
+        if (processedModels.contains(schema.get$ref())) {
             return schema.getExample();
         }
-        processedModels.add(name);
+        processedModels.add(schema.get$ref());
         Map<String, Object> values = new HashMap<>();
 
         logger.debug("Resolving model '{}' to example", name);
