@@ -509,6 +509,19 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     removeHeadersFromAllParams(operation.allParams);
                     removeHeadersFromContents(operation.contents);
                 }
+                if (operation.examples != null){
+                    for (Map<String, String> example : operation.examples)
+                    {
+                        for (Map.Entry<String, String> entry : example.entrySet())
+                        {
+                            // Replace " with \", \r, \n with \\r, \\n
+                            String val = entry.getValue().replace("\"", "\\\"")
+                                .replace("\r","\\r")
+                                .replace("\n","\\n");
+                            entry.setValue(val);
+                        }
+                    }
+                }
             }
         }
 
