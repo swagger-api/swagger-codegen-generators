@@ -221,6 +221,12 @@ var JSONSchemaView = (function () {
 
       this.element.innerHTML = this.template();
 
+      if (this.schema && this.schema.example) {
+        var exampleDiv = document.createElement('div');
+        exampleDiv.innerHTML = '<div style="display: block" class="example">\n          <span style="color: #808080" class="name">example: ' + this.schema.example + '</span>\n        </div>';
+        this.element.appendChild(exampleDiv.querySelector('.example'));
+      }
+
       if (!this.schema) {
         return this.element;
       }
@@ -258,7 +264,13 @@ var JSONSchemaView = (function () {
       }
 
       if (this.isArray) {
-        var view = new JSONSchemaView(this.schema.items, Infinity);
+        var schemaItems = this.schema.items;
+        if (this.schema.items.$ref) {
+           var elements = this.schema.items.$ref.split('/');
+           var schemaName = elements.pop();
+           schemaItems = defs[schemaName];
+        }
+        var view = new JSONSchemaView(schemaItems, Infinity);
         inner.appendChild(view.render());
       }
 
