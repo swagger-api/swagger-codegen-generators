@@ -376,7 +376,7 @@ public class JavaModelTest {
 
     @Test(description = "convert an map model")
     public void mapModelTest() {
-        final Schema schema = new Schema()
+        final Schema schema = new MapSchema()
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
@@ -393,7 +393,7 @@ public class JavaModelTest {
     
     @Test(description = "convert an map model")
     public void mapModelTestUsingOas2() {
-        final Schema schema = new Schema()
+        final Schema schema = new MapSchema()
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();

@@ -72,9 +72,9 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         Boolean hasComplexTypes = Boolean.FALSE;
         Boolean hasCookieParams = Boolean.FALSE;
         Set<String> complexRequestTypes = new HashSet<>();
-        Set<String> complexReturnTypes = new HashSet<>();
+        List<CodegenResponse> complexReturnTypes = new ArrayList<>();
         for (CodegenOperation op : operationList) {
-            Set<String> complexOperationReturnTypes = new HashSet<>();
+            List<CodegenResponse> complexOperationReturnTypes = new ArrayList<>();
             for(CodegenParameter parameter : op.allParams) {
                 if(!parameter.getIsPrimitiveType()){
                     if(parameter.getIsBodyParam()){
@@ -89,8 +89,8 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             for(CodegenResponse response : op.responses) {
                 if(!response.getIsPrimitiveType()){
                     hasComplexTypes = Boolean.TRUE;
-                    complexReturnTypes.add(response.dataType);
-                    complexOperationReturnTypes.add(response.dataType);
+                    complexReturnTypes.add(response);
+                    complexOperationReturnTypes.add(response);
                 }
             }
             op.getVendorExtensions().put("complexReturnTypes", complexOperationReturnTypes);

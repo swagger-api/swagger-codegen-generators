@@ -28,3 +28,7 @@ hs_err_pid*
 .idea
 *.iml
 target/
+test-output/
+
+.classpath
+.settings/
