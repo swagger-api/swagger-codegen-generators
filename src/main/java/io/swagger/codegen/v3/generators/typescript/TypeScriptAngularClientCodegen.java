@@ -125,6 +125,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
         }
         additionalProperties.put(NG_VERSION, ngVersion);
+        additionalProperties.put("useRxJS6", ngVersion.atLeast("6.0.0"));
         additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
         additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
         additionalProperties.put("useHttpClient", ngVersion.atLeast("4.3.0"));
