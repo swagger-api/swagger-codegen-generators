@@ -27,7 +27,11 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()
               ->setUsername('YOUR_USERNAME')
               ->setPassword('YOUR_PASSWORD');
-{{/isBasic}}{{#isApiKey}}
+{{/isBasic}}{{#isBearer}}
+    // Configure HTTP bearer authorization: {{{name}}}
+    $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()
+    ->setAccessToken('YOUR_ACCESS_TOKEN');
+{{/isBearer}}{{#isApiKey}}
 // Configure API key authorization: {{{name}}}
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setApiKey('{{{keyParamName}}}', 'YOUR_API_KEY');
 // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
