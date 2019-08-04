@@ -1131,6 +1131,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 .replaceAll("\\(", "_")
                 .replaceAll("\\)", StringUtils.EMPTY)
                 .replaceAll("\\.", "_")
+                .replaceAll("@", "_at_")
                 .replaceAll("-", "_")
                 .replaceAll(" ", "_");
 
