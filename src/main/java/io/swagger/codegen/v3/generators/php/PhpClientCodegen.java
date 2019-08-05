@@ -5,6 +5,7 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 
 import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -749,6 +751,19 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     @Override
     public String escapeUnsafeCharacters(String input) {
         return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
+
+    @Override
+    public List<CodegenSecurity> fromSecurity(Map<String, SecurityScheme> securitySchemeMap) {
+        final List<CodegenSecurity> securities = super.fromSecurity(securitySchemeMap);
+        securities.forEach(codegenSecurity -> {
+            final Map<String, Object> extensions = codegenSecurity.getVendorExtensions();
+            if (extensions != null && extensions.containsKey("x-token-example")) {
+                additionalProperties.put("x-token-example", extensions.get("x-token-example"));
+                return;
+            }
+        });
+        return securities;
     }
 
 }
