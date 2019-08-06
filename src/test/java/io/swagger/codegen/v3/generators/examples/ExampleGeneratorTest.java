@@ -40,4 +40,16 @@ public class ExampleGeneratorTest {
         Assert.assertNotNull(example);
         Assert.assertTrue(example.contains("\"name\" : \"doggie\""));
     }
+
+    @Test
+    public void testExampleWithRecursiveNodes() throws Exception {
+        final Schema categorySchema = openAPI.getComponents().getSchemas().get("Category");
+        final ExampleGenerator exampleGenerator = new ExampleGenerator(openAPI);
+
+        final List<Map<String, String>> exampleList = exampleGenerator.generate(null, null, categorySchema);
+        Assert.assertEquals(exampleList.size(), 1);
+        final Map<String, String> example = exampleList.get(0);
+        Assert.assertEquals(example.get("contentType"), "application/json");
+        Assert.assertTrue(example.get("example").contains("\"name\" : \"Yinotheria\""));
+    }
 }

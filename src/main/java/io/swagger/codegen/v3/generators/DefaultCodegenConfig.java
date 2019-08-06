@@ -1989,7 +1989,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             codegenOperation.returnBaseType = codegenProperty.baseType;
                         }
                     }
-                    codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
+                    if (!additionalProperties.containsKey(CodegenConstants.DISABLE_EXAMPLES_OPTION)) {
+                        codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
+                    }
                     codegenOperation.defaultResponse = toDefaultValue(responseSchema);
                     codegenOperation.returnType = codegenProperty.datatype;
                     boolean hasReference = schemas != null && schemas.containsKey(codegenOperation.returnBaseType);
@@ -2710,6 +2712,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else if (SecurityScheme.Type.HTTP.equals(schemeDefinition.getType())) {
                 if ("bearer".equalsIgnoreCase(schemeDefinition.getScheme())) {
                     codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BEARER_EXT_NAME, Boolean.TRUE);
+                    final Map<String, Object> extensions = schemeDefinition.getExtensions();
+                    if (extensions != null && extensions.get("x-token-example") != null) {
+                        final String tokenExample = extensions.get("x-token-example").toString();
+                        if (StringUtils.isNotBlank(tokenExample)) {
+                            codegenSecurity.getVendorExtensions().put("x-token-example", tokenExample);
+                        }
+                    }
                 } else {
                     codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BASIC_EXT_NAME, Boolean.TRUE);
                 }
