@@ -5,7 +5,9 @@ package {{invokerPackage}};
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.gsonfire.GsonFireBuilder;
+import io.gsonfire.PostProcessor;
 import io.gsonfire.TypeSelector;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -77,6 +79,34 @@ public class JSON {
                             classByDiscriminatorValue,
                             getDiscriminatorValue(readElement, "{{discriminator.propertyName}}"));
             }
+          })
+          .registerPostProcessor({{classname}}.class, new PostProcessor<{{classname}}>() {
+              @Override
+              public void postDeserialize({{classname}} result, JsonElement src, Gson gson) {
+
+              }
+
+              @Override
+              public void postSerialize(JsonElement result, {{classname}} src, Gson gson) {
+                  Map<Class<? extends {{classname}}>, String> discriminatorValueByClass = new HashMap<>();
+                  {{#if discriminator.mapping}}
+                      {{#each discriminator.mapping}}
+                      discriminatorValueByClass.put({{this}}.class, "{{@key}}");
+                      {{/each}}
+                  {{else}}
+                      {{#children}}
+                      discriminatorValueByClass.put({{classname}}.class, "{{name}}");
+                      {{/children}}
+                      discriminatorValueByClass.put({{classname}}.class, "{{classname}}");
+                  {{/if}}
+                  if(result instanceof JsonObject)
+                  {
+                      if(!((JsonObject) result).has("{{discriminator.propertyName}}"))
+                      {
+                          ((JsonObject) result).addProperty("{{discriminator.propertyName}}", discriminatorValueByClass.get(src.getClass()));
+                      }
+                  }
+              }
           })
         {{/parent}}
         ;
