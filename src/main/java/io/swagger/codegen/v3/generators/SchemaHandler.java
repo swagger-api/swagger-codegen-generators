@@ -38,17 +38,49 @@ public class SchemaHandler {
 
     }
 
+    public void configureComposedModelFromSchemaItems(CodegenModel codegenModel, ComposedSchema items) {
+        List<Schema> oneOfList = items.getOneOf();
+        if (oneOfList != null && !oneOfList.isEmpty()){
+            String name = "OneOf" + codegenModel.name + "Items";
+            final CodegenModel oneOfModel = createComposedModel(name);
+            // setting name to be used as instance type on composed model.
+            items.addExtension("x-model-name", codegenConfig.toModelName(name));
+
+            final List<String> modelNames = new ArrayList<>();
+            for (Schema interfaceSchema : oneOfList) {
+                if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
+                    String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                    modelNames.add(codegenConfig.toModelName(schemaName));
+                }
+            }
+            oneOfModel.vendorExtensions.put("x-model-names", modelNames);
+            if (!modelNames.isEmpty()) {
+                codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+            }
+        }
+        List<Schema> anyOfList = items.getOneOf();
+        if (anyOfList != null && !anyOfList.isEmpty()){
+            String name = "AnyOf" + codegenModel.name + "Items";
+            final CodegenModel anyOfModel = createComposedModel(name);
+            items.addExtension("x-model-name", codegenConfig.toModelName(name));
+
+            final List<String> modelNames = new ArrayList<>();
+            for (Schema interfaceSchema : anyOfList) {
+                if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
+                    String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
+                    modelNames.add(codegenConfig.toModelName(schemaName));
+                }
+            }
+            anyOfModel.vendorExtensions.put("x-model-names", modelNames);
+            if (!modelNames.isEmpty()) {
+                codegenModel.vendorExtensions.put("anyOf-model", anyOfModel);
+            }
+        }
+    }
+
     public void configureOneOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
-        String oneOfModelName = "OneOf" + codegenModel.name;
-        final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        oneOfModel.name = oneOfModelName;
-        oneOfModel.classname = codegenConfig.toModelName(oneOfModelName);
-        oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
-
+        final CodegenModel oneOfModel = createComposedModel("OneOf" + codegenModel.name);
         final List<String> modelNames = new ArrayList<>();
-
         for (Schema interfaceSchema : oneOf) {
             if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
                 String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
@@ -66,16 +98,8 @@ public class SchemaHandler {
     }
 
     public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> anyOf) {
-        String anyOfModelName = "AnyOf" + codegenModel.name;
-        final CodegenModel anyOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        anyOfModel.name = anyOfModelName;
-        anyOfModel.classname = codegenConfig.toModelName(anyOfModelName);
-        anyOfModel.classVarName = codegenConfig.toVarName(anyOfModelName);
-        anyOfModel.classFilename = codegenConfig.toModelFilename(anyOfModelName);
-        anyOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
-
+        final CodegenModel anyOfModel = createComposedModel("AnyOf" + codegenModel.name);
         final List<String> modelNames = new ArrayList<>();
-
         for (Schema interfaceSchema : anyOf) {
             if (StringUtils.isNotBlank(interfaceSchema.get$ref())) {
                 String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
@@ -96,11 +120,7 @@ public class SchemaHandler {
         String name = "OneOf" + codegenConfig.toModelName(codegenModel.name);
         name += codegenConfig.toModelName(codegenProperty.name);
         CodegenModel oneOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("oneOf-model");
-        oneOfModel.name = name;
-        oneOfModel.classname = codegenConfig.toModelName(name);
-        oneOfModel.classVarName = codegenConfig.toVarName(name);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(name);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+        this.configureModel(oneOfModel, name);
         codegenProperty.vendorExtensions.remove("oneOf-model");
 
         codegenProperty.datatype = name;
@@ -114,11 +134,7 @@ public class SchemaHandler {
         String name = "AnyOf" + codegenConfig.toModelName(codegenModel.name);
         name += codegenConfig.toModelName(codegenProperty.name);
         CodegenModel anyOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("anyOf-model");
-        anyOfModel.name = name;
-        anyOfModel.classname = codegenConfig.toModelName(name);
-        anyOfModel.classVarName = codegenConfig.toVarName(name);
-        anyOfModel.classFilename = codegenConfig.toModelFilename(name);
-        anyOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+        this.configureModel(anyOfModel, name);
         codegenProperty.vendorExtensions.remove("anyOf-model");
 
         codegenProperty.datatype = name;
@@ -140,5 +156,19 @@ public class SchemaHandler {
         }
         codegenModel.vendorExtensions.put("x-model-names", modelNames);
         return codegenModel;
+    }
+
+    private CodegenModel createComposedModel(String name) {
+        final CodegenModel composedModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
+        this.configureModel(composedModel, name);
+        return composedModel;
+    }
+
+    private void configureModel(CodegenModel codegenModel, String name) {
+        codegenModel.name = name;
+        codegenModel.classname = codegenConfig.toModelName(name);
+        codegenModel.classVarName = codegenConfig.toVarName(name);
+        codegenModel.classFilename = codegenConfig.toModelFilename(name);
+        codegenModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
     }
 }
