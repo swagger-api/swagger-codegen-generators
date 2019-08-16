@@ -725,11 +725,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 model.imports.add("JsonCreator");
             }
         }
-        if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
-            property.vendorExtensions.put("x-is-discriminator-property", true);
-
-            //model.imports.add("JsonTypeId");
-        }
     }
 
     @Override
