@@ -58,7 +58,7 @@ public class SchemaHandler {
                 codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
             }
         }
-        List<Schema> anyOfList = items.getOneOf();
+        List<Schema> anyOfList = items.getAnyOf();
         if (anyOfList != null && !anyOfList.isEmpty()){
             String name = "AnyOf" + codegenModel.name + "Items";
             final CodegenModel anyOfModel = createComposedModel(name);
