@@ -126,6 +126,7 @@ public class SchemaHandler {
         codegenProperty.datatype = name;
         codegenProperty.datatypeWithEnum = name;
         codegenProperty.baseType = name;
+        codegenProperty.complexType = name;
 
         codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
     }
@@ -140,6 +141,7 @@ public class SchemaHandler {
         codegenProperty.datatype = name;
         codegenProperty.datatypeWithEnum = name;
         codegenProperty.baseType = name;
+        codegenProperty.complexType = name;
 
         codegenModel.vendorExtensions.put("anyOf-model", anyOfModel);
     }
