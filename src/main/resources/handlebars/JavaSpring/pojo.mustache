@@ -23,8 +23,13 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
       {{/items}}
     {{/items.isEnum}}
   {{#jackson}}
+    {{#vendorExtensions.x-is-discriminator-property}}
+  @JsonTypeId
+    {{/vendorExtensions.x-is-discriminator-property}}
+    {{^vendorExtensions.x-is-discriminator-property}}
   @JsonProperty("{{baseName}}"){{#withXml}}
   @JacksonXmlProperty({{#isXmlAttribute}}isAttribute = true, {{/isXmlAttribute}}{{#xmlNamespace}}namespace="{{xmlNamespace}}", {{/xmlNamespace}}localName = "{{#xmlName}}{{xmlName}}{{/xmlName}}{{^xmlName}}{{baseName}}{{/xmlName}}"){{/withXml}}
+    {{/vendorExtensions.x-is-discriminator-property}}
   {{/jackson}}
   {{#gson}}
   @SerializedName("{{baseName}}")

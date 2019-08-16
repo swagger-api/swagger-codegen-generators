@@ -22,18 +22,23 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
       {{/items}}
     {{/items.isEnum}}
   {{#jackson}}
+    {{#vendorExtensions.x-is-discriminator-property}}
+  @JsonTypeId
+    {{/vendorExtensions.x-is-discriminator-property}}
+    {{^vendorExtensions.x-is-discriminator-property}}
   @JsonProperty("{{baseName}}")
-  {{#withXml}}
-    {{^isContainer}}
+    {{#withXml}}
+      {{^isContainer}}
   @JacksonXmlProperty({{#isXmlAttribute}}isAttribute = true, {{/isXmlAttribute}}{{#xmlNamespace}}namespace="{{xmlNamespace}}", {{/xmlNamespace}}localName = "{{#xmlName}}{{xmlName}}{{/xmlName}}{{^xmlName}}{{baseName}}{{/xmlName}}")
-    {{/isContainer}}
-    {{#isContainer}}
-      {{#isXmlWrapped}}
+      {{/isContainer}}
+      {{#isContainer}}
+        {{#isXmlWrapped}}
   // items.xmlName={{items.xmlName}}
   @JacksonXmlElementWrapper(useWrapping = {{isXmlWrapped}}, {{#xmlNamespace}}namespace="{{xmlNamespace}}", {{/xmlNamespace}}localName = "{{#items.xmlName}}{{items.xmlName}}{{/items.xmlName}}{{^items.xmlName}}{{items.baseName}}{{/items.xmlName}}")
-      {{/isXmlWrapped}}
-    {{/isContainer}}
-  {{/withXml}}
+        {{/isXmlWrapped}}
+      {{/isContainer}}
+    {{/withXml}}
+    {{/vendorExtensions.x-is-discriminator-property}}
   {{/jackson}}
   {{#withXml}}
   {{#isXmlAttribute}}
