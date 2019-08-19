@@ -1102,6 +1102,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return "UUID";
         } else if (schema instanceof StringSchema) {
             return "string";
+        } else if (schema instanceof ComposedSchema && schema.getExtensions() != null && schema.getExtensions().containsKey("x-model-name")) {
+            return schema.getExtensions().get("x-model-name").toString();
+
         } else {
             if (schema != null) {
                 if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema))) {
@@ -1282,6 +1285,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (schema instanceof ArraySchema) {
             codegenModel.getVendorExtensions().put(IS_ARRAY_MODEL_EXT_NAME, Boolean.TRUE);
             codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+
+            final Schema items = ((ArraySchema) schema).getItems();
+            if (items != null && items instanceof ComposedSchema) {
+                schemaHandler.configureComposedModelFromSchemaItems(codegenModel, ((ComposedSchema) items));
+            }
+
             codegenModel.arrayModelType = fromProperty(name, schema).complexType;
             addParentContainer(codegenModel, name, schema);
         }
@@ -1682,7 +1691,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             updatePropertyForMap(codegenProperty, cp);
         } else if (propertySchema instanceof ComposedSchema) {
             ComposedSchema composedProperty = (ComposedSchema) propertySchema;
-            Map<String, Schema> schemas = this.openAPI.getComponents() != null ? this.openAPI.getComponents().getSchemas() : null;
             this.schemaHandler.createCodegenModel(composedProperty, codegenProperty);
         } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
 
@@ -2916,10 +2924,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         co.baseName = tag;
     }
 
-    private void addParentContainer(CodegenModel codegenModel, String name, Schema property) {
-        final CodegenProperty codegenProperty = fromProperty(name, property);
+    private void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
+        final CodegenProperty codegenProperty = fromProperty(name, schema);
         addImport(codegenModel, codegenProperty.complexType);
-        codegenModel.parent = toInstantiationType(property);
+        codegenModel.parent = toInstantiationType(schema);
         final String containerType = codegenProperty.containerType;
         final String instantiationType = instantiationTypes.get(containerType);
         if (instantiationType != null) {
