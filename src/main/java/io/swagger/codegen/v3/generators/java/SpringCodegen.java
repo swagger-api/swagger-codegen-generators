@@ -551,7 +551,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         } else if (rt.startsWith("Map")) {
             int end = rt.lastIndexOf(">");
             if (end > 0) {
-                dataTypeAssigner.setReturnType(rt.substring("Map<".length(), end).split(",")[1].trim());
+                String mapTypes = rt.substring("Map<".length(), end);
+                String mapKey = mapTypes.split(",")[0];
+                String mapValue = mapTypes.substring(mapKey.length() + 1).trim();
+                dataTypeAssigner.setReturnType(mapValue);
                 dataTypeAssigner.setReturnContainer("Map");
             }
         } else if (rt.startsWith("Set")) {
