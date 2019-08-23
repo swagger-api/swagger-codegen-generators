@@ -93,6 +93,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "int");
         typeMapping.put("float", "float");
         typeMapping.put("number", "float");
+        typeMapping.put("BigDecimal", "float");
         typeMapping.put("long", "int");
         typeMapping.put("double", "float");
         typeMapping.put("array", "list");
