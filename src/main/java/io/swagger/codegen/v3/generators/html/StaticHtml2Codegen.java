@@ -152,8 +152,9 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
     @Override
     public void processOpts() {
         super.processOpts();
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
     }
 
     @Override
