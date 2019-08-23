@@ -2031,7 +2031,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         codegenOperation.returnTypeIsPrimitive = true;
                     }
                 }
-                addHeaders(methodResponse, codegenOperation.responseHeaders);
+                Map<String, Header> componentHeaders = null;
+                if ((openAPI != null) && (openAPI.getComponents() != null)) {
+                    componentHeaders = openAPI.getComponents().getHeaders();
+                }
+                addHeaders(methodResponse, codegenOperation.responseHeaders, componentHeaders);
             }
         }
 
@@ -2259,7 +2263,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
         }
-        addHeaders(response, codegenResponse.headers);
+        Map<String, Header> componentHeaders = null;
+        if ((openAPI != null) && (openAPI.getComponents() != null)) {
+            componentHeaders = openAPI.getComponents().getHeaders();
+        }
+        addHeaders(response, codegenResponse.headers, componentHeaders);
         codegenResponse.getVendorExtensions().put(CodegenConstants.HAS_HEADERS_EXT_NAME, !codegenResponse.headers.isEmpty());
 
         if (responseSchema != null) {
@@ -2855,10 +2863,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return output;
     }
 
-    private void addHeaders(ApiResponse response, List<CodegenProperty> target) {
+    private void addHeaders(ApiResponse response, List<CodegenProperty> target, Map<String, Header> componentHeaders) {
         if (response.getHeaders() != null) {
             for (Map.Entry<String, Header> headers : response.getHeaders().entrySet()) {
-                target.add(fromProperty(headers.getKey(), headers.getValue().getSchema()));
+                Header header = headers.getValue();
+                Schema schema;
+                if ((header.get$ref() != null) && (componentHeaders != null)) {
+                    String ref = OpenAPIUtil.getSimpleRef(header.get$ref());
+                    schema = componentHeaders.get(ref).getSchema();
+                } else {
+                    schema = header.getSchema();
+                }
+                target.add(fromProperty(headers.getKey(), schema));
             }
         }
     }
@@ -3951,11 +3967,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             String bodyName = OpenAPIUtil.getSimpleRef(body.get$ref());
             body = openAPI.getComponents().getRequestBodies().get(bodyName);
         }
-        
+
         if (body.getContent() == null || body.getContent().isEmpty()) {
             return;
         }
-        
+
         Set<String> consumes = body.getContent().keySet();
         List<Map<String, String>> mediaTypeList = new ArrayList<>();
         int count = 0;
@@ -4101,7 +4117,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (parameter.getExplode() == null || parameter.getExplode()) {
             return "multi";
         }
-        
+
         // Form is the default, if no style is specified.
         if (parameter.getStyle() == null || Parameter.StyleEnum.FORM.equals(parameter.getStyle())) {
             return "csv";
