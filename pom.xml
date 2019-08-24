@@ -246,7 +246,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.11</swagger-codegen-version>
+        <swagger-codegen-version>3.0.12-SNAPSHOT</swagger-codegen-version>
         <swagger-parser-version>2.0.14</swagger-parser-version>
         <swagger-core-version>2.0.9</swagger-core-version>
         <jackson-version>2.9.9</jackson-version>
