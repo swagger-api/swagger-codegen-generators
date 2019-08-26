@@ -28,3 +28,4 @@ io.swagger.codegen.v3.generators.scala.AkkaHttpServerCodegen
 io.swagger.codegen.v3.generators.swift.Swift3Codegen
 io.swagger.codegen.v3.generators.swift.Swift4Codegen
 io.swagger.codegen.v3.generators.typescript.TypeScriptAngularClientCodegen
+io.swagger.codegen.v3.generators.javascript.JavaScriptClientCodegen
