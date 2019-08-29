@@ -770,7 +770,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         if (allSchemas != null && codegenModel != null && codegenModel.parent != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
             final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allSchemas);
-            codegenModel = JavascriptClientCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
+            codegenModel = JavaScriptClientCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
         if (schema instanceof ArraySchema) {
             final Schema items = ((ArraySchema) schema).getItems();
