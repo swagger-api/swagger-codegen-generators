@@ -43,9 +43,9 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class JavascriptClientCodegen extends DefaultCodegenConfig {
+public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     @SuppressWarnings("hiding")
-    private static final Logger LOGGER = LoggerFactory.getLogger(JavascriptClientCodegen.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JavaScriptClientCodegen.class);
 
     public static final String PROJECT_NAME = "projectName";
     public static final String MODULE_NAME = "moduleName";
@@ -85,7 +85,7 @@ public class JavascriptClientCodegen extends DefaultCodegenConfig {
     protected String modelTestPath = "model/";
     private String modelPropertyNaming = "camelCase";
 
-    public JavascriptClientCodegen() {
+    public JavaScriptClientCodegen() {
         super();
         outputFolder = "generated-code/js";
         modelTemplateFiles.put("model.mustache", ".js");
@@ -613,6 +613,9 @@ public class JavascriptClientCodegen extends DefaultCodegenConfig {
     public String toDefaultValueWithParam(String name, Schema schema) {
         String typeDeclaration = getTypeDeclaration(schema);
         String type = normalizeType(typeDeclaration);
+        if (!StringUtils.isEmpty(schema.get$ref())) {
+            return " = " + type + ".constructFromObject(data['" + name + "']);";
+        }
         return " = ApiClient.convertToType(data['" + name + "'], " + type + ");";
     }
 
@@ -786,8 +789,7 @@ public class JavascriptClientCodegen extends DefaultCodegenConfig {
                     codegenModel.vendorExtensions.put("x-isPrimitive", true);
                 }
             }
-        }
-
+        } 
         return codegenModel;
     }
 
