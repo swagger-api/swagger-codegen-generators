@@ -78,7 +78,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfa
     return {{name}};
   }{{/is}}{{/is}}{{#is this 'enum'}}{{#is this 'map-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
     return {{name}};
-  }{{/is}}{{/is}}{{#isNot this 'enum'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/is}}{{/is}}{{#isNot this 'enum'}}public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
   }{{/isNot}}
 
