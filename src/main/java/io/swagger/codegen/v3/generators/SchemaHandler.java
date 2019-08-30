@@ -1,8 +1,12 @@
 package io.swagger.codegen.v3.generators;
 
-import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenModelFactory;
+import io.swagger.codegen.v3.CodegenModelType;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,12 +32,16 @@ public class SchemaHandler {
         final List<Schema> anyOf = composedProperty.getAnyOf();
 
         if (oneOf != null && !oneOf.isEmpty()) {
-             final CodegenModel oneOfModel = createFromOneOfSchemas(oneOf);
-            codegenProperty.vendorExtensions.put("oneOf-model", oneOfModel);
+            if (!hasNonObjectSchema(oneOf)) {
+                final CodegenModel oneOfModel = createFromOneOfSchemas(oneOf);
+                codegenProperty.vendorExtensions.put("oneOf-model", oneOfModel);
+            }
         }
         if (anyOf != null && !anyOf.isEmpty()) {
-            final CodegenModel anyOfModel = createFromOneOfSchemas(anyOf);
-            codegenProperty.vendorExtensions.put("anyOf-model", anyOfModel);
+            if (!hasNonObjectSchema(anyOf)) {
+                final CodegenModel anyOfModel = createFromOneOfSchemas(anyOf);
+                codegenProperty.vendorExtensions.put("anyOf-model", anyOfModel);
+            }
         }
 
     }
@@ -172,5 +180,15 @@ public class SchemaHandler {
         codegenModel.classVarName = codegenConfig.toVarName(name);
         codegenModel.classFilename = codegenConfig.toModelFilename(name);
         codegenModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+    }
+
+    private boolean hasNonObjectSchema(List<Schema> schemas) {
+        for  (Schema schema : schemas) {
+            boolean hasNonObjectSchema = (!(schema instanceof ObjectSchema)) ||  (schema.getProperties() != null && !schema.getProperties().isEmpty());
+            if (hasNonObjectSchema) {
+                return true;
+            }
+        }
+        return false;
     }
 }
