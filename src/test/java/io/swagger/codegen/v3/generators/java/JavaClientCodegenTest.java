@@ -254,7 +254,7 @@ public class JavaClientCodegenTest {
     public void customTemplates() throws Exception {
         final JavaClientCodegen codegen = new JavaClientCodegen();
         codegen.processOpts();
-        Assert.assertEquals(codegen.templateDir(), "handlebars" + File.separator  + "Java");
+        Assert.assertEquals(codegen.templateDir(), "handlebars/Java");
 
         codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, String.join(File.separator,"user", "custom", "location"));
         codegen.processOpts();
