@@ -93,6 +93,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "int");
         typeMapping.put("float", "float");
         typeMapping.put("number", "float");
+        typeMapping.put("BigDecimal", "float");
         typeMapping.put("long", "int");
         typeMapping.put("double", "float");
         typeMapping.put("array", "list");
@@ -159,7 +160,9 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         super.processOpts();
         Boolean excludeTests = false;
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
 
         if(additionalProperties.containsKey(CodegenConstants.EXCLUDE_TESTS)) {
             excludeTests = Boolean.valueOf(additionalProperties.get(CodegenConstants.EXCLUDE_TESTS).toString());

@@ -509,6 +509,19 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     removeHeadersFromAllParams(operation.allParams);
                     removeHeadersFromContents(operation.contents);
                 }
+                if (operation.examples != null){
+                    for (Map<String, String> example : operation.examples)
+                    {
+                        for (Map.Entry<String, String> entry : example.entrySet())
+                        {
+                            // Replace " with \", \r, \n with \\r, \\n
+                            String val = entry.getValue().replace("\"", "\\\"")
+                                .replace("\r","\\r")
+                                .replace("\n","\\n");
+                            entry.setValue(val);
+                        }
+                    }
+                }
             }
         }
 
@@ -538,7 +551,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         } else if (rt.startsWith("Map")) {
             int end = rt.lastIndexOf(">");
             if (end > 0) {
-                dataTypeAssigner.setReturnType(rt.substring("Map<".length(), end).split(",")[1].trim());
+                String mapTypes = rt.substring("Map<".length(), end);
+                String mapKey = mapTypes.split(",")[0];
+                String mapValue = mapTypes.substring(mapKey.length() + 1).trim();
+                dataTypeAssigner.setReturnType(mapValue);
                 dataTypeAssigner.setReturnContainer("Map");
             }
         } else if (rt.startsWith("Set")) {
@@ -711,11 +727,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (additionalProperties.containsKey("jackson")) {
                 model.imports.add("JsonCreator");
             }
-        }
-        if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
-            property.vendorExtensions.put("x-is-discriminator-property", true);
-
-            //model.imports.add("JsonTypeId");
         }
     }
 

@@ -1032,4 +1032,5 @@ public class JavaModelTest {
         Assert.assertTrue(orderFile.exists());
         folder.delete();
     }
+
 }
