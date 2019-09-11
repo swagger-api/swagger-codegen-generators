@@ -1,0 +1,45 @@
+package {{package}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+import io.swagger.Application;
+
+import java.util.*;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = Application.class)
+public class {{classname}}Test {
+
+@Autowired
+private {{classname}} api;
+
+{{#operations}}
+{{#operation}}
+{{#contents}}
+    @Test
+    public void {{operationId}}Test() throws Exception {
+    {{#parameters}}
+    {{^isFile}}
+        {{{dataType}}} {{paramName}} = {{{example}}};
+    {{/isFile}}
+    {{#isFile}}
+        org.springframework.web.multipart.MultipartFile {{paramName}} = null;
+    {{/isFile}}
+    {{/parameters}}
+        api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+        // todo: add verifications
+    }
+{{/contents}}
+{{/operation}}
+{{/operations}}
+}
