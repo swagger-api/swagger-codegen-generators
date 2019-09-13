@@ -90,6 +90,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         typeMapping.put("int", "number");
         typeMapping.put("float", "number");
         typeMapping.put("number", "number");
+        typeMapping.put("BigDecimal", "number");
         typeMapping.put("long", "number");
         typeMapping.put("short", "number");
         typeMapping.put("char", "string");
@@ -402,7 +403,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
                 }
             }
-        } 
+        }
 
         return objs;
     }

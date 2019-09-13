@@ -382,6 +382,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
         importMapping.put("JsonCreator", "com.fasterxml.jackson.annotation.JsonCreator");
         importMapping.put("JsonValue", "com.fasterxml.jackson.annotation.JsonValue");
+        importMapping.put("JsonTypeId", "com.fasterxml.jackson.annotation.JsonTypeId");
         importMapping.put("SerializedName", "com.google.gson.annotations.SerializedName");
         importMapping.put("TypeAdapter", "com.google.gson.TypeAdapter");
         importMapping.put("JsonAdapter", "com.google.gson.annotations.JsonAdapter");
@@ -944,6 +945,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 model.imports.add("Schema");
             }
         }
+        if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
+            property.vendorExtensions.put("x-is-discriminator-property", true);
+            model.imports.add("JsonTypeId");
+        }
     }
 
     @Override
@@ -1131,6 +1136,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 .replaceAll("\\(", "_")
                 .replaceAll("\\)", StringUtils.EMPTY)
                 .replaceAll("\\.", "_")
+                .replaceAll("@", "_at_")
                 .replaceAll("-", "_")
                 .replaceAll(" ", "_");
 

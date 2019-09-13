@@ -1102,6 +1102,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             return "UUID";
         } else if (schema instanceof StringSchema) {
             return "string";
+        } else if (schema instanceof ComposedSchema && schema.getExtensions() != null && schema.getExtensions().containsKey("x-model-name")) {
+            return schema.getExtensions().get("x-model-name").toString();
+
         } else {
             if (schema != null) {
                 if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema))) {
@@ -1282,6 +1285,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (schema instanceof ArraySchema) {
             codegenModel.getVendorExtensions().put(IS_ARRAY_MODEL_EXT_NAME, Boolean.TRUE);
             codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+
+            final Schema items = ((ArraySchema) schema).getItems();
+            if (items != null && items instanceof ComposedSchema) {
+                schemaHandler.configureComposedModelFromSchemaItems(codegenModel, ((ComposedSchema) items));
+            }
+
             codegenModel.arrayModelType = fromProperty(name, schema).complexType;
             addParentContainer(codegenModel, name, schema);
         }
@@ -1682,7 +1691,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             updatePropertyForMap(codegenProperty, cp);
         } else if (propertySchema instanceof ComposedSchema) {
             ComposedSchema composedProperty = (ComposedSchema) propertySchema;
-            Map<String, Schema> schemas = this.openAPI.getComponents() != null ? this.openAPI.getComponents().getSchemas() : null;
             this.schemaHandler.createCodegenModel(composedProperty, codegenProperty);
         } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
 
@@ -1998,7 +2006,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             codegenOperation.returnBaseType = codegenProperty.baseType;
                         }
                     }
-                    codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
+                    if (!additionalProperties.containsKey(CodegenConstants.DISABLE_EXAMPLES_OPTION)) {
+                        codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
+                    }
                     codegenOperation.defaultResponse = toDefaultValue(responseSchema);
                     codegenOperation.returnType = codegenProperty.datatype;
                     boolean hasReference = schemas != null && schemas.containsKey(codegenOperation.returnBaseType);
@@ -2030,7 +2040,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         codegenOperation.returnTypeIsPrimitive = true;
                     }
                 }
-                addHeaders(methodResponse, codegenOperation.responseHeaders);
+                Map<String, Header> componentHeaders = null;
+                if ((openAPI != null) && (openAPI.getComponents() != null)) {
+                    componentHeaders = openAPI.getComponents().getHeaders();
+                }
+                addHeaders(methodResponse, codegenOperation.responseHeaders, componentHeaders);
             }
         }
 
@@ -2267,7 +2281,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
         }
-        addHeaders(response, codegenResponse.headers);
+        Map<String, Header> componentHeaders = null;
+        if ((openAPI != null) && (openAPI.getComponents() != null)) {
+            componentHeaders = openAPI.getComponents().getHeaders();
+        }
+        addHeaders(response, codegenResponse.headers, componentHeaders);
         codegenResponse.getVendorExtensions().put(CodegenConstants.HAS_HEADERS_EXT_NAME, !codegenResponse.headers.isEmpty());
 
         if (responseSchema != null) {
@@ -2728,6 +2746,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else if (SecurityScheme.Type.HTTP.equals(schemeDefinition.getType())) {
                 if ("bearer".equalsIgnoreCase(schemeDefinition.getScheme())) {
                     codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BEARER_EXT_NAME, Boolean.TRUE);
+                    final Map<String, Object> extensions = schemeDefinition.getExtensions();
+                    if (extensions != null && extensions.get("x-token-example") != null) {
+                        final String tokenExample = extensions.get("x-token-example").toString();
+                        if (StringUtils.isNotBlank(tokenExample)) {
+                            codegenSecurity.getVendorExtensions().put("x-token-example", tokenExample);
+                        }
+                    }
                 } else {
                     codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_BASIC_EXT_NAME, Boolean.TRUE);
                 }
@@ -2856,10 +2881,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return output;
     }
 
-    private void addHeaders(ApiResponse response, List<CodegenProperty> target) {
+    private void addHeaders(ApiResponse response, List<CodegenProperty> target, Map<String, Header> componentHeaders) {
         if (response.getHeaders() != null) {
             for (Map.Entry<String, Header> headers : response.getHeaders().entrySet()) {
-                target.add(fromProperty(headers.getKey(), headers.getValue().getSchema()));
+                Header header = headers.getValue();
+                Schema schema;
+                if ((header.get$ref() != null) && (componentHeaders != null)) {
+                    String ref = OpenAPIUtil.getSimpleRef(header.get$ref());
+                    schema = componentHeaders.get(ref).getSchema();
+                } else {
+                    schema = header.getSchema();
+                }
+                target.add(fromProperty(headers.getKey(), schema));
             }
         }
     }
@@ -2925,10 +2958,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         co.baseName = tag;
     }
 
-    private void addParentContainer(CodegenModel codegenModel, String name, Schema property) {
-        final CodegenProperty codegenProperty = fromProperty(name, property);
+    private void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
+        final CodegenProperty codegenProperty = fromProperty(name, schema);
         addImport(codegenModel, codegenProperty.complexType);
-        codegenModel.parent = toInstantiationType(property);
+        codegenModel.parent = toInstantiationType(schema);
         final String containerType = codegenProperty.containerType;
         final String instantiationType = instantiationTypes.get(containerType);
         if (instantiationType != null) {
@@ -3618,9 +3651,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             String shortOption = argument.findValue("shortOption") != null ? argument.findValue("shortOption").textValue() : null;
             String type = argument.findValue("type") != null ? argument.findValue("type").textValue() : "string";
             boolean isArray = argument.findValue("isArray") != null ? argument.findValue("isArray").booleanValue() : false;
-            if (StringUtils.isBlank(option)) {
-                continue;
-            }
+
             languageArguments.add(new CodegenArgument()
                     .option(option)
                     .shortOption(shortOption)
@@ -3932,7 +3963,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String getTemplateDir() {
         return new StringBuilder()
                 .append(templateEngine.getName())
-                .append("/")
+                .append(File.separatorChar)
                 .append(getDefaultTemplateDir())
                 .toString();
     }

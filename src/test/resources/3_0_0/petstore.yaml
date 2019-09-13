@@ -576,6 +576,18 @@ components:
           format: int64
         name:
           type: string
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+      example:
+        - id: 100
+          name: Mammal
+          subcategories:
+            - id: 110
+              name: Yinotheria
+            - id: 120
+              name: Theriiformes
       xml:
         name: Category
     User:
