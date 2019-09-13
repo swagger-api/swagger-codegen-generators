@@ -31,7 +31,7 @@ extension YearMonthDay: Codable, Equatable, Hashable, Comparable {
             else { throw DecodingError.dataCorruptedError(in: container,
                                                       debugDescription: "Cannot decode date string \(rawDate)") }
 
-        let dateComponents = Calendar(identifier: .iso8601).dateComponents([.year, .month, .day], from: date)
+        let dateComponents = Calendar(identifier: .iso8601).dateComponents(in: TimeZone(secondsFromGMT: 0), from: date)
 
         guard let year = dateComponents.year,
             let month = dateComponents.month,
