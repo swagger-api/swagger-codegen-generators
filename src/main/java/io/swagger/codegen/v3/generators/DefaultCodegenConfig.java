@@ -2147,7 +2147,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     while (true) {
                         boolean exists = false;
                         for (CodegenParameter cp : allParams) {
-                            if (codegenParameter.paramName.equals(cp.paramName)) {
+                            if (codegenParameter.paramName != null && codegenParameter.paramName.equals(cp.paramName)) {
                                 exists = true;
                                 break;
                             }
