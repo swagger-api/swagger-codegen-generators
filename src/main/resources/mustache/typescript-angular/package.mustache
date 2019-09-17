@@ -22,8 +22,8 @@
   },
   {{/useNgPackagr}}
   "peerDependencies": {
-    "@angular/core": "^{{ngVersion}}",
-    "@angular/http": "^{{ngVersion}}",
+    "@angular/core": "^{{ngVersion}}",{{^useHttpClientPackage}}
+    "@angular/http": "^{{ngVersion}}",{{/useHttpClientPackage}}
     "@angular/common": "^{{ngVersion}}",
     "@angular/compiler": "^{{ngVersion}}",
     "core-js": "^2.4.0",
@@ -33,8 +33,8 @@
   },
   "devDependencies": {
     "@angular/compiler-cli": "^{{ngVersion}}",
-    "@angular/core": "^{{ngVersion}}",
-    "@angular/http": "^{{ngVersion}}",
+    "@angular/core": "^{{ngVersion}}",{{^useHttpClientPackage}}
+    "@angular/http": "^{{ngVersion}}",{{/useHttpClientPackage}}
     "@angular/common": "^{{ngVersion}}",
     "@angular/compiler": "^{{ngVersion}}",
     "@angular/platform-browser": "^{{ngVersion}}",{{#useNgPackagr}}
