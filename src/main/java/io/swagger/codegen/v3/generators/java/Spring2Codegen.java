@@ -42,6 +42,7 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
     public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
+    public static final String DEFAULT_INTERFACES = "defaultInterfaces";
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
@@ -58,6 +59,7 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
     protected boolean implicitHeaders = false;
     protected boolean swaggerDocketConfig = false;
     protected boolean useOptional = false;
+    protected boolean defaultInterfaces = true;
 
     public Spring2Codegen() {
         super();
@@ -79,7 +81,7 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
         cliOptions.add(CliOption.newBoolean(INTERFACE_ONLY, "Whether to generate only API interface stubs without the server files."));
         cliOptions.add(CliOption.newBoolean(DELEGATE_PATTERN, "Whether to generate the server files using the delegate pattern"));
         cliOptions.add(CliOption.newBoolean(SINGLE_CONTENT_TYPES, "Whether to select only one produces/consumes content-type by operation."));
-        cliOptions.add(CliOption.newBoolean(JAVA_8, "use java8 default interface"));
+        cliOptions.add(CliOption.newBoolean(JAVA_8, "use java8 features like the new date library"));
         cliOptions.add(CliOption.newBoolean(ASYNC, "use async Callable controllers"));
         cliOptions.add(new CliOption(RESPONSE_WRAPPER, "wrap the responses in given type (Future,Callable,CompletableFuture,ListenableFuture,DeferredResult,HystrixCommand,RxObservable,RxSingle or fully qualified type)"));
         cliOptions.add(CliOption.newBoolean(USE_TAGS, "use tags for creating interface and controller classnames"));
@@ -88,6 +90,7 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
         cliOptions.add(CliOption.newBoolean(SWAGGER_DOCKET_CONFIG, "Generate Spring Swagger Docket configuration class."));
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
+        cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -198,6 +201,10 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
 
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
+        }
+
+        if (additionalProperties.containsKey(DEFAULT_INTERFACES)) {
+            this.setDefaultInterfaces(Boolean.valueOf(additionalProperties.get(DEFAULT_INTERFACES).toString()));
         }
 
         if (useBeanValidation) {
@@ -744,5 +751,9 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
     @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
+    }
+
+    public void setDefaultInterfaces(boolean defaultInterfaces) {
+        this.defaultInterfaces = defaultInterfaces;
     }
 }

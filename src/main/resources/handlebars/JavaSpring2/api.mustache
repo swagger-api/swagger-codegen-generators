@@ -102,7 +102,7 @@ public interface {{classname}} {
         produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
         consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
         method = RequestMethod.{{httpMethod}})
-    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}} {
         {{#delegate-method}}
         return {{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
     }
@@ -130,7 +130,7 @@ public interface {{classname}} {
         {{#isDelegate}}
         return getDelegate().{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{/isDelegate}}
-    }{{/jdk8}}
+    }{{/defaultInterfaces}}
 
 {{/contents}}
 {{/operation}}
