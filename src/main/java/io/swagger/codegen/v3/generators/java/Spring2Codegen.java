@@ -205,6 +205,7 @@ public class Spring2Codegen extends AbstractJavaCodegen implements BeanValidatio
 
         if (additionalProperties.containsKey(DEFAULT_INTERFACES)) {
             this.setDefaultInterfaces(Boolean.valueOf(additionalProperties.get(DEFAULT_INTERFACES).toString()));
+            additionalProperties.put(DEFAULT_INTERFACES, this.defaultInterfaces);
         }
 
         if (useBeanValidation) {
