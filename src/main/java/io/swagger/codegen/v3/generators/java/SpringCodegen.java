@@ -41,6 +41,9 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
+/*
+    DEPRECATED, Spring Boot 1 is in maintenance mode only. Please use JavaSpring2.
+ */
 public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
     static Logger LOGGER = LoggerFactory.getLogger(SpringCodegen.class);
     public static final String DEFAULT_LIBRARY = "spring-boot";
@@ -434,7 +437,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         final URL urlInfo = URLPathUtil.getServerURL(openAPI);
         String port = "8080"; // Default value for a JEE Server
-        if ( urlInfo != null && urlInfo.getPort() != 0) {
+        if (urlInfo != null && urlInfo.getPort() > 0) {
             port = String.valueOf(urlInfo.getPort());
         }
 

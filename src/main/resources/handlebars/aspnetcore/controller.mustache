@@ -14,7 +14,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using {{packageName}}.Attributes;
-using {{packageName}}.Security;
+{{#hasAuthMethods}}using {{packageName}}.Security;{{/hasAuthMethods}}
 using {{packageName}}.Models;
 
 namespace {{packageName}}.Controllers
