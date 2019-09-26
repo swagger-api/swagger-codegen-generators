@@ -170,6 +170,7 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         supportingFiles.add(new SupportingFile("mvnw.cmd", "", "mvnw.cmd"));
         supportingFiles.add(new SupportingFile("unsupportedOperationExceptionHandler.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", File.separator), "UnsupportedOperationExceptionHandler.java"));
+        supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator).replace(".", File.separator), "MainApplication.java"));
 
         addHandlebarsLambdas(additionalProperties);
     }

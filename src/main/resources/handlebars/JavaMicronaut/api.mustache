@@ -27,18 +27,13 @@ import java.util.Optional;
 
 {{>generatedAnnotation}}
 {{#operations}}
-public interface {{classname}} {
+@Controller
+public class {{classname}} {
 
 {{#operation}}
 {{#contents}}
 
-    @Operation(summary = "{{{summary}}}", operationId = "{{{operationId}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
-            }{{/isOAuth}}){{#hasMore}},
-        {{/hasMore}}{{/authMethods}}
-    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
+    @Operation(summary = "{{{summary}}}", operationId = "{{{operationId}}}", description = "{{{notes}}}" {{#vendorExtensions.x-tags}}{{#@first}}, tags = {{braces "left"}}{{/@first}}"{{tag}}"{{^@last}}, {{/@last}}{{#@last}}{{braces "right"}}{{/@last}}{{/vendorExtensions.x-tags}})
     {{#responses}}
     @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}")
     {{/responses}}
@@ -49,13 +44,8 @@ public interface {{classname}} {
     {{/headerParams}}
     })
     {{/implicitHeaders}}
-    @{{#lambda.capitalise}}{{httpMethod}}{{/lambda.capitalise}}(value = "{{{path}}}",{{#hasProduces}}
-        produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}},
-        consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }{{/hasConsumes}}
-        )
-    default Single<HttpResponse<{{>returnTypes}}>> {{operationId}}(
-  {{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}
-  {{/parameters}}) {
+    @{{#lambda.capitalise}}{{httpMethod}}{{/lambda.capitalise}}(value = "{{{path}}}"{{#hasProduces}}, produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}}, consumes = {{braces "left"}}{{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}}{{braces "right"}}{{/hasConsumes}})
+    public Single<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         return Single.fromCallable(() -> {
             throw new UnsupportedOperationException();
         });
