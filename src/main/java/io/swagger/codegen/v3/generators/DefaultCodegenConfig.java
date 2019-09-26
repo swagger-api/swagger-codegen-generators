@@ -235,7 +235,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
         }
-        
+
         if (additionalProperties.containsKey(CodegenConstants.USE_OAS2)) {
             this.setUseOas2(Boolean.valueOf(additionalProperties.get(CodegenConstants.USE_OAS2).toString()));
         }
@@ -2618,7 +2618,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, isFile);
 
                     if (codegenProperty.complexType != null) {
-                        imports.add(codegenProperty.complexType);
+                        addImportsForComplexType(imports, codegenProperty);
                     }
                 }
                 setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
@@ -2680,6 +2680,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         postProcessParameter(codegenParameter);
         return codegenParameter;
     }
+
 
     public boolean isDataTypeBinary(String dataType) {
         if (dataType != null) {
@@ -2795,6 +2796,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             reservedWords.add(word.toLowerCase());
         }
     }
+
+    protected void addImportsForComplexType(Set<String> imports, CodegenProperty codegenProperty) {
+        imports.add(codegenProperty.complexType);
+        if(codegenProperty.items != null && codegenProperty.items.complexType != null){
+            addImportsForComplexType(imports, codegenProperty.items);
+        }
+    }
+
 
     protected boolean isReservedWord(String word) {
         return word != null && reservedWords.contains(word.toLowerCase());
@@ -3848,7 +3857,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void setIgnoreFilePathOverride(final String ignoreFileOverride) {
         this.ignoreFilePathOverride = ignoreFileOverride;
     }
-    
+
     public void setUseOas2(boolean useOas2) {
         this.useOas2 = useOas2;
     }
