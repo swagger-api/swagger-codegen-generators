@@ -1,0 +1,1 @@
+{{#isFormParam}}{{#notFile}}@Parameter(description = "{{{description}}}"{{#defaultValue}}, defaultValue = "{{{defaultValue}}}"{{/defaultValue}}) @QueryValue(value = "{{baseName}}")  {{{dataType}}} {{paramName}}{{/notFile}}{{#isFile}}@Parameter(description = "file detail") {{#useBeanValidation}}@Valid {{/useBeanValidation}}MultipartFile {{baseName}}{{/isFile}}{{/isFormParam}}
