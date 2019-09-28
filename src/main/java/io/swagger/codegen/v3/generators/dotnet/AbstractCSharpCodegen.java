@@ -15,6 +15,7 @@ import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
 import io.swagger.codegen.v3.utils.ModelUtils;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -959,6 +961,18 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
+
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if ( urlInfo != null && urlInfo.getPort() > 0) {
+            additionalProperties.put("serverUrl", String.format("%s://%s:%s", urlInfo.getProtocol(), urlInfo.getHost(), urlInfo.getPort()));
+
+            if (StringUtils.isNotBlank(urlInfo.getPath())) {
+                additionalProperties.put("basePathWithoutHost", urlInfo.getPath());
+            }
+        } else {
+            additionalProperties.put("serverUrl", URLPathUtil.LOCAL_HOST);
+        }
+
         if (this.preserveNewLines) {
             Map<String, Schema> schemaMap = openAPI.getComponents() != null ? openAPI.getComponents().getSchemas() : null;
             if (schemaMap != null) {
