@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +122,18 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     @Override
     public String getHelp() {
         return "Generates an ASP.NET Core Web API server.";
+    }
+
+    @Override
+    public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
+
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if ( urlInfo != null && urlInfo.getPort() > 0) {
+            additionalProperties.put("serverUrl", urlInfo.toString());
+        } else {
+            additionalProperties.put("serverUrl", URLPathUtil.LOCAL_HOST);
+        }
     }
 
     @Override
