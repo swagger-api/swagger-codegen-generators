@@ -125,18 +125,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     }
 
     @Override
-    public void preprocessOpenAPI(OpenAPI openAPI) {
-        super.preprocessOpenAPI(openAPI);
-
-        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
-        if ( urlInfo != null && urlInfo.getPort() > 0) {
-            additionalProperties.put("serverUrl", urlInfo.toString());
-        } else {
-            additionalProperties.put("serverUrl", URLPathUtil.LOCAL_HOST);
-        }
-    }
-
-    @Override
     public void processOpts() {
         super.processOpts();
 
