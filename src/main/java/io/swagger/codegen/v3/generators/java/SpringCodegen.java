@@ -62,6 +62,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
     public static final String TARGET_OPENFEIGN = "generateForOpenFeign";
+    public static final String DEFAULT_INTERFACES = "defaultInterfaces";
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
@@ -79,6 +80,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean swaggerDocketConfig = false;
     protected boolean useOptional = false;
     protected boolean openFeign = false;
+    protected boolean defaultInterfaces = true;
 
     public SpringCodegen() {
         super();
@@ -110,6 +112,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
+        cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -224,6 +227,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(TARGET_OPENFEIGN)) {
             this.setOpenFeign(convertPropertyToBoolean(TARGET_OPENFEIGN));
+        }
+
+        if (additionalProperties.containsKey(DEFAULT_INTERFACES)) {
+            this.setDefaultInterfaces(Boolean.valueOf(additionalProperties.get(DEFAULT_INTERFACES).toString()));
+            additionalProperties.put(DEFAULT_INTERFACES, this.defaultInterfaces);
         }
 
         if (useBeanValidation) {
@@ -778,5 +786,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setOpenFeign(boolean openFeign) {
         this.openFeign = openFeign;
+    }
+
+    public void setDefaultInterfaces(boolean defaultInterfaces) {
+        this.defaultInterfaces = defaultInterfaces;
     }
 }
