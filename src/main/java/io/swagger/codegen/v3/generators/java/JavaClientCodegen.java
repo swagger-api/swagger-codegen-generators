@@ -245,16 +245,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         } else if("resttemplate".equals(getLibrary())) {
             additionalProperties.put("jackson", "true");
             supportingFiles.add(new SupportingFile("auth/Authentication.mustache", authFolder, "Authentication.java"));
-        } else if("vertx".equals(getLibrary())) {
-            typeMapping.put("file", "AsyncFile");
-            importMapping.put("AsyncFile", "io.vertx.core.file.AsyncFile");
-            setJava8Mode(true);
-            additionalProperties.put("java8", "true");
-            additionalProperties.put("jackson", "true");
-
-            apiTemplateFiles.put("apiImpl.mustache", "Impl.java");
-            apiTemplateFiles.put("rxApiImpl.mustache", ".java");
-            supportingFiles.remove(new SupportingFile("manifest.mustache", projectFolder, "AndroidManifest.xml"));
         } else {
             LOGGER.error("Unknown library option (-l/--library): " + getLibrary());
         }
@@ -390,16 +380,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     @Override
     public String apiFilename(String templateName, String tag) {
-        if("vertx".equals(getLibrary())) {
-            String suffix = apiTemplateFiles().get(templateName);
-            String subFolder = "";
-            if (templateName.startsWith("rx")) {
-                subFolder = "/rxjava";
-            }
-            return apiFileFolder() + subFolder + '/' + toApiFilename(tag) + suffix;
-        } else {
-            return super.apiFilename(templateName, tag);
-        }
+        return super.apiFilename(templateName, tag);
     }
 
     /**
