@@ -184,8 +184,7 @@ public class SchemaHandler {
 
     private boolean hasNonObjectSchema(List<Schema> schemas) {
         for  (Schema schema : schemas) {
-            boolean hasNonObjectSchema = (!(schema instanceof ObjectSchema)) ||  (schema.getProperties() != null && !schema.getProperties().isEmpty());
-            if (hasNonObjectSchema) {
+            if (!codegenConfig.isObjectSchema(schema)) {
                 return true;
             }
         }
