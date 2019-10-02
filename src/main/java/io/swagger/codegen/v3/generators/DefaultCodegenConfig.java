@@ -4143,7 +4143,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty()) {
             return true;
         }
-        if (StringUtils.isNoneEmpty(schema.get$ref())) {
+        if (StringUtils.isNotBlank(schema.get$ref())) {
             Schema refSchema = OpenAPIUtil.getSchemaFromRefSchema(schema, openAPI);
             if (refSchema != null) {
                 return isObjectSchema(refSchema);
