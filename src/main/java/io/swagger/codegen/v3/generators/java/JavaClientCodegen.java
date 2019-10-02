@@ -89,10 +89,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         supportedLibraries.put("okhttp-gson", "HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.8.1. Enable Parcelable models on Android using '-DparcelableModel=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.");
         supportedLibraries.put(RETROFIT_1, "HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.3.1 (Retrofit 1.9.0). IMPORTANT NOTE: retrofit1.x is no longer actively maintained so please upgrade to 'retrofit2' instead.");
         supportedLibraries.put(RETROFIT_2, "HTTP client: OkHttp 3.8.0. JSON processing: Gson 2.6.1 (Retrofit 2.3.0). Enable the RxJava adapter using '-DuseRxJava[2]=true'. (RxJava 1.x or 2.x)");
-        supportedLibraries.put("resttemplate", "HTTP client: Spring RestTemplate 4.3.9-RELEASE. JSON processing: Jackson 2.9.10");
-        supportedLibraries.put("resteasy", "HTTP client: Resteasy client 3.1.3.Final. JSON processing: Jackson 2.9.10");
-        supportedLibraries.put("vertx", "HTTP client: VertX client 3.2.4. JSON processing: Jackson 2.9.10");
-        supportedLibraries.put("google-api-client", "HTTP client: Google API client 1.23.0. JSON processing: Jackson 2.9.10");
+        supportedLibraries.put("resttemplate", "HTTP client: Spring RestTemplate 4.3.9-RELEASE. JSON processing: Jackson 2.9.9");
+        supportedLibraries.put("resteasy", "HTTP client: Resteasy client 3.1.3.Final. JSON processing: Jackson 2.9.9");
 
         CliOption libraryOption = new CliOption(CodegenConstants.LIBRARY, "library template (sub-template) to use");
         libraryOption.setEnum(supportedLibraries);
@@ -187,14 +185,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             supportingFiles.add(new SupportingFile("StringUtil.mustache", invokerFolder, "StringUtil.java"));
         }
 
-        // google-api-client doesn't use the Swagger auth, because it uses Google Credential directly (HttpRequestInitializer)
-        if (!"google-api-client".equals(getLibrary())) {
+        supportingFiles.add(new SupportingFile("auth/HttpBasicAuth.mustache", authFolder, "HttpBasicAuth.java"));
+        supportingFiles.add(new SupportingFile("auth/ApiKeyAuth.mustache", authFolder, "ApiKeyAuth.java"));
+        supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
+        supportingFiles.add(new SupportingFile("auth/OAuthFlow.mustache", authFolder, "OAuthFlow.java"));
 
-            supportingFiles.add(new SupportingFile("auth/HttpBasicAuth.mustache", authFolder, "HttpBasicAuth.java"));
-            supportingFiles.add(new SupportingFile("auth/ApiKeyAuth.mustache", authFolder, "ApiKeyAuth.java"));
-            supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
-            supportingFiles.add(new SupportingFile("auth/OAuthFlow.mustache", authFolder, "OAuthFlow.java"));
-        }
         supportingFiles.add(new SupportingFile( "gradlew.mustache", "", "gradlew") );
         supportingFiles.add(new SupportingFile( "gradlew.bat.mustache", "", "gradlew.bat") );
         supportingFiles.add(new SupportingFile( "gradle-wrapper.properties.mustache",
@@ -215,7 +210,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             apiDocTemplateFiles.remove("api_doc.mustache");
         }
 
-        if (!("feign".equals(getLibrary()) || "resttemplate".equals(getLibrary()) || usesAnyRetrofitLibrary() || "google-api-client".equals(getLibrary()))) {
+        if (!("feign".equals(getLibrary()) || "resttemplate".equals(getLibrary()) || usesAnyRetrofitLibrary())) {
             supportingFiles.add(new SupportingFile("apiException.mustache", invokerFolder, "ApiException.java"));
             supportingFiles.add(new SupportingFile("Configuration.mustache", invokerFolder, "Configuration.java"));
             supportingFiles.add(new SupportingFile("Pair.mustache", invokerFolder, "Pair.java"));
@@ -250,18 +245,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         } else if("resttemplate".equals(getLibrary())) {
             additionalProperties.put("jackson", "true");
             supportingFiles.add(new SupportingFile("auth/Authentication.mustache", authFolder, "Authentication.java"));
-        } else if("vertx".equals(getLibrary())) {
-            typeMapping.put("file", "AsyncFile");
-            importMapping.put("AsyncFile", "io.vertx.core.file.AsyncFile");
-            setJava8Mode(true);
-            additionalProperties.put("java8", "true");
-            additionalProperties.put("jackson", "true");
-
-            apiTemplateFiles.put("apiImpl.mustache", "Impl.java");
-            apiTemplateFiles.put("rxApiImpl.mustache", ".java");
-            supportingFiles.remove(new SupportingFile("manifest.mustache", projectFolder, "AndroidManifest.xml"));
-        } else if ("google-api-client".equals(getLibrary())) {
-            additionalProperties.put("jackson", "true");
         } else {
             LOGGER.error("Unknown library option (-l/--library): " + getLibrary());
         }
@@ -397,16 +380,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     @Override
     public String apiFilename(String templateName, String tag) {
-        if("vertx".equals(getLibrary())) {
-            String suffix = apiTemplateFiles().get(templateName);
-            String subFolder = "";
-            if (templateName.startsWith("rx")) {
-                subFolder = "/rxjava";
-            }
-            return apiFileFolder() + subFolder + '/' + toApiFilename(tag) + suffix;
-        } else {
-            return super.apiFilename(templateName, tag);
-        }
+        return super.apiFilename(templateName, tag);
     }
 
     /**
