@@ -11,7 +11,7 @@ public struct {{classname}}: Codable {
         }
     }{{/vendorExtensions.x-swift-optional-scalar}}{{/objcCompatible}}
 {{/isNot}}{{/allVars}}{{#has this 'vars'}}
-    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) { {{#allVars}}
+    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) { {{#allVars}}
         self.{{name}} = {{name}}{{/allVars}}
     }
 {{/has~}}{{#additionalPropertiesType}}
