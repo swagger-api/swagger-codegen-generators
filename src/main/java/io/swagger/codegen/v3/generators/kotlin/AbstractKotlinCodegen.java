@@ -39,7 +39,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         super();
         supportsInheritance = true;
 
-        languageSpecificPrimitives = new HashSet<String>(Arrays.asList(
+        languageSpecificPrimitives = new HashSet<>(Arrays.asList(
                 "kotlin.Any",
                 "kotlin.Byte",
                 "kotlin.Short",
@@ -58,7 +58,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
         // as well as keywords from https://kotlinlang.org/docs/reference/keyword-reference.html
-        reservedWords = new HashSet<String>(Arrays.asList(
+        reservedWords = new HashSet<>(Arrays.asList(
                 "abstract",
                 "actual",
                 "annotation",
@@ -126,7 +126,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "while"
         ));
 
-        defaultIncludes = new HashSet<String>(Arrays.asList(
+        defaultIncludes = new HashSet<>(Arrays.asList(
                 "kotlin.Byte",
                 "kotlin.Short",
                 "kotlin.Int",
@@ -141,12 +141,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "kotlin.collections.Map"
         ));
 
-        instantiationLibraryFunction = new HashSet<String>(Arrays.asList(
+        instantiationLibraryFunction = new HashSet<>(Arrays.asList(
                 "arrayOf",
                 "mapOf"
         ));
 
-        typeMapping = new HashMap<String, String>();
+        typeMapping = new HashMap<>();
         typeMapping.put("string", "kotlin.String");
         typeMapping.put("boolean", "kotlin.Boolean");
         typeMapping.put("integer", "kotlin.Int");
@@ -169,7 +169,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         instantiationTypes.put("list", "arrayOf");
         instantiationTypes.put("map", "mapOf");
 
-        importMapping = new HashMap<String, String>();
+        importMapping = new HashMap<>();
         importMapping.put("BigDecimal", "java.math.BigDecimal");
         importMapping.put("UUID", "java.util.UUID");
         importMapping.put("File", "java.io.File");
