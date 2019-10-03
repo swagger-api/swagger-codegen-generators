@@ -61,6 +61,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
+    public static final String TARGET_OPENFEIGN = "generateForOpenFeign";
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
@@ -77,6 +78,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean implicitHeaders = false;
     protected boolean swaggerDocketConfig = false;
     protected boolean useOptional = false;
+    protected boolean openFeign = false;
 
     public SpringCodegen() {
         super();
@@ -107,6 +109,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(SWAGGER_DOCKET_CONFIG, "Generate Spring Swagger Docket configuration class."));
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
+        cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -217,6 +220,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
+        }
+
+        if (additionalProperties.containsKey(TARGET_OPENFEIGN)) {
+            this.setOpenFeign(convertPropertyToBoolean(TARGET_OPENFEIGN));
         }
 
         if (useBeanValidation) {
@@ -333,6 +340,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             }
         } else if (this.async) {
             additionalProperties.put(RESPONSE_WRAPPER, "Callable");
+        }
+
+        if(this.openFeign){
+            additionalProperties.put("isOpenFeign", "true");
         }
 
         // Some well-known Spring or Spring-Cloud response wrappers
@@ -763,5 +774,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
+    }
+
+    public void setOpenFeign(boolean openFeign) {
+        this.openFeign = openFeign;
     }
 }
