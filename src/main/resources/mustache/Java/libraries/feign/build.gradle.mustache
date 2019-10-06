@@ -103,7 +103,7 @@ ext {
     swagger_annotations_version = "1.5.9"
     jackson_version = "2.9.10"
     {{#threetenbp}}
-    threepane_version = "2.6.4"
+    threetenbp_version = "2.9.10"
     {{/threetenbp}}
     feign_version = "9.4.0"
     feign_form_version = "2.1.0"
@@ -127,7 +127,7 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
     {{/java8}}
     {{#threetenbp}}
-    compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$threepane_version"
+    compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$threetenbp_version"
     {{/threetenbp}}
     compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
     compile "com.brsanthu:migbase64:2.2"
