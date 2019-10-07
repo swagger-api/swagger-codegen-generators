@@ -126,7 +126,14 @@
             <version>1.2</version>
             <scope>provided</scope>
         </dependency>
-
+{{#java8}}
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+{{/java8}}
+{{^java8}}
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
@@ -137,6 +144,7 @@
             <artifactId>joda-time</artifactId>
             <version>2.7</version>
         </dependency>
+{{/java8}}
         {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
@@ -209,5 +217,6 @@
         <slf4j-version>1.6.3</slf4j-version>
         <junit-version>4.8.1</junit-version>
         <servlet-api-version>2.5</servlet-api-version>
+        {{#java8}}<jackson-version>2.9.10</jackson-version>{{/java8}}
     </properties>
 </project>
