@@ -45,17 +45,17 @@ public interface {{classname}}Delegate {
 
     Logger log = LoggerFactory.getLogger({{classname}}.class);
 
-    default Optional<ObjectMapper> getObjectMapper() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<ObjectMapper> getObjectMapper(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<HttpServletRequest> getRequest() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<HttpServletRequest> getRequest(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<String> getAcceptHeader() {
+    {{#defaultInterfaces}}default Optional<String> getAcceptHeader() {
         return getRequest().map(r -> r.getHeader("Accept"));
-    }
+    }{{/defaultInterfaces}}
 {{/jdk8}}
 
 {{#operation}}

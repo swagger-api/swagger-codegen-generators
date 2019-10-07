@@ -61,17 +61,17 @@ public interface {{classname}} {
     {{^isDelegate}}
     Logger log = LoggerFactory.getLogger({{classname}}.class);
 
-    default Optional<ObjectMapper> getObjectMapper() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<ObjectMapper> getObjectMapper(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<HttpServletRequest> getRequest() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<HttpServletRequest> getRequest(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<String> getAcceptHeader() {
+    {{#defaultInterfaces}}default Optional<String> getAcceptHeader() {
         return getRequest().map(r -> r.getHeader("Accept"));
-    }
+    }{{/defaultInterfaces}}
     {{/isDelegate}}
     {{#isDelegate}}
     {{classname}}Delegate getDelegate();
@@ -81,9 +81,8 @@ public interface {{classname}} {
 {{#contents}}
 
     @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = { {{#each scopes}}
+            @AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},{{/@last}}{{/each}}
             }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
