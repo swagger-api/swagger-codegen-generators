@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.4.RELEASE</version>
+        <version>{{springBootVersion}}</version>
     </parent>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -25,7 +25,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-parent</artifactId>
-                <version>Dalston.SR1</version>
+                {{^springBootV2}}<version>Dalston.SR1</version>{{/springBootV2}}{{#springBootV2}}<version>Greenwich.RELEASE</version>{{/springBootV2}}
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -38,7 +38,7 @@
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger-core-version}</version>
         </dependency>
-        <dependency>
+        {{^springBootV2}}<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
@@ -49,7 +49,23 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
+        </dependency>{{/springBootV2}}
+        {{#springBootV2}}<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>2.1.3.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-security</artifactId>
+            <version>2.1.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+            <version>2.3.6.RELEASE</version>
+        </dependency>{{/springBootV2}}
+
         {{#withXml}}
 
         <!-- XML processing: Jackson -->

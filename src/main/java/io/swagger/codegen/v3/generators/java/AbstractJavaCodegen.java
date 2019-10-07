@@ -376,7 +376,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else {
             importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
         }
-        
+
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
@@ -398,7 +398,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if(additionalProperties.containsKey(JAVA8_MODE)) {
             setJava8Mode(Boolean.parseBoolean(additionalProperties.get(JAVA8_MODE).toString()));
             if ( java8Mode ) {
-                additionalProperties.put("java8", "true");
+                additionalProperties.put("java8", true);
             }
         }
 
@@ -427,7 +427,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             importMapping.put("LocalDate", "org.joda.time.LocalDate");
             importMapping.put("DateTime", "org.joda.time.DateTime");
         } else if (dateLibrary.startsWith("java8")) {
-            additionalProperties.put("java8", "true");
+            additionalProperties.put("java8", true);
             additionalProperties.put("jsr310", "true");
             typeMapping.put("date", "LocalDate");
             importMapping.put("LocalDate", "java.time.LocalDate");
@@ -1345,7 +1345,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public void setSupportJava6(boolean value) {
         this.supportJava6 = value;
     }
-    
+
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
@@ -1401,7 +1401,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         .value(Boolean.FALSE.toString()));
             }
         }
-        
+
         super.setLanguageArguments(languageArguments);
     }
 }
