@@ -439,7 +439,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
             }
         } else if (dateLibrary.equals("legacy")) {
-            additionalProperties.put("legacyDates", "true");
+            additionalProperties.put("legacyDates", true);
         }
     }
 
