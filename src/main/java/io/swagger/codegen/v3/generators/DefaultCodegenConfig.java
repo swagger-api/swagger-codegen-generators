@@ -4133,16 +4133,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    private boolean isObjectSchema (Schema schema) {
+    public boolean isObjectSchema (Schema schema) {
         if (schema instanceof ObjectSchema ||schema instanceof ComposedSchema) {
             return true;
         }
-        if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && !(schema instanceof MapSchema)) {
+        if (SchemaTypeUtil.OBJECT_TYPE.equalsIgnoreCase(schema.getType()) && !(schema instanceof MapSchema)) {
             return true;
         }
         if (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty()) {
             return true;
         }
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            Schema refSchema = OpenAPIUtil.getSchemaFromRefSchema(schema, openAPI);
+            if (refSchema != null) {
+                return isObjectSchema(refSchema);
+            }
+        }
+
         return false;
     }
 
