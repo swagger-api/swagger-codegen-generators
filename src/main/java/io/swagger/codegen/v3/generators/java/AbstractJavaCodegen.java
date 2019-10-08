@@ -947,7 +947,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
         if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
             property.vendorExtensions.put("x-is-discriminator-property", true);
-            model.imports.add("JsonTypeId");
+            if (additionalProperties.containsKey("jackson")) {
+                model.imports.add("JsonTypeId");
+            }
         }
     }
 

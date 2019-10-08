@@ -720,10 +720,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
     }
 
-    public String toBooleanGetter(String name) {
-        return getterAndSetterCapitalize(name);
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }

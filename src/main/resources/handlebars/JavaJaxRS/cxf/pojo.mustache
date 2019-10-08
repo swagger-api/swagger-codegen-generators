@@ -69,14 +69,14 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfa
 {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
 {{/vendorExtensions.extraAnnotation}}
-{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  {{#is this 'enum'}}{{#isNot this 'list-container'}}{{#isNot this 'map-container'}}public {{datatype}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  {{#is this 'enum'}}{{#isNot this 'list-container'}}{{#isNot this 'map-container'}}public {{datatype}} {{getter}}() {
     if ({{name}} == null) {
       return null;
     }
     return {{name}}.getValue();
-  }{{/isNot}}{{/isNot}}{{/is}}{{#is this 'enum'}}{{#is this 'list-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/isNot}}{{/isNot}}{{/is}}{{#is this 'enum'}}{{#is this 'list-container'}}public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
-  }{{/is}}{{/is}}{{#is this 'enum'}}{{#is this 'map-container'}}public {{{datatypeWithEnum}}} {{#is this 'boolean'}}is{{/is}}{{getter}}() {
+  }{{/is}}{{/is}}{{#is this 'enum'}}{{#is this 'map-container'}}public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
   }{{/is}}{{/is}}{{#isNot this 'enum'}}public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
