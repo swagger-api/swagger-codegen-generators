@@ -521,7 +521,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             }
         }
         List<Map<String, Object>> parentsList = new ArrayList<>();
-        for (CodegenModel parentModel : byParent.keySet()) {
+        for (Map.Entry<CodegenModel, List<CodegenModel>> parentModelEntry : byParent.entrySet()) {
+            CodegenModel parentModel = parentModelEntry.getKey();
             List<Map<String, Object>> childrenList = new ArrayList<>();
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
@@ -540,6 +541,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             }
             parentsList.add(parent);
         }
+
         return parentsList;
     }
 
