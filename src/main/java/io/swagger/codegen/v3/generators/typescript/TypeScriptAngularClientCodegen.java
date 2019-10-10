@@ -116,7 +116,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
         }
         additionalProperties.put(NG_VERSION, ngVersion);
-        additionalProperties.put(NG_PACKAGR, ngVersion.atLeast("8.0.0"));
+        additionalProperties.put(NG_PACKAGR, ngVersion.atLeast("4.0.0"));
         additionalProperties.put("useRxJS6", ngVersion.atLeast("6.0.0"));
         additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
         additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
@@ -357,7 +357,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             if (!im.equals(cm.classname)) {
                 HashMap<String, String> tsImport = new HashMap<>();
                 tsImport.put("classname", im);
-                tsImport.put("filename", im);
+                tsImport.put("filename", toModelFilename(im));
                 tsImports.add(tsImport);
             }
         }
@@ -392,7 +392,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelImport(String name) {
-        return modelPackage() + "/" + name;
+        return modelPackage() + "/" + toModelFilename(name);
     }
 
     public String getNpmName() {
