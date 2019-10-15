@@ -1,8 +1,11 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +65,12 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     }
 
     @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(ConditionalHelpers.class);
+    }
+
+    @Override
     public String getDefaultTemplateDir() {
         return "kotlin-client";
     }
@@ -88,7 +97,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     @Override
     public void processOpts() {
-        super.processOpts();        
+        super.processOpts();
 
         if (StringUtils.isBlank(templateDir)) {
             embeddedTemplateDir = templateDir = getTemplateDir();
@@ -98,7 +107,7 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
             setDateLibrary(additionalProperties.get(DATE_LIBRARY).toString());
         }
 
-        if (DateLibrary.THREETENBP.value.equals(dateLibrary)) {            
+        if (DateLibrary.THREETENBP.value.equals(dateLibrary)) {
             additionalProperties.put(DateLibrary.THREETENBP.value, true);
             typeMapping.put("date", "LocalDate");
             typeMapping.put("DateTime", "LocalDateTime");

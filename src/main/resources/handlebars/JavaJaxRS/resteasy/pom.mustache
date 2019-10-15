@@ -126,7 +126,14 @@
             <version>1.2</version>
             <scope>provided</scope>
         </dependency>
-
+{{#java8}}
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+{{/java8}}
+{{^java8}}
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
@@ -137,6 +144,7 @@
             <artifactId>joda-time</artifactId>
             <version>2.7</version>
         </dependency>
+{{/java8}}
         {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
@@ -177,6 +185,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.10</version>
+            <scope>test</scope>
+        </dependency>
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
     <dependency>
@@ -202,12 +216,13 @@
         <swagger-core-version>1.5.18</swagger-core-version>
         {{/useOas2}}
         {{^useOas2}}
-        <swagger-core-version>2.0.0</swagger-core-version>
+        <swagger-core-version>2.0.9</swagger-core-version>
         {{/useOas2}}
         <jetty-version>9.2.9.v20150224</jetty-version>
         <resteasy-version>3.0.11.Final</resteasy-version>
         <slf4j-version>1.6.3</slf4j-version>
         <junit-version>4.8.1</junit-version>
         <servlet-api-version>2.5</servlet-api-version>
+        {{#java8}}<jackson-version>2.9.10</jackson-version>{{/java8}}
     </properties>
 </project>
