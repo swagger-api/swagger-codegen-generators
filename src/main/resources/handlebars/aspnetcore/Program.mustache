@@ -31,6 +31,9 @@ namespace {{packageName}}
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                {{#serverUrl}}
+                .UseUrls("{{serverUrl}}")
+                {{/serverUrl}}
                 .Build();
     }
 }

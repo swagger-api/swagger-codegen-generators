@@ -1,7 +1,8 @@
 
 public struct {{classname}}: Codable {
 
-{{#allVars}}{{#is this 'enum'}}{{> modelInlineEnumDeclaration}}{{/is}}{{/allVars}}{{#allVars}}{{#is this 'enum'}}    {{#description}}/** {{description}} */
+{{#allVars}}{{#is this 'enum'}}{{> modelInlineEnumDeclaration}}
+{{/is}}{{/allVars}}{{#allVars}}{{#is this 'enum'}}    {{#description}}/** {{description}} */
     {{/description}}public var {{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{/is}}
 {{#isNot this 'enum'}}    {{#description}}/** {{description}} */
     {{/description}}public var {{name}}: {{{datatype}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{#objcCompatible}}{{#vendorExtensions.x-swift-optional-scalar}}
@@ -11,7 +12,7 @@ public struct {{classname}}: Codable {
         }
     }{{/vendorExtensions.x-swift-optional-scalar}}{{/objcCompatible}}
 {{/isNot}}{{/allVars}}{{#has this 'vars'}}
-    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) { {{#allVars}}
+    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) { {{#allVars}}
         self.{{name}} = {{name}}{{/allVars}}
     }
 {{/has~}}{{#additionalPropertiesType}}

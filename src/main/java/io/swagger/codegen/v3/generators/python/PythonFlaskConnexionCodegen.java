@@ -101,7 +101,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
                         "assert", "else", "if", "pass", "yield", "break", "except", "import",
                         "print", "class", "exec", "in", "raise", "continue", "finally", "is",
                         "return", "def", "for", "lambda", "try", "self", "None", "True", "False", "nonlocal",
-                        "float", "int", "str", "date", "datetime"));
+                        "float", "int", "str", "date", "datetime", "False", "await", "async"));
 
         // set the output folder here
         outputFolder = "generated-code/connexion";

@@ -39,6 +39,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String SNAPSHOT = "snapshot";
     public static final String WITH_INTERFACES = "withInterfaces";
     public static final String NG_VERSION = "ngVersion";
+    public static final String NG_PACKAGR = "useNgPackagr";
 
     protected String npmName = null;
     protected String npmVersion = "1.0.0";
@@ -102,7 +103,28 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         supportingFiles.add(new SupportingFile("variables.mustache", getIndexDirectory(), "variables.ts"));
         supportingFiles.add(new SupportingFile("encoder.mustache", getIndexDirectory(), "encoder.ts"));
         supportingFiles.add(new SupportingFile("gitignore", "", ".gitignore"));
+        supportingFiles.add(new SupportingFile("npmignore", "", ".npmignore"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
+
+        // determine NG version
+        SemVer ngVersion;
+        if (additionalProperties.containsKey(NG_VERSION)) {
+            ngVersion = new SemVer(additionalProperties.get(NG_VERSION).toString());
+        } else {
+            ngVersion = new SemVer("6.0.0");
+            LOGGER.info("generating code for Angular {} ...", ngVersion);
+            LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
+        }
+        additionalProperties.put(NG_VERSION, ngVersion);
+        additionalProperties.put(NG_PACKAGR, ngVersion.atLeast("4.0.0"));
+        additionalProperties.put("useRxJS6", ngVersion.atLeast("6.0.0"));
+        additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
+        additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
+        additionalProperties.put("useHttpClient", ngVersion.atLeast("4.3.0"));
+        additionalProperties.put("useHttpClientPackage", ngVersion.atLeast("4.3.0") && !ngVersion.atLeast("8.0.0"));
+        if (!ngVersion.atLeast("4.3.0")) {
+            supportingFiles.add(new SupportingFile("rxjs-operators.mustache", getIndexDirectory(), "rxjs-operators.ts"));
+        }
 
         if (additionalProperties.containsKey(NPM_NAME)) {
             addNpmPackageGeneration();
@@ -115,23 +137,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             }
         }
 
-        // determine NG version
-        SemVer ngVersion;
-        if (additionalProperties.containsKey(NG_VERSION)) {
-            ngVersion = new SemVer(additionalProperties.get(NG_VERSION).toString());
-        } else {
-            ngVersion = new SemVer("6.0.0");
-            LOGGER.info("generating code for Angular {} ...", ngVersion);
-            LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
-        }
-        additionalProperties.put(NG_VERSION, ngVersion);
-        additionalProperties.put("useRxJS6", ngVersion.atLeast("6.0.0"));
-        additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
-        additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
-        additionalProperties.put("useHttpClient", ngVersion.atLeast("4.3.0"));
-        if (!ngVersion.atLeast("4.3.0")) {
-            supportingFiles.add(new SupportingFile("rxjs-operators.mustache", getIndexDirectory(), "rxjs-operators.ts"));
-        }
     }
 
     private void addNpmPackageGeneration() {
@@ -158,6 +163,10 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         supportingFiles.add(new SupportingFile("package.mustache", getIndexDirectory(), "package.json"));
         supportingFiles.add(new SupportingFile("typings.mustache", getIndexDirectory(), "typings.json"));
         supportingFiles.add(new SupportingFile("tsconfig.mustache", getIndexDirectory(), "tsconfig.json"));
+        if (additionalProperties.containsKey(NG_PACKAGR)
+            && Boolean.valueOf(additionalProperties.get(NG_PACKAGR).toString())) {
+            supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
+        }
     }
 
     private String getIndexDirectory() {
@@ -348,7 +357,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             if (!im.equals(cm.classname)) {
                 HashMap<String, String> tsImport = new HashMap<>();
                 tsImport.put("classname", im);
-                tsImport.put("filename", im);
+                tsImport.put("filename", toModelFilename(im));
                 tsImports.add(tsImport);
             }
         }
@@ -383,7 +392,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelImport(String name) {
-        return modelPackage() + "/" + name;
+        return modelPackage() + "/" + toModelFilename(name);
     }
 
     public String getNpmName() {

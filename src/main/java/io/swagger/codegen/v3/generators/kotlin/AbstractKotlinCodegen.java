@@ -17,13 +17,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
+public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
 
     private Set<String> instantiationLibraryFunction;
-
-   
 
     protected String artifactId;
     protected String artifactVersion = "1.0.0";
@@ -41,7 +39,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         super();
         supportsInheritance = true;
 
-        languageSpecificPrimitives = new HashSet<String>(Arrays.asList(
+        languageSpecificPrimitives = new HashSet<>(Arrays.asList(
                 "kotlin.Any",
                 "kotlin.Byte",
                 "kotlin.Short",
@@ -60,8 +58,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
         // as well as keywords from https://kotlinlang.org/docs/reference/keyword-reference.html
-        reservedWords = new HashSet<String>(Arrays.asList(
+        reservedWords = new HashSet<>(Arrays.asList(
                 "abstract",
+                "actual",
                 "annotation",
                 "as",
                 "break",
@@ -78,6 +77,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "do",
                 "else",
                 "enum",
+                "expect",
                 "external",
                 "false",
                 "final",
@@ -126,7 +126,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "while"
         ));
 
-        defaultIncludes = new HashSet<String>(Arrays.asList(
+        defaultIncludes = new HashSet<>(Arrays.asList(
                 "kotlin.Byte",
                 "kotlin.Short",
                 "kotlin.Int",
@@ -141,12 +141,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.collections.Map"
         ));
 
-        instantiationLibraryFunction = new HashSet<String>(Arrays.asList(
+        instantiationLibraryFunction = new HashSet<>(Arrays.asList(
                 "arrayOf",
                 "mapOf"
         ));
 
-        typeMapping = new HashMap<String, String>();
+        typeMapping = new HashMap<>();
         typeMapping.put("string", "kotlin.String");
         typeMapping.put("boolean", "kotlin.Boolean");
         typeMapping.put("integer", "kotlin.Int");
@@ -169,7 +169,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         instantiationTypes.put("list", "arrayOf");
         instantiationTypes.put("map", "mapOf");
 
-        importMapping = new HashMap<String, String>();
+        importMapping = new HashMap<>();
         importMapping.put("BigDecimal", "java.math.BigDecimal");
         importMapping.put("UUID", "java.util.UUID");
         importMapping.put("File", "java.io.File");
@@ -272,7 +272,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String getTypeDeclaration(Schema propertySchema) {
         if (propertySchema instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) propertySchema);
-        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
+        } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
@@ -444,7 +444,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 break;
         }
 
-        if (reservedWords.contains(modified)) {
+        if (isReservedWord(modified)) {
             return escapeReservedWord(modified);
         }
 
@@ -498,7 +498,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         String modifiedName = name.replaceAll("\\.", "");
         modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
-        if (reservedWords.contains(modifiedName)) {
+        if (isReservedWord(modifiedName)) {
             modifiedName = escapeReservedWord(modifiedName);
         }
 
@@ -578,11 +578,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     protected boolean needToImport(String type) {
         // provides extra protection against improperly trying to import language primitives and java types
         boolean imports =
-            !type.startsWith("kotlin.") &&
-            !type.startsWith("java.") &&
-            !defaultIncludes.contains(type) &&
-            !languageSpecificPrimitives.contains(type) &&
-            !instantiationLibraryFunction.contains(type);
+                !type.startsWith("kotlin.") &&
+                        !type.startsWith("java.") &&
+                        !defaultIncludes.contains(type) &&
+                        !languageSpecificPrimitives.contains(type) &&
+                        !instantiationLibraryFunction.contains(type);
 
         return imports;
     }
