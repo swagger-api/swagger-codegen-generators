@@ -233,7 +233,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String escapeReservedWord(String name) {
         // TODO: Allow enum escaping as an option (e.g. backticks vs append/prepend underscore vs match model property escaping).
-        return String.format("`%s`", name);
+        return String.format("_%s", name);
     }
 
     @Override
@@ -496,11 +496,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         }
 
         String modifiedName = name.replaceAll("\\.", "");
-        modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
         if (isReservedWord(modifiedName)) {
             modifiedName = escapeReservedWord(modifiedName);
         }
+
+        modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
         return titleCase(modifiedName);
     }
