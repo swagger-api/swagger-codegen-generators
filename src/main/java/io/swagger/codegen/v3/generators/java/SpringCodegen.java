@@ -157,7 +157,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             if (additionalProperties.get(DATE_LIBRARY).toString().startsWith("java8")) {
-                this.setJava8(Boolean.valueOf(additionalProperties.get(JAVA8_MODE).toString()));
+                this.setJava8(true);
             }
         }
         if (this.java8) {
