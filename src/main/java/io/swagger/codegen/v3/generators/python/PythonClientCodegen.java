@@ -236,6 +236,8 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         modelPackage = packageName + "." + modelPackage;
         apiPackage = packageName + "." + apiPackage;
 
+        copyFistAllOfProperties = true;
+
     }
 
     private static String dropDots(String str) {

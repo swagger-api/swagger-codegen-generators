@@ -169,6 +169,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected String ignoreFilePathOverride;
     protected boolean useOas2 = false;
+    protected boolean copyFistAllOfProperties = false;
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -1353,7 +1354,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if (codegenModel.interfaces == null) {
                     codegenModel.interfaces = new ArrayList<String>();
                 }
-                for (int i = 1; i < allOf.size(); i++) {
+                for (int i = 0; i < allOf.size(); i++) {
+                    if (i == 0 && !copyFistAllOfProperties) {
+                        continue;
+                    }
                     Schema interfaceSchema = allOf.get(i);
                     if (StringUtils.isBlank(interfaceSchema.get$ref())) {
                         continue;
