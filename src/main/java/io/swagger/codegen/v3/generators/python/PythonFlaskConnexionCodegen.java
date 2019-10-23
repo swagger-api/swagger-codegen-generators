@@ -70,6 +70,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("object");
         languageSpecificPrimitives.add("byte");
         languageSpecificPrimitives.add("bytearray");
+        languageSpecificPrimitives.add("binary_type");
 
         typeMapping.clear();
         typeMapping.put("integer", "int");

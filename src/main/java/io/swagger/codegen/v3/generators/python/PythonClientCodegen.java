@@ -86,6 +86,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("datetime");
         languageSpecificPrimitives.add("date");
         languageSpecificPrimitives.add("object");
+        languageSpecificPrimitives.add("binary_type");
 
         instantiationTypes.put("map", "dict");
 
