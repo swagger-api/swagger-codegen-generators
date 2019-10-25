@@ -247,7 +247,7 @@
     </dependencies>
     <properties>
         <swagger-codegen-version>3.0.14-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.0.15</swagger-parser-version>
+        <swagger-parser-version>2.0.16-SNAPSHOT</swagger-parser-version>
         <swagger-core-version>2.0.10</swagger-core-version>
         <jackson-version>2.9.10</jackson-version>
         <scala-version>2.11.1</scala-version>
