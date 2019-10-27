@@ -2603,7 +2603,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 schema.setName(name);
                 codegenModel = fromModel(name, schema, schemas);
             }
-            if (codegenModel != null && !codegenModel.emptyVars) {
+            if (codegenModel != null) {
                 codegenParameter.baseType = codegenModel.classname;
                 codegenParameter.dataType = getTypeDeclaration(codegenModel.classname);
                 imports.add(codegenParameter.dataType);
