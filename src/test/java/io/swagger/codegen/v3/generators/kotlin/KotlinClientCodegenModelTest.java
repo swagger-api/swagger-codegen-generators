@@ -24,14 +24,14 @@ public class KotlinClientCodegenModelTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(KotlinClientCodegenModelTest.class);
 
-    private Schema getArrayTestSchema() {   
+    private Schema getArrayTestSchema() {
         final Schema propertySchema = new ArraySchema()
-            .items(new StringSchema())
-            .description("an array property");            
+                .items(new StringSchema())
+                .description("an array property");
         return new Schema()
-            .type("object")            
-            .description("a sample model")
-            .addProperties("examples", propertySchema);
+                .type("object")
+                .description("a sample model")
+                .addProperties("examples", propertySchema);
     }
 
     private Schema getSimpleSchema() {
@@ -39,9 +39,9 @@ public class KotlinClientCodegenModelTest {
                 .type("object")
                 .description("a sample model")
                 .addProperties("id", new IntegerSchema()
-                    .format(SchemaTypeUtil.INTEGER64_FORMAT))
+                        .format(SchemaTypeUtil.INTEGER64_FORMAT))
                 .addProperties("first-name", new StringSchema()
-                    .example("Tony"))
+                        .example("Tony"))
                 .addProperties("createdAt", new DateTimeSchema())
                 .addRequiredItem("id")
                 .addRequiredItem("first-name");
@@ -49,11 +49,11 @@ public class KotlinClientCodegenModelTest {
 
     private Schema getMapSchema() {
         return new Schema()
-            .type("object")
-            .description("a sample model")
-            .addProperties("mapping", new MapSchema()
-                    .additionalProperties(new StringSchema()))
-            .addRequiredItem("id");
+                .type("object")
+                .description("a sample model")
+                .addProperties("mapping", new MapSchema()
+                        .additionalProperties(new StringSchema()))
+                .addRequiredItem("id");
     }
 
     private Schema getComplexSchema() {
@@ -64,7 +64,7 @@ public class KotlinClientCodegenModelTest {
     }
 
     @Test(description = "convert a simple model")
-    public void simpleModelTest() {        
+    public void simpleModelTest() {
         final Schema schema = getSimpleSchema();
         final KotlinClientCodegen codegen = new KotlinClientCodegen();
         final CodegenModel cm = codegen.fromModel("sample", schema);
@@ -91,7 +91,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property2.name, "firstName");
         Assert.assertEquals(property2.defaultValue, "null");
         Assert.assertEquals(property2.baseType, "kotlin.String");
-        Assert.assertTrue(getBooleanValue(property2, CodegenConstants.HAS_MORE_EXT_NAME));          
+        Assert.assertTrue(getBooleanValue(property2, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertTrue(property2.required);
         Assert.assertTrue(getBooleanValue(property2, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
         Assert.assertTrue(getBooleanValue(property2, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
@@ -102,9 +102,9 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property3.name, "createdAt");
         Assert.assertEquals(property3.defaultValue, "null");
         Assert.assertEquals(property3.baseType, "java.time.LocalDateTime");
-        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));   
+        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertFalse(property3.required);
-        Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));        
+        Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
 
     @Test(description = "convert a simple model: threetenbp")
@@ -122,7 +122,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property3.name, "createdAt");
         Assert.assertEquals(property3.defaultValue, "null");
         Assert.assertEquals(property3.baseType, "org.threeten.bp.LocalDateTime");
-        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));   
+        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertFalse(property3.required);
         Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
@@ -142,7 +142,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property3.name, "createdAt");
         Assert.assertEquals(property3.defaultValue, "null");
         Assert.assertEquals(property3.baseType, "kotlin.String");
-        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));   
+        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertFalse(property3.required);
         Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
@@ -162,7 +162,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(property3.name, "createdAt");
         Assert.assertEquals(property3.defaultValue, "null");
         Assert.assertEquals(property3.baseType, "java.time.LocalDateTime");
-        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));   
+        Assert.assertFalse(getBooleanValue(property3, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertFalse(property3.required);
         Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
@@ -258,6 +258,23 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(cm.classname, testCase.expectedClassName);
     }
 
+    @DataProvider
+    public static Object[][] enumNames() {
+        return new Object[][]{
+                {"VALUE1", "VALUE1"},
+                {"1", "_1"},
+                {"1X2", "_1X2"},
+                {"1x2", "_1X2"}
+        };
+    }
+
+    @Test(dataProvider = "enumNames", description = "sanitize Enum var names")
+    public void sanitizeEnumVarNames(final String name, final String expectedName) {
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+        Assert.assertEquals(codegen.toEnumVarName(name, "String"), expectedName);
+
+    }
+
     private static class ModelNameTest {
         private String expectedName;
         private String expectedClassName;
@@ -273,4 +290,3 @@ public class KotlinClientCodegenModelTest {
         }
     }
 }
-
