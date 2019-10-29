@@ -498,11 +498,13 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         String modifiedName = name.replaceAll("\\.", "");
         modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
-        if (isReservedWord(modifiedName)) {
-            modifiedName = escapeReservedWord(modifiedName);
+        modifiedName = titleCase(modifiedName);
+
+        if (modifiedName.equalsIgnoreCase("Companion")){
+            modifiedName = "_" + modifiedName;
         }
 
-        return titleCase(modifiedName);
+        return modifiedName;
     }
 
     @Override

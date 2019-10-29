@@ -239,7 +239,10 @@ public class KotlinClientCodegenModelTest {
         return new Object[][]{
                 {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
                 {"$", new ModelNameTest("$", "Dollar")},
-                {"for", new ModelNameTest("`for`", "`for`")},
+                {"for", new ModelNameTest("`for`", "For")},
+                {"package", new ModelNameTest("`package`", "Package")},
+                {"abstract", new ModelNameTest("`abstract`", "Abstract")},
+                {"companion", new ModelNameTest("`companion`", "_Companion")},
                 {"One<Two", new ModelNameTest("One<Two", "OneLess_ThanTwo")},
                 {"this is a test", new ModelNameTest("this is a test", "This_is_a_test")}
         };
