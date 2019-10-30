@@ -115,6 +115,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public static final String DEFAULT_TEMPLATE_DIR = "handlebars";
 
     protected OpenAPI openAPI;
+    protected OpenAPI unflattenedOpenAPI;
     protected String inputSpec;
     protected String inputURL;
     protected String outputFolder = StringUtils.EMPTY;
@@ -236,7 +237,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
         }
-        
+
         if (additionalProperties.containsKey(CodegenConstants.USE_OAS2)) {
             this.setUseOas2(Boolean.valueOf(additionalProperties.get(CodegenConstants.USE_OAS2).toString()));
         }
@@ -3852,7 +3853,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void setIgnoreFilePathOverride(final String ignoreFileOverride) {
         this.ignoreFilePathOverride = ignoreFileOverride;
     }
-    
+
     public void setUseOas2(boolean useOas2) {
         this.useOas2 = useOas2;
     }
@@ -4221,5 +4222,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected void setParameterNullable(CodegenParameter parameter, CodegenProperty property) {
         parameter.nullable = property.nullable;
+    }
+
+    //@Override TODO temporarily commented to overcome cross building issue
+    public boolean needsUnflattenedSpec() {
+        return false;
+    }
+
+    //@Override TODO temporarily commented to overcome cross building issue
+    public void setUnflattenedOpenAPI(OpenAPI unflattenedOpenAPI) {
+        this.unflattenedOpenAPI = unflattenedOpenAPI;
     }
 }
