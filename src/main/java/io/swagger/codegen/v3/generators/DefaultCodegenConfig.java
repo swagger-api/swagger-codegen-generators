@@ -4224,12 +4224,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         parameter.nullable = property.nullable;
     }
 
-    //@Override TODO temporarily commented to overcome cross building issue
+    @Override
     public boolean needsUnflattenedSpec() {
         return false;
     }
 
-    //@Override TODO temporarily commented to overcome cross building issue
+    @Override
     public void setUnflattenedOpenAPI(OpenAPI unflattenedOpenAPI) {
         this.unflattenedOpenAPI = unflattenedOpenAPI;
     }
