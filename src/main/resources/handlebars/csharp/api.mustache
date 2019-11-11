@@ -292,6 +292,13 @@ namespace {{packageName}}.{{apiPackage}}
                 localVarHeaderParams["Authorization"] = "Basic " + ApiClient.Base64Encode(this.Configuration.Username + ":" + this.Configuration.Password);
             }
             {{/isBasic}}
+            {{#isBearer}}
+            // bearer required
+            if (!String.IsNullOrEmpty(this.Configuration.AccessToken))
+            {
+                localVarHeaderParams["Authorization"] = "Bearer " + this.Configuration.AccessToken;
+            }
+            {{/isBearer}}
             {{#isOAuth}}
             // oauth required
             if (!String.IsNullOrEmpty(this.Configuration.AccessToken))
