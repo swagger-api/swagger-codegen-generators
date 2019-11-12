@@ -1456,21 +1456,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     protected void addProperties(Map<String, Schema> properties, List<String> required, Schema schema, Map<String, Schema> allSchemas) {
-        if(schema instanceof ComposedSchema) {
-            ComposedSchema composedSchema = (ComposedSchema) schema;
-            if(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1) {
-                return;
-            }
-            for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
-                addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
-            }
-            return;
-        }
         if(StringUtils.isNotBlank(schema.get$ref())) {
             Schema interfaceSchema = allSchemas.get(OpenAPIUtil.getSimpleRef(schema.get$ref()));
             addProperties(properties, required, interfaceSchema, allSchemas);
             return;
         }
+
+        if(schema instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema) schema;
+            if(!(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1)) {
+                for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
+                    addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
+                }
+            }
+        }
+
         if(schema.getProperties() != null) {
             properties.putAll(schema.getProperties());
         }
