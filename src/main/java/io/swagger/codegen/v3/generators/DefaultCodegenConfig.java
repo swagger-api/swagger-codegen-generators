@@ -1100,6 +1100,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         } else if (schema instanceof MapSchema) {
             return "map";
+        } else if (schema instanceof ObjectSchema) {
+            return "object";
         } else if (schema instanceof UUIDSchema) {
             return "UUID";
         } else if (schema instanceof StringSchema) {
@@ -1112,6 +1114,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if (SchemaTypeUtil.OBJECT_TYPE.equals(schema.getType()) && (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema))) {
                     return "map";
                 } else {
+                    if (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty()) {
+                        return "object";
+                    }
                     return schema.getType();
                 }
             }
@@ -1451,21 +1456,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     protected void addProperties(Map<String, Schema> properties, List<String> required, Schema schema, Map<String, Schema> allSchemas) {
-        if(schema instanceof ComposedSchema) {
-            ComposedSchema composedSchema = (ComposedSchema) schema;
-            if(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1) {
-                return;
-            }
-            for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
-                addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
-            }
-            return;
-        }
         if(StringUtils.isNotBlank(schema.get$ref())) {
             Schema interfaceSchema = allSchemas.get(OpenAPIUtil.getSimpleRef(schema.get$ref()));
             addProperties(properties, required, interfaceSchema, allSchemas);
             return;
         }
+
+        if(schema instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema) schema;
+            if(!(composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty() || composedSchema.getAllOf().size() == 1)) {
+                for (int i = 1; i < composedSchema.getAllOf().size(); i++) {
+                    addProperties(properties, required, composedSchema.getAllOf().get(i), allSchemas);
+                }
+            }
+        }
+
         if(schema.getProperties() != null) {
             properties.putAll(schema.getProperties());
         }
