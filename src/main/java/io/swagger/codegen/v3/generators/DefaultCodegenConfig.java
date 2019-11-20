@@ -2223,7 +2223,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.pathParams = addHasMore(pathParams);
         codegenOperation.queryParams = addHasMore(queryParams);
         codegenOperation.headerParams = addHasMore(headerParams);
-        // op.cookieParams = cookieParams;
+        codegenOperation.cookieParams = addHasMore(cookieParams);
         codegenOperation.formParams = addHasMore(formParams);
         codegenOperation.requiredParams = addHasMore(requiredParams);
         codegenOperation.externalDocs = operation.getExternalDocs();
