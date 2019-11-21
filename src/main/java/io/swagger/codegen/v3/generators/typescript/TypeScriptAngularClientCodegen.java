@@ -40,6 +40,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String WITH_INTERFACES = "withInterfaces";
     public static final String NG_VERSION = "ngVersion";
     public static final String NG_PACKAGR = "useNgPackagr";
+    public static final String PROVIDED_IN_ROOT ="providedInRoot";
 
     protected String npmName = null;
     protected String npmVersion = "1.0.0";
@@ -55,6 +56,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(new CliOption(SNAPSHOT, "When setting this property to true the version will be suffixed with -SNAPSHOT.yyyyMMddHHmm", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
         this.cliOptions.add(new CliOption(WITH_INTERFACES, "Setting this property to true will generate interfaces next to the default class implementations.", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
         this.cliOptions.add(new CliOption(NG_VERSION, "The version of Angular. Default is '4.3'"));
+        this.cliOptions.add(new CliOption(PROVIDED_IN_ROOT, "Use this property to provide Injectables in root (it is only valid in angular version greater or equal to 6.0.0).", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
     }
 
     @Override
@@ -106,25 +108,115 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         supportingFiles.add(new SupportingFile("npmignore", "", ".npmignore"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
 
-        // determine NG version
-        SemVer ngVersion;
-        if (additionalProperties.containsKey(NG_VERSION)) {
-            ngVersion = new SemVer(additionalProperties.get(NG_VERSION).toString());
-        } else {
-            ngVersion = new SemVer("6.0.0");
-            LOGGER.info("generating code for Angular {} ...", ngVersion);
-            LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
-        }
+        SemVer ngVersion = determineNgVersion();
+
         additionalProperties.put(NG_VERSION, ngVersion);
-        additionalProperties.put(NG_PACKAGR, ngVersion.atLeast("4.0.0"));
-        additionalProperties.put("useRxJS6", ngVersion.atLeast("6.0.0"));
-        additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
-        additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
-        additionalProperties.put("useHttpClient", ngVersion.atLeast("4.3.0"));
-        additionalProperties.put("useHttpClientPackage", ngVersion.atLeast("4.3.0") && !ngVersion.atLeast("8.0.0"));
+
+        // for Angular 2 AOT support we will use good-old ngc,
+        // Angular Package format wasn't invented at this time and building was much more easier
+        if (!ngVersion.atLeast("4.0.0")) {
+            LOGGER.warn("Please update your legacy Angular " + ngVersion + " project to benefit from 'Angular Package Format' support.");
+            additionalProperties.put(NG_PACKAGR, false);
+        } else {
+            additionalProperties.put(NG_PACKAGR, true);
+        }
+
+        // Set the typescript version compatible to the Angular version
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.4.0 <3.6.0");
+        } else if (ngVersion.atLeast("7.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.1.1 <3.2.0");
+        } else if (ngVersion.atLeast("6.0.0")) {
+            additionalProperties.put("tsVersion", ">=2.7.2 and <2.10.0");
+        } else if (ngVersion.atLeast("5.0.0")) {
+            additionalProperties.put("tsVersion", ">=2.1.5 <2.7.0");
+        } else {
+            // Angular v2-v4 requires typescript ">=2.1.5 <2.8"
+            additionalProperties.put("tsVersion", ">=2.1.5 <2.8.0");
+        }
+
+        // Set the rxJS version compatible to the Angular version
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("rxjsVersion", "6.5.0");
+            additionalProperties.put("useRxJS6", true);
+        } else if (ngVersion.atLeast("7.0.0")) {
+            additionalProperties.put("rxjsVersion", "6.3.0");
+            additionalProperties.put("useRxJS6", true);
+        } else if (ngVersion.atLeast("6.0.0")) {
+            additionalProperties.put("rxjsVersion", "6.1.0");
+            additionalProperties.put("useRxJS6", true);
+        } else {
+            // Angular prior to v6
+            additionalProperties.put("rxjsVersion", "5.4.0");
+        }
         if (!ngVersion.atLeast("4.3.0")) {
             supportingFiles.add(new SupportingFile("rxjs-operators.mustache", getIndexDirectory(), "rxjs-operators.ts"));
         }
+
+        // for Angular 2 AOT support we will use good-old ngc,
+        // Angular Package format wasn't invented at this time and building was much more easier
+        if (!ngVersion.atLeast("4.0.0")) {
+            LOGGER.warn("Please update your legacy Angular " + ngVersion + " project to benefit from 'Angular Package Format' support.");
+            additionalProperties.put("useNgPackagr", false);
+        } else {
+            additionalProperties.put("useNgPackagr", true);
+            supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
+        }
+
+        // Libraries generated with v1.x of ng-packagr will ship with AoT metadata in v3, which is intended for Angular v4.
+        // Libraries generated with v2.x of ng-packagr will ship with AoT metadata in v4, which is intended for Angular v5 (and Angular v6).
+        additionalProperties.put("useOldNgPackagr", !ngVersion.atLeast("5.0.0"));
+
+        // Specific ng-packagr configuration
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("ngPackagrVersion", "5.4.0");
+            additionalProperties.put("tsickleVersion", "0.35.0");
+        } else if (ngVersion.atLeast("7.0.0")) {
+            // compatible versions with typescript version
+            additionalProperties.put("ngPackagrVersion", "5.1.0");
+            additionalProperties.put("tsickleVersion", "0.34.0");
+        } else if (ngVersion.atLeast("6.0.0")) {
+            // compatible versions with typescript version
+            additionalProperties.put("ngPackagrVersion", "3.0.6");
+            additionalProperties.put("tsickleVersion", "0.32.1");
+        } else if (ngVersion.atLeast("5.0.0")) {
+            // compatible versions with typescript version
+            additionalProperties.put("ngPackagrVersion", "2.4.5");
+            additionalProperties.put("tsickleVersion", "0.27.5");
+        } else {
+            // Angular versions prior to v5
+            additionalProperties.put("ngPackagrVersion", "1.6.0");
+        }
+
+        // set zone.js version
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("zonejsVersion", "0.9.1");
+        } else if (ngVersion.atLeast("5.0.0")) {
+            // compatible versions to Angular 5+
+            additionalProperties.put("zonejsVersion", "0.8.26");
+        } else {
+            // Angular versions prior to v5
+            additionalProperties.put("zonejsVersion", "0.7.6");
+        }
+
+        // set http client usage
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("useHttpClient", true);
+            additionalProperties.put("useHttpClientPackage", false);
+        } else if (ngVersion.atLeast("4.3.0")) {
+            additionalProperties.put("useHttpClient", true);
+            additionalProperties.put("useHttpClientPackage", true);
+        } else {
+            additionalProperties.put("useHttpClient", false);
+            additionalProperties.put("useHttpClientPackage", false);
+        }
+
+        if (additionalProperties.containsKey(PROVIDED_IN_ROOT) && !ngVersion.atLeast("6.0.0")) {
+            additionalProperties.put(PROVIDED_IN_ROOT,false);
+        }
+
+        additionalProperties.put("injectionToken", ngVersion.atLeast("4.0.0") ? "InjectionToken" : "OpaqueToken");
+        additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
 
         if (additionalProperties.containsKey(NPM_NAME)) {
             addNpmPackageGeneration();
@@ -137,6 +229,18 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             }
         }
 
+    }
+
+    private SemVer determineNgVersion() {
+        SemVer ngVersion;
+        if (additionalProperties.containsKey(NG_VERSION)) {
+            ngVersion = new SemVer(additionalProperties.get(NG_VERSION).toString());
+        } else {
+            ngVersion = new SemVer("8.0.0");
+            LOGGER.info("generating code for Angular {} ...", ngVersion);
+            LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
+        }
+        return ngVersion;
     }
 
     private void addNpmPackageGeneration() {
