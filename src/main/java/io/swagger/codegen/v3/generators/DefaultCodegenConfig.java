@@ -1387,9 +1387,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             if (oneOf != null && !oneOf.isEmpty()) {
+                codegenModel.dataType = getSchemaType(composed);
                 this.schemaHandler.configureOneOfModel(codegenModel, oneOf);
             }
             if (anyOf != null && !anyOf.isEmpty()) {
+                codegenModel.dataType = getSchemaType(composed);
                 this.schemaHandler.configureAnyOfModel(codegenModel, anyOf);
             }
             if (parent != null) {
