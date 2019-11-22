@@ -24,7 +24,7 @@ import javax.validation.constraints.*;
 public abstract class {{classname}}Service {
     {{#operation}}
     {{#contents}}
-    public abstract Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}},{{/parameters}}SecurityContext securityContext) throws NotFoundException;
+    public abstract Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>serviceCookieParams}},{{/parameters}}SecurityContext securityContext) throws NotFoundException;
     {{/contents}}
     {{/operation}}
 }
