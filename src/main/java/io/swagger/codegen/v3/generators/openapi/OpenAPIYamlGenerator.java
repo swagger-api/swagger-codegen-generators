@@ -36,7 +36,7 @@ public class OpenAPIYamlGenerator extends OpenAPIGenerator {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
-        super.preprocessOpenAPI(openAPI);
+        this.openAPI = openAPI;
         try {
             final String outputString;
             if (flattenSpec) {
