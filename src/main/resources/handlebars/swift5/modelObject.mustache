@@ -12,8 +12,10 @@ public struct {{classname}}: Codable {
     {{/description}}public var {{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}
 {{/isEnum}}
 {{^isEnum}}
-    {{#description}}/** {{description}} */
-    {{/description}}public var {{name}}: {{{datatype}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{#objcCompatible}}{{#vendorExtensions.x-swift-optional-scalar}}
+    {{#description}}
+    /** {{description}} */
+    {{/description}}
+    public var {{name}}: {{{datatype}}}{{^required}}?{{/required}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{#objcCompatible}}{{#vendorExtensions.x-swift-optional-scalar}}
     public var {{name}}Num: NSNumber? {
         get {
             return {{name}}.map({ return NSNumber(value: $0) })
@@ -73,10 +75,13 @@ public struct {{classname}}: Codable {
     }
 
 {{/additionalPropertiesType}}
-{{^additionalPropertiesType}}{{#vendorExtensions.x-codegen-has-escaped-property-names}}
+{{^additionalPropertiesType}}
+
+{{#vendorExtensions.x-codegen-has-escaped-property-names}}
     public enum CodingKeys: String, CodingKey { {{#allVars}}
         case {{name}}{{#vendorExtensions.x-codegen-escaped-property-name}} = "{{{baseName}}}"{{/vendorExtensions.x-codegen-escaped-property-name}}{{/allVars}}
     }
 {{/vendorExtensions.x-codegen-has-escaped-property-names}}{{/additionalPropertiesType}}
 
 }
+
