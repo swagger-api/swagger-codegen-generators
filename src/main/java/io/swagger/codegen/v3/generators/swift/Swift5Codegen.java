@@ -94,7 +94,6 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         outputFolder = "generated-code" + File.separator + "swift";
         modelTemplateFiles.put("model.mustache", ".swift");
         apiTemplateFiles.put("api.mustache", ".swift");
-        embeddedTemplateDir = templateDir = "swift5";
         apiPackage = File.separator + "APIs";
         modelPackage = File.separator + "Models";
 
@@ -244,6 +243,8 @@ public class Swift5Codegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        embeddedTemplateDir = templateDir = getTemplateDir();
 
         // Setup project name
         if (additionalProperties.containsKey(PROJECT_NAME)) {
