@@ -1,0 +1,4 @@
+{{#isCookieParam}}
+{{#useOas2}}@ApiParam(value = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}{{/useOas2}}
+{{^useOas2}}@Parameter(in = ParameterIn.COOKIE, description = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}{{/useOas2}}
+{{/isCookieParam}}
