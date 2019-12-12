@@ -1324,7 +1324,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if(composed.getAllOf() != null) {
                     for (Schema innerModel : composed.getAllOf()) {
                         if (codegenModel.discriminator == null) {
-                            codegenModel.discriminator = schema
+                            codegenModel.discriminator = innerModel
                                     .getDiscriminator();
                         }
                         if (innerModel.getXml() != null) {
