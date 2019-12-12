@@ -1324,7 +1324,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if(composed.getAllOf() != null) {
                     for (Schema innerModel : composed.getAllOf()) {
                         if (codegenModel.discriminator == null) {
-                            codegenModel.discriminator = schema
+                            codegenModel.discriminator = innerModel
                                     .getDiscriminator();
                         }
                         if (innerModel.getXml() != null) {
@@ -1387,9 +1387,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             if (oneOf != null && !oneOf.isEmpty()) {
+                codegenModel.dataType = getSchemaType(composed);
                 this.schemaHandler.configureOneOfModel(codegenModel, oneOf);
             }
             if (anyOf != null && !anyOf.isEmpty()) {
+                codegenModel.dataType = getSchemaType(composed);
                 this.schemaHandler.configureAnyOfModel(codegenModel, anyOf);
             }
             if (parent != null) {
@@ -2223,7 +2225,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.pathParams = addHasMore(pathParams);
         codegenOperation.queryParams = addHasMore(queryParams);
         codegenOperation.headerParams = addHasMore(headerParams);
-        // op.cookieParams = cookieParams;
+        codegenOperation.cookieParams = addHasMore(cookieParams);
         codegenOperation.formParams = addHasMore(formParams);
         codegenOperation.requiredParams = addHasMore(requiredParams);
         codegenOperation.externalDocs = operation.getExternalDocs();
