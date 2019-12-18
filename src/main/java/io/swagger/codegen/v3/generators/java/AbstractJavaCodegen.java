@@ -1141,7 +1141,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 .replaceAll("\\.", "_")
                 .replaceAll("@", "_at_")
                 .replaceAll("-", "_")
-                .replaceAll(" ", "_");
+                .replaceAll(" ", "_")
+                .replaceAll(":", "_");
 
         // remove everything else other than word, number and _
         // $php_variable => php_variable
