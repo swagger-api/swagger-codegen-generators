@@ -273,6 +273,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         typeMapping.put("file", "Resource");
+        typeMapping.put("binary", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
 
         if (useOptional) {
