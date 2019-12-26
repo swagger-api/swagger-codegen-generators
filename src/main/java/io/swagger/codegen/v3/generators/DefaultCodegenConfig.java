@@ -1077,7 +1077,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else if (schema instanceof BinarySchema) {
             return SchemaTypeUtil.BINARY_FORMAT;
         } else if (schema instanceof FileSchema) {
-            return "file"; // FIXME: this type does not exist in the OpenAPI 3.0 specification
+            return SchemaTypeUtil.BINARY_FORMAT;
         } else if (schema instanceof BooleanSchema) {
             return SchemaTypeUtil.BOOLEAN_TYPE;
         } else if (schema instanceof DateSchema) {
