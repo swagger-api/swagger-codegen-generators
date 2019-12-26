@@ -46,7 +46,7 @@ try {
 {{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
-{{#parameters}} **{{paramName}}** | {{#isPrimitiveType}}}**{{dataType}}**{{/is}}}{{^isPrimitiveType}}{{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isFile}}{{/isPrimitiveType}}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
+{{#parameters}} **{{paramName}}** | {{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{#isBinary}}**{{dataType}}**{{/isBinary}}{{^isBinary}}{{#generateModelDocs}}[**{{dataType}}**]({{baseType}}.md){{/generateModelDocs}}{{^generateModelDocs}}**{{dataType}}**{{/generateModelDocs}}{{/isBinary}}{{/isPrimitiveType}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
 {{/parameters}}
 
 ### Return type

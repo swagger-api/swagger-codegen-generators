@@ -1,1 +1,1 @@
-{{#is this 'form-param'}}{{#isNot this 'file'}}{{{dataType}}} {{paramName}}{{/isNot}}{{#is this 'file'}}InputStream {{paramName}}InputStream, FormDataContentDisposition {{paramName}}Detail{{/is}}{{/is}}
+{{#is this 'form-param'}}{{#isNot this 'binary'}}{{{dataType}}} {{paramName}}{{/isNot}}{{#is this 'binary'}}InputStream {{paramName}}InputStream, FormDataContentDisposition {{paramName}}Detail{{/is}}{{/is}}
