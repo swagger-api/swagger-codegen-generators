@@ -28,12 +28,12 @@ public class {{classname}}ControllerIntegrationTest {
     @Test
     public void {{operationId}}Test() throws Exception {
         {{#parameters}}
-        {{^isFile}}
+        {{^isBinary}}
         {{{dataType}}} {{paramName}} = {{{example}}};
-        {{/isFile}}
-        {{#isFile}}
+        {{/isBinary}}
+        {{#isBinary}}
         org.springframework.web.multipart.MultipartFile {{paramName}} = null;
-        {{/isFile}}
+        {{/isBinary}}
         {{/parameters}}
         ResponseEntity<{{>returnTypes}}> responseEntity = api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         assertEquals(HttpStatus.NOT_IMPLEMENTED, responseEntity.getStatusCode());
