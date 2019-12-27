@@ -107,7 +107,7 @@ namespace {{apiPackage}}
             {{/queryParams}}
             {{#headerParams}} if ({{paramName}} != null) headerParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // header parameter
             {{/headerParams}}
-            {{#formParams}}if ({{paramName}} != null) {{#isFile}}fileParams.Add("{{baseName}}", ApiClient.ParameterToFile("{{baseName}}", {{paramName}}));{{/isFile}}{{^isFile}}formParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // form parameter{{/isFile}}
+            {{#formParams}}if ({{paramName}} != null) {{#isBinary}}fileParams.Add("{{baseName}}", ApiClient.ParameterToFile("{{baseName}}", {{paramName}}));{{/isBinary}}{{^isBinary}}formParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // form parameter{{/isBinary}}
             {{/formParams}}
             {{#bodyParam}}postBody = ApiClient.Serialize({{paramName}}); // http body (model) parameter
             {{/bodyParam}}
