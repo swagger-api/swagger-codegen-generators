@@ -32,6 +32,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
 
     public StaticHtmlCodegen() {
         super();
+        schemaHandler = new HtmlSchemaHandler(this);
         outputFolder = "docs";
 
         defaultIncludes = new HashSet<String>();
@@ -155,7 +156,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
 
     /**
      * Convert Markdown text to HTML
-     * 
+     *
      * @param input
      *            text in Markdown; may be null.
      * @return the text, converted to Markdown. For null input, "" is returned.
