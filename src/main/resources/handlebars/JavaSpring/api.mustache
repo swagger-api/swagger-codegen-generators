@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CookieValue;
 
 {{#jdk8-no-delegate}}
 import javax.servlet.http.HttpServletRequest;
@@ -61,17 +62,17 @@ public interface {{classname}} {
     {{^isDelegate}}
     Logger log = LoggerFactory.getLogger({{classname}}.class);
 
-    default Optional<ObjectMapper> getObjectMapper() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<ObjectMapper> getObjectMapper(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<HttpServletRequest> getRequest() {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}Optional<HttpServletRequest> getRequest(){{^defaultInterfaces}};{{/defaultInterfaces}}{{#defaultInterfaces}}{
         return Optional.empty();
-    }
+    }{{/defaultInterfaces}}
 
-    default Optional<String> getAcceptHeader() {
+    {{#defaultInterfaces}}default Optional<String> getAcceptHeader() {
         return getRequest().map(r -> r.getHeader("Accept"));
-    }
+    }{{/defaultInterfaces}}
     {{/isDelegate}}
     {{#isDelegate}}
     {{classname}}Delegate getDelegate();
@@ -81,9 +82,8 @@ public interface {{classname}} {
 {{#contents}}
 
     @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = { {{#each scopes}}
+            @AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},{{/@last}}{{/each}}
             }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
@@ -102,13 +102,13 @@ public interface {{classname}} {
         produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
         consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
         method = RequestMethod.{{httpMethod}})
-    {{#jdk8}}default {{/jdk8}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^jdk8}};{{/jdk8}}{{#jdk8}} {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}};{{/defaultInterfaces}}{{#defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}} {
         {{#delegate-method}}
         return {{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
     }
 
     // Override this method
-    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isFile}}{{{dataType}}}{{/isFile}}{{#isFile}}MultipartFile{{/isFile}} {{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isBinary}}{{{dataType}}}{{/isBinary}}{{#isBinary}}MultipartFile{{/isBinary}} {{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{/delegate-method}}
         {{^isDelegate}}
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
@@ -130,7 +130,7 @@ public interface {{classname}} {
         {{#isDelegate}}
         return getDelegate().{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{/isDelegate}}
-    }{{/jdk8}}
+    }{{/defaultInterfaces}}
 
 {{/contents}}
 {{/operation}}

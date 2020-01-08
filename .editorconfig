@@ -1,0 +1,10 @@
+# http://editorconfig.org/
+# top-most EditorConfig file
+root = true
+
+[*.java]
+end_of_line = lf
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true

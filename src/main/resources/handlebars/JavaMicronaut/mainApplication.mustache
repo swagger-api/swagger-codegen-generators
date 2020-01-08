@@ -1,0 +1,27 @@
+package {{basePackage}};
+
+import io.micronaut.runtime.Micronaut;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.info.*;
+
+@OpenAPIDefinition(
+    info = @Info(
+            title = "{{appName}}",
+            version = "{{appVersion}}",
+            description = "{{appDescription}}",
+            contact = @Contact(
+                    name = "{{infoName}}",
+                    email = "{{infoEmail}}"
+            ),
+            license = @License(
+                    name = "{{licenseInfo}}",
+                    url = "{{licenseUrl}}"
+            )
+    )
+)
+public class MainApplication {
+
+    public static void main(String[] args) {
+        Micronaut.run(MainApplication.class);
+    }
+}

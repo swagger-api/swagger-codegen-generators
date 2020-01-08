@@ -1,13 +1,21 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
-import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.handlebars.csharp.CsharpHelper;
+import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
 import io.swagger.codegen.v3.utils.ModelUtils;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -26,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -99,7 +108,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter",
+                        "Client", "client", "parameter", "File",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
@@ -158,10 +167,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         typeMapping.put("bytearray", "byte[]");
         typeMapping.put("boolean", "bool?");
         typeMapping.put("integer", "int?");
+        typeMapping.put("int", "int?");
         typeMapping.put("float", "float?");
         typeMapping.put("long", "long?");
         typeMapping.put("double", "double?");
         typeMapping.put("number", "decimal?");
+        typeMapping.put("BigDecimal", "decimal?");
         typeMapping.put("datetime", "DateTime?");
         typeMapping.put("date", "DateTime?");
         typeMapping.put("file", "System.IO.Stream");
@@ -328,13 +339,13 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         // This either updates additionalProperties with the above fixes, or sets the default if the option was not specified.
         additionalProperties.put(CodegenConstants.INTERFACE_PREFIX, interfacePrefix);
 
-        //addMustacheLambdas(additionalProperties);
+        addHandlebarsLambdas(additionalProperties);
     }
 
-    /** todo: write with OAS3 classes.
-    private void addMustacheLambdas(Map<String, Object> objs) {
+    private void addHandlebarsLambdas(Map<String, Object> objs) {
 
-        Map<String, Mustache.Lambda> lambdas = new ImmutableMap.Builder<String, Mustache.Lambda>()
+
+        Map<String, Lambda> lambdas = new ImmutableMap.Builder<String, Lambda>()
                 .put("lowercase", new LowercaseLambda().generator(this))
                 .put("uppercase", new UppercaseLambda())
                 .put("titlecase", new TitlecaseLambda())
@@ -346,6 +357,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 .put("indented_16", new IndentedLambda(16, " "))
                 .build();
 
+
         if (objs.containsKey("lambda")) {
             LOGGER.warn("An property named 'lambda' already exists. Mustache lambdas renamed from 'lambda' to '_lambda'. " +
                     "You'll likely need to use a custom template, " +
@@ -355,7 +367,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             objs.put("lambda", lambdas);
         }
     }
-    */
 
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
@@ -424,7 +435,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // This is different in C# than most other generators, because enums in C# are compiled to integral types,
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
-                        var.allowableValues = refModel.allowableValues;
+                        var.allowableValues = new HashMap<>(refModel.allowableValues);
                         updateCodegenPropertyEnum(var);
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
@@ -494,7 +505,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             var.vendorExtensions = new HashMap<>();
         }
 
-        ModelUtils.updateCodegenPropertyEnum(var);
+        super.updateCodegenPropertyEnum(var);
 
         // Because C# uses nullable primitives for datatype, and datatype is used in DefaultCodegen for determining enum-ness, guard against weirdness here.
         if (getBooleanValue(var, CodegenConstants.IS_ENUM_EXT_NAME)) {
@@ -892,6 +903,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         this.interfacePrefix = interfacePrefix;
     }
 
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (typeMapping.containsKey(name.toLowerCase()) && isReservedWord(name.toLowerCase())) {
+            typeMapping.remove(name.toLowerCase());
+        }
+        return codegenModel;
+    }
+
     @Override
     public String toEnumValue(String value, String datatype) {
         // C# only supports enums as literals for int, int?, long, long?, byte, and byte?. All else must be treated as strings.
@@ -950,6 +969,18 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
+
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if ( urlInfo != null && urlInfo.getPort() > 0) {
+            additionalProperties.put("serverUrl", String.format("%s://%s:%s", urlInfo.getProtocol(), urlInfo.getHost(), urlInfo.getPort()));
+
+            if (StringUtils.isNotBlank(urlInfo.getPath())) {
+                additionalProperties.put("basePathWithoutHost", urlInfo.getPath());
+            }
+        } else {
+            additionalProperties.put("serverUrl", URLPathUtil.LOCAL_HOST);
+        }
+
         if (this.preserveNewLines) {
             Map<String, Schema> schemaMap = openAPI.getComponents() != null ? openAPI.getComponents().getSchemas() : null;
             if (schemaMap != null) {
@@ -1029,4 +1060,22 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
         return intermediate;
     }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(new CsharpHelper());
+    }
+
+/*
+    TODO: uncomment if/when switching to stream for file upload
+    @Override
+    public void postProcessParameter(CodegenParameter parameter) {
+        if (parameter.getIsBinary()) {
+            parameter.dataType = "System.IO.Stream";
+        }
+        super.postProcessParameter(parameter);
+    }
+*/
+
 }

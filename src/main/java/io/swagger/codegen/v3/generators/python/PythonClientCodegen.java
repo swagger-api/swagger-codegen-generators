@@ -86,6 +86,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("datetime");
         languageSpecificPrimitives.add("date");
         languageSpecificPrimitives.add("object");
+        languageSpecificPrimitives.add("binary_type");
 
         instantiationTypes.put("map", "dict");
 
@@ -93,6 +94,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "int");
         typeMapping.put("float", "float");
         typeMapping.put("number", "float");
+        typeMapping.put("BigDecimal", "float");
         typeMapping.put("long", "int");
         typeMapping.put("double", "float");
         typeMapping.put("array", "list");
@@ -123,7 +125,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
                         "assert", "else", "if", "pass", "yield", "break", "except", "import",
                         "print", "class", "exec", "in", "raise", "continue", "finally", "is",
                         "return", "def", "for", "lambda", "try", "self", "nonlocal", "None", "True", "nonlocal",
-                        "float", "int", "str", "date", "datetime"));
+                        "float", "int", "str", "date", "datetime", "False", "await", "async"));
 
         regexModifiers = new HashMap<Character, String>();
         regexModifiers.put('i', "IGNORECASE");
@@ -159,7 +161,9 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         super.processOpts();
         Boolean excludeTests = false;
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
 
         if(additionalProperties.containsKey(CodegenConstants.EXCLUDE_TESTS)) {
             excludeTests = Boolean.valueOf(additionalProperties.get(CodegenConstants.EXCLUDE_TESTS).toString());
@@ -232,6 +236,8 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
 
         modelPackage = packageName + "." + modelPackage;
         apiPackage = packageName + "." + apiPackage;
+
+        copyFistAllOfProperties = true;
 
     }
 

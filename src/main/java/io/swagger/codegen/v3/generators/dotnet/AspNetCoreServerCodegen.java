@@ -1,29 +1,42 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.samskivert.mustache.Mustache;
-
+import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.Map.Entry;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.UUID.randomUUID;
 
 public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase() + "}";
+    private static final String ASP_NET_CORE_VERSION_OPTION = "--aspnet-core-version";
+    private static final String INTERFACE_ONLY_OPTION = "--interface-only";
+    private static final String INTERFACE_CONTROLLER_OPTION = "--interface-controller";
+    private final String DEFAULT_ASP_NET_CORE_VERSION = "2.2";
+    private String aspNetCoreVersion;
 
     @SuppressWarnings("hiding")
     protected Logger LOGGER = LoggerFactory.getLogger(AspNetCoreServerCodegen.class);
@@ -33,9 +46,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         setSourceFolder("src");
         outputFolder = "generated-code" + File.separator + this.getName();
-
-        modelTemplateFiles.put("model.mustache", ".cs");
-        apiTemplateFiles.put("controller.mustache", ".cs");
 
         // contextually reserved words
         // NOTE: C# uses camel cased reserved words, while models are title cased. We don't want lowercase comparisons.
@@ -82,6 +92,21 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         addSwitch(CodegenConstants.RETURN_ICOLLECTION,
                 CodegenConstants.RETURN_ICOLLECTION_DESC,
                 this.returnICollection);
+
+        this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
+
+        addSwitch(INTERFACE_ONLY_OPTION.substring(2),
+            "Only generate interfaces for controllers",
+            false);
+
+        addSwitch(INTERFACE_CONTROLLER_OPTION.substring(2),
+            "Generate interfaces for controllers, implemented by a default controller implementation",
+            false);
+
+        addOption(ASP_NET_CORE_VERSION_OPTION.substring(2),
+            "ASP.NET Core version",
+            DEFAULT_ASP_NET_CORE_VERSION);
+
     }
 
     @Override
@@ -103,6 +128,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public void processOpts() {
         super.processOpts();
 
+        setAspNetCoreVersion();
+
+        modelTemplateFiles.put("model.mustache", ".cs");
+
+
         if (additionalProperties.containsKey(CodegenConstants.OPTIONAL_PROJECT_GUID)) {
             setPackageGuid((String) additionalProperties.get(CodegenConstants.OPTIONAL_PROJECT_GUID));
         }
@@ -110,26 +140,48 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         additionalProperties.put("dockerTag", this.packageName.toLowerCase());
 
-        apiPackage = packageName + ".Controllers";
-        modelPackage = packageName + ".Models";
+        additionalProperties.put("aspNetCoreVersion", aspNetCoreVersion);
 
         String packageFolder = sourceFolder + File.separator + packageName;
+
+        if (aspNetCoreVersion.equals("2.0")) {
+            apiTemplateFiles.put("controller.mustache", ".cs");
+            addInterfaceControllerTemplate();
+
+            supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
+            supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
+        } else{
+            apiTemplateFiles.put("2.1/controller.mustache", ".cs");
+            addInterfaceControllerTemplate();
+
+            supportingFiles.add(new SupportingFile("2.1/Program.mustache", packageFolder, "Program.cs"));
+            supportingFiles.add(new SupportingFile("2.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            supportingFiles.add(new SupportingFile("2.1/Dockerfile.mustache", packageFolder, "Dockerfile"));
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
+            apiPackage = packageName + ".Controllers";
+            additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
+            modelPackage = packageName + ".Models";
+            additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
+        }
 
         supportingFiles.add(new SupportingFile("NuGet.Config", "", "NuGet.Config"));
         supportingFiles.add(new SupportingFile("build.sh.mustache", "", "build.sh"));
         supportingFiles.add(new SupportingFile("build.bat.mustache", "", "build.bat"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("Solution.mustache", "", this.packageName + ".sln"));
-        supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
         supportingFiles.add(new SupportingFile("gitignore", packageFolder, ".gitignore"));
         supportingFiles.add(new SupportingFile("appsettings.json", packageFolder, "appsettings.json"));
 
         supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-        supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
+
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
         supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
-
-        supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
 
         supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
 
@@ -163,6 +215,16 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     @Override
     public String apiFileFolder() {
         return outputFolder + File.separator + sourceFolder + File.separator + packageName + File.separator + "Controllers";
+    }
+
+    @Override
+    public String apiFilename(String templateName, String tag) {
+        boolean isInterface = templateName.equalsIgnoreCase("icontroller.mustache");
+        String suffix = apiTemplateFiles().get(templateName);
+        if (isInterface) {
+            return apiFileFolder() + "/I" + toApiFilename(tag) + suffix;
+        }
+        return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
     }
 
     @Override
@@ -200,11 +262,108 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         // Converts, for example, PUT to HttpPut for controller attributes
         operation.httpMethod = "Http" + operation.httpMethod.substring(0, 1) + operation.httpMethod.substring(1).toLowerCase();
+
+        if (operation.getContents() != null && !operation.getContents().isEmpty()) {
+            List <CodegenContent> contents = operation.getContents()
+                    .stream()
+                    .filter(codegenContent -> !codegenContent.getIsForm())
+                    .collect(Collectors.toList());
+            operation.getContents().clear();
+            operation.getContents().addAll(contents);
+        }
     }
 
     @Override
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         // To avoid unexpected behaviors when options are passed programmatically such as { "useCollection": "" }
         return super.processCompiler(compiler).emptyStringIsFalse(true);
+    }
+
+    @Override
+    public List<CodegenSecurity> fromSecurity(Map<String, SecurityScheme> securitySchemeMap) {
+        final List<CodegenSecurity> securities = super.fromSecurity(securitySchemeMap);
+        if (securities == null || securities.isEmpty()) {
+            return securities;
+        }
+        boolean hasBasic = false;
+        boolean hasBearer = false;
+        boolean hasApiKey = false;
+        for (int index = 0; index < securities.size(); index++) {
+            final CodegenSecurity codegenSecurity = securities.get(index);
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BASIC_EXT_NAME)) {
+                hasBasic = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BEARER_EXT_NAME)) {
+                hasBearer = true;
+            }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_API_KEY_EXT_NAME)) {
+                hasApiKey = true;
+            }
+        }
+        final String packageFolder = sourceFolder + File.separator + packageName;
+        if (hasBasic) {
+            supportingFiles.add(new SupportingFile("Security/BasicAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BasicAuthenticationHandler.cs"));
+        }
+        if (hasBearer) {
+            supportingFiles.add(new SupportingFile("Security/BearerAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "BearerAuthenticationHandler.cs"));
+        }
+        if (hasApiKey) {
+            supportingFiles.add(new SupportingFile("Security/ApiKeyAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "ApiKeyAuthenticationHandler.cs"));
+        }
+        return securities;
+    }
+
+    private void addInterfaceControllerTemplate() {
+        String interfaceOnlyOption = getOptionValue(INTERFACE_ONLY_OPTION);
+        boolean interfaceOnly = false;
+        if (StringUtils.isNotBlank(interfaceOnlyOption)) {
+            interfaceOnly = Boolean.valueOf(getOptionValue(INTERFACE_ONLY_OPTION));
+        } else {
+            if (additionalProperties.get(INTERFACE_ONLY_OPTION.substring(2)) != null) {
+                interfaceOnly = Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY_OPTION.substring(2)).toString());
+            }
+        }
+
+        String interfaceControllerOption = getOptionValue(INTERFACE_CONTROLLER_OPTION);
+        boolean interfaceController = false;
+        if (StringUtils.isNotBlank(interfaceControllerOption)) {
+            interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
+        } else {
+            if (additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)) != null) {
+                interfaceController = Boolean.valueOf(additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)).toString());
+            }
+        }
+
+        if (interfaceController) {
+            apiTemplateFiles.put("icontroller.mustache", ".cs");
+            additionalProperties.put("interfaceController", Boolean.TRUE);
+        }
+        if (interfaceOnly) {
+            apiTemplateFiles.clear();
+            apiTemplateFiles.put("icontroller.mustache", ".cs");
+        }
+    }
+
+
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/aspnetcore.yaml";
+    }
+
+    private void setAspNetCoreVersion() {
+        String optionValue = getOptionValue(ASP_NET_CORE_VERSION_OPTION);
+        if (StringUtils.isBlank(optionValue)) {
+            if (additionalProperties.get(ASP_NET_CORE_VERSION_OPTION.substring(2)) != null) {
+                this.aspNetCoreVersion = additionalProperties.get(ASP_NET_CORE_VERSION_OPTION.substring(2)).toString();
+            } else {
+                return;
+            }
+        } else {
+            this.aspNetCoreVersion = optionValue;
+        }
+        if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
+            LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
+            this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
+        }
     }
 }
