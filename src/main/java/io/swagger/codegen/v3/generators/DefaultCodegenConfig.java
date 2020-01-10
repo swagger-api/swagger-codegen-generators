@@ -4240,4 +4240,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void setUnflattenedOpenAPI(OpenAPI unflattenedOpenAPI) {
         this.unflattenedOpenAPI = unflattenedOpenAPI;
     }
+
+    public boolean ignoreImportMapping() {
+        return false;
+    }
 }
