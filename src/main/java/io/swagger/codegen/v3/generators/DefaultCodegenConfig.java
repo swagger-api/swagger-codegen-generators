@@ -1717,6 +1717,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             CodegenProperty cp = fromProperty("inner", new ObjectSchema());
             updatePropertyForMap(codegenProperty, cp);
         } else {
+            if (isObjectSchema(propertySchema)) {
+                codegenProperty.getVendorExtensions().put("x-is-object", Boolean.TRUE);
+            }
             setNonArrayMapProperty(codegenProperty, type);
         }
         return codegenProperty;
@@ -3145,6 +3148,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             } else { // else add to readWriteVars (list of properties)
                 // FIXME: readWriteVars can contain duplicated properties. Debug/breakpoint here while running C# generator (Dog and Cat models)
                 codegenModel.readWriteVars.add(codegenProperty);
+            }
+        }
+        // check if one of the property is a object and has import mapping.
+        List<CodegenProperty> modelProperties = vars.stream()
+                .filter(codegenProperty -> getBooleanValue(codegenProperty, "x-is-object") && importMapping.containsKey(codegenProperty.baseType))
+                .collect(Collectors.toList());
+
+        for (CodegenProperty modelProperty : modelProperties) {
+            List<CodegenProperty> codegenProperties = vars.stream()
+                    .filter(codegenProperty -> !getBooleanValue(codegenProperty, "x-is-object")
+                            && importMapping.containsKey(codegenProperty.baseType)
+                            && codegenProperty.baseType.equals(modelProperty.baseType))
+                    .collect(Collectors.toList());
+            if (codegenProperties == null || codegenProperties.isEmpty()) {
+                continue;
+            }
+            for (CodegenProperty codegenProperty : codegenProperties) {
+                codegenModel.imports.remove(codegenProperty.baseType);
+                codegenProperty.datatype = importMapping.get(codegenProperty.baseType);
+                codegenProperty.datatypeWithEnum = codegenProperty.datatype;
             }
         }
     }

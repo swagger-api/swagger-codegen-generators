@@ -1,10 +1,14 @@
 package io.swagger.codegen.v3.generators.java;
 
+import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -14,6 +18,9 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -154,7 +161,7 @@ public class JavaClientCodegenTest {
         Assert.assertEquals(codegenParameter2.description, "A list of list of values");
         Assert.assertEquals(codegenParameter2.dataType, "List<List<Integer>>");
         Assert.assertEquals(codegenParameter2.baseType, "List");
-        
+
         RequestBody body3 = new RequestBody();
         body3.setDescription("A list of points");
         body3.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new ObjectSchema().$ref("#/components/schemas/Point")))));
@@ -260,4 +267,99 @@ public class JavaClientCodegenTest {
         codegen.processOpts();
         Assert.assertEquals(codegen.templateDir(), String.join(File.separator,"user", "custom", "location"));
     }
+
+    @Test
+    public void testModelNamedFile() {
+        final OpenAPI openAPI = getOpenAPI("3_0_0/model_named_file.yaml");
+        final CodegenConfig config = new JavaClientCodegen();
+        config.preprocessOpenAPI(openAPI);
+
+        final Schema modelFile = openAPI.getComponents().getSchemas().get("File");
+        final Schema modelSetting = openAPI.getComponents().getSchemas().get("Setting");
+
+        final CodegenModel codegenModelFile = config.fromModel("File", modelFile, openAPI.getComponents().getSchemas());
+        final CodegenModel codegenModelSetting = config.fromModel("Setting", modelSetting, openAPI.getComponents().getSchemas());
+
+        Assert.assertEquals(codegenModelFile.name, "File");
+        Assert.assertEquals(codegenModelSetting.name, "Setting");
+
+        final List<CodegenProperty> codegenProperties = codegenModelSetting.getVars();
+
+        Assert.assertEquals(codegenProperties.size(), 2);
+
+        CodegenProperty fileProperty = codegenProperties.stream().filter(property -> property.name.equals("file")).findAny().get();
+
+        Assert.assertEquals(fileProperty.name, "file");
+        Assert.assertEquals(fileProperty.baseType, "File");
+        Assert.assertEquals(fileProperty.datatype, "File");
+
+        CodegenProperty documentProperty = codegenProperties.stream().filter(property -> property.name.equals("document")).findAny().get();
+
+        Assert.assertEquals(documentProperty.name, "document");
+        Assert.assertEquals(documentProperty.baseType, "File");
+        Assert.assertEquals(documentProperty.datatype, "java.io.File");
+
+        Assert.assertFalse(codegenModelSetting.imports.stream().anyMatch(_import -> _import.equals("java.io.File")));
+    }
+
+    private OpenAPI getOpenAPI(String filePath) {
+        OpenAPIV3Parser openApiParser = new OpenAPIV3Parser();
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setFlatten(true);
+        SwaggerParseResult parseResult = openApiParser.readLocation(filePath, null, options);
+
+        return parseResult.getOpenAPI();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
