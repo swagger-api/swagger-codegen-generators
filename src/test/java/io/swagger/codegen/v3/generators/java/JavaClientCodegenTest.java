@@ -7,6 +7,7 @@ import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -271,7 +272,7 @@ public class JavaClientCodegenTest {
     @Test
     public void testModelNamedFile() {
         final OpenAPI openAPI = getOpenAPI("3_0_0/model_named_file.yaml");
-        final CodegenConfig config = new JavaClientCodegen();
+        final DefaultCodegenConfig config = new JavaClientCodegen();
         config.setIgnoreImportMapping(true);
         config.preprocessOpenAPI(openAPI);
 
