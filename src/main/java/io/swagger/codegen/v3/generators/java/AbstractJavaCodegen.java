@@ -598,6 +598,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelName(final String name) {
+        // We need to check if import-mapping has a different model for this class, so we use it
+        // instead of the auto-generated one.
+        System.out.println("getIgnoreImportMapping() => " + getIgnoreImportMapping());
+
+        if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
+            return importMapping.get(name);
+        }
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
@@ -1445,7 +1452,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public boolean ignoreImportMapping() {
+    public boolean defaultIgnoreImportMappingOption() {
         return true;
     }
 }

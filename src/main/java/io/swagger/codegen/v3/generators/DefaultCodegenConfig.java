@@ -171,6 +171,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String ignoreFilePathOverride;
     protected boolean useOas2 = false;
     protected boolean copyFistAllOfProperties = false;
+    protected boolean ignoreImportMapping;
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -179,6 +180,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
             this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
+        }
+
+        if (additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION) != null) {
+            setIgnoreImportMapping(Boolean.parseBoolean( additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION).toString()));
+        } else {
+            setIgnoreImportMapping(defaultIgnoreImportMappingOption());
         }
 
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_VERSION)) {
@@ -4264,7 +4271,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         this.unflattenedOpenAPI = unflattenedOpenAPI;
     }
 
-    public boolean ignoreImportMapping() {
+    public boolean getIgnoreImportMapping() {
+        return ignoreImportMapping;
+    }
+
+    public void setIgnoreImportMapping(boolean ignoreImportMapping) {
+        this.ignoreImportMapping = ignoreImportMapping;
+    }
+
+    public boolean defaultIgnoreImportMappingOption() {
         return false;
     }
 }

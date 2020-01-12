@@ -272,6 +272,7 @@ public class JavaClientCodegenTest {
     public void testModelNamedFile() {
         final OpenAPI openAPI = getOpenAPI("3_0_0/model_named_file.yaml");
         final CodegenConfig config = new JavaClientCodegen();
+        config.setIgnoreImportMapping(true);
         config.preprocessOpenAPI(openAPI);
 
         final Schema modelFile = openAPI.getComponents().getSchemas().get("File");
@@ -285,7 +286,7 @@ public class JavaClientCodegenTest {
 
         final List<CodegenProperty> codegenProperties = codegenModelSetting.getVars();
 
-        Assert.assertEquals(codegenProperties.size(), 2);
+        Assert.assertEquals(codegenProperties.size(), 4);
 
         CodegenProperty fileProperty = codegenProperties.stream().filter(property -> property.name.equals("file")).findAny().get();
 
