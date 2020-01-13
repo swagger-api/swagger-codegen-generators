@@ -600,10 +600,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public String toModelName(final String name) {
         // We need to check if import-mapping has a different model for this class, so we use it
         // instead of the auto-generated one.
-        if (importMapping.containsKey(name)) {
+
+        if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
@@ -1448,5 +1448,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         super.setLanguageArguments(languageArguments);
+    }
+
+    @Override
+    public boolean defaultIgnoreImportMappingOption() {
+        return true;
     }
 }
