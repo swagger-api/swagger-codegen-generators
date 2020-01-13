@@ -3161,6 +3161,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         List<CodegenProperty> modelProperties = vars.stream()
                 .filter(codegenProperty -> getBooleanValue(codegenProperty, "x-is-object") && importMapping.containsKey(codegenProperty.baseType))
                 .collect(Collectors.toList());
+        if (modelProperties == null || modelProperties.isEmpty()) {
+            return;
+        }
 
         for (CodegenProperty modelProperty : modelProperties) {
             List<CodegenProperty> codegenProperties = vars.stream()
@@ -4176,7 +4179,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     public boolean isObjectSchema (Schema schema) {
-        if (schema instanceof ObjectSchema ||schema instanceof ComposedSchema) {
+        if (schema == null) {
+            return false;
+        }
+        if (schema instanceof ObjectSchema || schema instanceof ComposedSchema) {
             return true;
         }
         if (SchemaTypeUtil.OBJECT_TYPE.equalsIgnoreCase(schema.getType()) && !(schema instanceof MapSchema)) {

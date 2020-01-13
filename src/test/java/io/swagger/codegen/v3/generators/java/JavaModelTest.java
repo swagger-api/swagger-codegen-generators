@@ -12,6 +12,8 @@ import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
 import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -58,7 +60,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addRequiredItem("id")
                 .addRequiredItem("name");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.name, "sample");
@@ -171,7 +173,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                         .additionalProperties(new ArraySchema().items(new Schema().$ref("Pet"))))
                 .addRequiredItem("id");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -199,7 +201,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addProperties("list2D", new ArraySchema().items(
                         new ArraySchema().items(new Schema().$ref("Pet"))));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -223,7 +225,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .description("a sample model")
                 .addProperties("children", new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -250,7 +252,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addProperties("children", new ArraySchema()
                         .items(new Schema().$ref("#/components/schemas/Children")));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -279,7 +281,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addProperties("children", new MapSchema()
                         .additionalProperties(new Schema().$ref("#/components/schemas/Children")));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -317,7 +319,7 @@ public class JavaModelTest extends AbstractCodegenTest {
 
 
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -352,7 +354,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .name("arraySchema")
                 .description("an array model");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -371,7 +373,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .name("arraySchema")
                 .description("an array model");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         codegen.setUseOas2(true);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
@@ -390,7 +392,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -408,7 +410,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         codegen.setUseOas2(true);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
@@ -835,7 +837,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addProperties("Long1", new Schema<>().$ref("#/components/schemas/LongProperty"))
                 .addProperties("Long2", new IntegerSchema().format("int64"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("LongProperty", longProperty);
         final CodegenModel cm = codegen.fromModel("test", TestSchema, allDefinitions);
 
@@ -864,7 +866,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                 .addProperties("Integer2", new IntegerSchema().format("int32"));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("IntegerProperty", longProperty);
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 2);
@@ -891,7 +893,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                         .items(new Schema<>().$ref("#/components/schemas/Pet")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -919,7 +921,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                                 .description("Ok response")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.bodyParams.size(), 1);
@@ -946,7 +948,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.responses.size(), 1);
@@ -966,7 +968,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                                 .items(new Schema<>().$ref("#/components/schemas/Pet"))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -995,7 +997,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                                 .description("Ok response")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.bodyParams.size(), 1);
@@ -1023,7 +1025,7 @@ public class JavaModelTest extends AbstractCodegenTest {
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        codegen.preprocessOpenAPI(openAPI);
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.responses.size(), 1);

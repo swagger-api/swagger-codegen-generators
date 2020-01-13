@@ -1,27 +1,19 @@
 package io.swagger.codegen.v3.generators;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.Schema;
-import org.mockito.Mockito;
-import org.testng.annotations.BeforeTest;
-
-import java.util.HashMap;
-import java.util.Map;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 public abstract class AbstractCodegenTest {
 
-    protected OpenAPI openAPI;
-    protected Schema schema;
+    protected OpenAPI getOpenAPI(String filePath) {
+        OpenAPIV3Parser openApiParser = new OpenAPIV3Parser();
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setFlatten(true);
+        SwaggerParseResult parseResult = openApiParser.readLocation(filePath, null, options);
 
-    @BeforeTest
-    public void setUp() {
-        this.openAPI = Mockito.mock(OpenAPI.class);
-        final Components components = Mockito.mock(Components.class);
-        final Map<String, Schema> schemas = Mockito.mock(HashMap.class);
-        this.schema = Mockito.mock(Schema.class);
-
-        Mockito.when(openAPI.getComponents()).thenReturn(components);
-        Mockito.when(components.getSchemas()).thenReturn(schemas);
+        return parseResult.getOpenAPI();
     }
 }

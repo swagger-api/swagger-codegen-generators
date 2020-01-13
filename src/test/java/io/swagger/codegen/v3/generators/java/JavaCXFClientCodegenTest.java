@@ -3,14 +3,8 @@ package io.swagger.codegen.v3.generators.java;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.generators.AbstractCodegenTest;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,20 +16,12 @@ public class JavaCXFClientCodegenTest extends AbstractCodegenTest {
 
     @Test
     public void responseWithoutContent() throws Exception {
-        final Schema listOfPets = new ArraySchema()
-                .items(new Schema<>().$ref("#/components/schemas/Pet"));
-        Operation operation = new Operation().responses(new ApiResponses()
-                .addApiResponse("200", new ApiResponse()
-                        .description("Return a list of pets")
-                        .content(new Content().addMediaType("application/json",
-                                new MediaType().schema(listOfPets))))
-                .addApiResponse("400", new ApiResponse()
-                        .description("Error")));
-        final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
+        final OpenAPI openAPI = getOpenAPI("3_0_0/response_without_content.yaml");
+        final Operation operation = openAPI.getPaths().get("/pets").getGet();
 
         final JavaCXFClientCodegen codegen = new JavaCXFClientCodegen();
         codegen.preprocessOpenAPI(openAPI);
-        final CodegenOperation co = codegen.fromOperation("getAllPets", "GET", operation, allDefinitions);
+        final CodegenOperation co = codegen.fromOperation("getAllPets", "GET", operation, openAPI.getComponents().getSchemas(), openAPI);
 
         Map<String, Object> objs = new HashMap<>();
         objs.put("operations", Collections.singletonMap("operation", Collections.singletonList(co)));
