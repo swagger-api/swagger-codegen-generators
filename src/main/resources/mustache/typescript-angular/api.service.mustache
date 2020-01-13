@@ -320,13 +320,13 @@ export class {{classname}} {
 
 {{/hasFormParams}}
 {{#useHttpClient}}
-        return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}({{httpMethod}},`${this.basePath}{{{path}}}`,
+        return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}('{{httpMethod}}',`${this.basePath}{{{path}}}`,
             {
 {{#bodyParam}}
-                body: {{paramName}}
+                body: {{paramName}},
 {{/bodyParam}}
 {{#hasFormParams}}
-                body: convertFormParamsToString ? formParams.toString() : formParams
+                body: convertFormParamsToString ? formParams.toString() : formParams,
 {{/hasFormParams}}
 {{#hasQueryParams}}
                 params: queryParameters,
@@ -343,7 +343,7 @@ export class {{classname}} {
 {{/useHttpClient}}
 {{^useHttpClient}}
         let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: {{httpMethod}},
+            method: '{{httpMethod}}',
             headers: headers,
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
@@ -357,7 +357,7 @@ export class {{classname}} {
 {{#hasQueryParams}}
             search: queryParameters,
 {{/hasQueryParams}}
-            withCredentials:this.configuration.withCredentials
+            withCredentials: this.configuration.withCredentials
         });
         // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {
