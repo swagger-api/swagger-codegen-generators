@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
+import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -43,7 +44,7 @@ import java.util.Map;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class JavaModelTest {
+public class JavaModelTest extends AbstractCodegenTest {
     private TemporaryFolder folder = new TemporaryFolder();
 
     @Test(description = "convert a simple java model")
@@ -57,6 +58,7 @@ public class JavaModelTest {
                 .addRequiredItem("id")
                 .addRequiredItem("name");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.name, "sample");
@@ -169,6 +171,7 @@ public class JavaModelTest {
                         .additionalProperties(new ArraySchema().items(new Schema().$ref("Pet"))))
                 .addRequiredItem("id");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -196,6 +199,7 @@ public class JavaModelTest {
                 .addProperties("list2D", new ArraySchema().items(
                         new ArraySchema().items(new Schema().$ref("Pet"))));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", model);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -219,6 +223,7 @@ public class JavaModelTest {
                 .description("a sample model")
                 .addProperties("children", new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -245,6 +250,7 @@ public class JavaModelTest {
                 .addProperties("children", new ArraySchema()
                         .items(new Schema().$ref("#/components/schemas/Children")));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -273,6 +279,7 @@ public class JavaModelTest {
                 .addProperties("children", new MapSchema()
                         .additionalProperties(new Schema().$ref("#/components/schemas/Children")));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -310,6 +317,7 @@ public class JavaModelTest {
 
 
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -344,6 +352,7 @@ public class JavaModelTest {
                 .name("arraySchema")
                 .description("an array model");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -354,7 +363,7 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "List", "ArrayList", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert an array model")
     public void arrayModelTestUsingOas2() {
         final Schema schema = new ArraySchema()
@@ -362,6 +371,7 @@ public class JavaModelTest {
                 .name("arraySchema")
                 .description("an array model");
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         codegen.setUseOas2(true);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
@@ -380,6 +390,7 @@ public class JavaModelTest {
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -390,13 +401,14 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "Map", "HashMap", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert an map model")
     public void mapModelTestUsingOas2() {
         final Schema schema = new MapSchema()
                 .description("an map model")
                 .additionalProperties(new Schema().$ref("#/components/schemas/Children"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         codegen.setUseOas2(true);
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
@@ -408,7 +420,7 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("ApiModel", "Map", "HashMap", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert a model with upper-case property names")
     public void upperCaseNamesTest() {
         final Schema schema = new Schema()
@@ -823,6 +835,7 @@ public class JavaModelTest {
                 .addProperties("Long1", new Schema<>().$ref("#/components/schemas/LongProperty"))
                 .addProperties("Long2", new IntegerSchema().format("int64"));
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final Map<String, Schema> allDefinitions = Collections.singletonMap("LongProperty", longProperty);
         final CodegenModel cm = codegen.fromModel("test", TestSchema, allDefinitions);
 
@@ -851,6 +864,7 @@ public class JavaModelTest {
                 .addProperties("Integer2", new IntegerSchema().format("int32"));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("IntegerProperty", longProperty);
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 2);
@@ -877,6 +891,7 @@ public class JavaModelTest {
                         .items(new Schema<>().$ref("#/components/schemas/Pet")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -897,13 +912,14 @@ public class JavaModelTest {
                 .items(new Schema<>().$ref("#/components/schemas/Pet"));
         Operation operation = new Operation()
                 .requestBody(new RequestBody()
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema))))
                 .responses(
                         new ApiResponses().addApiResponse("204", new ApiResponse()
                                 .description("Ok response")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.bodyParams.size(), 1);
@@ -926,10 +942,11 @@ public class JavaModelTest {
         Operation operation = new Operation().responses(
                 new ApiResponses().addApiResponse("200", new ApiResponse()
                         .description("Ok response")
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.responses.size(), 1);
@@ -949,6 +966,7 @@ public class JavaModelTest {
                                 .items(new Schema<>().$ref("#/components/schemas/Pet"))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenModel cm = codegen.fromModel("test", testSchema, allDefinitions);
 
         Assert.assertEquals(cm.vars.size(), 1);
@@ -970,13 +988,14 @@ public class JavaModelTest {
                         .items(new Schema<>().$ref("#/components/schemas/Pet")));
         Operation operation = new Operation()
                 .requestBody(new RequestBody()
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema))))
                 .responses(
                         new ApiResponses().addApiResponse("204", new ApiResponse()
                                 .description("Ok response")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.bodyParams.size(), 1);
@@ -1000,10 +1019,11 @@ public class JavaModelTest {
         Operation operation = new Operation().responses(
                 new ApiResponses().addApiResponse("200", new ApiResponse()
                         .description("Ok response")
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenOperation co = codegen.fromOperation("testSchema", "GET", operation, allDefinitions);
 
         Assert.assertEquals(co.responses.size(), 1);

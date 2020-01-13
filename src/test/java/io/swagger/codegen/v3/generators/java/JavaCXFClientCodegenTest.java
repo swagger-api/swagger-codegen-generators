@@ -2,6 +2,7 @@ package io.swagger.codegen.v3.generators.java;
 
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenResponse;
+import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -17,7 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JavaCXFClientCodegenTest {
+public class JavaCXFClientCodegenTest extends AbstractCodegenTest {
 
     @Test
     public void responseWithoutContent() throws Exception {
@@ -26,13 +27,14 @@ public class JavaCXFClientCodegenTest {
         Operation operation = new Operation().responses(new ApiResponses()
                 .addApiResponse("200", new ApiResponse()
                         .description("Return a list of pets")
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(listOfPets))))
                 .addApiResponse("400", new ApiResponse()
                         .description("Error")));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
 
         final JavaCXFClientCodegen codegen = new JavaCXFClientCodegen();
+        codegen.preprocessOpenAPI(openAPI);
         final CodegenOperation co = codegen.fromOperation("getAllPets", "GET", operation, allDefinitions);
 
         Map<String, Object> objs = new HashMap<>();
