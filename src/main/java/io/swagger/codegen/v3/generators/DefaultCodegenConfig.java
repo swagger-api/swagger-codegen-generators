@@ -1381,7 +1381,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         refSchema = allDefinitions.get(ref);
                     }
                     final String modelName = toModelName(ref);
-                    codegenModel.interfaces.add(modelName);
                     addImport(codegenModel, modelName);
                     if (allDefinitions != null && refSchema != null) {
                         if (!supportsMixins) {
