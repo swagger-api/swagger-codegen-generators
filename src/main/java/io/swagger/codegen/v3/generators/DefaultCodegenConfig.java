@@ -1364,9 +1364,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-                if (codegenModel.interfaces == null) {
-                    codegenModel.interfaces = new ArrayList<String>();
-                }
                 for (int i = 0; i < allOf.size(); i++) {
                     if (i == 0 && !copyFistAllOfProperties) {
                         continue;
