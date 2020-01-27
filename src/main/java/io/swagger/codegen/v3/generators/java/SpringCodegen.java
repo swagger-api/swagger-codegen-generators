@@ -60,6 +60,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
 
+    public static final String THROWS_EXCEPTION = "throwsException";
+
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
     protected String basePackage = "io.swagger";
@@ -78,6 +80,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean openFeign = false;
     protected boolean defaultInterfaces = true;
     protected String springBootVersion = "1.5.22.RELEASE";
+    protected boolean throwsException = false;
 
     public SpringCodegen() {
         super();
@@ -109,6 +112,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 "Use Optional container for optional parameters"));
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
         cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
+        cliOptions.add(CliOption.newBoolean(THROWS_EXCEPTION, "Throws Exception in operation methods").defaultValue("false"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -157,7 +161,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             if (additionalProperties.get(DATE_LIBRARY).toString().startsWith("java8")) {
-                this.setJava8(Boolean.valueOf(additionalProperties.get(JAVA8_MODE).toString()));
+                this.setJava8(true);
             }
         }
         if (this.java8) {
@@ -203,6 +207,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(INTERFACE_ONLY)) {
             this.setInterfaceOnly(Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY).toString()));
+        }
+
+        if (additionalProperties.containsKey(THROWS_EXCEPTION)) {
+            this.setThrowsException(Boolean.valueOf(additionalProperties.get(THROWS_EXCEPTION).toString()));
+            additionalProperties.put(THROWS_EXCEPTION, throwsException);
         }
 
         if (additionalProperties.containsKey(DELEGATE_PATTERN)) {
@@ -264,6 +273,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         typeMapping.put("file", "Resource");
+        typeMapping.put("binary", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
 
         if (useOptional) {
@@ -820,5 +830,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setDefaultInterfaces(boolean defaultInterfaces) {
         this.defaultInterfaces = defaultInterfaces;
+    }
+
+    public void setThrowsException(boolean throwsException) {
+        this.throwsException = throwsException;
     }
 }

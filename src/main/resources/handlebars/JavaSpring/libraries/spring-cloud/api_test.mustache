@@ -29,12 +29,12 @@ private {{classname}} api;
     @Test
     public void {{operationId}}Test() throws Exception {
     {{#parameters}}
-    {{^isFile}}
+    {{^isBinary}}
         {{{dataType}}} {{paramName}} = {{{example}}};
-    {{/isFile}}
-    {{#isFile}}
+    {{/isBinary}}
+    {{#isBinary}}
         org.springframework.web.multipart.MultipartFile {{paramName}} = null;
-    {{/isFile}}
+    {{/isBinary}}
     {{/parameters}}
         api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         // todo: add verifications

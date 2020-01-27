@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
@@ -599,10 +600,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public String toModelName(final String name) {
         // We need to check if import-mapping has a different model for this class, so we use it
         // instead of the auto-generated one.
-        if (importMapping.containsKey(name)) {
+
+        if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
@@ -1182,7 +1183,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 while (iterator.hasNext()) {
                     CodegenProperty codegenProperty = iterator.next();
                     isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
-                    if (isEnum && codegenProperty.equals(parentModelCodegenPropery)) {
+                    // we don't check for the full set of properties as they could be overridden
+                    // e.g. in the child; if we used codegenProperty.equals, the result in this
+                    // case would be `false` resulting on 2 different enums created on parent and
+                    // child classes, used in same method. This means that the child class will use
+                    // the enum defined in the parent, loosing any overridden property
+                    if (isEnum && isSameEnum(codegenProperty, parentModelCodegenPropery)) {
                         // We found an enum in the child class that is
                         // a duplicate of the one in the parent, so remove it.
                         iterator.remove();
@@ -1199,11 +1205,48 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 count += 1;
                 codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, (count < numVars) ? true : false);
             }
+
+            if (!codegenProperties.isEmpty()) {
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_VARS_EXT_NAME, true);
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, false);
+            } else {
+                codegenModel.emptyVars = true;
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_VARS_EXT_NAME, false);
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, false);
+            }
+
+
             codegenModel.vars = codegenProperties;
         }
         return codegenModel;
+
+
     }
 
+    protected static boolean isSameEnum(CodegenProperty actual, CodegenProperty other) {
+        if (actual == null && other == null) {
+            return true;
+        }
+        if ((actual.name == null) ? (other.name != null) : !actual.name.equals(other.name)) {
+            return false;
+        }
+        if ((actual.baseName == null) ? (other.baseName != null) : !actual.baseName.equals(other.baseName)) {
+            return false;
+        }
+        if ((actual.datatype == null) ? (other.datatype != null) : !actual.datatype.equals(other.datatype)) {
+            return false;
+        }
+        if ((actual.datatypeWithEnum == null) ? (other.datatypeWithEnum != null) : !actual.datatypeWithEnum.equals(other.datatypeWithEnum)) {
+            return false;
+        }
+        if ((actual.baseType == null) ? (other.baseType != null) : !actual.baseType.equals(other.baseType)) {
+            return false;
+        }
+        if (!Objects.equals(actual.enumName, other.enumName)) {
+            return false;
+        }
+        return true;
+    }
     private static String sanitizePackageName(String packageName) {
         packageName = packageName.trim(); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
         packageName = packageName.replaceAll("[^a-zA-Z0-9_\\.]", "_");
@@ -1405,5 +1448,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         super.setLanguageArguments(languageArguments);
+    }
+
+    @Override
+    public boolean defaultIgnoreImportMappingOption() {
+        return true;
     }
 }

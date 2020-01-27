@@ -6,7 +6,6 @@ import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,7 +14,7 @@ import java.util.List;
 
 public class SchemaHandler {
 
-    private DefaultCodegenConfig codegenConfig;
+    protected DefaultCodegenConfig codegenConfig;
 
     public SchemaHandler(DefaultCodegenConfig codegenConfig) {
         this.codegenConfig = codegenConfig;
