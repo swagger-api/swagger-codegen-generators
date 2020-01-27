@@ -21,6 +21,7 @@ public class HtmlSchemaHandler extends SchemaHandler {
     }
 
 
+    @Override
     public void createCodegenModel(ComposedSchema composedProperty, CodegenProperty codegenProperty) {
         final List<Schema> oneOf = composedProperty.getOneOf();
         final List<Schema> anyOf = composedProperty.getAnyOf();
@@ -40,6 +41,7 @@ public class HtmlSchemaHandler extends SchemaHandler {
 
     }
 
+    @Override
     public void configureComposedModelFromSchemaItems(CodegenModel codegenModel, ComposedSchema items) {
         List<Schema> oneOfList = items.getOneOf();
         if (oneOfList != null && !oneOfList.isEmpty()){
@@ -80,23 +82,28 @@ public class HtmlSchemaHandler extends SchemaHandler {
         }
     }
 
+    @Override
     public void configureOneOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
         // no ops for html generator
     }
 
+    @Override
     public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> anyOf) {
         // no ops for html generator
     }
 
+    @Override
     public void configureOneOfModelFromProperty(CodegenProperty codegenProperty, CodegenModel codegenModel) {
         // no ops for html generator
     }
 
+    @Override
     public void configureAnyOfModelFromProperty(CodegenProperty codegenProperty, CodegenModel codegenModel) {
         // no ops for html generator
     }
 
-    private CodegenModel createFromOneOfSchemas(List<Schema> schemas) {
+    @Override
+    protected CodegenModel createFromOneOfSchemas(List<Schema> schemas) {
         final CodegenModel codegenModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
         final List<String> modelNames = new ArrayList<>();
 
@@ -110,13 +117,14 @@ public class HtmlSchemaHandler extends SchemaHandler {
         return codegenModel;
     }
 
-    private CodegenModel createComposedModel(String name) {
+    protected CodegenModel createComposedModel(String name) {
         final CodegenModel composedModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
         this.configureModel(composedModel, name);
         return composedModel;
     }
 
-    private void configureModel(CodegenModel codegenModel, String name) {
+    @Override
+    protected void configureModel(CodegenModel codegenModel, String name) {
         codegenModel.name = name;
         codegenModel.classname = codegenConfig.toModelName(name);
         codegenModel.classVarName = codegenConfig.toVarName(name);
@@ -124,7 +132,8 @@ public class HtmlSchemaHandler extends SchemaHandler {
         codegenModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
     }
 
-    private boolean hasNonObjectSchema(List<Schema> schemas) {
+    @Override
+    protected boolean hasNonObjectSchema(List<Schema> schemas) {
         for  (Schema schema : schemas) {
             if (!codegenConfig.isObjectSchema(schema)) {
                 return true;

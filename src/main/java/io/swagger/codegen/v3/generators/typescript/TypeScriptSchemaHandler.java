@@ -17,11 +17,13 @@ public class TypeScriptSchemaHandler extends SchemaHandler {
         this.codegenConfig = (AbstractTypeScriptClientCodegen) codegenConfig;
     }
 
+    @Override
     public void configureOneOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, Boolean.TRUE);
         this.codegenConfig.addImport(codegenModel, codegenModel.dataType);
     }
 
+    @Override
     public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> anyOf) {
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, Boolean.TRUE);
         this.codegenConfig.addImport(codegenModel, codegenModel.dataType);
