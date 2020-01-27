@@ -171,6 +171,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String ignoreFilePathOverride;
     protected boolean useOas2 = false;
     protected boolean copyFistAllOfProperties = false;
+    protected boolean ignoreImportMapping;
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -179,6 +180,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
             this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
+        }
+
+        if (additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION) != null) {
+            setIgnoreImportMapping(Boolean.parseBoolean( additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION).toString()));
+        } else {
+            setIgnoreImportMapping(defaultIgnoreImportMappingOption());
         }
 
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_VERSION)) {
@@ -1077,7 +1084,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else if (schema instanceof BinarySchema) {
             return SchemaTypeUtil.BINARY_FORMAT;
         } else if (schema instanceof FileSchema) {
-            return "file"; // FIXME: this type does not exist in the OpenAPI 3.0 specification
+            return SchemaTypeUtil.BINARY_FORMAT;
         } else if (schema instanceof BooleanSchema) {
             return SchemaTypeUtil.BOOLEAN_TYPE;
         } else if (schema instanceof DateSchema) {
@@ -1357,9 +1364,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-                if (codegenModel.interfaces == null) {
-                    codegenModel.interfaces = new ArrayList<String>();
-                }
                 for (int i = 0; i < allOf.size(); i++) {
                     if (i == 0 && !copyFistAllOfProperties) {
                         continue;
@@ -1374,7 +1378,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         refSchema = allDefinitions.get(ref);
                     }
                     final String modelName = toModelName(ref);
-                    codegenModel.interfaces.add(modelName);
                     addImport(codegenModel, modelName);
                     if (allDefinitions != null && refSchema != null) {
                         if (!supportsMixins) {
@@ -1717,6 +1720,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             CodegenProperty cp = fromProperty("inner", new ObjectSchema());
             updatePropertyForMap(codegenProperty, cp);
         } else {
+            if (isObjectSchema(propertySchema)) {
+                codegenProperty.getVendorExtensions().put("x-is-object", Boolean.TRUE);
+            }
             setNonArrayMapProperty(codegenProperty, type);
         }
         return codegenProperty;
@@ -3147,6 +3153,29 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenModel.readWriteVars.add(codegenProperty);
             }
         }
+        // check if one of the property is a object and has import mapping.
+        List<CodegenProperty> modelProperties = vars.stream()
+                .filter(codegenProperty -> getBooleanValue(codegenProperty, "x-is-object") && importMapping.containsKey(codegenProperty.baseType))
+                .collect(Collectors.toList());
+        if (modelProperties == null || modelProperties.isEmpty()) {
+            return;
+        }
+
+        for (CodegenProperty modelProperty : modelProperties) {
+            List<CodegenProperty> codegenProperties = vars.stream()
+                    .filter(codegenProperty -> !getBooleanValue(codegenProperty, "x-is-object")
+                            && importMapping.containsKey(codegenProperty.baseType)
+                            && codegenProperty.baseType.equals(modelProperty.baseType))
+                    .collect(Collectors.toList());
+            if (codegenProperties == null || codegenProperties.isEmpty()) {
+                continue;
+            }
+            for (CodegenProperty codegenProperty : codegenProperties) {
+                codegenModel.imports.remove(codegenProperty.baseType);
+                codegenProperty.datatype = importMapping.get(codegenProperty.baseType);
+                codegenProperty.datatypeWithEnum = codegenProperty.datatype;
+            }
+        }
     }
 
     /**
@@ -4146,7 +4175,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     public boolean isObjectSchema (Schema schema) {
-        if (schema instanceof ObjectSchema ||schema instanceof ComposedSchema) {
+        if (schema == null) {
+            return false;
+        }
+        if (schema instanceof ObjectSchema || schema instanceof ComposedSchema) {
             return true;
         }
         if (SchemaTypeUtil.OBJECT_TYPE.equalsIgnoreCase(schema.getType()) && !(schema instanceof MapSchema)) {
@@ -4239,5 +4271,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     @Override
     public void setUnflattenedOpenAPI(OpenAPI unflattenedOpenAPI) {
         this.unflattenedOpenAPI = unflattenedOpenAPI;
+    }
+
+    public boolean getIgnoreImportMapping() {
+        return ignoreImportMapping;
+    }
+
+    public void setIgnoreImportMapping(boolean ignoreImportMapping) {
+        this.ignoreImportMapping = ignoreImportMapping;
+    }
+
+    public boolean defaultIgnoreImportMappingOption() {
+        return false;
     }
 }

@@ -113,7 +113,7 @@ public class {{classname}}Test {
     @Test
     public void {{operationId}}Test() {
         {{#parameters}}
-        {{^isFile}}{{{dataType}}} {{paramName}} = null;{{/isFile}}{{#isFile}}org.apache.cxf.jaxrs.ext.multipart.Attachment {{paramName}} = null;{{/isFile}}
+        {{^isBinary}}{{{dataType}}} {{paramName}} = null;{{/isBinary}}{{#isBinary}}org.apache.cxf.jaxrs.ext.multipart.Attachment {{paramName}} = null;{{/isBinary}}
         {{/parameters}}
         //{{^vendorExtensions.x-java-is-response-void}}{{>returnTypes}} response = {{/vendorExtensions.x-java-is-response-void}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
         {{^vendorExtensions.x-java-is-response-void}}//assertNotNull(response);{{/vendorExtensions.x-java-is-response-void}}
