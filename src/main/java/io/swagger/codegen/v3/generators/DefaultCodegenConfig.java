@@ -1364,9 +1364,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-                if (codegenModel.interfaces == null) {
-                    codegenModel.interfaces = new ArrayList<String>();
-                }
                 for (int i = 0; i < allOf.size(); i++) {
                     if (i == 0 && !copyFistAllOfProperties) {
                         continue;
@@ -1381,7 +1378,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         refSchema = allDefinitions.get(ref);
                     }
                     final String modelName = toModelName(ref);
-                    codegenModel.interfaces.add(modelName);
                     addImport(codegenModel, modelName);
                     if (allDefinitions != null && refSchema != null) {
                         if (!supportsMixins) {
