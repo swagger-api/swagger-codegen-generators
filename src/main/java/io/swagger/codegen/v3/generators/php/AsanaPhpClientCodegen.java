@@ -1,4 +1,4 @@
-package io.swagger.codegen.v3.generators.python;
+package io.swagger.codegen.v3.generators.php;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
@@ -21,7 +21,6 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
 
-import java.io.File;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,11 @@ import static java.util.Collections.sort;
 
 import java.io.IOException;
 
-public class AsanaPythonClientCodegen extends PythonClientCodegen {
+public class AsanaPhpClientCodegen extends PhpClientCodegen {
+    public AsanaPhpClientCodegen() {
+        super();
+        apiPackage = invokerPackage + "\\" + "Gen";
+    }
     @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
@@ -134,9 +137,9 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation operation : operationList) {
-            if (operation.returnType.startsWith("list")) {
-                operation.returnType = operation.returnType.substring(5, operation.returnType.indexOf("]"));
-                operation.returnContainer = "get_collection";
+            if (operation.returnType.endsWith("[]")) {
+                operation.returnType = operation.returnType.substring(0, operation.returnType.length() - 2);
+                operation.returnContainer = "getCollection";
             } else {
                 operation.returnContainer = "get";
             }
@@ -196,7 +199,7 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
 
     @Override
     public String getName() {
-        return "asana-python";
+        return "asana-php";
     }
 
     @Override
@@ -204,21 +207,25 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
         if (name.length() == 0) {
             return "DefaultApi";
         }
-        // e.g. phone_number_api => PhoneNumberApi
+
         return camelize(name);
     }
 
     @Override
     public String toApiFilename(String name) {
-        // replace - with _ e.g. created-at => created_at
-        name = name.replaceAll("-", "_");
+        return camelize(name) + "Base";
+    }
 
-        // e.g. PhoneNumberApi.py => phone_number_api.py
-        return underscore(name);
+    public String apiTestFilename(String templateName, String tag) {
+        return "test/" + toApiFilename(templateName);
+    }
+
+    public String apiDocFilename(String templateName, String tag) {
+        return "docs/" + toApiFilename(templateName);
     }
 
     @Override
-    public String apiPackage() {
-        return "asana.resources.gen";
+    public String getPackagePath() {
+        return "src/Asana";
     }
 }

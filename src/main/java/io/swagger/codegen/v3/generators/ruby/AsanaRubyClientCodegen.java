@@ -1,9 +1,11 @@
-package io.swagger.codegen.v3.generators.python;
+package io.swagger.codegen.v3.generators.ruby;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.generators.python.PythonClientCodegen;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
 import io.swagger.codegen.v3.CodegenConstants;
@@ -22,19 +24,88 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
+import java.util.*;
 
+import static io.swagger.codegen.languages.RubyClientCodegen.*;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.reverse;
 import static java.util.Collections.sort;
 
 import java.io.IOException;
 
-public class AsanaPythonClientCodegen extends PythonClientCodegen {
+public class AsanaRubyClientCodegen extends PythonClientCodegen {
+    public AsanaRubyClientCodegen() {
+        super();
+
+        modelPackage = "models";
+        apiPackage = "api";
+        outputFolder = "generated-code" + File.separator + "ruby";
+        modelTemplateFiles.put("model.mustache", ".rb");
+        apiTemplateFiles.put("api.mustache", ".rb");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+        embeddedTemplateDir = templateDir = "ruby-client";
+
+        // default HIDE_GENERATION_TIMESTAMP to true
+        hideGenerationTimestamp = Boolean.TRUE;
+
+        // local variable names used in API methods (endpoints)
+        for (String word : Arrays.asList(
+            "local_var_path", "query_params", "header_params", "_header_accept", "_header_accept_result",
+            "_header_content_type", "form_params", "post_body", "auth_names", "send")) {
+            reservedWords.add(word.toLowerCase(Locale.ROOT));
+        }
+
+        languageSpecificPrimitives.add("int");
+        languageSpecificPrimitives.add("array");
+        languageSpecificPrimitives.add("map");
+        languageSpecificPrimitives.add("string");
+
+        // remove modelPackage and apiPackage added by default
+        cliOptions.removeIf(opt -> CodegenConstants.MODEL_PACKAGE.equals(opt.getOpt()) ||
+            CodegenConstants.API_PACKAGE.equals(opt.getOpt()));
+
+        cliOptions.add(new CliOption(GEM_NAME, GEM_NAME).
+            defaultValue("swagger_client"));
+
+        cliOptions.add(new CliOption(MODULE_NAME, MODULE_NAME).
+            defaultValue("SwaggerClient"));
+
+        cliOptions.add(new CliOption(GEM_VERSION, "gem version.").defaultValue("1.0.0"));
+
+        cliOptions.add(new CliOption(GEM_LICENSE, "gem license. ").
+            defaultValue("unlicense"));
+
+        cliOptions.add(new CliOption(GEM_REQUIRED_RUBY_VERSION, "gem required Ruby version. ").
+            defaultValue(">= 1.9"));
+
+        cliOptions.add(new CliOption(GEM_HOMEPAGE, "gem homepage. ").
+            defaultValue("http://org.openapitools"));
+
+        cliOptions.add(new CliOption(GEM_SUMMARY, "gem summary. ").
+            defaultValue("A ruby wrapper for the REST APIs"));
+
+        cliOptions.add(new CliOption(GEM_DESCRIPTION, "gem description. ").
+            defaultValue("This gem maps to a REST API"));
+
+        cliOptions.add(new CliOption(GEM_AUTHOR, "gem author (only one is supported)."));
+
+        cliOptions.add(new CliOption(GEM_AUTHOR_EMAIL, "gem author email (only one is supported)."));
+
+        cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC).
+            defaultValue(Boolean.TRUE.toString()));
+
+        supportedLibraries.put("faraday", "Faraday (https://github.com/lostisland/faraday) (Beta support)");
+        supportedLibraries.put("typhoeus", "Typhoeus >= 1.0.1 (https://github.com/typhoeus/typhoeus)");
+
+        CliOption libraryOption = new CliOption(CodegenConstants.LIBRARY, "HTTP library template (sub-template) to use");
+        libraryOption.setEnum(supportedLibraries);
+        // set TYPHOEUS as the default
+        libraryOption.setDefault("typhoeus");
+        cliOptions.add(libraryOption);
+        setLibrary("typhoeus");
+    }
+
     @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
@@ -196,7 +267,7 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
 
     @Override
     public String getName() {
-        return "asana-python";
+        return "asana-ruby";
     }
 
     @Override
@@ -215,6 +286,11 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
 
         // e.g. PhoneNumberApi.py => phone_number_api.py
         return underscore(name);
+    }
+
+    @Override
+    public String apiFileFolder() {
+        return "lib" + File.separatorChar + apiPackage().replace('.', File.separatorChar);
     }
 
     @Override

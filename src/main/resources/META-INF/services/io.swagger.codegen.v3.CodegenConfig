@@ -35,3 +35,5 @@ io.swagger.codegen.v3.generators.javascript.JavaScriptClientCodegen
 io.swagger.codegen.v3.generators.java.AsanaJavaClientCodegen
 io.swagger.codegen.v3.generators.python.AsanaPythonClientCodegen
 io.swagger.codegen.v3.generators.javascript.AsanaTypeScriptAngularClientCodegen
+io.swagger.codegen.v3.generators.php.AsanaPhpClientCodegen
+io.swagger.codegen.v3.generators.ruby.AsanaRubyClientCodegen
