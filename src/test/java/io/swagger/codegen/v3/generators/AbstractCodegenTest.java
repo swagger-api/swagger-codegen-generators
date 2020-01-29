@@ -54,7 +54,7 @@ public abstract class AbstractCodegenTest {
         codegenConfig.preprocessOpenAPI(openAPI);
         final Map<String, Schema> schemaMap = openAPI.getComponents().getSchemas();
 
-        final CodegenWrapper codegenWrapper = new CodegenWrapper(codegenConfig.getSchemaHandler());
+        final CodegenWrapper codegenWrapper = new CodegenWrapper(((DefaultCodegenConfig)codegenConfig).getSchemaHandler());
         for (String name : schemaMap.keySet()) {
             final Schema schema = schemaMap.get(name);
             final CodegenModel codegenModel = codegenConfig.fromModel(name, schema, schemaMap);
