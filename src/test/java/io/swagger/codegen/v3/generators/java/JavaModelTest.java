@@ -1044,7 +1044,7 @@ public class JavaModelTest extends AbstractCodegenTest {
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("java")
-                .setInputSpecURL("src/test/resources/3_0_0/petstore.json")
+                .setInputSpecURL("src/test/resources/3_0_0/petstore.yaml")
                 .setOutputDir(output.getAbsolutePath());
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
