@@ -5,6 +5,11 @@ import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.SchemaHandler;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Schema;
+
+import java.util.Map;
 
 public class HtmlSchemaHandler extends SchemaHandler {
 
@@ -12,9 +17,8 @@ public class HtmlSchemaHandler extends SchemaHandler {
         super(codegenConfig);
     }
 
-    protected CodegenModel createComposedModel(String name) {
-        final CodegenModel composedModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        this.configureModel(composedModel, name);
-        return composedModel;
+    @Override
+    public void processComposedSchemas(CodegenModel codegenModel, Schema schema, Map<String, CodegenModel> allModels) {
+        // no ops for html generator
     }
 }
