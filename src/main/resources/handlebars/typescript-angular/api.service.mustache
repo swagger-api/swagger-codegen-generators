@@ -277,11 +277,11 @@ export class {{classname}} {
         let useForm = false;
         let convertFormParamsToString = false;
 {{#formParams}}
-{{#isFile}}
+{{#isBinary}}
         // use FormData to transmit files using content-type "multipart/form-data"
         // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
         useForm = canConsumeForm;
-{{/isFile}}
+{{/isBinary}}
 {{/formParams}}
         if (useForm) {
             formParams = new FormData();
@@ -320,9 +320,14 @@ export class {{classname}} {
 
 {{/hasFormParams}}
 {{#useHttpClient}}
-        return this.httpClient.{{httpMethod}}{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}(`${this.basePath}{{{path}}}`,{{#hasBodyParam}}
-            {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}{{#hasFormParams}}convertFormParamsToString ? formParams.toString() : formParams{{/hasFormParams}}{{^hasFormParams}}null{{/hasFormParams}}{{/bodyParam}},{{/hasBodyParam}}
+        return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}('{{httpMethod}}',`${this.basePath}{{{path}}}`,
             {
+{{#bodyParam}}
+                body: {{paramName}},
+{{/bodyParam}}
+{{#hasFormParams}}
+                body: convertFormParamsToString ? formParams.toString() : formParams,
+{{/hasFormParams}}
 {{#hasQueryParams}}
                 params: queryParameters,
 {{/hasQueryParams}}
@@ -338,7 +343,7 @@ export class {{classname}} {
 {{/useHttpClient}}
 {{^useHttpClient}}
         let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: {{httpMethod}},
+            method: '{{httpMethod}}',
             headers: headers,
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
@@ -352,7 +357,7 @@ export class {{classname}} {
 {{#hasQueryParams}}
             search: queryParameters,
 {{/hasQueryParams}}
-            withCredentials:this.configuration.withCredentials
+            withCredentials: this.configuration.withCredentials
         });
         // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {
