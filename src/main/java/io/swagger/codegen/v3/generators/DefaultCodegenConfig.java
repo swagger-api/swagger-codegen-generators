@@ -2339,6 +2339,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             LOGGER.info("working on Parameter " + parameter.getName());
         }
 
+        // move the defaultValue for headers, forms and params
+        if (parameter instanceof QueryParameter) {
+            QueryParameter qp = (QueryParameter) parameter;
+            if (qp.getSchema() != null) {
+                if (qp.getSchema().getDefault() != null) {
+                    codegenParameter.defaultValue = qp.getSchema().getDefault().toString();
+                }
+            }
+        } else if (parameter instanceof HeaderParameter) {
+            HeaderParameter hp = (HeaderParameter) parameter;
+            if (hp.getSchema() != null) {
+                if (hp.getSchema().getDefault() != null) {
+                    codegenParameter.defaultValue = hp.getSchema().getDefault().toString();
+                }
+            }
+        }
+
         if (parameter.getExtensions() != null && !parameter.getExtensions().isEmpty()) {
             codegenParameter.vendorExtensions.putAll(parameter.getExtensions());
         }
