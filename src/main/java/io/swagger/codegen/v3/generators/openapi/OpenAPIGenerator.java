@@ -1,7 +1,6 @@
 package io.swagger.codegen.v3.generators.openapi;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
@@ -20,10 +19,13 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIGenerator.class);
 
     public static final String OUTPUT_NAME = "outputFile";
+    public static final String FLATTEN_SPEC = "flattenSpec";
 
     public static final String OPENAPI_FILENAME_DEFAULT_JSON = "openapi.json";
 
-    protected String outputFile = OPENAPI_FILENAME_DEFAULT_JSON;
+    private String outputFile = OPENAPI_FILENAME_DEFAULT_JSON;
+
+    protected boolean flattenSpec = true;
 
     public OpenAPIGenerator() {
         super();
@@ -31,8 +33,18 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
 
         cliOptions.add(new CliOption(OUTPUT_NAME,
                 "output filename")
-                .defaultValue(OPENAPI_FILENAME_DEFAULT_JSON));
+                .defaultValue(getOutputFile()));
+
+        cliOptions.add(new CliOption(FLATTEN_SPEC,
+            "flatten the spec by moving all inline complex schema to components, and add a ref in element",
+            "boolean")
+            .defaultValue(Boolean.TRUE.toString()));
+
         supportingFiles.add(new SupportingFile("README.md", "", "README.md"));
+    }
+
+    protected String getOutputFile() {
+        return outputFile;
     }
 
     @Override
@@ -53,7 +65,12 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
-        String outputString = Json.pretty(openAPI);
+        final String outputString;
+        if (flattenSpec) {
+            outputString = Json.pretty(openAPI);
+        } else {
+            outputString = Json.pretty(this.unflattenedOpenAPI);
+        }
 
         try {
             String outputFile = outputFolder + File.separator + this.outputFile;
@@ -72,6 +89,16 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(OUTPUT_NAME) && !StringUtils.isBlank((String) additionalProperties.get(OUTPUT_NAME))) {
             setOutputFile((String) additionalProperties.get(OUTPUT_NAME));
+        }
+
+        if (additionalProperties
+            .containsKey(FLATTEN_SPEC) &&
+            (
+                !(additionalProperties.get(FLATTEN_SPEC) instanceof String) ||
+                    !StringUtils.isBlank((String) additionalProperties.get(FLATTEN_SPEC))
+            )
+        ) {
+            this.flattenSpec = Boolean.valueOf(additionalProperties.get(FLATTEN_SPEC).toString());
         }
     }
 
@@ -104,5 +131,10 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     @Override
     protected void setTemplateEngine() {
         templateEngine = new HandlebarTemplateEngine(this);
+    }
+
+    @Override
+    public boolean needsUnflattenedSpec() {
+        return true;
     }
 }

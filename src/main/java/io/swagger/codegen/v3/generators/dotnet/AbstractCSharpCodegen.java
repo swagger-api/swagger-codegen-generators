@@ -108,7 +108,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter",
+                        "Client", "client", "parameter", "File",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
@@ -435,7 +435,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // This is different in C# than most other generators, because enums in C# are compiled to integral types,
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
-                        var.allowableValues = refModel.allowableValues;
+                        var.allowableValues = new HashMap<>(refModel.allowableValues);
                         updateCodegenPropertyEnum(var);
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
@@ -901,6 +901,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
     public void setInterfacePrefix(final String interfacePrefix) {
         this.interfacePrefix = interfacePrefix;
+    }
+
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (typeMapping.containsKey(name.toLowerCase()) && isReservedWord(name.toLowerCase())) {
+            typeMapping.remove(name.toLowerCase());
+        }
+        return codegenModel;
     }
 
     @Override
