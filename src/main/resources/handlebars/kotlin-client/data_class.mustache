@@ -4,6 +4,7 @@
     * @param {{name}} {{{description}}}
 {{/vars}}
 */
+@JsonClass(generateAdapter = true)
 data class {{classname}} (
 {{#allVars}}
 {{>data_class_val}}{{^@last}},
@@ -19,7 +20,7 @@ data class {{classname}} (
 */
 enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
 {{#allowableValues}}{{#enumVars}}
-    @SerializedName({{{value}}})
+    @Json(name = {{{value}}})
     {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }

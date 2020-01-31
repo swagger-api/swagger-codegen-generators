@@ -5,7 +5,8 @@ package {{modelPackage}}
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.LocalDate
 {{/threetenbp}}
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 {{#models}}
 {{#model}}
