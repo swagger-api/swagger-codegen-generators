@@ -2,6 +2,8 @@
 
 package {{invokerPackage}};
 
+import {{invokerPackage}}.auth.*;
+
 import com.squareup.okhttp.*;
 import com.squareup.okhttp.internal.http.HttpMethod;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
@@ -79,7 +81,6 @@ public class ApiClient {
      */
     public ApiClient() {
         httpClient = new OkHttpClient();
-
         {{#useGzipFeature}}
         // Enable gzip request compression
         httpClient.interceptors().add(new GzipRequestInterceptor());
@@ -98,9 +99,20 @@ public class ApiClient {
         authentications.put("{{name}}", new ApiKeyAuth({{#is this 'key-in-header'}}"header"{{/is}}{{#isNot this 'key-in-header'}}"query"{{/isNot}}, "{{keyParamName}}"));{{/is}}{{#is this 'oauth'}}
         authentications.put("{{name}}", new OAuth());{{/is}}{{#is this 'bearer'}}
         authentications.put("{{name}}", new OAuth());{{/is}}{{/authMethods}}
-        // Prevent the authentications from being modified.
-        authentications = Collections.unmodifiableMap(authentications);
     }
+
+    {{#authMethods}}{{#is this 'oauth'}}
+    /*
+    * Constructor for ApiClient
+    */
+    public ApiClient(final String clientId, final String clientSecret, final Map<String, String> parameters) {
+        this();
+
+        RetryingOAuth retryingOAuth = new RetryingOAuth("{{tokenUrl}}", clientId, OAuthFlow.{{flow}}, clientSecret, parameters);
+        httpClient.interceptors().add(retryingOAuth);
+        authentications.put("{{name}}", retryingOAuth);
+    }
+    {{/is}}{{/authMethods}}
 
     /**
      * Get base path
@@ -273,7 +285,7 @@ public class ApiClient {
      * @return Map of authentication objects
      */
     public Map<String, Authentication> getAuthentications() {
-        return authentications;
+        return Collections.unmodifiableMap(authentications);
     }
 
     /**
