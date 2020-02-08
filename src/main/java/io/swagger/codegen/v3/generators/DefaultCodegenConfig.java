@@ -2854,7 +2854,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    private static List<CodegenParameter> addHasMore(List<CodegenParameter> objs) {
+    protected static List<CodegenParameter> addHasMore(List<CodegenParameter> objs) {
         if (objs != null) {
             for (int i = 0; i < objs.size(); i++) {
                 objs.get(i).secondaryParam = i > 0;
@@ -3291,7 +3291,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public String apiFilename(String templateName, String tag) {
         String suffix = apiTemplateFiles().get(templateName);
-        return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
+        return apiFileFolder() + File.separator + toApiFilename(tag) + suffix;
     }
 
     /**
@@ -4181,6 +4181,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             addParemeters(content, codegenOperation.headerParams);
             addParemeters(content, codegenOperation.queryParams);
             addParemeters(content, codegenOperation.pathParams);
+            addParemeters(content, codegenOperation.cookieParams);
         }
         for (CodegenContent content : codegenContents) {
             Collections.sort(content.getParameters(), (CodegenParameter one, CodegenParameter another) -> {
@@ -4199,7 +4200,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.getContents().addAll(codegenContents);
     }
 
-    private void addParemeters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
+    protected void addParemeters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
         if (codegenParameters == null || codegenParameters.isEmpty()) {
             return;
         }
