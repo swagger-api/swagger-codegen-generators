@@ -42,27 +42,47 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
         handlebars.registerHelper("eq", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return options.hash("yes", true);
+                    }
+                    index++;
                 }
-                return result
-                    ? options.hash("yes", true)
-                    : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
             }
         });
         handlebars.registerHelper("neq", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = !new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.inverse();
+                        }
+                        return options.hash("no", false);
+                    }
+                    index++;
                 }
-                return result
-                    ? options.hash("yes", true)
-                    : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.fn();
+                }
+                return options.hash("yes", true);
             }
         });
         handlebars.registerHelper("toLowerCase", new Helper<Object>() {
@@ -134,6 +154,7 @@ public class AsanaPythonClientCodegen extends PythonClientCodegen {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation operation : operationList) {
+            System.out.println(operation.returnType);
             if (operation.returnType.startsWith("list")) {
                 operation.returnType = operation.returnType.substring(5, operation.returnType.indexOf("]"));
                 operation.returnContainer = "get_collection";

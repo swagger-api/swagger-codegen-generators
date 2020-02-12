@@ -4,16 +4,10 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
-import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.python.PythonClientCodegen;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Operation;
@@ -113,33 +107,101 @@ public class AsanaRubyClientCodegen extends PythonClientCodegen {
         handlebars.registerHelper("eq", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return options.hash("yes", true);
+                    }
+                    index++;
                 }
-                return result
-                    ? options.hash("yes", true)
-                    : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
             }
         });
         handlebars.registerHelper("neq", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = !new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.inverse();
+                        }
+                        return options.hash("no", false);
+                    }
+                    index++;
                 }
-                return result
-                    ? options.hash("yes", true)
-                    : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.fn();
+                }
+                return options.hash("yes", true);
             }
         });
         handlebars.registerHelper("toLowerCase", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
                 return ((String)a).toLowerCase();
+            }
+        });
+        handlebars.registerHelper("moreThanCommon", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                CodegenContent params = (CodegenContent) a;
+
+                List<String> commonParams = Arrays.asList("opt_pretty", "opt_fields", "limit", "offset");
+                for (CodegenParameter param : params.getParameters()) {
+                    if (param.getBooleanValue("x-is-query-param") && commonParams.indexOf(param.paramName) < 0) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return options.hash("yes", true);
+                    }
+                }
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
+            }
+        });
+        handlebars.registerHelper("firstClassResponseObject", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                String responseType = (String) a;
+
+                List<String> firstClassModel = Arrays.asList("Attachment", "CustomFieldSetting", "CustomField", "Job", "OrganizationExport", "Portfolio", "PortfolioMembership", "Project", "ProjectMembership", "ProjectStatus", "Section", "Story", "Tag", "Task", "Team", "User", "UserTaskList", "Webhook", "Workspace");
+
+                int index = firstClassModel.indexOf(responseType.replace("Response", ""));
+                if (index >= 0) {
+                    if (options.tagType == TagType.SECTION) {
+                        return options.fn();
+                    }
+                    return firstClassModel.get(index);
+                } else {
+                    index = firstClassModel.indexOf(responseType.replace("Compact", ""));
+                    if (index >= 0) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return firstClassModel.get(index);
+                    }
+                }
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
             }
         });
     }
@@ -207,9 +269,9 @@ public class AsanaRubyClientCodegen extends PythonClientCodegen {
         for (CodegenOperation operation : operationList) {
             if (operation.returnType.startsWith("list")) {
                 operation.returnType = operation.returnType.substring(5, operation.returnType.indexOf("]"));
-                operation.returnContainer = "get_collection";
+                operation.returnContainer = "Collection";
             } else {
-                operation.returnContainer = "get";
+                operation.returnContainer = "";
             }
 
             // sorting operation parameters to make sure path params are parsed before query params
@@ -285,7 +347,7 @@ public class AsanaRubyClientCodegen extends PythonClientCodegen {
         name = name.replaceAll("-", "_");
 
         // e.g. PhoneNumberApi.py => phone_number_api.py
-        return underscore(name);
+        return underscore(name) + "_base";
     }
 
     @Override

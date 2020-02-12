@@ -4,16 +4,9 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
+import io.swagger.codegen.v3.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
@@ -60,27 +53,49 @@ public class AsanaJavaClientCodegen extends JavaClientCodegen {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(new JavaHelper());
         handlebars.registerHelper("eq", new Helper<Object>() {
-            @Override public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return options.hash("yes", true);
+                    }
+                    index++;
                 }
-                return result
-                        ? options.hash("yes", true)
-                        : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
             }
         });
         handlebars.registerHelper("neq", new Helper<Object>() {
-            @Override public Object apply(final Object a, final Options options) throws IOException {
-                Object b = options.param(0, null);
-                boolean result = !new EqualsBuilder().append(a, b).isEquals();
-                if (options.tagType == TagType.SECTION) {
-                    return result ? options.fn() : options.inverse();
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                Object b = null;
+                int index = 0;
+                while (index < options.params.length) {
+                    b = options.param(index, null);
+                    boolean result = new EqualsBuilder().append(a, b).isEquals();
+                    if (result) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.inverse();
+                        }
+                        return options.hash("no", false);
+                    }
+                    index++;
                 }
-                return result
-                        ? options.hash("yes", true)
-                        : options.hash("no", false);
+
+                if (options.tagType == TagType.SECTION) {
+                    return options.fn();
+                }
+                return options.hash("yes", true);
             }
         });
         handlebars.registerHelper("isRequestModel", new Helper<Object>() {
@@ -92,6 +107,93 @@ public class AsanaJavaClientCodegen extends JavaClientCodegen {
                 return result
                         ? options.hash("yes", true)
                         : options.hash("no", false);
+            }
+        });
+        handlebars.registerHelper("moreThanCommon", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                CodegenContent params = (CodegenContent) a;
+
+                List<String> commonParams = Arrays.asList("opt_pretty", "opt_fields", "limit", "offset");
+                for (CodegenParameter param : params.getParameters()) {
+                    if (param.getBooleanValue("x-is-query-param") && commonParams.indexOf(param.paramName) < 0) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return options.hash("yes", true);
+                    }
+                }
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
+            }
+        });
+        handlebars.registerHelper("firstClassResponseObject", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                String responseType = (String) a;
+
+                List<String> firstClassModel = Arrays.asList("Attachment", "CustomFieldSetting", "CustomField", "Job", "OrganizationExport", "Portfolio", "PortfolioMembership", "Project", "ProjectMembership", "ProjectStatus", "Section", "Story", "Tag", "Task", "Team", "User", "UserTaskList", "Webhook", "Workspace");
+
+                int index = firstClassModel.indexOf(responseType.replace("Response", ""));
+                if (index >= 0) {
+                    if (options.tagType == TagType.SECTION) {
+                        return options.fn();
+                    }
+                    return firstClassModel.get(index);
+                } else {
+                    index = firstClassModel.indexOf(responseType.replace("Compact", ""));
+                    if (index >= 0) {
+                        if (options.tagType == TagType.SECTION) {
+                            return options.fn();
+                        }
+                        return firstClassModel.get(index);
+                    } else {
+                        index = firstClassModel.indexOf(responseType.substring(0, responseType.length() - 1));
+                        if (index >= 0) {
+                            if (options.tagType == TagType.SECTION) {
+                                return options.fn();
+                            }
+                            return firstClassModel.get(index);
+                        } else {
+                            index = firstClassModel.indexOf(responseType.substring(0, responseType.length() - 3) + "y");
+                            if (index >= 0) {
+                                if (options.tagType == TagType.SECTION) {
+                                    return options.fn();
+                                }
+                                return firstClassModel.get(index);
+                            } else {
+                                index = firstClassModel.indexOf(responseType.substring(0, responseType.length() - 2));
+                                if (index >= 0) {
+                                    if (options.tagType == TagType.SECTION) {
+                                        return options.fn();
+                                    }
+                                    return firstClassModel.get(index);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
+            }
+        });
+        handlebars.registerHelper("needsFileImport", new Helper<Object>() {
+            @Override public Object apply(final Object baseName, final Options options) throws IOException {
+                String baseNameString = (String)baseName;
+                if (baseNameString.startsWith("Attachment")) {
+                    if (options.tagType == TagType.SECTION) {
+                        return options.fn();
+                    }
+                    return baseNameString;
+                }
+                if (options.tagType == TagType.SECTION) {
+                    return options.inverse();
+                }
+                return options.hash("no", false);
             }
         });
         handlebars.registerHelper("getRequestModel", new Helper<Object>() {
@@ -267,7 +369,6 @@ public class AsanaJavaClientCodegen extends JavaClientCodegen {
 
             // sorting operation parameters to make sure path params are parsed before query params
             if (operation.allParams != null) {
-                reverse(operation.allParams);
                 sort(operation.allParams, new Comparator<CodegenParameter>() {
                     @Override
                     public int compare(CodegenParameter one, CodegenParameter another) {
@@ -306,6 +407,17 @@ public class AsanaJavaClientCodegen extends JavaClientCodegen {
                         return 0;
                     }
                 });
+
+                // Remove body params for now
+                int index_to_remove;
+                for (index_to_remove = 0; index_to_remove < operation.allParams.size(); index_to_remove++) {
+                    if (operation.allParams.get(index_to_remove).getIsBodyParam() || operation.allParams.get(index_to_remove).getIsFormParam()) {
+                         break;
+                    }
+                }
+                if (index_to_remove < operation.allParams.size()) {
+                    operation.allParams.remove(index_to_remove);
+                }
 
                 Iterator<CodegenParameter> iterator = operation.allParams.iterator();
                 while (iterator.hasNext()){
