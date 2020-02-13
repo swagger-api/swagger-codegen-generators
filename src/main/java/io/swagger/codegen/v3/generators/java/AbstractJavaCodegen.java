@@ -13,13 +13,7 @@ import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -667,6 +661,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
             Schema inner = new ObjectSchema();
             return getSchemaType(propertySchema) + "<String, " + getTypeDeclaration(inner) + ">";
+        } else if (propertySchema instanceof BooleanSchema) {
+            if (propertySchema.getNullable() != null && propertySchema.getNullable()) {
+                return "Boolean";
+            } else {
+                return "boolean";
+            }
         }
         return super.getTypeDeclaration(propertySchema);
     }
@@ -913,6 +913,21 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             codegenModel = AbstractJavaCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
         return codegenModel;
+    }
+
+    @Override
+    public CodegenProperty fromProperty(String name, Schema propertySchema) {
+        CodegenProperty codegenProperty = super.fromProperty(name, propertySchema);
+
+        if (propertySchema instanceof BooleanSchema) {
+            if (codegenProperty.datatypeWithEnum.equals("boolean")) {
+                codegenProperty.getter = toBooleanGetter(name);
+            } else {
+                codegenProperty.getter = toGetter(name);
+            }
+        }
+
+        return codegenProperty;
     }
 
     @Override
