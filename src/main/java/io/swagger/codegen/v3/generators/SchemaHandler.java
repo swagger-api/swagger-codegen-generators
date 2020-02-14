@@ -58,7 +58,7 @@ public class SchemaHandler implements ISchemaHandler {
                 processComposedSchema(codegenName, codegenProperty, (ComposedSchema) property, allModels);
                 continue;
             }
-            if (schema instanceof ArraySchema) {
+            if (property instanceof ArraySchema) {
                 this.processArrayItemSchema(codegenName, codegenProperty, (ArraySchema) property, allModels);
                 continue;
             }
@@ -132,7 +132,7 @@ public class SchemaHandler implements ISchemaHandler {
         return composedModel;
     }
 
-    private void addInterfaceModel(CodegenModel codegenModel, CodegenModel interfaceModel) {
+    protected void addInterfaceModel(CodegenModel codegenModel, CodegenModel interfaceModel) {
         if (codegenModel == null) {
             return;
         }
@@ -142,7 +142,7 @@ public class SchemaHandler implements ISchemaHandler {
         codegenModel.getInterfaceModels().add(interfaceModel);
     }
 
-    private void addInterfaces(List<Schema> schemas, CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
+    protected void addInterfaces(List<Schema> schemas, CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
         for (Schema interfaceSchema : schemas) {
             final String ref = interfaceSchema.get$ref();
             if (StringUtils.isBlank(ref)) {
