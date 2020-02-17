@@ -22,14 +22,14 @@ public class HtmlSchemaHandler extends SchemaHandler {
         super(codegenConfig);
     }
 
-    protected void processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModel.getName(), schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModel.getName(), schemas);
             if (composedModel == null) {
-                return;
+                return null;
             }
         }
         this.addInterfaceModel(codegenModel, composedModel);
@@ -40,16 +40,17 @@ public class HtmlSchemaHandler extends SchemaHandler {
         } else if (composedModel.getName().startsWith(ONE_OF_PREFFIX)) {
             codegenModel.vendorExtensions.put("anyOf-model", composedModel);
         }
+        return null;
     }
 
-    protected void processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModelName, schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModelName, schemas);
             if (composedModel == null) {
-                return;
+                return null;
             }
         }
         if (composedModel.getName().startsWith(ONE_OF_PREFFIX)) {
@@ -66,5 +67,6 @@ public class HtmlSchemaHandler extends SchemaHandler {
             }
         }
         composedModel.vendorExtensions.put("x-model-names", modelNames);
+        return null;
     }
 }
