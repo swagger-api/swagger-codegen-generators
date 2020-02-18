@@ -128,7 +128,9 @@ public class SchemaHandler implements ISchemaHandler {
     protected CodegenModel processArrayItemSchema(String codegenModelName, CodegenProperty codegenProperty, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
-            return this.processComposedSchema(codegenModelName, codegenProperty, (ComposedSchema) itemsSchema, allModels);
+            final CodegenModel composedModel = this.processComposedSchema(codegenModelName + ARRAY_ITEMS_SUFFIX, codegenProperty.items, (ComposedSchema) itemsSchema, allModels);
+            this.updatePropertyDataType(codegenProperty, composedModel, arraySchema);
+            return composedModel;
         }
         return null;
     }
@@ -187,5 +189,16 @@ public class SchemaHandler implements ISchemaHandler {
             return;
         }
         this.composedModels.add(composedModel);
+    }
+
+    protected void updatePropertyDataType(CodegenProperty codegenProperty, CodegenModel composedModel, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + composedModel.getClassname());
+        arraySchema.setItems(refSchema);
+        codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
+        codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+
+        arraySchema.setItems(items);
     }
 }
