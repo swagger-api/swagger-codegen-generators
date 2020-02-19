@@ -110,17 +110,19 @@ public class SchemaHandler implements ISchemaHandler {
             }
         }
         this.addInterfaces(schemas, composedModel, allModels);
-        codegenProperty.datatype = composedModel.getName();
-        codegenProperty.datatypeWithEnum = composedModel.getName();
-        codegenProperty.baseType = composedModel.getName();
-        codegenProperty.complexType = composedModel.getName();
+        codegenProperty.datatype = composedModel.getClassname();
+        codegenProperty.datatypeWithEnum = composedModel.getClassname();
+        codegenProperty.baseType = composedModel.getClassname();
+        codegenProperty.complexType = composedModel.getClassname();
         return composedModel;
     }
 
     protected CodegenModel processArrayItemSchema(CodegenModel codegenModel, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
-            return this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
+            final CodegenModel composedModel = this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
+            this.updateParentModel(codegenModel, composedModel.name, arraySchema);
+            return composedModel;
         }
         return null;
     }
@@ -129,6 +131,9 @@ public class SchemaHandler implements ISchemaHandler {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
             final CodegenModel composedModel = this.processComposedSchema(codegenModelName + ARRAY_ITEMS_SUFFIX, codegenProperty.items, (ComposedSchema) itemsSchema, allModels);
+            if (composedModel == null) {
+                return null;
+            }
             this.updatePropertyDataType(codegenProperty, composedModel.name, arraySchema);
             return composedModel;
         }
@@ -198,6 +203,21 @@ public class SchemaHandler implements ISchemaHandler {
         arraySchema.setItems(refSchema);
         codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
         codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+
+        codegenProperty.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenProperty.defaultValueWithParam = this.codegenConfig.toDefaultValueWithParam(codegenProperty.baseName, arraySchema);
+
+        arraySchema.setItems(items);
+    }
+
+    protected void updateParentModel(CodegenModel codegenModel, String schemaName, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + schemaName);
+        arraySchema.setItems(refSchema);
+
+        this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
+        codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
 
         arraySchema.setItems(items);
     }

@@ -2932,7 +2932,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         co.baseName = tag;
     }
 
-    protected void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
+    public void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
         final CodegenProperty codegenProperty = fromProperty(name, schema);
         addImport(codegenModel, codegenProperty.complexType);
         codegenModel.parent = toInstantiationType(schema);
