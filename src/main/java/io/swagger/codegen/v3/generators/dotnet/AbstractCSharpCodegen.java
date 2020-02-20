@@ -1077,12 +1077,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             addParemeters(content, codegenOperation.pathParams);
         }
     }
-
-    @Override
-    public ISchemaHandler getSchemaHandler() {
-        return new DotNetSchemaHandler(this);
-    }
-
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override
