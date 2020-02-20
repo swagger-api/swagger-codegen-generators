@@ -46,7 +46,7 @@ public interface {{classname}} {
   {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}} {{operationId}}({{^parameters}});{{/parameters}}
-    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
+    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{>libraries/retrofit/cookieParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
   );{{/hasNot}}{{/parameters}}
 
   /**
@@ -73,7 +73,7 @@ public interface {{classname}} {
   {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   void {{operationId}}(
-    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}, {{/parameters}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}> cb
+    {{#parameters}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{>libraries/retrofit/cookieParams}}, {{/parameters}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}> cb
   );
   {{/contents}}
   {{/operation}}
