@@ -5,7 +5,6 @@ import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.ISchemaHandler;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -121,7 +120,7 @@ public class SchemaHandler implements ISchemaHandler {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
             final CodegenModel composedModel = this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
-            this.updateParentModel(codegenModel, composedModel.name, arraySchema);
+            this.updateArrayModel(codegenModel, composedModel.name, arraySchema);
             return composedModel;
         }
         return null;
@@ -210,7 +209,7 @@ public class SchemaHandler implements ISchemaHandler {
         arraySchema.setItems(items);
     }
 
-    protected void updateParentModel(CodegenModel codegenModel, String schemaName, ArraySchema arraySchema) {
+    protected void updateArrayModel(CodegenModel codegenModel, String schemaName, ArraySchema arraySchema) {
         final Schema items = arraySchema.getItems();
         final Schema refSchema = new Schema();
         refSchema.set$ref("#/components/schemas/" + schemaName);
@@ -218,6 +217,7 @@ public class SchemaHandler implements ISchemaHandler {
 
         this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
         codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
 
         arraySchema.setItems(items);
     }
