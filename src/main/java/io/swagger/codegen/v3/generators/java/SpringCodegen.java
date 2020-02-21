@@ -15,6 +15,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -27,11 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -790,6 +787,60 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 model.imports.add("JsonCreator");
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+        Map<String, Object> allProcessedModels = super.postProcessAllModels(objs);
+
+        List<Object> allModels = new ArrayList<Object>();
+        for (String name: allProcessedModels.keySet()) {
+            Map<String, Object> models = (Map<String, Object>)allProcessedModels.get(name);
+            try {
+                allModels.add(((List<Object>) models.get("models")).get(0));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        additionalProperties.put("parent", modelInheritanceSupport(allModels));
+
+        return allProcessedModels;
+    }
+
+    protected List<Map<String, Object>> modelInheritanceSupport(List<?> allModels) {
+        Map<CodegenModel, List<CodegenModel>> byParent = new LinkedHashMap<>();
+        for (Object model : allModels) {
+            Map entry = (Map) model;
+            CodegenModel parent = ((CodegenModel)entry.get("model")).parentModel;
+            if(null!= parent) {
+                byParent.computeIfAbsent(parent, k -> new LinkedList<>()).add((CodegenModel)entry.get("model"));
+            }
+        }
+
+        List<Map<String, Object>> parentsList = new ArrayList<>();
+        for (Map.Entry<CodegenModel, List<CodegenModel>> parentModelEntry : byParent.entrySet()) {
+            CodegenModel parentModel = parentModelEntry.getKey();
+            List<Map<String, Object>> childrenList = new ArrayList<>();
+            Map<String, Object> parent = new HashMap<>();
+            parent.put("classname", parentModel.classname);
+            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            for (CodegenModel model : childrenModels) {
+                Map<String, Object> child = new HashMap<>();
+                child.put("name", model.name);
+                child.put("classname", model.classname);
+                childrenList.add(child);
+            }
+            parent.put("children", childrenList);
+            parent.put("discriminator", parentModel.discriminator);
+            if(parentModel.discriminator != null && parentModel.discriminator.getMapping() != null)
+            {
+                parentModel.discriminator.getMapping().replaceAll((key, value) -> OpenAPIUtil.getSimpleRef(value));
+            }
+            parentsList.add(parent);
+        }
+
+        return parentsList;
     }
 
     @Override

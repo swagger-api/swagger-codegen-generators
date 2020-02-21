@@ -1,6 +1,6 @@
 package {{package}};
 
-{{^x-is-composed-model}}
+{{^isComposedModel}}
 import java.util.Objects;
 {{#imports}}import {{import}};
 {{/imports}}
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 {{#withXml}}
 import javax.xml.bind.annotation.*;
 {{/withXml}}
-{{/x-is-composed-model}}
+{{/isComposedModel}}
 
 {{#models}}
 {{#model}}
