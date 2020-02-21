@@ -1,5 +1,6 @@
 package {{package}};
 
+{{^x-is-composed-model}}
 import java.util.Objects;
 import java.util.ArrayList;
 {{#imports}}import {{import}};
@@ -10,13 +11,19 @@ import java.io.Serializable;
 {{#useBeanValidation}}
 import javax.validation.constraints.*;
 {{/useBeanValidation}}
+{{/x-is-composed-model}}
 {{#models}}
 {{#model}}
+    {{#isComposedModel}}
+        {{>interface}}
+    {{/isComposedModel}}
+    {{^isComposedModel}}
 {{#isEnum}}
 {{>enumOuterClass}}
 {{/isEnum}}
 {{^isEnum}}
 {{>pojo}}
 {{/isEnum}}
+    {{/isComposedModel}}
 {{/model}}
 {{/models}}
