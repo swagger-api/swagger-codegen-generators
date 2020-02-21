@@ -15,6 +15,7 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.codegen.v3.utils.SemVer;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
@@ -26,6 +27,9 @@ import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCodegen {
 
@@ -453,6 +457,21 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         }
 
         return result;
+    }
+
+    @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            final Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            final List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                final CodegenModel codegenModel = (CodegenModel) mo.get("model");
+                if (codegenModel.getIsAlias() && codegenModel.imports != null && !codegenModel.imports.isEmpty()) {
+                    mo.put("tsImports", toTsImports(codegenModel, codegenModel.imports));
+                }
+            }
+        }
+        return processedModels;
     }
 
     private List<Map<String, String>> toTsImports(CodegenModel cm, Set<String> imports) {
