@@ -4259,4 +4259,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public ISchemaHandler getSchemaHandler() {
         return new SchemaHandler(this);
     }
+
+    public OpenAPI getOpenAPI() {
+        return this.openAPI;
+    }
 }
