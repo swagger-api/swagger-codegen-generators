@@ -37,6 +37,9 @@ public class OpenAPIUtil {
     }
 
     public static Schema getSchemaFromName(String name, OpenAPI openAPI) {
+        if (openAPI == null) {
+            return null;
+        }
         if (openAPI.getComponents() == null) {
             return null;
         }

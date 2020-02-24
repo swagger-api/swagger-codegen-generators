@@ -1037,14 +1037,14 @@ public class JavaModelTest extends AbstractCodegenTest {
         Assert.assertTrue(co.imports.contains("Pet"));
     }
 
-    @Test(enabled = false, description = "disabled since templates have been moved.")
+    @Test(description = "disabled since templates have been moved.")
     public void generateModel() throws Exception {
         folder.create();
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("java")
-                .setInputSpec("src/test/resources/3_0_0/petstore.json")
+                .setInputSpecURL("src/test/resources/3_0_0/petstore.yaml")
                 .setOutputDir(output.getAbsolutePath());
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();

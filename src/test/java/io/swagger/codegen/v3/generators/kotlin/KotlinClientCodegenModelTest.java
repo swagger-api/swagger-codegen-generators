@@ -172,7 +172,7 @@ public class KotlinClientCodegenModelTest {
         Assert.assertTrue(getBooleanValue(property3, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
 
-    @Test(description = "convert a model with array property to default kotlin Array")
+    @Test(description = "convert a model with array property to default kotlin.Array")
     public void arrayPropertyTest() {
         final Schema schema = getArrayTestSchema();
 
@@ -246,6 +246,9 @@ public class KotlinClientCodegenModelTest {
                 {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
                 {"$", new ModelNameTest("$", "Dollar")},
                 {"for", new ModelNameTest("_for", "For")},
+                {"package", new ModelNameTest("_package", "Package")},
+                {"abstract", new ModelNameTest("_abstract", "Abstract")},
+                {"companion", new ModelNameTest("_companion", "Companion")},
                 {"One<Two", new ModelNameTest("One<Two", "OneLess_ThanTwo")},
                 {"this is a test", new ModelNameTest("this is a test", "This_is_a_test")}
         };
