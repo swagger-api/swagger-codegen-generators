@@ -21,8 +21,12 @@ extension {{projectName}}API {
     /**
      * enum for parameter {{paramName}}
      */
-    public enum {{enumName}}_{{operationId}}: {{#isNot this 'container'}}{{{dataType}}}{{/isNot}}{{#is this 'container'}}String{{/is}} { {{#allowableValues}}{{#enumVars}}
+    public enum {{enumName}}_{{operationId}}: {{#isNot this 'container'}}{{{dataType}}}, CustomStringConvertible{{/isNot}}{{#is this 'container'}}String, CustomStringConvertible{{/is}} { {{#allowableValues}}{{#enumVars}}
         case {{name}} = {{#is ../../this 'container'}}"{{/is}}{{#is ../../this 'string'}}"{{/is}}{{{value}}}{{#is ../../this 'string'}}"{{/is}}{{#is ../../this 'container'}}"{{/is}}{{/enumVars}}{{/allowableValues}}
+
+        public var description: String {
+            return "\(rawValue)"
+        }
     }{{/is~}}{{/allParams}}
     /**
      {{#summary}}{{{summary}}}
