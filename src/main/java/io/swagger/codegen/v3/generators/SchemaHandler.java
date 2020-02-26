@@ -5,7 +5,6 @@ import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.ISchemaHandler;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -32,11 +31,11 @@ public class SchemaHandler implements ISchemaHandler {
     @Override
     public void processComposedSchemas(CodegenModel codegenModel, Schema schema, Map<String, CodegenModel> allModels) {
         if (schema instanceof ComposedSchema) {
-            this.processComposedSchema(codegenModel, (ComposedSchema) schema, allModels);
+            this.addComposedModel(this.processComposedSchema(codegenModel, (ComposedSchema) schema, allModels));
             return;
         }
         if (schema instanceof ArraySchema) {
-            this.processArrayItemSchema(codegenModel, (ArraySchema) schema, allModels);
+            this.addComposedModel(this.processArrayItemSchema(codegenModel, (ArraySchema) schema, allModels));
             return;
         }
         final Map<String, Schema> properties = schema.getProperties();
@@ -55,11 +54,11 @@ public class SchemaHandler implements ISchemaHandler {
             final CodegenProperty codegenProperty = optionalCodegenProperty.get();
             final String codegenName = codegenModel.getName() + codegenConfig.toModelName(codegenProperty.getName());
             if (property instanceof ComposedSchema) {
-                processComposedSchema(codegenName, codegenProperty, (ComposedSchema) property, allModels);
+                this.addComposedModel(this.processComposedSchema(codegenName, codegenProperty, (ComposedSchema) property, allModels));
                 continue;
             }
             if (property instanceof ArraySchema) {
-                this.processArrayItemSchema(codegenName, codegenProperty, (ArraySchema) property, allModels);
+                this.addComposedModel(this.processArrayItemSchema(codegenName, codegenProperty, (ArraySchema) property, allModels));
                 continue;
             }
         }
@@ -70,54 +69,74 @@ public class SchemaHandler implements ISchemaHandler {
         return composedModels;
     }
 
-    protected void processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModel.getName(), schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModel.getName(), schemas);
             if (composedModel == null) {
-                return;
+                return null;
             }
         }
         this.addInterfaceModel(codegenModel, composedModel);
         this.addInterfaces(schemas, composedModel, allModels);
-        composedModels.add(composedModel);
+        return composedModel;
     }
 
-    protected void processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processComposedSchema(String name, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+        List<Schema> schemas = composedSchema.getOneOf();
+        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + name, schemas);
+        if (composedModel == null) {
+            schemas = composedSchema.getAnyOf();
+            composedModel = this.createComposedModel(ANY_OF_PREFFIX + name, schemas);
+            if (composedModel == null) {
+                return null;
+            }
+        }
+        this.addInterfaces(schemas, composedModel, allModels);
+        return composedModel;
+    }
+
+    protected CodegenModel processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModelName, schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModelName, schemas);
             if (composedModel == null) {
-                return;
+                return null;
             }
         }
         this.addInterfaces(schemas, composedModel, allModels);
-        codegenProperty.datatype = composedModel.getName();
-        codegenProperty.datatypeWithEnum = composedModel.getName();
-        codegenProperty.baseType = composedModel.getName();
-        codegenProperty.complexType = composedModel.getName();
-
-        composedModels.add(composedModel);
+        codegenProperty.datatype = composedModel.getClassname();
+        codegenProperty.datatypeWithEnum = composedModel.getClassname();
+        codegenProperty.baseType = composedModel.getClassname();
+        codegenProperty.complexType = composedModel.getClassname();
+        return composedModel;
     }
 
-    protected void processArrayItemSchema(CodegenModel codegenModel, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processArrayItemSchema(CodegenModel codegenModel, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
-            final CodegenModel itemsModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-            itemsModel.setName(codegenModel.name + ARRAY_ITEMS_SUFFIX);
-            this.processComposedSchema(itemsModel, (ComposedSchema) itemsSchema, allModels);
+            final CodegenModel composedModel = this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
+            this.updateArrayModel(codegenModel, composedModel.name, arraySchema);
+            return composedModel;
         }
+        return null;
     }
 
-    protected void processArrayItemSchema(String codegenModelName, CodegenProperty codegenProperty, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
+    protected CodegenModel processArrayItemSchema(String codegenModelName, CodegenProperty codegenProperty, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
-            this.processComposedSchema(codegenModelName, codegenProperty, (ComposedSchema) itemsSchema, allModels);
+            final CodegenModel composedModel = this.processComposedSchema(codegenModelName + ARRAY_ITEMS_SUFFIX, codegenProperty.items, (ComposedSchema) itemsSchema, allModels);
+            if (composedModel == null) {
+                return null;
+            }
+            this.updatePropertyDataType(codegenProperty, composedModel.name, arraySchema);
+            return composedModel;
         }
+        return null;
     }
 
     protected CodegenModel createComposedModel(String name, List<Schema> schemas) {
@@ -167,5 +186,39 @@ public class SchemaHandler implements ISchemaHandler {
             }
         }
         return false;
+    }
+
+    protected void addComposedModel(CodegenModel composedModel) {
+        if (composedModel == null) {
+            return;
+        }
+        this.composedModels.add(composedModel);
+    }
+
+    protected void updatePropertyDataType(CodegenProperty codegenProperty, String schemaName, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + schemaName);
+        arraySchema.setItems(refSchema);
+        codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
+        codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+
+        codegenProperty.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenProperty.defaultValueWithParam = this.codegenConfig.toDefaultValueWithParam(codegenProperty.baseName, arraySchema);
+
+        arraySchema.setItems(items);
+    }
+
+    protected void updateArrayModel(CodegenModel codegenModel, String schemaName, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + schemaName);
+        arraySchema.setItems(refSchema);
+
+        this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
+        codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
+
+        arraySchema.setItems(items);
     }
 }

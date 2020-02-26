@@ -1,18 +1,25 @@
 package {{package}};
 
+{{^isComposedModel}}
 {{#imports}}import {{import}};
 {{/imports}}
 {{#useBeanValidation}}
 import javax.validation.constraints.*;
 {{/useBeanValidation}}
+{{/isComposedModel}}
 
 {{#models}}
 {{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}
 {{>enumOuterClass}}
 {{/is}}
 {{#isNot this 'enum'}}
 {{>pojo}}
 {{/isNot}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}
