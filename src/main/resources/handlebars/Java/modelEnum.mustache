@@ -19,7 +19,7 @@ import com.google.gson.stream.JsonWriter;
 public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
   {{#allowableValues}}
   {{#enumVars}}
-  {{{name}}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
   {{/enumVars}}
   {{/allowableValues}}
 

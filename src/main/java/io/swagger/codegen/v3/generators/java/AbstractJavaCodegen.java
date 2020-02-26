@@ -1105,6 +1105,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         if ("Integer".equals(datatype) || "Double".equals(datatype)) {
             return value;
         } else if ("Long".equals(datatype)) {
