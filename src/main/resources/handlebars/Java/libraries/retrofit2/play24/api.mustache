@@ -40,13 +40,16 @@ public interface {{classname}} {
   {{/@first}}
   {{/formParams}}
   {{^formParams}}
-  {{#prioritizedContentTypes}}
-  {{#@first}}
   @Headers({
-    "Content-Type:{{mediaType}}"
-  })
-  {{/@first}}
+  {{#prioritizedContentTypes}}
+    {{#@first}}
+    "Content-Type:{{mediaType}}"{{#hasProduces}},{{/hasProduces}}
+    {{/@first}}
   {{/prioritizedContentTypes}}
+  {{#hasProduces}}
+    "Accept:{{#produces}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/produces}}"
+  {{/hasProduces}}
+  })
   {{/formParams}}  
   @{{httpMethod}}("{{{path}}}")
   F.Promise<Response<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}>> {{operationId}}({{^parameters}});{{/parameters}}

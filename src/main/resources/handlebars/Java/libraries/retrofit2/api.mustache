@@ -48,14 +48,17 @@ public interface {{classname}} {
   {{/@first}}
   {{/formParams}}
   {{^formParams}}
-  {{#prioritizedContentTypes}}
-  {{#@first}}
   @Headers({
-    "Content-Type:{{mediaType}}"
-  })
-  {{/@first}}
+  {{#prioritizedContentTypes}}
+    {{#@first}}
+    "Content-Type:{{mediaType}}"{{#hasProduces}},{{/hasProduces}}
+    {{/@first}}
   {{/prioritizedContentTypes}}
-  {{/formParams}}  
+  {{#hasProduces}}
+    "Accept:{{#produces}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/produces}}"
+  {{/hasProduces}}
+  })
+  {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}({{^parameters}});{{/parameters}}
     {{#parameters}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{>libraries/retrofit2/cookieParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
