@@ -1037,7 +1037,7 @@ public class JavaModelTest extends AbstractCodegenTest {
         Assert.assertTrue(co.imports.contains("Pet"));
     }
 
-    @Test(description = "disabled since templates have been moved.")
+    @Test
     public void generateModel() throws Exception {
         folder.create();
         final File output = folder.getRoot();

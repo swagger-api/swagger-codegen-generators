@@ -13,14 +13,14 @@ import java.util.Objects;
  * {{description}}
  **/
 {{/description}}
-{{#vendorExtensions.x-is-composed-model}}
+{{#isComposedModel}}
 {{>interface}}
-{{/vendorExtensions.x-is-composed-model}}
-{{^vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}
 {{>enumOuterClass}}
 {{/is}}
 {{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
-{{/vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

@@ -2,6 +2,7 @@
 
 package {{package}};
 
+{{^x-is-composed-model}}
 {{^supportJava6}}
 import java.util.Objects;
 {{/supportJava6}}
@@ -16,9 +17,15 @@ import java.io.Serializable;
 {{#useBeanValidation}}
 import javax.validation.constraints.*;
 {{/useBeanValidation}}
+{{/x-is-composed-model}}
 
 {{#models}}
 {{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

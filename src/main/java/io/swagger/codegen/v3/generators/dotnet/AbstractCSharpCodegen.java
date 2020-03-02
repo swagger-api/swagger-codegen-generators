@@ -4,9 +4,11 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.handlebars.csharp.CsharpHelper;
 import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
@@ -1067,6 +1069,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(new CsharpHelper());
     }
 
+    @Override
+    protected void addCodegenContentParemeters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParemeters(content, codegenOperation.headerParams);
+            addParemeters(content, codegenOperation.queryParams);
+            addParemeters(content, codegenOperation.pathParams);
+        }
+    }
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override

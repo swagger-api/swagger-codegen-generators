@@ -114,7 +114,12 @@
     var defs = {}
         {{#models}}
         {{#model}}
+            {{#isComposedModel}}
+            defs.{{name}} = {};
+            {{/isComposedModel}}
+            {{^isComposedModel}}
             defs.{{name}} = {{{modelJson}}};
+            {{/isComposedModel}}
         {{/model}}
     {{/models}}
   </script>

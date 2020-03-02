@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  **/
 {{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description="{{{description}}}")
 {{/description}}
-public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfaceModels}}{{#@first}}implements {{/@first}}{{name}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}} {
+public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}} {
   {{#vars}}{{#baseItems this}}{{#is this 'enum'}}
 {{>modelInnerEnum}}{{/is~}}{{/baseItems}}
 {{#withXml}}

@@ -2932,7 +2932,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         co.baseName = tag;
     }
 
-    private void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
+    public void addParentContainer(CodegenModel codegenModel, String name, Schema schema) {
         final CodegenProperty codegenProperty = fromProperty(name, schema);
         addImport(codegenModel, codegenProperty.complexType);
         codegenModel.parent = toInstantiationType(schema);
@@ -4194,12 +4194,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenOperation.getContents().add(content);
             return;
         }
-        for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.cookieParams);
-        }
+        this.addCodegenContentParemeters(codegenOperation, codegenContents);
         for (CodegenContent content : codegenContents) {
             Collections.sort(content.getParameters(), (CodegenParameter one, CodegenParameter another) -> {
                     if (one.required == another.required){
@@ -4223,6 +4218,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         for (CodegenParameter codegenParameter : codegenParameters) {
             codegenContent.getParameters().add(codegenParameter.copy());
+        }
+    }
+
+    protected void addCodegenContentParemeters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParemeters(content, codegenOperation.headerParams);
+            addParemeters(content, codegenOperation.queryParams);
+            addParemeters(content, codegenOperation.pathParams);
+            addParemeters(content, codegenOperation.cookieParams);
         }
     }
 
@@ -4254,5 +4258,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public ISchemaHandler getSchemaHandler() {
         return new SchemaHandler(this);
+    }
+
+    public OpenAPI getOpenAPI() {
+        return this.openAPI;
     }
 }
