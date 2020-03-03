@@ -3,7 +3,7 @@
 public enum {{datatypeWithEnum}} {
 
     {{#allowableValues}}
-    {{#enumVars}}@XmlEnumValue({{{value}}}) {{name}}({{datatype}}.valueOf({{{value}}})){{^@last}}, {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}
+    {{#enumVars}}{{#value}}@XmlEnumValue({{{value}}}) {{name}}({{datatype}}.valueOf({{{value}}})){{/value}}{{^value}}@XmlEnumValue("") {{name}}(null){{/value}}{{^@last}}, {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}
     {{/allowableValues}}
 
 
