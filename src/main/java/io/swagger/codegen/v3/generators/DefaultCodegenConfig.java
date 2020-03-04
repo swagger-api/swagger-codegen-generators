@@ -377,6 +377,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return the sanitized value for enum
      */
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         if ("number".equalsIgnoreCase(datatype)) {
             return value;
         } else {
