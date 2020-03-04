@@ -9,12 +9,12 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
   {{#if gson}}
   {{#allowableValues}}{{#enumVars}}
   @SerializedName({{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}}{{{value}}}{{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}})
-  {{{name}}}({{{value}}}){{^@last}},
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
   {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
   {{/if}}
   {{#unless gson}}
   {{#allowableValues}}{{#enumVars}}
-  {{{name}}}({{{value}}}){{^@last}},
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
   {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
   {{/unless}}
 

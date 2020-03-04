@@ -10,9 +10,9 @@
         {
             {{#allowableValues}}{{#enumVars}}
             /// <summary>
-            /// Enum {{name}} for {{{value}}}
+            /// Enum {{name}} for {{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}
             /// </summary>
-            {{#isString}}[EnumMember(Value = "{{{value}}}")]{{/isString}}
-            {{name}}{{^isString}} = {{{value}}}{{/isString}}{{#isString}} = {{@index}}{{/isString}}{{^@last}},
+            {{#isString}}[EnumMember(Value = {{#value}}"{{{value}}}"{{/value}}{{^value}}null{{/value}})]{{/isString}}
+            {{name}}{{^isString}} = {{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}{{/isString}}{{#isString}} = {{@index}}{{/isString}}{{^@last}},
             {{/@last}}{{/enumVars}}{{/allowableValues}}
         }

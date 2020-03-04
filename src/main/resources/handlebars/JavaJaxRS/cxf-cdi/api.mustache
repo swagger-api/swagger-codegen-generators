@@ -79,7 +79,7 @@ public class {{classname}}  {
         @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     {{/useOas2}}
     public Response {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
-        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{paramName}}InputStream, {{paramName}}Detail{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}}, {{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{#isFile}}{{paramName}}InputStream, {{paramName}}Detail{{/isFile}}{{^isFile}}{{paramName}}{{/isFile}}, {{/parameters}}securityContext);
     }
 {{/contents}}
 {{/operation}}
