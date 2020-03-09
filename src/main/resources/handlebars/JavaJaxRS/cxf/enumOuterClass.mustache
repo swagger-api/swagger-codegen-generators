@@ -14,24 +14,30 @@ import javax.xml.bind.annotation.XmlEnumValue;
 {{#if withXml}}
 @XmlType(name="{{classname}}")
 @XmlEnum({{dataType}}.class)
-{{/if~}}
+{{/if}}
 public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
   {{#if gson}}
-  {{#allowableValues}}{{#enumVars}}
+  {{#allowableValues}}
+  {{#enumVars}}
   @SerializedName({{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}}{{{value}}}{{#is ../../this 'integer'}}"{{/is}}{{#is ../../this 'double'}}"{{/is}}{{#is ../../this 'long'}}"{{/is}}{{#is ../../this 'float'}}"{{/is}})
   {{#if withXml}}
-  @XmlEnumValue({{{value}}})
-  {{/if~}}
-  {{{name}}}({{{value}}}){{^@last}},
-  {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
+  @XmlEnumValue({{#value}}{{{value}}}{{/value}}{{^value}}""{{/value}})
+  {{/if}}
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
+  {{/@last}}{{#@last}};{{/@last}}
+  {{/enumVars}}
+  {{/allowableValues}}
   {{/if}}
   {{#unless gson}}
-  {{#allowableValues}}{{#enumVars}}
+  {{#allowableValues}}
+  {{#enumVars}}
   {{#if withXml}}
-  @XmlEnumValue({{{value}}})
-  {{/if~}}
-  {{{name}}}({{{value}}}){{^@last}},
-  {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}{{/allowableValues}}
+  @XmlEnumValue({{#value}}{{{value}}}{{/value}}{{^value}}""{{/value}})
+  {{/if}}
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
+  {{/@last}}{{#@last}};{{/@last}}
+  {{/enumVars}}
+  {{/allowableValues}}
   {{/unless}}
 
   private {{{dataType}}} value;
