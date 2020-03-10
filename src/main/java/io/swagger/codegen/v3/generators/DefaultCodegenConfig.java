@@ -1276,8 +1276,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
-        codegenModel.discriminator = schema.getDiscriminator();
-
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
             codegenModel.xmlNamespace = schema.getXml().getNamespace();
@@ -1342,6 +1340,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             final List<Schema> allOf = composed.getAllOf();
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
+
+                if (schema.getDiscriminator() != null) {
+                    codegenModel.discriminator = schema.getDiscriminator();
+                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    }
+                }
+
                 for (int i = 0; i < allOf.size(); i++) {
                     if (i == 0 && !copyFistAllOfProperties) {
                         continue;
