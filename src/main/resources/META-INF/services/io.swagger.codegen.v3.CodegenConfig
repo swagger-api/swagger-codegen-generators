@@ -25,6 +25,7 @@ io.swagger.codegen.v3.generators.kotlin.KotlinServerCodegen
 io.swagger.codegen.v3.generators.php.PhpClientCodegen
 io.swagger.codegen.v3.generators.python.PythonClientCodegen
 io.swagger.codegen.v3.generators.python.PythonFlaskConnexionCodegen
+io.swagger.codegen.v3.generators.r.RClientCodegen
 io.swagger.codegen.v3.generators.scala.ScalaClientCodegen
 io.swagger.codegen.v3.generators.scala.AkkaHttpServerCodegen
 io.swagger.codegen.v3.generators.swift.Swift3Codegen
