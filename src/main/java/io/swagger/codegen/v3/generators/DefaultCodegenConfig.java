@@ -1241,6 +1241,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return Codegen Model object
      */
     public CodegenModel fromModel(String name, Schema schema) {
+        if (openAPI != null && openAPI.getComponents() != null && openAPI.getComponents().getSchemas() != null) {
+            return fromModel(name, schema, openAPI.getComponents().getSchemas());
+        }
         return fromModel(name, schema, null);
     }
 

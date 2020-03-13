@@ -17,6 +17,7 @@ import java.util.Optional;
 
 public class SchemaHandler implements ISchemaHandler {
 
+    public static final String ALL_OF_PREFFIX = "AllOf";
     public static final String ONE_OF_PREFFIX = "OneOf";
     public static final String ANY_OF_PREFFIX = "AnyOf";
     public static final String ARRAY_ITEMS_SUFFIX = "Items";
@@ -99,7 +100,13 @@ public class SchemaHandler implements ISchemaHandler {
     }
 
     protected CodegenModel processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
-        List<Schema> schemas = composedSchema.getOneOf();
+        List<Schema> schemas = composedSchema.getAllOf();
+        if (schemas != null && !schemas.isEmpty()) {
+            final CodegenModel composedModel = codegenConfig.fromModel(ALL_OF_PREFFIX + codegenModelName, composedSchema);
+            this.updatePropertyDataType(codegenProperty, composedModel);
+            return composedModel;
+        }
+        schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModelName, schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
@@ -109,10 +116,7 @@ public class SchemaHandler implements ISchemaHandler {
             }
         }
         this.addInterfaces(schemas, composedModel, allModels);
-        codegenProperty.datatype = composedModel.getClassname();
-        codegenProperty.datatypeWithEnum = composedModel.getClassname();
-        codegenProperty.baseType = composedModel.getClassname();
-        codegenProperty.complexType = composedModel.getClassname();
+        this.updatePropertyDataType(codegenProperty, composedModel);
         return composedModel;
     }
 
@@ -220,5 +224,12 @@ public class SchemaHandler implements ISchemaHandler {
         codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
 
         arraySchema.setItems(items);
+    }
+
+    private void updatePropertyDataType(CodegenProperty codegenProperty, CodegenModel composedModel) {
+        codegenProperty.datatype = composedModel.getClassname();
+        codegenProperty.datatypeWithEnum = composedModel.getClassname();
+        codegenProperty.baseType = composedModel.getClassname();
+        codegenProperty.complexType = composedModel.getClassname();
     }
 }

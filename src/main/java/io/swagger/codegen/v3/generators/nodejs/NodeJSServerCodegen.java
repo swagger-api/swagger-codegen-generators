@@ -325,6 +325,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        this.openAPI = openAPI;
         URL url = URLPathUtil.getServerURL(openAPI);
         String host = URLPathUtil.LOCAL_HOST;
         String port = "8080";
