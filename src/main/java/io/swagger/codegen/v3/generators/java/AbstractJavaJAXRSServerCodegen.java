@@ -16,6 +16,7 @@ import io.swagger.v3.oas.models.PathItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -224,12 +225,12 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         String result = super.apiFilename(templateName, tag);
 
         if ( templateName.endsWith("Impl.mustache") ) {
-            int ix = result.lastIndexOf('/');
-            result = result.substring(0, ix) + "/impl" + result.substring(ix, result.length() - 5) + "ServiceImpl.java";
+            int ix = result.lastIndexOf(File.separatorChar);
+            result = result.substring(0, ix) + File.separator + "impl" + result.substring(ix, result.length() - 5) + "ServiceImpl.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Factory.mustache") ) {
-            int ix = result.lastIndexOf('/');
-            result = result.substring(0, ix) + "/factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
+            int ix = result.lastIndexOf(File.separatorChar);
+            result = result.substring(0, ix) + File.separator + "factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Service.mustache") ) {
             int ix = result.lastIndexOf('.');
