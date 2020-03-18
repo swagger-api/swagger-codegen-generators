@@ -6,6 +6,7 @@ import io.swagger.codegen.v3.CodegenType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.List;
 
 public class AbstractJavaJAXRSServerCodegenTest {
@@ -73,7 +74,8 @@ public class AbstractJavaJAXRSServerCodegenTest {
 
         final String actual = codegen.apiFilename("Impl.mustache", "test");
         // Many apis still concatenate with a hardcoded "/", so the test uses forward slashes where appropriate
-        final String expectedFilename = codegen.outputFolder() + "/" + codegen.implFolder + "/" + codegen.apiPackage().replace('.', '/') + "\\impl\\TestApiServiceImpl.java";
+        final String expectedFilename = codegen.outputFolder() + "/" + codegen.implFolder + "/" +
+            codegen.apiPackage().replace('.', '/') + File.separator + "impl" + File.separator + "TestApiServiceImpl.java";
 
         Assert.assertEquals(actual, expectedFilename);
     }
@@ -85,7 +87,8 @@ public class AbstractJavaJAXRSServerCodegenTest {
 
         final String actual = codegen.apiFilename("Factory.mustache", "test");
         // Many apis still concatenate with a hardcoded "/", so the test uses forward slashes where necessary
-        final String expectedFilename = codegen.outputFolder() + "/" + codegen.implFolder + "/" + codegen.apiPackage().replace('.', '/') + "\\factories\\TestApiServiceFactory.java";
+        final String expectedFilename = codegen.outputFolder() + "/" + codegen.implFolder + "/" +
+            codegen.apiPackage().replace('.', '/') + File.separator + "factories" + File.separator + "TestApiServiceFactory.java";
 
         Assert.assertEquals(actual, expectedFilename);
     }
