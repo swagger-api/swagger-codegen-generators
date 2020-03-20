@@ -227,6 +227,9 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             if(!primitiveParamTypes.contains(parameter.dataType)){
                 parameterCopy.dataType = FALLBACK_DATA_TYPE;
             }
+            if (!parameterCopy.required && parameterCopy.dataType.equals("String") && parameterCopy.defaultValue != null) {
+                parameterCopy.defaultValue = String.format("\"%s\"", parameterCopy.defaultValue);
+            }
             queryParamsWithSupportedType.add(parameterCopy);
         }
         codegenOperation.getVendorExtensions().put(QUERY_PARAMS_WITH_SUPPORTED_TYPE, queryParamsWithSupportedType);
@@ -253,6 +256,11 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             } else if(parameter.getIsCookieParam()){
                 parameterCopy.dataType = COOKIE_DATA_TYPE;
             }
+
+            if (!parameterCopy.required && parameterCopy.dataType.equals("String") && parameterCopy.defaultValue != null) {
+                parameterCopy.defaultValue = String.format("\"%s\"", parameterCopy.defaultValue);
+            }
+
             allParamsWithSupportedType.add(parameterCopy);
         }
         codegenOperation.getVendorExtensions().put(PARAMS_WITH_SUPPORTED_TYPE, allParamsWithSupportedType);

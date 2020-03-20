@@ -23,7 +23,7 @@ class {{classname}}(
   {{#operation}}
     path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
       {{vendorExtensions.lowercaseHttpMethod}} {
-        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{baseName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{baseName}}".as[{{dataType}}]{{^required}}.?({{{defaultValue}}}){{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
           {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{baseName}}") { {{paramName}} => {{/headerParams}}
             {{^formParams.isEmpty}}formFields({{#formParams}}"{{baseName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
               {{#allParams}}{{#isCookieParam}}{{#required}}cookie({{/required}}{{^required}}optionalCookie({{/required}}"{{baseName}}"){ {{paramName}} => {{/isCookieParam}}{{/allParams}}
@@ -49,7 +49,7 @@ trait {{classname}}Service {
 {{#responses}}   * {{#code}}Code: {{.}}{{/code}}{{#message}}, Message: {{.}}{{/message}}{{#dataType}}, DataType: {{.}}{{/dataType}}
    {{/responses}}
    */
-  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}{{^isBodyParam}}Option[{{/isBodyParam}}{{/required}}{{dataType}}{{^required}}{{^isBodyParam}}]{{/isBodyParam}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
+  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{dataType}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
       (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]{{^-last}}, {{/-last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
 
 {{/operation}}
