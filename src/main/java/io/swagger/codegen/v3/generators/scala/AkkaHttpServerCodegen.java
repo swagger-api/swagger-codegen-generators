@@ -40,7 +40,7 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         additionalProperties.put(CodegenConstants.GROUP_ID, groupId);
         additionalProperties.put(CodegenConstants.ARTIFACT_ID, artifactId);
         additionalProperties.put(CodegenConstants.ARTIFACT_VERSION, artifactVersion);
-        additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
+
         apiPackage = "io.swagger.server.api";
         modelPackage = "io.swagger.server.model";
 
@@ -48,17 +48,23 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
         modelTemplateFiles.put("model.mustache", ".scala");
 
         supportingFiles.add(new SupportingFile("build.sbt.mustache", "", "build.sbt"));
-        supportingFiles.add(new SupportingFile("controller.mustache",
-                (sourceFolder + File.separator + invokerPackage).replace(".", java.io.File.separator), "Controller.scala"));
-        supportingFiles.add(new SupportingFile("helper.mustache",
-                (sourceFolder + File.separator + invokerPackage).replace(".", java.io.File.separator), "AkkaHttpHelper.scala"));
-
     }
 
     @Override
     public void processOpts() {
         super.processOpts();
+        if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
+            invokerPackage = (String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE);
+        } else {
+            additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
+        }
+
         embeddedTemplateDir = templateDir = getTemplateDir();
+
+        supportingFiles.add(new SupportingFile("controller.mustache",
+            (sourceFolder + File.separator + invokerPackage).replace(".", java.io.File.separator), "Controller.scala"));
+        supportingFiles.add(new SupportingFile("helper.mustache",
+            (sourceFolder + File.separator + invokerPackage).replace(".", java.io.File.separator), "AkkaHttpHelper.scala"));
     }
 
     @Override
