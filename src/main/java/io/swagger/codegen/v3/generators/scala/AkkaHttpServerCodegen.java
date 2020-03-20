@@ -176,10 +176,10 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
             if(path.startsWith("{") && path.endsWith("}")) {
                 String parameterName = path.substring(1, path.length()-1);
                 for(CodegenParameter pathParam: codegenOperation.pathParams){
-                    if(pathParam.paramName.equals(parameterName)) {
+                    if(pathParam.baseName.equals(parameterName)) {
                         String matcher = pathTypeToMatcher.get(pathParam.dataType);
                         if(matcher == null) {
-                            LOGGER.warn("The path parameter " + pathParam.paramName +
+                            LOGGER.warn("The path parameter " + pathParam.baseName +
                                     " with the datatype " + pathParam.dataType +
                                     " could not be translated to a corresponding path matcher of akka http" +
                                     " and therefore has been translated to string.");

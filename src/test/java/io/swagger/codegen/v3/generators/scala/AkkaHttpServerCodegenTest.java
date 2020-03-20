@@ -126,13 +126,13 @@ public class AkkaHttpServerCodegenTest {
         Assert.assertEquals((LinkedList<TextOrMatcher>) codegenOperation.getVendorExtensions().get(AkkaHttpServerCodegen.PATHS), expectedPaths);
 
         CodegenParameter petId = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        petId.paramName = "petId";
+        petId.baseName = "petId";
         petId.dataType = "Long";
         CodegenParameter petName = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        petName.paramName = "petName";
+        petName.baseName = "petName";
         petName.dataType = "String";
         CodegenParameter unknownMatcher = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        unknownMatcher.paramName = "unknownMatcher";
+        unknownMatcher.baseName = "unknownMatcher";
         unknownMatcher.dataType = "List[String]";
         codegenOperation.path = "/pet/{petId}/name/{petName}/{unknownMatcher}";
         codegenOperation.pathParams.add(petId);
