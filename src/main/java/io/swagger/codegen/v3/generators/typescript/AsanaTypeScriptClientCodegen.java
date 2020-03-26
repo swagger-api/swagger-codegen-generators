@@ -85,7 +85,13 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
         });
     }
 
-  
+    @Override
+    public String toApiFilename(String name) {
+        if (name.length() == 0) {
+            return "default";
+        }
+        return snakeCase(name);
+    }
 
     @Override
     public String snakeCase(String name) {
