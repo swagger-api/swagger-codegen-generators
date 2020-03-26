@@ -502,11 +502,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     }
 
     @Override
-    public String getArgumentsLocation() {
-        return "/arguments/java.yaml";
-    }
-
-    @Override
     public String getDefaultTemplateDir() {
         return "Java";
     }
