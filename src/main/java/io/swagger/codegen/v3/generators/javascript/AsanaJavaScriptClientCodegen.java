@@ -34,7 +34,7 @@ import static java.util.Collections.sort;
 
 import java.io.IOException;
 
-public class AsanaTypeScriptAngularClientCodegen extends JavaScriptClientCodegen {
+public class AsanaJavaScriptClientCodegen extends JavaScriptClientCodegen {
     @Override
     public String getName() {
         return "asana-node";
@@ -95,6 +95,14 @@ public class AsanaTypeScriptAngularClientCodegen extends JavaScriptClientCodegen
             public Object apply(final Object a, final Options options) throws IOException {
                 String s = (String)a;
                 return camelize(s.toLowerCase());
+            }
+        });
+
+        handlebars.registerHelper("toSnakeCase", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                String s = (String)a;
+                return snakeCase(s.toLowerCase());
             }
         });
     }
