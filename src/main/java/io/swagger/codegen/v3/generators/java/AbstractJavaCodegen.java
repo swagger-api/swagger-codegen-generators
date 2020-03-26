@@ -48,12 +48,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String JAVA8_MODE = "java8";
-    public static final String WITH_XML = "withXml";
-    public static final String SUPPORT_JAVA6 = "supportJava6";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
-    protected boolean withXml = false;
     protected String invokerPackage = "io.swagger";
     protected String groupId = "io.swagger";
     protected String artifactId = "swagger-java";
@@ -80,7 +77,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected boolean serializeBigDecimalAsString = false;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
-    protected boolean supportJava6= false;
 
     public AbstractJavaCodegen() {
         super();
@@ -148,7 +144,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 .SERIALIZE_BIG_DECIMAL_AS_STRING_DESC));
         cliOptions.add(CliOption.newBoolean(FULL_JAVA_UTIL, "whether to use fully qualified name for classes under java.util. This option only works for Java API client"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC));
-        cliOptions.add(CliOption.newBoolean(WITH_XML, "whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)"));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.USE_OAS2, CodegenConstants.USE_OAS2_DESC));
 
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
@@ -197,11 +192,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         apiTestTemplateFiles.put("api_test.mustache", ".java");
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
         apiDocTemplateFiles.put("api_doc.mustache", ".md");
-
-        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
-            this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
-        }
-        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
@@ -334,11 +324,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         additionalProperties.put(FULL_JAVA_UTIL, fullJavaUtil);
         additionalProperties.put("javaUtilPrefix", javaUtilPrefix);
 
-        if (additionalProperties.containsKey(WITH_XML)) {
-            this.setWithXml(Boolean.valueOf(additionalProperties.get(WITH_XML).toString()));
-        }
-        additionalProperties.put(WITH_XML, withXml);
-
         // make api and model doc path available in mustache template
         additionalProperties.put("apiDocPath", apiDocPath);
         additionalProperties.put("modelDocPath", modelDocPath);
@@ -400,13 +385,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             setJava8Mode(Boolean.parseBoolean(additionalProperties.get(JAVA8_MODE).toString()));
             if ( java8Mode ) {
                 additionalProperties.put("java8", true);
-            }
-        }
-
-        if(additionalProperties.containsKey(WITH_XML)) {
-            setWithXml(Boolean.parseBoolean(additionalProperties.get(WITH_XML).toString()));
-            if ( withXml ) {
-                additionalProperties.put(WITH_XML, "true");
             }
         }
 
@@ -902,10 +880,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 codegenModel.imports.add("Schema");
             }
         }
-        if (codegenModel.discriminator != null && additionalProperties.containsKey("jackson")) {
-            codegenModel.imports.add("JsonSubTypes");
-            codegenModel.imports.add("JsonTypeInfo");
-        }
         boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
         if (allSchemas != null && codegenModel.parentSchema != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
@@ -948,9 +922,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
         if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
             property.vendorExtensions.put("x-is-discriminator-property", true);
-            if (additionalProperties.containsKey("jackson")) {
-                model.imports.add("JsonTypeId");
-            }
         }
     }
 
@@ -1348,10 +1319,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         this.fullJavaUtil = fullJavaUtil;
     }
 
-    public void setWithXml(boolean withXml) {
-        this.withXml = withXml;
-    }
-
     public void setDateLibrary(String library) {
         this.dateLibrary = library;
     }
@@ -1388,10 +1355,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             delim = ".";
         }
         return sb.toString();
-    }
-
-    public void setSupportJava6(boolean value) {
-        this.supportJava6 = value;
     }
 
     public String toRegularExpression(String pattern) {

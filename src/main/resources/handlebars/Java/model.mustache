@@ -3,13 +3,8 @@
 package {{package}};
 
 {{^x-is-composed-model}}
-{{^supportJava6}}
 import java.util.Objects;
 import java.util.Arrays;
-{{/supportJava6}}
-{{#supportJava6}}
-import org.apache.commons.lang3.ObjectUtils;
-{{/supportJava6}}
 {{#imports}}
 import {{import}};
 {{/imports}}
@@ -17,21 +12,7 @@ import {{import}};
 import java.io.Serializable;
 {{/serializableModel}}
 {{#jackson}}
-{{#withXml}}
-import com.fasterxml.jackson.dataformat.xml.annotation.*;
-{{/withXml}}
 {{/jackson}}
-{{#withXml}}
-import javax.xml.bind.annotation.*;
-{{/withXml}}
-{{#parcelableModel}}
-import android.os.Parcelable;
-import android.os.Parcel;
-{{/parcelableModel}}
-{{#useBeanValidation}}
-import javax.validation.constraints.*;
-import javax.validation.Valid;
-{{/useBeanValidation}}
 {{/x-is-composed-model}}
 {{#models}}
 {{#model}}
