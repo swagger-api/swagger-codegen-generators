@@ -90,7 +90,7 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
         if (name.length() == 0) {
             return "default";
         }
-        return snakeCase(name);
+        return snakeCase(name) + "_base";
     }
 
     @Override
