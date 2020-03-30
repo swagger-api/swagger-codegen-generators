@@ -49,7 +49,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String JAVA8_MODE = "java8";
 
-    protected String dateLibrary = "threetenbp";
+    protected String dateLibrary = "joda";
     protected boolean java8Mode = false;
     protected String invokerPackage = "io.swagger";
     protected String groupId = "io.swagger";
@@ -80,7 +80,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public AbstractJavaCodegen() {
         super();
-        hideGenerationTimestamp = false;
+        hideGenerationTimestamp = true;
         supportsInheritance = true;
 
         setReservedWordsLowerCase(
@@ -354,15 +354,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         // optional jackson mappings for BigDecimal support
         importMapping.put("ToStringSerializer", "com.fasterxml.jackson.databind.ser.std.ToStringSerializer");
         importMapping.put("JsonSerialize", "com.fasterxml.jackson.databind.annotation.JsonSerialize");
-
-        // imports for pojos
-        if (useOas2) {
-            importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
-            importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
-        } else {
-            importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
-        }
-
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
         importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
@@ -375,6 +366,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         importMapping.put("JsonReader", "com.google.gson.stream.JsonReader");
         importMapping.put("JsonWriter", "com.google.gson.stream.JsonWriter");
         importMapping.put("IOException", "java.io.IOException");
+        importMapping.put("Object", "java.lang.Object");
         importMapping.put("Objects", "java.util.Objects");
         importMapping.put("StringUtil", invokerPackage + ".StringUtil");
         // import JsonCreator if JsonProperty is imported
@@ -873,13 +865,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allSchemas) {
         CodegenModel codegenModel = super.fromModel(name, schema, allSchemas);
-        if(codegenModel.description != null) {
-            if (useOas2) {
-                codegenModel.imports.add("ApiModel");
-            } else {
-                codegenModel.imports.add("Schema");
-            }
-        }
         boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
         if (allSchemas != null && codegenModel.parentSchema != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
@@ -911,15 +896,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
-        if(!BooleanUtils.toBoolean(isEnum)) {
-            // needed by all pojos, but not enums
-            if (useOas2) {
-                model.imports.add("ApiModelProperty");
-                model.imports.add("ApiModel");
-            } else {
-                model.imports.add("Schema");
-            }
-        }
         if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
             property.vendorExtensions.put("x-is-discriminator-property", true);
         }
@@ -1381,7 +1357,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
      * @return getter name based on naming convention
      */
     public String toBooleanGetter(String name) {
-        return "is" + getterAndSetterCapitalize(name);
+        return "get" + getterAndSetterCapitalize(name);
     }
 
     @Override

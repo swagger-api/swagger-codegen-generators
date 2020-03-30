@@ -1,18 +1,13 @@
-{{>licenseInfo}}
-
 package {{package}};
 
 {{^x-is-composed-model}}
-import java.util.Objects;
-import java.util.Arrays;
 {{#imports}}
 import {{import}};
 {{/imports}}
+import java.util.Objects;
 {{#serializableModel}}
 import java.io.Serializable;
 {{/serializableModel}}
-{{#jackson}}
-{{/jackson}}
 {{/x-is-composed-model}}
 {{#models}}
 {{#model}}
@@ -24,3 +19,4 @@ import java.io.Serializable;
 {{/isComposedModel}}
 {{/model}}
 {{/models}}
+

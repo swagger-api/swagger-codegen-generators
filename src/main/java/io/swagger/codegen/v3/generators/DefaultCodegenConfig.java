@@ -2821,6 +2821,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     protected String getOrGenerateOperationId(Operation operation, String path, String httpMethod) {
         String operationId = operation.getOperationId();
+
+        // remove everything before a slash
+        int i = operationId.lastIndexOf('/');
+        if (i > 0) {
+            operationId = operationId.substring(i+1);
+        }
+        LOGGER.warn("getOrGenerateOperationId " + operationId + ", " + path + "," + httpMethod);
+
         if (StringUtils.isBlank(operationId)) {
             String tmpPath = path;
             tmpPath = tmpPath.replaceAll("\\{", "");

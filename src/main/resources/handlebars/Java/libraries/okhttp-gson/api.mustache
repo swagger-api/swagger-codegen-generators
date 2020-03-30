@@ -1,5 +1,3 @@
-{{>licenseInfo}}
-
 package {{package}};
 
 import {{invokerPackage}}.ApiCallback;
@@ -10,14 +8,10 @@ import {{invokerPackage}}.Configuration;
 import {{invokerPackage}}.Pair;
 import {{invokerPackage}}.ProgressRequestBody;
 import {{invokerPackage}}.ProgressResponseBody;
-
 import com.google.gson.reflect.TypeToken;
-
 import java.io.IOException;
-
 {{#imports}}import {{import}};
 {{/imports}}
-
 import java.lang.reflect.Type;
 {{^fullJavaUtil}}
 import java.util.ArrayList;
@@ -50,15 +44,18 @@ public class {{classname}} {
     {{#contents}}
     /**
      * Build call for {{operationId}}{{#parameters}}
-     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/parameters}}
      * @param progressListener Progress listener
      * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
-        {{#externalDocs}}
+    {{#isDeprecated}}
+     * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
-        {{/externalDocs}}
+    {{/externalDocs}}
      */
     public com.squareup.okhttp.Call {{operationId}}Call({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
         Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
@@ -99,7 +96,7 @@ public class {{classname}} {
         if(progressListener != null) {
             apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
+                public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
                     com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
                     .body(new ProgressResponseBody(originalResponse.body(), progressListener))
@@ -128,7 +125,7 @@ public class {{classname}} {
     /**
      * {{summary}}
      * {{notes}}{{#parameters}}
-     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}{{#returnType}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/parameters}}{{#returnType}}
      * @return {{returnType}}{{/returnType}}
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
         {{#externalDocs}}
@@ -144,7 +141,7 @@ public class {{classname}} {
     /**
      * {{summary}}
      * {{notes}}{{#parameters}}
-     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/parameters}}
      * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
         {{#externalDocs}}
@@ -161,7 +158,7 @@ public class {{classname}} {
     /**
      * {{summary}} (asynchronously)
      * {{notes}}{{#parameters}}
-     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/parameters}}
      * @param callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object

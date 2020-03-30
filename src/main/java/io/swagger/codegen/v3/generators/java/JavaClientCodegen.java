@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-import static java.util.Collections.sort;
 
 public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatures {
     static final String MEDIA_TYPE = "mediaType";
@@ -42,10 +41,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
     public JavaClientCodegen() {
         super();
         outputFolder = "generated-code" + File.separator + "java";
-        invokerPackage = "io.swagger.client";
+        invokerPackage = "io.secuconnect.client";
+        groupId = "io.secuconnect.client";
         artifactId = "swagger-java-client";
-        apiPackage = "io.swagger.client.api";
-        modelPackage = "io.swagger.client.model";
+        apiPackage = "io.secuconnect.client.api";
+        modelPackage = "io.secuconnect.client.model";
 
         cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
         cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
@@ -108,10 +108,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         supportingFiles.add(new SupportingFile("ApiClient.mustache", invokerFolder, "ApiClient.java"));
         supportingFiles.add(new SupportingFile("StringUtil.mustache", invokerFolder, "StringUtil.java"));
 
-        supportingFiles.add(new SupportingFile("auth/HttpBasicAuth.mustache", authFolder, "HttpBasicAuth.java"));
-        supportingFiles.add(new SupportingFile("auth/ApiKeyAuth.mustache", authFolder, "ApiKeyAuth.java"));
         supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
-        supportingFiles.add(new SupportingFile("auth/OAuthFlow.mustache", authFolder, "OAuthFlow.java"));
 
         supportingFiles.add(new SupportingFile( "gradlew.mustache", "", "gradlew") );
         supportingFiles.add(new SupportingFile( "gradlew.bat.mustache", "", "gradlew.bat") );
@@ -203,11 +200,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
             //Needed imports for Jackson based libraries
             if(additionalProperties.containsKey("gson")) {
                 model.imports.add("SerializedName");
-                model.imports.add("TypeAdapter");
-                model.imports.add("JsonAdapter");
-                model.imports.add("JsonReader");
-                model.imports.add("JsonWriter");
-                model.imports.add("IOException");
+//                model.imports.add("TypeAdapter");
+//                model.imports.add("JsonAdapter");
+//                model.imports.add("JsonReader");
+//                model.imports.add("JsonWriter");
+//                model.imports.add("IOException");
             }
         }
     }
