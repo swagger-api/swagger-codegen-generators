@@ -83,6 +83,14 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
                 return snakeCase(s.toLowerCase());
             }
         });
+
+        handlebars.registerHelper("capitalize", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                String s = (String)a;
+                return s.toUpperCase();
+            }
+        });
     }
 
     @Override
