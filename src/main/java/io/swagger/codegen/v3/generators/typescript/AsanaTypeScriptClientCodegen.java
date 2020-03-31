@@ -91,6 +91,22 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
                 return s.toUpperCase();
             }
         });
+
+        handlebars.registerHelper("parsePath", new Helper<Object>() {
+            @Override
+            public Object apply(final Object a, final Options options) throws IOException {
+                String s = (String)a;
+                String[] split = s.split("/");
+                for (int i = 0; i < split.length; i++) {
+                    if (split[i].startsWith("$")) {
+                        split[i] = "%s";
+                    }
+                }
+        
+                String processedPath = String.join("/", split);
+                return processedPath;
+            }
+        });
     }
 
     @Override
