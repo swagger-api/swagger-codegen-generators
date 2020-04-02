@@ -1,12 +1,17 @@
 package io.swagger.codegen.v3.generators.go;
 
 import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
 
 public class GoClientCodegen extends AbstractGoCodegen {
     protected String packageVersion = "1.0.0";
@@ -20,7 +25,6 @@ public class GoClientCodegen extends AbstractGoCodegen {
         this.apiTemplateFiles.put("api.mustache", ".go");
         this.modelDocTemplateFiles.put("model_doc.mustache", ".md");
         this.apiDocTemplateFiles.put("api_doc.mustache", ".md");
-        this.embeddedTemplateDir = this.templateDir = "go";
         this.hideGenerationTimestamp = Boolean.TRUE;
         this.setReservedWordsLowerCase(Arrays.asList("string", "bool", "uint", "uint8", "uint16", "uint32", "uint64", "int", "int8", "int16", "int32", "int64", "float32", "float64", "complex64", "complex128", "rune", "byte", "uintptr", "break", "default", "func", "interface", "select", "case", "defer", "go", "map", "struct", "chan", "else", "goto", "package", "switch", "const", "fallthrough", "if", "range", "type", "continue", "for", "import", "return", "var", "error", "ApiResponse", "nil"));
         this.cliOptions.add((new CliOption("packageVersion", "Go package version.")).defaultValue("1.0.0"));
@@ -112,6 +116,14 @@ public class GoClientCodegen extends AbstractGoCodegen {
 
     public void setPackageVersion(String packageVersion) {
         this.packageVersion = packageVersion;
+    }
+
+    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
+        final CodegenOperation codegenOperation = super.fromOperation(path, httpMethod, operation, schemas, openAPI);
+        if (codegenOperation.getHasBodyParam() || codegenOperation.bodyParam != null) {
+            codegenOperation.getFormParams().clear();
+        }
+        return codegenOperation;
     }
 }
 

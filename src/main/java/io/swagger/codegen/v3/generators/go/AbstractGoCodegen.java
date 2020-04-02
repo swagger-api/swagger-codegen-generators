@@ -3,6 +3,7 @@ package io.swagger.codegen.v3.generators.go;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
@@ -325,34 +326,36 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         boolean addedTimeImport = false;
         boolean addedOSImport = false;
         for (CodegenOperation operation : operations) {
-            for (CodegenParameter param : operation.allParams) {
-                // import "os" if the operation uses files
-                if (!addedOSImport && param.dataType == "*os.File") {
-                    imports.add(createMapping("import", "os"));
-                    addedOSImport = true;
-                }
+            for (CodegenContent codegenContent : operation.getContents()) {
+                for (CodegenParameter param : codegenContent.getParameters()) {
+                    // import "os" if the operation uses files
+                    if (!addedOSImport && param.dataType == "*os.File") {
+                        imports.add(createMapping("import", "os"));
+                        addedOSImport = true;
+                    }
 
-                // import "time" if the operation has a required time parameter.
-                if (param.required) {
-                    if (!addedTimeImport && param.dataType == "time.Time") {
-                        imports.add(createMapping("import", "time"));
-                        addedTimeImport = true;
+                    // import "time" if the operation has a required time parameter.
+                    if (param.required) {
+                        if (!addedTimeImport && param.dataType == "time.Time") {
+                            imports.add(createMapping("import", "time"));
+                            addedTimeImport = true;
+                        }
                     }
-                }
 
-                // import "optionals" package if the parameter is primitive and optional
-                if (!param.required && getBooleanValue(param, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME)) {
-                    if (!addedOptionalImport) {
-                        imports.add(createMapping("import", "github.com/antihax/optional"));
-                        addedOptionalImport = true;
+                    // import "optionals" package if the parameter is primitive and optional
+                    if (!param.required && param.getIsPrimitiveType()) {
+                        if (!addedOptionalImport) {
+                            imports.add(createMapping("import", "github.com/antihax/optional"));
+                            addedOptionalImport = true;
+                        }
+                        // We need to specially map Time type to the optionals package
+                        if (param.dataType == "time.Time") {
+                            param.vendorExtensions.put("x-optionalDataType", "Time");
+                            continue;
+                        }
+                        // Map optional type to dataType
+                        param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
                     }
-                    // We need to specially map Time type to the optionals package
-                    if (param.dataType == "time.Time") {
-                        param.vendorExtensions.put("x-optionalDataType", "Time");
-                        continue;
-                    }
-                    // Map optional type to dataType
-                    param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
                 }
             }
         }

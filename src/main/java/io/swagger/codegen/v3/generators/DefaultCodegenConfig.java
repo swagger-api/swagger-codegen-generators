@@ -2173,9 +2173,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 } else if (param instanceof CookieParameter || "cookie".equalsIgnoreCase(param.getIn())) {
                     cookieParams.add(codegenParameter.copy());
                 }
-                if (!codegenParameter.required) {
-                    codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_OPTIONAL_PARAMS_EXT_NAME, Boolean.TRUE);
-                } else {
+                if (codegenParameter.required) {
                     requiredParams.add(codegenParameter.copy());
                 }
             }
@@ -2221,6 +2219,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         boolean hasRequiredParams = codegenOperation.requiredParams.size() > 0;
         codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_REQUIRED_PARAMS_EXT_NAME, hasRequiredParams);
+
+        boolean hasOptionalParams = codegenOperation.allParams.stream()
+                .anyMatch(codegenParameter -> !codegenParameter.required);
+        codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_OPTIONAL_PARAMS_EXT_NAME, hasOptionalParams);
 
         // set Restful Flag
         codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_SHOW_EXT_NAME, codegenOperation.getIsRestfulShow());
