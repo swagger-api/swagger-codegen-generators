@@ -102,7 +102,7 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
             }
         });
 
-        handlebars.registerHelper("capitalize", new Helper<Object>() {
+        handlebars.registerHelper("toUpperCase", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
                 String s = (String)a;
@@ -110,7 +110,7 @@ public class AsanaTypeScriptClientCodegen extends TypeScriptAngularClientCodegen
             }
         });
 
-        handlebars.registerHelper("jsonParser", new Helper<Object>() {
+        handlebars.registerHelper("getExampleFromJson", new Helper<Object>() {
             @Override
             public Object apply(final Object a, final Options options) throws IOException {
                 String s = (String)a;
