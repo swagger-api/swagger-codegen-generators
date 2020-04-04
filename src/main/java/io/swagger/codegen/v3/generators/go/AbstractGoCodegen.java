@@ -530,4 +530,20 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public void setWithXml(boolean withXml) {
         this.withXml = withXml;
     }
+
+    @Override
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (!getBooleanValue(codegenModel, CodegenConstants.IS_ALIAS_EXT_NAME)) {
+            boolean isAlias = schema instanceof ArraySchema
+                    || schema instanceof MapSchema
+                    || (!isObjectSchema(schema));
+
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, isAlias);
+        }
+
+
+
+        return codegenModel;
+    }
 }
