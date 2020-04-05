@@ -17,8 +17,15 @@ const (
 ){{/isEnum}}{{^isEnum}}{{#description}}
 // {{{description}}}{{/description}}
 type {{classname}} struct {
+{{#isComposedModel}}
+    {{#interfaceModels}}
+    {{classname}}
+    {{/interfaceModels}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#vars}}{{#description}}
 	// {{{description}}}{{/description}}
 	{{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}*{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `json:"{{baseName}}{{^required}},omitempty{{/required}}"`
 {{/vars}}
+{{/isComposedModel}}
 }{{/isEnum}}{{/model}}{{/models}}
