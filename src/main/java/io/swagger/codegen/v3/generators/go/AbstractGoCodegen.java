@@ -1,14 +1,15 @@
 package io.swagger.codegen.v3.generators.go;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -267,6 +268,14 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     @Override
     public String getSchemaType(Schema schema) {
         String schemaType = super.getSchemaType(schema);
+
+        if (schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema)) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+
         String type;
         if(typeMapping.containsKey(schemaType)) {
             type = typeMapping.get(schemaType);
@@ -546,5 +555,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
 
         return codegenModel;
+    }
+
+    @Override
+    public ISchemaHandler getSchemaHandler() {
+        return new GoSchemaHandler(this);
     }
 }
