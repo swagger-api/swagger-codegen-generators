@@ -10,7 +10,8 @@ import Foundation
 {{#description}}
 /** {{description}} */{{/description~}}
 {{#is this 'alias'}}
-typealias {{classname}} = {{dataType}}
+
+public typealias {{classname}} = {{dataType}}
 {{/is}}
 {{#isNot this 'alias'}}
 {{#is this 'array-model'}}
