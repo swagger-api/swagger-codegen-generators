@@ -8,7 +8,6 @@ import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.handlebars.csharp.CsharpHelper;
 import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
