@@ -23,8 +23,8 @@ namespace {{packageName}}.Controllers
       {{#contents}}
         /// <summary>
         /// {{#summary}}{{summary}}{{/summary}}
-        /// </summary>
-        {{#notes}}/// <remarks>{{notes}}</remarks>{{/notes}}{{#parameters}}
+        /// </summary>{{#notes}}
+        /// <remarks>{{notes}}</remarks>{{/notes}}{{#parameters}}
         /// <param name="{{paramName}}">{{description}}</param>{{/parameters}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
