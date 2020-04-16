@@ -116,7 +116,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
                 gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.properties") );
         supportingFiles.add(new SupportingFile( "gradle-wrapper.jar",
                 gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.jar") );
-        supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
 
         supportingFiles.add(new SupportingFile("apiException.mustache", invokerFolder, "ApiException.java"));

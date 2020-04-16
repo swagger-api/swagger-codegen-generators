@@ -60,7 +60,6 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             new String[] {"package.mustache", "package.json"},
             new String[] {"index.mustache", "src/index.js"},
             new String[] {"ApiClient.mustache", "src/ApiClient.js"},
-            new String[] {"git_push.sh.mustache", "git_push.sh"},
             new String[] {"README.mustache", "README.md"},
             new String[] {"mocha.opts", "mocha.opts"},
             new String[] {"travis.yml", ".travis.yml"},

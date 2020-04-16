@@ -19,14 +19,7 @@ import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
-import io.swagger.codegen.v3.generators.handlebars.BaseItemsHelper;
-import io.swagger.codegen.v3.generators.handlebars.BracesHelper;
-import io.swagger.codegen.v3.generators.handlebars.HasHelper;
-import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
-import io.swagger.codegen.v3.generators.handlebars.IsHelper;
-import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
-import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
-import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
+import io.swagger.codegen.v3.generators.handlebars.*;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
@@ -3614,6 +3607,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
         handlebars.registerHelper(NotEmptyHelper.NAME, new NotEmptyHelper());
         handlebars.registerHelpers(new StringUtilHelper());
+        handlebars.registerHelpers(new HandlebarsHelpers());
     }
 
     @Override

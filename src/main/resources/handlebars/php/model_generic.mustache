@@ -4,108 +4,70 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
       * The original name of the model.
-      *
       * @var string
       */
     protected static $swaggerModelName = '{{name}}';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
-      *
       * @var string[]
       */
-    protected static $swaggerTypes = [
-        {{#vars}}'{{name}}' => '{{{datatype}}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+    protected static $swaggerTypes = [{{#vars}}
+        '{{name}}' => '{{{datatype}}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
     /**
       * Array of property to format mappings. Used for (de)serialization
-      *
       * @var string[]
       */
-    protected static $swaggerFormats = [
-        {{#vars}}'{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+    protected static $swaggerFormats = [{{#vars}}
+        '{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
-    /**
-     * Array of property to type mappings. Used for (de)serialization
-     *
-     * @return array
-     */
     public static function swaggerTypes()
     {
         return self::$swaggerTypes{{#parentSchema}} + parent::swaggerTypes(){{/parentSchema}};
     }
 
-    /**
-     * Array of property to format mappings. Used for (de)serialization
-     *
-     * @return array
-     */
     public static function swaggerFormats()
     {
         return self::$swaggerFormats{{#parentSchema}} + parent::swaggerFormats(){{/parentSchema}};
     }
 
     /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
+     * Array of attributes where the key is the local name, and the value is the original name
      * @var string[]
      */
-    protected static $attributeMap = [
-        {{#vars}}'{{name}}' => '{{baseName}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+    protected static $attributeMap = [{{#vars}}
+        '{{name}}' => '{{baseName}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
     /**
      * Array of attributes to setter functions (for deserialization of responses)
-     *
      * @var string[]
      */
-    protected static $setters = [
-        {{#vars}}'{{name}}' => '{{setter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+    protected static $setters = [{{#vars}}
+        '{{name}}' => '{{setter}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
     /**
      * Array of attributes to getter functions (for serialization of requests)
-     *
      * @var string[]
      */
-    protected static $getters = [
-        {{#vars}}'{{name}}' => '{{getter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+    protected static $getters = [{{#vars}}
+        '{{name}}' => '{{getter}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @return array
-     */
     public static function attributeMap()
     {
         return {{#parentSchema}}parent::attributeMap() + {{/parentSchema}}self::$attributeMap;
     }
 
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @return array
-     */
     public static function setters()
     {
         return {{#parentSchema}}parent::setters() + {{/parentSchema}}self::$setters;
     }
 
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @return array
-     */
     public static function getters()
     {
         return {{#parentSchema}}parent::getters() + {{/parentSchema}}self::$getters;
@@ -127,7 +89,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     {{#vars}}{{#isEnum}}
     /**
      * Gets allowable values of the enum
-     *
      * @return string[]
      */
     public function {{getter}}AllowableValues()
@@ -142,7 +103,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     {{^parentSchema}}
     /**
      * Associative array for storing property values
-     *
      * @var mixed[]
      */
     protected $container = [];
@@ -150,9 +110,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
+     * @param mixed[] $data Associated array of property values initializing the model
      */
     public function __construct(array $data = null)
     {
@@ -172,30 +130,30 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     }
 
     /**
-     * Show all the invalid properties with reasons.
+     * show all the invalid properties with reasons.
      *
      * @return array invalid properties with reasons
      */
     public function listInvalidProperties()
     {
         {{#parent}}
-        $invalidProperties = parent::listInvalidProperties();
+        $invalid_properties = parent::listInvalidProperties();
         {{/parent}}
         {{^parent}}
-        $invalidProperties = [];
+        $invalid_properties = [];
         {{/parent}}
 
         {{#vars}}
         {{#required}}
         if ($this->container['{{name}}'] === null) {
-            $invalidProperties[] = "'{{name}}' can't be null";
+            $invalid_properties[] = "'{{name}}' can't be null";
         }
         {{/required}}
         {{#isEnum}}
         {{^isContainer}}
-        $allowedValues = $this->{{getter}}AllowableValues();
-        if (!is_null($this->container['{{name}}']) && !in_array($this->container['{{name}}'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
+        $allowed_values = $this->{{getter}}AllowableValues();
+        if (!is_null($this->container['{{name}}']) && !in_array($this->container['{{name}}'], $allowed_values, true)) {
+            $invalid_properties[] = sprintf(
                 "invalid value for '{{name}}', must be one of '%s'",
                 implode("', '", $allowedValues)
             );
@@ -206,53 +164,53 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         {{#hasValidation}}
         {{#maxLength}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(mb_strlen($this->container['{{name}}']) > {{maxLength}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', the character length must be smaller than or equal to {{{maxLength}}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', the character length must be smaller than or equal to {{{maxLength}}}.";
         }
 
         {{/maxLength}}
         {{#minLength}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(mb_strlen($this->container['{{name}}']) < {{minLength}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', the character length must be bigger than or equal to {{{minLength}}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', the character length must be bigger than or equal to {{{minLength}}}.";
         }
 
         {{/minLength}}
         {{#maximum}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}($this->container['{{name}}'] >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.";
         }
 
         {{/maximum}}
         {{#minimum}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}($this->container['{{name}}'] <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.";
         }
 
         {{/minimum}}
         {{#pattern}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}!preg_match("{{{pattern}}}", $this->container['{{name}}'])) {
-            $invalidProperties[] = "invalid value for '{{name}}', must be conform to the pattern {{{pattern}}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', must be conform to the pattern {{{pattern}}}.";
         }
 
         {{/pattern}}
         {{#maxItems}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(count($this->container['{{name}}']) > {{maxItems}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', number of items must be less than or equal to {{{maxItems}}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', number of items must be less than or equal to {{{maxItems}}}.";
         }
 
         {{/maxItems}}
         {{#minItems}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(count($this->container['{{name}}']) < {{minItems}})) {
-            $invalidProperties[] = "invalid value for '{{name}}', number of items must be greater than or equal to {{{minItems}}}.";
+            $invalid_properties[] = "invalid value for '{{name}}', number of items must be greater than or equal to {{{minItems}}}.";
         }
 
         {{/minItems}}
         {{/hasValidation}}
         {{/vars}}
-        return $invalidProperties;
+        return $invalid_properties;
     }
 
     /**
-     * Validate all the properties in the model
+     * validate all the properties in the model
      * return true if all passed
      *
      * @return bool True if all properties are valid
@@ -266,7 +224,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Gets {{name}}
-     *
      * @return {{datatype}}
      */
     public function {{getter}}()
@@ -276,31 +233,29 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Sets {{name}}
-     *
      * @param {{datatype}} ${{name}}{{#description}} {{{description}}}{{/description}}{{^description}} {{{name}}}{{/description}}
-     *
      * @return $this
      */
     public function {{setter}}(${{name}})
     {
         {{#isEnum}}
-        $allowedValues = $this->{{getter}}AllowableValues();
+        $allowed_values = $this->{{getter}}AllowableValues();
         {{^isContainer}}
-        if ({{^required}}!is_null(${{name}}) && {{/required}}!in_array(${{{name}}}, $allowedValues, true)) {
+        if ({{^required}}!is_null(${{name}}) && {{/required}}!in_array(${{{name}}}, $allowed_values, true)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     "Invalid value for '{{name}}', must be one of '%s'",
-                    implode("', '", $allowedValues)
+                    implode("', '", $allowed_values)
                 )
             );
         }
         {{/isContainer}}
         {{#isContainer}}
-        if ({{^required}}!is_null(${{name}}) && {{/required}}array_diff(${{{name}}}, $allowedValues)) {
+        if ({{^required}}!is_null(${{name}}) && {{/required}}array_diff(${{{name}}}, $allowed_values)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     "Invalid value for '{{name}}', must be one of '%s'",
-                    implode("', '", $allowedValues)
+                    implode("', '", $allowed_values)
                 )
             );
         }
@@ -348,9 +303,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     {{/vars}}
     /**
      * Returns true if offset exists. False otherwise.
-     *
      * @param integer $offset Offset
-     *
      * @return boolean
      */
     public function offsetExists($offset)
@@ -360,9 +313,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Gets offset.
-     *
      * @param integer $offset Offset
-     *
      * @return mixed
      */
     public function offsetGet($offset)
@@ -372,10 +323,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Sets value based on offset.
-     *
      * @param integer $offset Offset
      * @param mixed   $value  Value to be set
-     *
      * @return void
      */
     public function offsetSet($offset, $value)
@@ -389,9 +338,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Unsets offset.
-     *
      * @param integer $offset Offset
-     *
      * @return void
      */
     public function offsetUnset($offset)
@@ -401,18 +348,15 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
 
     /**
      * Gets the string presentation of the object
-     *
      * @return string
      */
     public function __toString()
     {
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
-            return json_encode(
-                ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
-            );
+            return json_encode({{backSlash}}{{invokerPackage}}{{backSlash}}ObjectSerializer::sanitizeForSerialization($this), JSON_PRETTY_PRINT);
         }
 
-        return json_encode(ObjectSerializer::sanitizeForSerialization($this));
+        return json_encode({{backSlash}}{{invokerPackage}}{{backSlash}}ObjectSerializer::sanitizeForSerialization($this));
     }
 }
+

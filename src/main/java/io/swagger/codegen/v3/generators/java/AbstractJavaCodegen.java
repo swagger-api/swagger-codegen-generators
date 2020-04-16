@@ -189,9 +189,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         modelTemplateFiles.put("model.mustache", ".java");
         apiTemplateFiles.put("api.mustache", ".java");
-        apiTestTemplateFiles.put("api_test.mustache", ".java");
-        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+//        apiTestTemplateFiles.put("api_test.mustache", ".java");
+//        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+//        apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));

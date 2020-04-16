@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.swagger.codegen.v3</groupId>
-    <artifactId>swagger-codegen-generators</artifactId>
+    <artifactId>secuconnect-codegen-generators</artifactId>
     <version>1.0.19</version>
     <packaging>jar</packaging>
 
