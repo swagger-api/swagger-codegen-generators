@@ -5,6 +5,6 @@
 enum class {{classname}}(val value: {{dataType}}){
 {{#allowableValues}}{{#enumVars}}
     @Json(name = {{{value}}})
-    {{&name}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}// :/
+    {{&name}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}}{{/@last}}
 {{/enumVars}}{{/allowableValues}}
 }
