@@ -330,6 +330,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         final Paths paths = openAPI.getPaths();
         addRouterControllerExtensions(paths);
         final Map<String, SecurityScheme> securitySchemes = openAPI.getComponents() != null ? openAPI.getComponents().getSecuritySchemes() : null;

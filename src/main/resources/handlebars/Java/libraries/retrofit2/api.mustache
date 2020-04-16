@@ -58,7 +58,7 @@ public interface {{classname}} {
   {{/formParams}}  
   @{{httpMethod}}("{{{path}}}")
   {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}({{^parameters}});{{/parameters}}
-    {{#parameters}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
+    {{#parameters}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{>libraries/retrofit2/cookieParams}}{{#has this 'more'}}, {{/has}}{{#hasNot this 'more'}}
   );{{/hasNot}}{{/parameters}}
 
   {{/contents}}

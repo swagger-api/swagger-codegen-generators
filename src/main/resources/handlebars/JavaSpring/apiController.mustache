@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 {{/fullController}}
 import org.springframework.stereotype.Controller;
 {{#fullController}}
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -100,7 +101,7 @@ public class {{classname}}Controller implements {{classname}} {
 {{#fullController}}
 {{#operation}}
 {{#contents}}
-    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{^isDelegate}}
         {{^async}}
         String accept = request.getHeader("Accept");

@@ -28,6 +28,7 @@ public class TypeScriptSchemaHandler extends SchemaHandler {
 
         if (isAlias) {
             codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, Boolean.TRUE);
+            codegenModel.dataType = this.codegenConfig.getSchemaType(schema);
             this.codegenConfig.addImport(codegenModel, codegenModel.dataType);
         }
     }

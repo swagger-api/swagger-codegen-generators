@@ -3,7 +3,7 @@
  */{{#description}}
 @ApiModel(description = "{{{description}}}"){{/description}}
 {{>generatedAnnotation}}
-public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable {{#interfaceModels}}, {{name}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}}{{^serializableModel}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{name}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}} {
+public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable {{#interfaceModels}}, {{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}}{{^serializableModel}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}}{{^serializableModel}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{name}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}} {
   {{#vars}}
     {{#isEnum}}
     {{^isContainer}}

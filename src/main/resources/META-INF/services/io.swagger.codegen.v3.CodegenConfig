@@ -1,6 +1,7 @@
 io.swagger.codegen.v3.generators.dotnet.AspNetCoreServerCodegen
 io.swagger.codegen.v3.generators.dotnet.CSharpClientCodegen
 io.swagger.codegen.v3.generators.dotnet.CsharpDotNet2ClientCodegen
+io.swagger.codegen.v3.generators.go.GoClientCodegen
 io.swagger.codegen.v3.generators.go.GoServerCodegen
 io.swagger.codegen.v3.generators.html.StaticDocCodegen
 io.swagger.codegen.v3.generators.html.StaticHtmlCodegen
@@ -25,6 +26,7 @@ io.swagger.codegen.v3.generators.kotlin.KotlinServerCodegen
 io.swagger.codegen.v3.generators.php.PhpClientCodegen
 io.swagger.codegen.v3.generators.python.PythonClientCodegen
 io.swagger.codegen.v3.generators.python.PythonFlaskConnexionCodegen
+io.swagger.codegen.v3.generators.r.RClientCodegen
 io.swagger.codegen.v3.generators.scala.ScalaClientCodegen
 io.swagger.codegen.v3.generators.scala.AkkaHttpServerCodegen
 io.swagger.codegen.v3.generators.swift.Swift3Codegen
