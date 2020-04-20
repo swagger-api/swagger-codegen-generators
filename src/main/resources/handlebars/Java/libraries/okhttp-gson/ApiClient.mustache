@@ -1,7 +1,11 @@
-{{>licenseInfo}}
-
 package {{invokerPackage}};
 
+import io.secuconnect.client.auth.Authentication;
+import io.secuconnect.client.auth.OAuth;
+import io.secuconnect.client.cache.CacheItem;
+import io.secuconnect.client.cache.FileCache;
+import io.secuconnect.client.printer.ImitationDevicePrinter;
+import io.secuconnect.client.printer.Printer;
 import com.squareup.okhttp.*;
 import com.squareup.okhttp.internal.http.HttpMethod;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
@@ -46,23 +50,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import {{invokerPackage}}.auth.Authentication;
-import {{invokerPackage}}.auth.HttpBasicAuth;
-import {{invokerPackage}}.auth.ApiKeyAuth;
-import {{invokerPackage}}.auth.OAuth;
-
 public class ApiClient {
 
     private String basePath = "{{{basePath}}}";
+    private String authHost = "https://connect-testing.secupay-ag.de/";
     private boolean debugging = false;
-    private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
+    private final Map<String, String> defaultHeaderMap = new HashMap<String, String>();
     private String tempFolderPath = null;
 
     private Map<String, Authentication> authentications;
 
     private DateFormat dateFormat;
-    private DateFormat datetimeFormat;
-    private boolean lenientDatetimeFormat;
     private int dateLength;
 
     private InputStream sslCaCert;
@@ -73,6 +71,47 @@ public class ApiClient {
     private JSON json;
 
     private HttpLoggingInterceptor loggingInterceptor;
+
+    private CacheItem cacheItem;
+    private Printer printer;
+
+    public ApiClient(String basePath, String authHost, boolean debugging, String tempFolderPath, Map<String, Authentication> authentications, DateFormat dateFormat, int dateLength, InputStream sslCaCert, boolean verifyingSsl, KeyManager[] keyManagers, OkHttpClient httpClient, JSON json, HttpLoggingInterceptor loggingInterceptor, CacheItem cacheItem, Printer printer) {
+        this.basePath = basePath;
+        this.authHost = authHost;
+        this.debugging = debugging;
+        this.tempFolderPath = tempFolderPath;
+        this.authentications = authentications;
+        this.dateFormat = dateFormat;
+        this.dateLength = dateLength;
+        this.sslCaCert = sslCaCert;
+        this.verifyingSsl = verifyingSsl;
+        this.keyManagers = keyManagers;
+        this.httpClient = httpClient;
+        this.json = json;
+        this.loggingInterceptor = loggingInterceptor;
+        this.cacheItem = cacheItem;
+        this.printer = printer;
+    }
+
+    public ApiClient(ApiClient apiClient) {
+        this(
+            apiClient.getBasePath(),
+            apiClient.getAuthHost(),
+            apiClient.isDebugging(),
+            apiClient.getTempFolderPath(),
+            apiClient.getAuthentications(),
+            apiClient.getDateFormat(),
+            apiClient.getDateLength(),
+            apiClient.getSslCaCert(),
+            apiClient.isVerifyingSsl(),
+            apiClient.getKeyManagers(),
+            apiClient.getHttpClient(),
+            apiClient.getJSON(),
+            apiClient.getLoggingInterceptor(),
+            apiClient.getCacheItem(),
+            apiClient.getPrinter()
+        );
+    }
 
     /*
      * Constructor for ApiClient
@@ -90,7 +129,7 @@ public class ApiClient {
         json = new JSON();
 
         // Set default User-Agent.
-        setUserAgent("{{#httpUserAgent}}{{{.}}}{{/httpUserAgent}}{{^httpUserAgent}}Swagger-Codegen/{{{artifactVersion}}}/java{{/httpUserAgent}}");
+        setUserAgent("{{#httpUserAgent}}{{{.}}}{{/httpUserAgent}}{{^httpUserAgent}}{{artifactId}}/{{{artifactVersion}}}{{/httpUserAgent}}");
 
         // Setup authentications (key: authentication name, value: authentication).
         authentications = new HashMap<String, Authentication>();{{#authMethods}}{{#is this 'basic'}}
@@ -100,12 +139,39 @@ public class ApiClient {
         authentications.put("{{name}}", new OAuth());{{/is}}{{/authMethods}}
         // Prevent the authentications from being modified.
         authentications = Collections.unmodifiableMap(authentications);
+
+        cacheItem = new FileCache();
+        printer = new ImitationDevicePrinter();
+    }
+
+    public CacheItem getCacheItem() {
+        return cacheItem;
+    }
+
+    public void setCacheItem(CacheItem cacheItem) {
+        this.cacheItem = cacheItem;
+    }
+
+    public Printer getPrinter() {
+        return printer;
+    }
+
+    public void setPrinter(Printer printer) {
+        this.printer = printer;
+    }
+
+    public int getDateLength() {
+        return dateLength;
+    }
+
+    public HttpLoggingInterceptor getLoggingInterceptor() {
+        return loggingInterceptor;
     }
 
     /**
      * Get base path
      *
-     * @return Baes path
+     * @return Base path
      */
     public String getBasePath() {
         return basePath;
@@ -114,11 +180,31 @@ public class ApiClient {
     /**
      * Set base path
      *
-     * @param basePath Base path of the URL (e.g {{{basePath}}}
-     * @return An instance of OkHttpClient
+     * @param basePath Base path of the URL (e.g {{{basePath}}} )
+     * @return The instance of ApiClient
      */
     public ApiClient setBasePath(String basePath) {
         this.basePath = basePath;
+        return this;
+    }
+
+    /**
+     * Gets the authentication host
+     *
+     * @return The authentication host URL
+     */
+    public String getAuthHost() {
+        return authHost;
+    }
+
+    /**
+     * Sets the authentication host
+     *
+     * @param authHost The authentication host URL (e.g https://connect-testing.secupay-ag.de/ )
+     * @return The instance of ApiClient
+     */
+    public ApiClient setAuthHost(String authHost) {
+        this.authHost = authHost;
         return this;
     }
 
@@ -229,6 +315,7 @@ public class ApiClient {
     }
 
     public ApiClient setDateFormat(DateFormat dateFormat) {
+        this.dateFormat = dateFormat;
         this.json.setDateFormat(dateFormat);
         return this;
     }
@@ -284,66 +371,6 @@ public class ApiClient {
      */
     public Authentication getAuthentication(String authName) {
         return authentications.get(authName);
-    }
-
-    /**
-     * Helper method to set username for the first HTTP basic authentication.
-     *
-     * @param username Username
-     */
-    public void setUsername(String username) {
-        for (Authentication auth : authentications.values()) {
-            if (auth instanceof HttpBasicAuth) {
-                ((HttpBasicAuth) auth).setUsername(username);
-                return;
-            }
-        }
-        throw new RuntimeException("No HTTP basic authentication configured!");
-    }
-
-    /**
-     * Helper method to set password for the first HTTP basic authentication.
-     *
-     * @param password Password
-     */
-    public void setPassword(String password) {
-        for (Authentication auth : authentications.values()) {
-            if (auth instanceof HttpBasicAuth) {
-                ((HttpBasicAuth) auth).setPassword(password);
-                return;
-            }
-        }
-        throw new RuntimeException("No HTTP basic authentication configured!");
-    }
-
-    /**
-     * Helper method to set API key value for the first API key authentication.
-     *
-     * @param apiKey API key
-     */
-    public void setApiKey(String apiKey) {
-        for (Authentication auth : authentications.values()) {
-            if (auth instanceof ApiKeyAuth) {
-                ((ApiKeyAuth) auth).setApiKey(apiKey);
-                return;
-            }
-        }
-        throw new RuntimeException("No API key authentication configured!");
-    }
-
-    /**
-     * Helper method to set API key prefix for the first API key authentication.
-     *
-     * @param apiKeyPrefix API key prefix
-     */
-    public void setApiKeyPrefix(String apiKeyPrefix) {
-        for (Authentication auth : authentications.values()) {
-            if (auth instanceof ApiKeyAuth) {
-                ((ApiKeyAuth) auth).setApiKeyPrefix(apiKeyPrefix);
-                return;
-            }
-        }
-        throw new RuntimeException("No API key authentication configured!");
     }
 
     /**
@@ -417,7 +444,7 @@ public class ApiClient {
     /**
      * The path of temporary folder used to store downloaded files from endpoints
      * with file response. The default value is <code>null</code>, i.e. using
-     * the system's default tempopary folder.
+     * the system's default temporary folder.
      *
      * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html#createTempFile">createTempFile</a>
      * @return Temporary folder path
@@ -448,7 +475,7 @@ public class ApiClient {
 
     /**
      * Sets the connect timeout (in milliseconds).
-     * A value of 0 means no timeout, otherwise values must be between 1 and
+     * A value of 0 means no timeout, otherwise values must be greater than 1
      *
      * @param connectionTimeout connection timeout in milliseconds
      * @return Api client
@@ -469,7 +496,7 @@ public class ApiClient {
 
     /**
      * Sets the read timeout (in milliseconds).
-     * A value of 0 means no timeout, otherwise values must be between 1 and
+     * A value of 0 means no timeout, otherwise values must be greater than 1
      * {@link Integer#MAX_VALUE}.
      *
      * @param readTimeout read timeout in milliseconds
@@ -499,6 +526,18 @@ public class ApiClient {
      */
     public ApiClient setWriteTimeout(int writeTimeout) {
         httpClient.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS);
+        return this;
+    }
+
+    /**
+     * Sets the read/write timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be greater than 1
+     *
+     * @param timeout read/write timeout in milliseconds
+     * @return Api client
+     */
+    public ApiClient setTimeout(int timeout) {
+        httpClient.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
+        httpClient.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
         return this;
     }
 
@@ -587,7 +626,7 @@ public class ApiClient {
             delimiter = escapeString("|");
         }
 
-        StringBuilder sb = new StringBuilder() ;
+        StringBuilder sb = new StringBuilder();
         for (Object item : value) {
             sb.append(delimiter);
             sb.append(escapeString(parameterToString(item)));
@@ -712,10 +751,11 @@ public class ApiClient {
 
         String respBody;
         try {
-            if (response.body() != null)
+            if (response.body() != null) {
                 respBody = response.body().string();
-            else
+            } else {
                 respBody = null;
+            }
         } catch (IOException e) {
             throw new ApiException(e);
         }
@@ -824,14 +864,16 @@ public class ApiClient {
                 suffix = filename.substring(pos);
             }
             // File.createTempFile requires the prefix to be at least three characters long
-            if (prefix.length() < 3)
+            if (prefix.length() < 3) {
                 prefix = "download-";
+            }
         }
 
-        if (tempFolderPath == null)
+        if (tempFolderPath == null) {
             return File.createTempFile(prefix, suffix);
-        else
+        } else {
             return File.createTempFile(prefix, suffix, new File(tempFolderPath));
+        }
     }
 
     /**
@@ -1081,7 +1123,7 @@ public class ApiClient {
      * Set header parameters to the request builder, including default headers.
      *
      * @param headerParams Header parameters in the ofrm of Map
-     * @param reqBuilder Reqeust.Builder
+     * @param reqBuilder Request.Builder
      */
     public void processHeaderParams(Map<String, String> headerParams, Request.Builder reqBuilder) {
         for (Entry<String, String> param : headerParams.entrySet()) {
@@ -1104,7 +1146,9 @@ public class ApiClient {
     public void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
         for (String authName : authNames) {
             Authentication auth = authentications.get(authName);
-            if (auth == null) throw new RuntimeException("Authentication undefined: " + authName);
+            if (auth == null) {
+                throw new RuntimeException("Authentication undefined: " + authName);
+            }
             auth.applyToParams(queryParams, headerParams);
         }
     }

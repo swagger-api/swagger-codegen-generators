@@ -3,7 +3,6 @@ package io.swagger.codegen.v3.generators.java;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
@@ -33,19 +32,30 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
 
     public static final String USE_RUNTIME_EXCEPTION = "useRuntimeException";
 
-    protected String gradleWrapperPackage = "gradle.wrapper";
     protected boolean useGzipFeature = false;
     protected boolean useRuntimeException = false;
 
 
     public JavaClientCodegen() {
         super();
+        artifactVersion = "2.0.0";
         outputFolder = "generated-code" + File.separator + "java";
         invokerPackage = "io.secuconnect.client";
-        groupId = "io.secuconnect.client";
-        artifactId = "swagger-java-client";
+        groupId = "io.secuconnect";
+        artifactId = "secuconnect-java-sdk";
         apiPackage = "io.secuconnect.client.api";
         modelPackage = "io.secuconnect.client.model";
+        scmConnection = "scm:git:git@github.com:secuconnect/secuconnect-java-sdk.git";
+        scmDeveloperConnection = "scm:git:git@github.com:secuconnect/secuconnect-java-sdk.git";
+        scmUrl = "https://github.com/secuconnect/secuconnect-java-sdk";
+        licenseName = "The Apache Software License, Version 2.0";
+        licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt";
+        developerName = "secuconnect";
+        developerEmail = "info@secuconnect.com";
+        developerOrganization = "secuconnect KG";
+        developerOrganizationUrl = "http://secuconnect.com";
+        artifactUrl = "https://github.com/secuconnect/secuconnect-java-sdk";
+        artifactDescription = "Secuconnect Java";
 
         cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
         cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
@@ -58,7 +68,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         libraryOption.setDefault("okhttp-gson");
         cliOptions.add(libraryOption);
         setLibrary("okhttp-gson");
-
     }
 
     @Override
@@ -99,23 +108,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         //Common files
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
-        writeOptional(outputFolder, new SupportingFile("build.gradle.mustache", "", "build.gradle"));
-        writeOptional(outputFolder, new SupportingFile("build.sbt.mustache", "", "build.sbt"));
-        writeOptional(outputFolder, new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
-        writeOptional(outputFolder, new SupportingFile("gradle.properties.mustache", "", "gradle.properties"));
-        writeOptional(outputFolder, new SupportingFile("manifest.mustache", projectFolder, "AndroidManifest.xml"));
-        supportingFiles.add(new SupportingFile("travis.mustache", "", ".travis.yml"));
         supportingFiles.add(new SupportingFile("ApiClient.mustache", invokerFolder, "ApiClient.java"));
         supportingFiles.add(new SupportingFile("StringUtil.mustache", invokerFolder, "StringUtil.java"));
 
         supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
 
-        supportingFiles.add(new SupportingFile( "gradlew.mustache", "", "gradlew") );
-        supportingFiles.add(new SupportingFile( "gradlew.bat.mustache", "", "gradlew.bat") );
-        supportingFiles.add(new SupportingFile( "gradle-wrapper.properties.mustache",
-                gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.properties") );
-        supportingFiles.add(new SupportingFile( "gradle-wrapper.jar",
-                gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.jar") );
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
 
         supportingFiles.add(new SupportingFile("apiException.mustache", invokerFolder, "ApiException.java"));

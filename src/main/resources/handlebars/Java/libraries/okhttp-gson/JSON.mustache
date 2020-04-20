@@ -60,7 +60,7 @@ public class JSON {
 
     public static GsonBuilder createGson() {
         GsonFireBuilder fireBuilder = new GsonFireBuilder()
-        {{#parent}}
+        {{#parent}}{{#if discriminator.propertyName}}
           .registerTypeSelector({{classname}}.class, new TypeSelector<{{classname}}>() {
             @Override
             public Class<? extends {{classname}}> getClassForElement(JsonElement readElement) {
@@ -108,7 +108,16 @@ public class JSON {
                   }
               }
           })
-        {{/parent}}
+        {{/if}}{{/parent}}
+        .registerTypeSelector(OneOfPaymentContainersDTOModelPrivate.class, new TypeSelector<OneOfPaymentContainersDTOModelPrivate>() {
+            @Override
+            public Class<? extends OneOfPaymentContainersDTOModelPrivate> getClassForElement(JsonElement readElement) {
+                if (readElement.getAsJsonObject().has("pan")) {
+                    return CreditCardDescriptor.class;
+                }
+                return BankAccountDescriptor.class;
+            }
+        })
         ;
         return fireBuilder.createGsonBuilder();
     }

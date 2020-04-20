@@ -72,7 +72,7 @@ public class SchemaHandler implements ISchemaHandler {
 
     protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
-        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModel.getName(), schemas);
+        CodegenModel composedModel = this.createComposedModel(codegenModel.getName(), schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModel.getName(), schemas);
@@ -87,7 +87,7 @@ public class SchemaHandler implements ISchemaHandler {
 
     protected CodegenModel processComposedSchema(String name, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
         List<Schema> schemas = composedSchema.getOneOf();
-        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + name, schemas);
+        CodegenModel composedModel = this.createComposedModel(name, schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + name, schemas);
@@ -107,7 +107,7 @@ public class SchemaHandler implements ISchemaHandler {
             return composedModel;
         }
         schemas = composedSchema.getOneOf();
-        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModelName, schemas);
+        CodegenModel composedModel = this.createComposedModel(codegenModelName, schemas);
         if (composedModel == null) {
             schemas = composedSchema.getAnyOf();
             composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModelName, schemas);
