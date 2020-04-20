@@ -2820,7 +2820,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (i > 0) {
             operationId = operationId.substring(i+1);
         }
-        LOGGER.warn("getOrGenerateOperationId " + operationId + ", " + path + "," + httpMethod);
 
         if (StringUtils.isBlank(operationId)) {
             String tmpPath = path;
