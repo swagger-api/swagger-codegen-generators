@@ -13,16 +13,11 @@ import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.parser.util.SchemaTypeUtil;
 
 import org.apache.commons.lang3.StringUtils;
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
 
 public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodegen {
-
-    // private static Logger LOGGER =
-    // LoggerFactory.getLogger(TypeScriptAngularClientCodegen.class);
-
     private static final SimpleDateFormat SNAPSHOT_SUFFIX_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
     public static final String NPM_NAME = "npmName";
@@ -43,14 +38,12 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
         this.cliOptions.add(new CliOption(NPM_VERSION, "The version of your npm package"));
         this.cliOptions.add(new CliOption(NPM_REPOSITORY,
                 "Use this property to set an url your private npmRepo in the package.json"));
-        // this.cliOptions.add(new CliOption(SNAPSHOT,
-        // "When setting this property to true the version will be suffixed with
-        // -SNAPSHOT.yyyyMMddHHmm",
-        // BooleanProperty.TYPE).defaultValue(Boolean.FALSE.toString()));
-        // this.cliOptions.add(new CliOption(WITH_INTERFACES,
-        // "Setting this property to true will generate interfaces next to the default
-        // class implementations.",
-        // BooleanProperty.TYPE).defaultValue(Boolean.FALSE.toString()));
+        this.cliOptions.add(new CliOption(SNAPSHOT,
+                "When setting this property to true the version will be suffixed with -SNAPSHOT.yyyyMMddHHmm",
+                SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
+        this.cliOptions.add(new CliOption(WITH_INTERFACES,
+                "Setting this property to true will generate interfaces next to the default class implementations.",
+                SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
     }
 
     @Override
@@ -173,11 +166,6 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("package.mustache", "", "package.json"));
         supportingFiles.add(new SupportingFile("tsconfig.mustache", "", "tsconfig.json"));
-    }
-
-    private String getIndexDirectory() {
-        String indexPackage = modelPackage.substring(0, Math.max(0, modelPackage.lastIndexOf('.')));
-        return indexPackage.replace('.', File.separatorChar);
     }
 
     public String getNpmName() {
