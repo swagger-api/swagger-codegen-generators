@@ -67,6 +67,13 @@ export class RequiredError extends Error {
     }
 }
 
+/**
+ * Type aliases
+ * @export
+ * @type
+ */
+export type UUID = string
+
 {{#models}}
 {{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>modelGeneric}}{{/isEnum}}{{/model}}
 {{/models}}

@@ -1,0 +1,26 @@
+{{>licenseInfo}}
+
+import * as api from "./api"
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+describe("{{classname}}", () => {
+  let instance: api.{{classname}}
+  beforeEach(function() {
+    instance = new api.{{classname}}()
+  });
+
+{{#operation}}
+  test("{{operationId}}", () => {
+    {{#allParams}}
+    const {{{paramName}}}: {{^isPrimitiveType}}api.{{/isPrimitiveType}}{{{dataType}}} = {{#example}}{{#isString}}"{{{example}}}"{{/isString}}{{#isUuid}}"{{{example}}}"{{/isUuid}}{{^isUuid}}{{^isString}}{{{example}}}{{/isString}}{{/isUuid}}{{/example}}{{^example}}undefined{{/example}}
+    {{/allParams}}
+    expect(instance.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}{})).toBe(null)
+  })
+{{/operation}}
+})
+
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
