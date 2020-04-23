@@ -8,14 +8,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.RequestEntity.BodyBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -49,7 +48,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,7 +79,7 @@ public class ApiClient {
             return StringUtils.collectionToDelimitedString(collection, separator);
         }
     }
-    
+
     private boolean debugging = false;
     
     private HttpHeaders defaultHeaders = new HttpHeaders();
@@ -509,6 +507,7 @@ public class ApiClient {
      *
      * @param <T> the return type to use
      * @param path The sub-path of the HTTP URL
+     * @param uriVariables the variables to expand in the specified path
      * @param method The request method
      * @param queryParams The query parameters
      * @param body The request body object
@@ -520,28 +519,31 @@ public class ApiClient {
      * @param returnType The return type into which to deserialize the response
      * @return The response body in chosen type
      */
-    public <T> T invokeAPI(String path, HttpMethod method, MultiValueMap<String, String> queryParams, Object body, HttpHeaders headerParams, MultiValueMap<String, Object> formParams, List<MediaType> accept, MediaType contentType, String[] authNames, ParameterizedTypeReference<T> returnType) throws RestClientException {
+    public <T> T invokeAPI(String path, Map<String, ?> uriVariables,  HttpMethod method, MultiValueMap<String, String> queryParams, Object body, HttpHeaders headerParams, MultiValueMap<String, Object> formParams, List<MediaType> accept, MediaType contentType, String[] authNames, ParameterizedTypeReference<T> returnType) throws RestClientException {
         updateParamsForAuth(authNames, queryParams, headerParams);
-        
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(basePath).path(path);
-        if (queryParams != null) {
-            builder.queryParams(queryParams);
-        }
-        
-        final BodyBuilder requestBuilder = RequestEntity.method(method, builder.build().toUri());
-        if(accept != null) {
-            requestBuilder.accept(accept.toArray(new MediaType[accept.size()]));
-        }
-        if(contentType != null) {
-            requestBuilder.contentType(contentType);
-        }
-        
-        addHeadersToRequest(headerParams, requestBuilder);
-        addHeadersToRequest(defaultHeaders, requestBuilder);
-        
-        RequestEntity<Object> requestEntity = requestBuilder.body(selectBody(body, formParams, contentType));
 
-        ResponseEntity<T> responseEntity = restTemplate.exchange(requestEntity, returnType);
+        final UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(basePath).path(path);
+        if (queryParams != null) {
+            urlBuilder.queryParams(queryParams);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        if(accept != null) {
+            headers.setAccept(accept);
+        }
+
+        if(contentType != null) {
+            headers.setContentType(contentType);
+        }
+
+        addHeaders(headerParams, headers);
+        addHeaders(defaultHeaders, headers);
+
+        HttpEntity<Object> requestEntity = new HttpEntity<>(selectBody(body, formParams, contentType), headers);
+
+        ResponseEntity<T> responseEntity = uriVariables == null ?
+		        restTemplate.exchange(urlBuilder.build().toUri(), method, requestEntity, returnType):
+		        restTemplate.exchange(urlBuilder.build().toUriString(), method, requestEntity, returnType, uriVariables);
         
         statusCode = responseEntity.getStatusCode();
         responseHeaders = responseEntity.getHeaders();
@@ -558,18 +560,19 @@ public class ApiClient {
             throw new RestClientException("API returned " + statusCode + " and it wasn't handled by the RestTemplate error handler");
         }
     }
-    
+
     /**
-     * Add headers to the request that is being built
-     * @param headers The headers to add
-     * @param requestBuilder The current request
-     */
-    protected void addHeadersToRequest(HttpHeaders headers, BodyBuilder requestBuilder) {
-        for (Entry<String, List<String>> entry : headers.entrySet()) {
+    * Add headers to the existing headers.
+    *
+    * @param headersToAdd The headers to add
+    * @param headers The current headers
+    */
+    protected void addHeaders(HttpHeaders headersToAdd, HttpHeaders existingHeaders) {
+        for (Entry<String, List<String>> entry : headersToAdd.entrySet()) {
             List<String> values = entry.getValue();
             for(String value : values) {
                 if (value != null) {
-                    requestBuilder.header(entry.getKey(), value);
+                    existingHeaders.add(entry.getKey(), value);
                 }
             }
         }

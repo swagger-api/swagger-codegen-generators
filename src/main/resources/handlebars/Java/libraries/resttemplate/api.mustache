@@ -84,7 +84,9 @@ public class {{classname}} {
         uriVariables.put("{{baseName}}", {{{paramName}}});
         {{/pathParams}}
         {{/hasPathParams}}
-        String {{localVariablePrefix}}path = UriComponentsBuilder.fromPath("{{{path}}}"){{#hasPathParams}}.buildAndExpand(uriVariables){{/hasPathParams}}{{^hasPathParams}}.build(){{/hasPathParams}}.toUriString();
+        {{^hasPathParams}}
+        final Map<String, Object> uriVariables = null;
+        {{/hasPathParams}}
         
         final MultiValueMap<String, String> {{localVariablePrefix}}queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders {{localVariablePrefix}}headerParams = new HttpHeaders();
@@ -119,7 +121,7 @@ public class {{classname}} {
         String[] {{localVariablePrefix}}authNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
         {{#returnType}}ParameterizedTypeReference<{{{returnType}}}> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<{{{returnType}}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-        {{#returnType}}return {{/returnType}}{{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}path, HttpMethod.{{httpMethod}}, {{localVariablePrefix}}queryParams, {{localVariablePrefix}}postBody, {{localVariablePrefix}}headerParams, {{localVariablePrefix}}formParams, {{localVariablePrefix}}accept, {{localVariablePrefix}}contentType, {{localVariablePrefix}}authNames, {{localVariablePrefix}}returnType);
+        {{#returnType}}return {{/returnType}}{{localVariablePrefix}}apiClient.invokeAPI("{{{path}}}", uriVariables, HttpMethod.{{httpMethod}}, {{localVariablePrefix}}queryParams, {{localVariablePrefix}}postBody, {{localVariablePrefix}}headerParams, {{localVariablePrefix}}formParams, {{localVariablePrefix}}accept, {{localVariablePrefix}}contentType, {{localVariablePrefix}}authNames, {{localVariablePrefix}}returnType);
     }
     {{/contents}}
     {{/operation}}
