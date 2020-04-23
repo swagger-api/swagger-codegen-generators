@@ -14,7 +14,7 @@ describe("{{classname}}", () => {
 {{#operation}}
   test("{{operationId}}", () => {
     {{#allParams}}
-    const {{{paramName}}}: {{^isPrimitiveType}}api.{{/isPrimitiveType}}{{{dataType}}} = {{#example}}{{#isString}}"{{{example}}}"{{/isString}}{{^isString}}{{{example}}}{{/isString}}{{/example}}{{^example}}undefined{{/example}}
+    const {{{paramName}}}: {{^isPrimitiveType}}api.{{/isPrimitiveType}}{{{dataType}}} = {{>api_test_default_value}}
     {{/allParams}}
     expect(instance.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}{})).toBe(null)
   })

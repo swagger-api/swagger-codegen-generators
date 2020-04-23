@@ -14,6 +14,7 @@
   "typings": "./dist/index.d.ts",
   "scripts" : {
     "build": "tsc --outDir dist/",
+    "test": "jest",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -23,9 +24,16 @@
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.0",
     "jest": "^25.4.0",
+    "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"
-  }{{#npmRepository}},{{/npmRepository}}
-{{#npmRepository}}
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  }{{#npmRepository}},
   "publishConfig":{
     "registry":"{{npmRepository}}"
   }
