@@ -35,7 +35,7 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     // protected String composerVendorName = null;
     // protected String composerProjectName = null;
     protected String invokerPackage = "php";
-    protected String packagePath = "";
+    protected String packagePath = "Secuconnect PHP SDK";
     protected String artifactVersion = null;
     protected String srcBasePath = "lib";
     protected String testBasePath = "test";
@@ -48,6 +48,10 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
     public AbstractPhpCodegen() {
         super();
+
+        additionalProperties.put("infoUrl", "https://developer.secuconnect.com/");
+        additionalProperties.put(CodegenConstants.GIT_USER_ID, "secuconnect");
+        additionalProperties.put(CodegenConstants.GIT_REPO_ID, "gitRepoId");
 
         modelTemplateFiles.put("model.mustache", ".php");
         apiTemplateFiles.put("api.mustache", ".php");

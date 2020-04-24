@@ -2,7 +2,7 @@
 
 ## Documentation
 
-[https://developer.secuconnect.com/]
+[https://developer.secuconnect.com/](https://developer.secuconnect.com/)
 
 ## Requirements
 
@@ -39,12 +39,12 @@ To use this projects artifacts with Maven add the following dependency and repos
 
 ### Others
 
-Download and use of of the generated JAR-Files from [https://github.com/secuconnect/secuconnect-java-sdk/releases].
+Download and use of of the generated JAR-Files from [https://github.com/secuconnect/secuconnect-java-sdk/releases](https://github.com/secuconnect/secuconnect-java-sdk/releases).
 
 
 ## Getting Started
 
-Please take a look at our demo code: https://github.com/secuconnect/secuconnect-java-sdk-demo
+Please take a look at our demo code: [https://github.com/secuconnect/secuconnect-java-sdk-demo](https://github.com/secuconnect/secuconnect-java-sdk-demo)
 
 
 ## Recommendation

@@ -40,7 +40,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     protected String invokerPackage = "Secuconnect\\Client";
     protected String composerVendorName = null;
     protected String composerProjectName = null;
-    protected String artifactVersion = null;
+    protected String artifactVersion = "2.0.0";
     protected String srcBasePath = "lib";
     protected String testBasePath = "test";
     protected String docsBasePath = "docs";
@@ -292,8 +292,6 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         supportingFiles.add(new SupportingFile("composer.mustache", "", "composer.json"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("phpunit.xml.mustache", "", "phpunit.xml.dist"));
-        supportingFiles.add(new SupportingFile(".travis.yml", "", ".travis.yml"));
-        supportingFiles.add(new SupportingFile(".php_cs", "", ".php_cs"));
     }
 
     @Override
