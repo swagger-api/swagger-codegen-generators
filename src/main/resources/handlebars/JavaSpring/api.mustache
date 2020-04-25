@@ -102,17 +102,20 @@ public interface {{classname}} {
         produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
         consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
         method = RequestMethod.{{httpMethod}})
-    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}};{{/defaultInterfaces}}{{#defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}} {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{#vendorExtensions.x-pagination}}org.springframework.hateoas.PagedModel<{{>returnTypes}}>{{/vendorExtensions.x-pagination}}{{^vendorExtensions.x-pagination}}{{>returnTypes}}{{/vendorExtensions.x-pagination}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{^vendorExtensions.x-doc-only}}{{#if secondaryParam}},{{/if}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{/vendorExtensions.x-doc-only}}{{/parameters}}{{#vendorExtensions.x-pagination}}{{#hasParamsWithout vendorExtension="x-doc-only"}},{{/hasParamsWithout}}org.springframework.data.domain.Pageable page{{/vendorExtensions.x-pagination}}){{^defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}};{{/defaultInterfaces}}{{#defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}} {
         {{#delegate-method}}
         return {{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
     }
 
     // Override this method
-    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isBinary}}{{{dataType}}}{{/isBinary}}{{#isBinary}}MultipartFile{{/isBinary}} {{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+    default {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{#vendorExtensions.x-pagination}}PagedModel<{{>returnTypes}}>>{{/vendorExtensions.x-pagination}}{{^vendorExtensions.x-pagination}}{{>returnTypes}}{{/vendorExtensions.x-pagination}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#parameters}}{{^isBinary}}{{{dataType}}}{{/isBinary}}{{#isBinary}}MultipartFile{{/isBinary}} {{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{/delegate-method}}
         {{^isDelegate}}
+        {{^vendorExtensions.x-pagination}}
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        {{/vendorExtensions.x-pagination}}
         {{#examples}}
+        {{^vendorExtensions.x-pagination}}
             if (getAcceptHeader().get().contains("{{{contentType}}}")) {
                 try {
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(getObjectMapper().get().readValue("{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{example}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{>exampleReturnTypes}}.class), HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
@@ -121,10 +124,13 @@ public interface {{classname}} {
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR){{#async}}){{/async}};
                 }
             }
+        {{/vendorExtensions.x-pagination}}
         {{/examples}}
+        {{^vendorExtensions.x-pagination}}
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default {{classname}} interface so no example is generated");
         }
+        {{/vendorExtensions.x-pagination}}
         return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
         {{/isDelegate}}
         {{#isDelegate}}

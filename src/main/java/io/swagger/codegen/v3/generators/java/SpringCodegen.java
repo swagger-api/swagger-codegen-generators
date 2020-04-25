@@ -1,5 +1,8 @@
 package io.swagger.codegen.v3.generators.java;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import io.swagger.codegen.v3.CliOption;
@@ -15,6 +18,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.handlebars.java.HasParamWithExtensionHelper;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -129,6 +133,12 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         springBootVersionOption.setEnum(springBootEnum);
         cliOptions.add(springBootVersionOption);
 
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelper("hasParamsWithout", new HasParamWithExtensionHelper());
     }
 
     @Override
