@@ -241,10 +241,42 @@ namespace {{packageName}}.Client
         /// </summary>
         public virtual int Timeout
         {
-            {{#netStandard}}get { if (_apiClient == null) { return _timeout; } else {return (int)ApiClient.RestClient.Timeout.GetValueOrDefault(TimeSpan.FromSeconds(0)).TotalMilliseconds; } }
-            set { _timeout = value; if (_apiClient != null) { ApiClient.RestClient.Timeout = TimeSpan.FromMilliseconds(_timeout); } }{{/netStandard}}{{^netStandard}}
-            get { if (_apiClient == null) { return _timeout; } else { return ApiClient.RestClient.Timeout; } }
-            set { _timeout = value; if (_apiClient != null) {ApiClient.RestClient.Timeout = _timeout;} }{{/netStandard}}
+            {{#netStandard}}get
+            { 
+                if (_apiClient == null)
+                {
+                    return _timeout;
+                } else
+                {
+                    return (int)ApiClient.RestClient.Timeout.GetValueOrDefault(TimeSpan.FromSeconds(0)).TotalMilliseconds;
+                }
+            }
+            set
+            {
+                _timeout = value;
+                if (_apiClient != null)
+                {
+                    ApiClient.RestClient.Timeout = TimeSpan.FromMilliseconds(_timeout);
+                }
+            }{{/netStandard}}{{^netStandard}}
+            get
+            {
+                if (_apiClient == null)
+                {
+                    return _timeout;
+                } else
+                {
+                    return ApiClient.RestClient.Timeout;
+                }
+            }
+            set
+            {
+                _timeout = value;
+                if (_apiClient != null)
+                {
+                    ApiClient.RestClient.Timeout = _timeout;
+                }
+            }{{/netStandard}}
         }
 
         /// <summary>
