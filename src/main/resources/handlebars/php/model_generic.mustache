@@ -1,4 +1,4 @@
-class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^parentSchema}}implements ModelInterface, ArrayAccess{{/parentSchema}}
+class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^parentSchema}}implements ArrayAccess{{/parentSchema}}
 {
     const DISCRIMINATOR = {{#discriminator}}'{{discriminator.propertyName}}'{{/discriminator}}{{^discriminator}}null{{/discriminator}};
 
@@ -72,21 +72,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     {
         return {{#parentSchema}}parent::getters() + {{/parentSchema}}self::$getters;
     }
+    {{#vars}}{{#isEnum}}{{#allowableValues}}{{#enumVars}}
+    const {{enumName}}_{{{name}}} = {{{value}}};{{/enumVars}}{{/allowableValues}}{{/isEnum}}{{/vars}}{{#vars}}{{#isEnum}}
 
-    /**
-     * The original name of the model.
-     *
-     * @return string
-     */
-    public function getModelName()
-    {
-        return self::$swaggerModelName;
-    }
-
-    {{#vars}}{{#isEnum}}{{#allowableValues}}{{#enumVars}}const {{enumName}}_{{{name}}} = {{{value}}};
-    {{/enumVars}}{{/allowableValues}}{{/isEnum}}{{/vars}}
-
-    {{#vars}}{{#isEnum}}
     /**
      * Gets allowable values of the enum
      * @return string[]
@@ -99,8 +87,8 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         ];
     }
     {{/isEnum}}{{/vars}}
-
     {{^parentSchema}}
+
     /**
      * Associative array for storing property values
      * @var mixed[]
@@ -217,7 +205,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      */
     public function valid()
     {
-        return count($this->listInvalidProperties()) === 0;
+        return true;
     }
 
     {{#vars}}
@@ -301,6 +289,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         return $this;
     }
     {{/vars}}
+
     /**
      * Returns true if offset exists. False otherwise.
      * @param integer $offset Offset

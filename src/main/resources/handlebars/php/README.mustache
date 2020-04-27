@@ -1,17 +1,21 @@
-# {{packagePath}}
+# Secuconnect PHP SDK
+
 
 ## Documentation
 
-For more information, please visit [{{{infoUrl}}}]({{{infoUrl}}})
+For more information please visit: [https://developer.secuconnect.com/](https://developer.secuconnect.com)
 
 - API version: {{appVersion}}
 - SDK version: {{artifactVersion}}
+
 
 ## Requirements
 
 PHP 5.6 and later
 
+
 ## Installation & Usage
+
 ### Composer
 
 To install the bindings via [Composer](http://getcomposer.org/), add the following to `composer.json`:
@@ -19,7 +23,7 @@ To install the bindings via [Composer](http://getcomposer.org/), add the followi
 ```
 {
   "require": {
-    "{{#composerVendorName}}{{.}}{{/composerVendorName}}{{^composerVendorName}}{{gitUserId}}{{/composerVendorName}}/{{#composerProjectName}}{{.}}{{/composerProjectName}}{{^composerProjectName}}{{gitRepoId}}{{/composerProjectName}}": "*@dev"
+    "secuconnect/secuconnect-php-sdk": "~{{artifactVersion}}",
   }
 }
 ```

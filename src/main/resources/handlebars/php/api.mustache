@@ -74,7 +74,7 @@ use {{invokerPackage}}\Authentication\Authenticator;
      *
 {{/description}}
 {{#parameters}}
-     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}{{#defaultValue}}(optional, default to {{{.}}}){{/defaultValue}}{{/required}}
 {{/parameters}}
      * @throws ApiException on non-2xx response
      * @return {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}
@@ -97,7 +97,7 @@ use {{invokerPackage}}\Authentication\Authenticator;
      *
 {{/description}}
 {{#parameters}}
-     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}{{#defaultValue}}(optional, default to {{{.}}}){{/defaultValue}}{{/required}}
 {{/parameters}}
      * @throws ApiException on non-2xx response
      * @return array of {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}null{{/returnType}}, HTTP status code, HTTP response headers (array of strings)
