@@ -113,7 +113,6 @@ namespace {{packageName}}.Client
             ApiKey = new {{^net35}}Concurrent{{/net35}}Dictionary<string, string>();
             ApiKeyPrefix = new {{^net35}}Concurrent{{/net35}}Dictionary<string, string>();
 
-            // Setting Timeout has side effects (forces ApiClient creation).
             Timeout = 100000;
         }
 
@@ -236,15 +235,16 @@ namespace {{packageName}}.Client
         /// </summary>
         public virtual IDictionary<string, string> DefaultHeader { get; set; }
 
+        private int _timeout = 100000;
         /// <summary>
         /// Gets or sets the HTTP timeout (milliseconds) of ApiClient. Default to 100000 milliseconds.
         /// </summary>
         public virtual int Timeout
         {
-            {{#netStandard}}get { return (int)ApiClient.RestClient.Timeout.GetValueOrDefault(TimeSpan.FromSeconds(0)).TotalMilliseconds; }
-            set { ApiClient.RestClient.Timeout = TimeSpan.FromMilliseconds(value); }{{/netStandard}}{{^netStandard}}
-            get { return ApiClient.RestClient.Timeout; }
-            set { ApiClient.RestClient.Timeout = value; }{{/netStandard}}
+            {{#netStandard}}get { if (_apiClient == null) { return _timeout; } else {return (int)ApiClient.RestClient.Timeout.GetValueOrDefault(TimeSpan.FromSeconds(0)).TotalMilliseconds; } }
+            set { _timeout = value; if (_apiClient != null) { ApiClient.RestClient.Timeout = TimeSpan.FromMilliseconds(_timeout); } }{{/netStandard}}{{^netStandard}}
+            get { if (_apiClient == null) { return _timeout; } else { return ApiClient.RestClient.Timeout; } }
+            set { _timeout = value; if (_apiClient != null) {ApiClient.RestClient.Timeout = _timeout;} }{{/netStandard}}
         }
 
         /// <summary>
