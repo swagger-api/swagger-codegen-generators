@@ -3,6 +3,11 @@
 {{#model}}
 
 namespace {{modelPackage}};
+{{#isComposedModel}}
+
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{^isEnum}}
 {{^parentSchema}}
 
@@ -22,4 +27,5 @@ use \ArrayAccess;
  * @link     https://github.com/swagger-api/swagger-codegen
  */
 {{#isEnum}}{{>model_enum}}{{/isEnum}}{{^isEnum}}{{>model_generic}}{{/isEnum}}
+{{/isComposedModel}}
 {{/model}}{{/models}}

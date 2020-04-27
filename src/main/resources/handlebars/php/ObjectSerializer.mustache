@@ -194,9 +194,9 @@ class ObjectSerializer
      * @param mixed    $data          object or primitive to be deserialized
      * @param string   $class         class name is passed as a string
      * @param string[] $httpHeaders   HTTP headers
-     * @param string   $discriminator discriminator if polymorphism is used
      *
      * @return object|array|null an single or an array of $class instances
+     * @throws \Exception
      */
     public static function deserialize($data, $class, $httpHeaders = null)
     {
@@ -239,8 +239,6 @@ class ObjectSerializer
             settype($data, $class);
             return $data;
         } elseif ($class === '\SplFileObject') {
-            /** @var \Psr\Http\Message\StreamInterface $data */
-
             // determine file name
             if (array_key_exists('Content-Disposition', $httpHeaders) &&
                 preg_match('/inline; filename=[\'"]?([^\'"\s]+)[\'"]?$/i', $httpHeaders['Content-Disposition'], $match)) {

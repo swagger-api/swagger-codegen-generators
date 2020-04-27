@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>secuconnect-codegen-generators</artifactId>
-    <version>1.0.19.1</version>
+    <version>1.0.19.2</version>
     <packaging>jar</packaging>
 
     <build>

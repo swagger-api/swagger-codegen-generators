@@ -1,4 +1,4 @@
-class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^parentSchema}}implements ArrayAccess{{/parentSchema}}
+class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#@first}} implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/parentSchema}}{{^parentSchema}}implements ArrayAccess{{#interfaceModels}}, {{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/parentSchema}}{{#parentSchema}}{{/parentSchema}}
 {
     const DISCRIMINATOR = {{#discriminator}}'{{discriminator.propertyName}}'{{/discriminator}}{{^discriminator}}null{{/discriminator}};
 
@@ -124,12 +124,12 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      */
     public function listInvalidProperties()
     {
-        {{#parent}}
+        {{#parentSchema}}
         $invalid_properties = parent::listInvalidProperties();
-        {{/parent}}
-        {{^parent}}
+        {{/parentSchema}}
+        {{^parentSchema}}
         $invalid_properties = [];
-        {{/parent}}
+        {{/parentSchema}}
 
         {{#vars}}
         {{#required}}

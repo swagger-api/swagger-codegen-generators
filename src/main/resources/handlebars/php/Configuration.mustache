@@ -202,7 +202,7 @@ class Configuration
     /**
      * @return Printer
      */
-    public function getPrinter(): Printer
+    public function getPrinter()
     {
         return $this->printer;
     }
@@ -210,7 +210,7 @@ class Configuration
     /**
      * @param Printer $printer
      */
-    public function setPrinter(Printer $printer): void
+    public function setPrinter(Printer $printer)
     {
         $this->printer = $printer;
     }
