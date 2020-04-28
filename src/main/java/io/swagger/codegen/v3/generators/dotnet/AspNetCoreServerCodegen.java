@@ -190,15 +190,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("gitignore", packageFolder, ".gitignore"));
         supportingFiles.add(new SupportingFile("appsettings.json", packageFolder, "appsettings.json"));
 
-        //supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
         supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
 
         supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
-
-//        supportingFiles.add(new SupportingFile("Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
-//        supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
 
         supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "README.md", packageFolder + File.separator + "wwwroot", "README.md"));
         supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "index.html", packageFolder + File.separator + "wwwroot", "index.html"));
@@ -373,7 +368,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         } else {
             this.aspNetCoreVersion = optionValue;
         }
-        if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2")) {
+        if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2") && !this.aspNetCoreVersion.equals("3.0")) {
             LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
             this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
         }
