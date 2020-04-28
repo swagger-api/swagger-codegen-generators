@@ -25,16 +25,16 @@ import javax.xml.bind.annotation.*;
 
 {{#models}}
 {{#model}}
-{{#vendorExtensions.x-is-composed-model}}
+{{#isComposedModel}}
 {{>interface}}
-{{/vendorExtensions.x-is-composed-model}}
-{{^vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#isEnum}}
 {{>enumOuterClass}}
 {{/isEnum}}
 {{^isEnum}}
 {{>pojo}}
 {{/isEnum}}
-{{/vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

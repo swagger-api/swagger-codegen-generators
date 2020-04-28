@@ -1,7 +1,7 @@
 public enum {{datatypeWithEnum}} {
 
     {{#allowableValues}}
-    {{#enumVars}}{{name}}({{datatype}}.valueOf({{{value}}})){{^@last}}, {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}
+    {{#enumVars}}{{name}}({{#value}}{{datatype}}.valueOf({{{value}}}){{/value}}{{^value}}null{{/value}}){{^@last}}, {{/@last}}{{#@last}};{{/@last}}{{/enumVars}}
     {{/allowableValues}}
 
 

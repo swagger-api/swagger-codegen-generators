@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -492,6 +493,19 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     }
 
     @Override
+    public String getSchemaType(Schema schema) {
+        String schemaType = super.getSchemaType(schema);
+
+        if (schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && (refSchema.getEnum() == null || refSchema.getEnum().isEmpty())) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+        return schemaType;
+    }
+
+    @Override
     public CodegenType getTag() {
         return CodegenType.CLIENT;
     }
@@ -516,7 +530,7 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         if (allDefinitions != null && codegenModel != null && codegenModel.parent != null) {
             final Schema parentModel = allDefinitions.get(toModelName(codegenModel.parent));
             if (parentModel != null) {
-                final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel);
+                final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allDefinitions);
                 boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
                 if (hasEnums) {
                     codegenModel = this.reconcileInlineEnums(codegenModel, parentCodegenModel);

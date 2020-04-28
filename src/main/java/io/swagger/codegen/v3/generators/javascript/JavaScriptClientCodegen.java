@@ -92,7 +92,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         modelTestTemplateFiles.put("model_test.mustache", ".js");
         apiTemplateFiles.put("api.mustache", ".js");
         apiTestTemplateFiles.put("api_test.mustache", ".js");
-        embeddedTemplateDir = templateDir = "javascript";
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
         apiPackage = "api";
         modelPackage = "model";
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
@@ -140,6 +142,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("int", "Number");
         typeMapping.put("float", "Number");
         typeMapping.put("number", "Number");
+        typeMapping.put("BigDecimal", "Number");
         typeMapping.put("DateTime", "Date");
         typeMapping.put("date", "Date");
         typeMapping.put("long", "Number");
@@ -150,7 +153,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "Number");
         // binary not supported in JavaScript client right now, using String as a workaround
         typeMapping.put("ByteArray", "Blob"); // I don't see ByteArray defined in the Swagger docs.
-        typeMapping.put("binary", "Blob");
+        typeMapping.put("binary", "File");
+        typeMapping.put("file", "File");
+        typeMapping.put("URI", "String");
         typeMapping.put("UUID", "String");
 
         importMapping.clear();
@@ -765,7 +770,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     @Override
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allSchemas) {
         CodegenModel codegenModel = super.fromModel(name, schema, allSchemas);
-        
+
         boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
         if (allSchemas != null && codegenModel != null && codegenModel.parent != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
@@ -789,7 +794,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
                     codegenModel.vendorExtensions.put("x-isPrimitive", true);
                 }
             }
-        } 
+        }
         return codegenModel;
     }
 
@@ -816,7 +821,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getDefaultTemplateDir() {
-        return "JavaScript";
+        return "javascript";
     }
 
     private String getJSDocType(CodegenModel cm, CodegenProperty cp) {

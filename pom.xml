@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.14-SNAPSHOT</version>
+    <version>1.0.20-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <build>
@@ -208,6 +208,12 @@
             <artifactId>testng</artifactId>
             <version>${testng-version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>snakeyaml</artifactId>
+                    <groupId>org.yaml</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -246,10 +252,10 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.14-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.0.15</swagger-parser-version>
-        <swagger-core-version>2.0.10</swagger-core-version>
-        <jackson-version>2.9.10</jackson-version>
+        <swagger-codegen-version>3.0.20-SNAPSHOT</swagger-codegen-version>
+        <swagger-parser-version>2.0.20-SNAPSHOT</swagger-parser-version>
+        <swagger-core-version>2.1.2</swagger-core-version>
+        <jackson-version>2.10.3</jackson-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
         <commons-io-version>2.4</commons-io-version>

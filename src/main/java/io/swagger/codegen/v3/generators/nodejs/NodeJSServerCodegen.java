@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.nodejs;
 
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,13 +10,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -23,6 +17,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.core.util.Yaml;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 public class NodeJSServerCodegen extends DefaultCodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeJSServerCodegen.class);
@@ -171,7 +159,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         if ( templateName.equals("service.mustache") ) {
             String stringToMatch = File.separator + "controllers" + File.separator;
             String replacement = File.separator + implFolder + File.separator;
-            result = result.replaceAll(Pattern.quote(stringToMatch), replacement);
+            result = StringUtils.replace(result, stringToMatch, replacement);
         }
         return result;
     }
@@ -300,7 +288,9 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = getTemplateDir();
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
 
         if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
             setGoogleCloudFunctions(
@@ -320,7 +310,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         //   "controllers",
         //   "controller.js")
         // );
-        supportingFiles.add(new SupportingFile("swagger.mustache", "api", "swagger.yaml"));
+        supportingFiles.add(new SupportingFile("swagger.mustache", "api", "openapi.yaml"));
         if (getGoogleCloudFunctions()) {
             writeOptional(outputFolder, new SupportingFile("index-gcf.mustache", "", "index.js"));
         } else {
@@ -337,6 +327,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        this.openAPI = openAPI;
         URL url = URLPathUtil.getServerURL(openAPI);
         String host = URLPathUtil.LOCAL_HOST;
         String port = "8080";
@@ -449,6 +440,27 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
         return input.replace("\"", "");
+    }
+
+    protected void configuresParameterForMediaType(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        if (codegenContents.isEmpty()) {
+            CodegenContent content = new CodegenContent();
+            content.getParameters().addAll(codegenOperation.allParams);
+            codegenContents.add(content);
+
+            codegenOperation.getContents().add(content);
+            return;
+        }
+        for (CodegenContent content : codegenContents) {
+            addParemeters(content, codegenOperation.queryParams);
+            addParemeters(content, codegenOperation.pathParams);
+            addParemeters(content, codegenOperation.headerParams);
+            addParemeters(content, codegenOperation.cookieParams);
+        }
+        for (CodegenContent content : codegenContents) {
+            addHasMore(content.getParameters());
+        }
+        codegenOperation.getContents().addAll(codegenContents);
     }
 }
 

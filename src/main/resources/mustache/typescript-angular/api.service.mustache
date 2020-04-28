@@ -200,13 +200,13 @@ export class {{classname}} {
         // authentication ({{name}}) required
 {{#isApiKey}}
 {{#isKeyInHeader}}
-        if (this.configuration.apiKeys["{{keyParamName}}"]) {
+        if (this.configuration.apiKeys && this.configuration.apiKeys["{{keyParamName}}"]) {
             {{#useHttpClient}}headers = {{/useHttpClient}}headers.set('{{keyParamName}}', this.configuration.apiKeys["{{keyParamName}}"]);
         }
 
 {{/isKeyInHeader}}
 {{#isKeyInQuery}}
-        if (this.configuration.apiKeys["{{keyParamName}}"]) {
+        if (this.configuration.apiKeys && this.configuration.apiKeys["{{keyParamName}}"]) {
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{keyParamName}}', this.configuration.apiKeys["{{keyParamName}}"]);
         }
 
@@ -218,6 +218,14 @@ export class {{classname}} {
         }
 
 {{/isBasic}}
+{{#isBearer}}
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            {{#useHttpClient}}headers = {{/useHttpClient}}headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+{{/isBearer}}
 {{#isOAuth}}
         if (this.configuration.accessToken) {
             const accessToken = typeof this.configuration.accessToken === 'function'
@@ -305,16 +313,21 @@ export class {{classname}} {
         {{/isListContainer}}
         {{^isListContainer}}
         if ({{paramName}} !== undefined) {
-            {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', <any>{{paramName}}){{#useHttpClient}} || formParams{{/useHttpClient}};
+            {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', {{^isModel}}<any>{{paramName}}{{/isModel}}{{#isModel}}useForm ? new Blob([JSON.stringify({{paramName}})], {type: 'application/json'}) : <any>{{paramName}}{{/isModel}}){{#useHttpClient}} as any || formParams{{/useHttpClient}};
         }
         {{/isListContainer}}
 {{/formParams}}
 
 {{/hasFormParams}}
 {{#useHttpClient}}
-        return this.httpClient.{{httpMethod}}{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}(`${this.basePath}{{{path}}}`,{{#isBodyAllowed}}
-            {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}{{#hasFormParams}}convertFormParamsToString ? formParams.toString() : formParams{{/hasFormParams}}{{^hasFormParams}}null{{/hasFormParams}}{{/bodyParam}},{{/isBodyAllowed}}
+        return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}('{{httpMethod}}',`${this.basePath}{{{path}}}`,
             {
+{{#bodyParam}}
+                body: {{paramName}},
+{{/bodyParam}}
+{{#hasFormParams}}
+                body: convertFormParamsToString ? formParams.toString() : formParams,
+{{/hasFormParams}}
 {{#hasQueryParams}}
                 params: queryParameters,
 {{/hasQueryParams}}
@@ -330,7 +343,7 @@ export class {{classname}} {
 {{/useHttpClient}}
 {{^useHttpClient}}
         let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: {{httpMethod}},
+            method: '{{httpMethod}}',
             headers: headers,
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
@@ -344,7 +357,7 @@ export class {{classname}} {
 {{#hasQueryParams}}
             search: queryParameters,
 {{/hasQueryParams}}
-            withCredentials:this.configuration.withCredentials
+            withCredentials: this.configuration.withCredentials
         });
         // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {

@@ -600,10 +600,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public String toModelName(final String name) {
         // We need to check if import-mapping has a different model for this class, so we use it
         // instead of the auto-generated one.
-        if (importMapping.containsKey(name)) {
+
+        if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
@@ -1105,6 +1105,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         if ("Integer".equals(datatype) || "Double".equals(datatype)) {
             return value;
         } else if ("Long".equals(datatype)) {
@@ -1146,10 +1149,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         // remove everything else other than word, number and _
         // $php_variable => php_variable
         if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
-            name = Pattern.compile("\\W-[\\$]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
+            name = Pattern.compile("[\\W&&[^$]]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
         }
         else {
-            name = name.replaceAll("\\W-[\\$]", StringUtils.EMPTY);
+            name = name.replaceAll("[\\W&&[^$]]", StringUtils.EMPTY);
         }
         return name;
     }
@@ -1448,5 +1451,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         super.setLanguageArguments(languageArguments);
+    }
+
+    @Override
+    public boolean defaultIgnoreImportMappingOption() {
+        return true;
     }
 }

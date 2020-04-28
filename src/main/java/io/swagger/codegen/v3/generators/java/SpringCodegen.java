@@ -15,6 +15,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -27,11 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -60,6 +57,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
 
+    public static final String THROWS_EXCEPTION = "throwsException";
+
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
     protected String basePackage = "io.swagger";
@@ -78,6 +77,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean openFeign = false;
     protected boolean defaultInterfaces = true;
     protected String springBootVersion = "1.5.22.RELEASE";
+    protected boolean throwsException = false;
 
     public SpringCodegen() {
         super();
@@ -109,6 +109,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 "Use Optional container for optional parameters"));
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
         cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
+        cliOptions.add(CliOption.newBoolean(THROWS_EXCEPTION, "Throws Exception in operation methods").defaultValue("false"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -205,6 +206,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             this.setInterfaceOnly(Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY).toString()));
         }
 
+        if (additionalProperties.containsKey(THROWS_EXCEPTION)) {
+            this.setThrowsException(Boolean.valueOf(additionalProperties.get(THROWS_EXCEPTION).toString()));
+            additionalProperties.put(THROWS_EXCEPTION, throwsException);
+        }
+
         if (additionalProperties.containsKey(DELEGATE_PATTERN)) {
             this.setDelegatePattern(Boolean.valueOf(additionalProperties.get(DELEGATE_PATTERN).toString()));
         }
@@ -264,6 +270,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         typeMapping.put("file", "Resource");
+        typeMapping.put("binary", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
 
         if (useOptional) {
@@ -783,6 +790,60 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
 
     @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+        Map<String, Object> allProcessedModels = super.postProcessAllModels(objs);
+
+        List<Object> allModels = new ArrayList<Object>();
+        for (String name: allProcessedModels.keySet()) {
+            Map<String, Object> models = (Map<String, Object>)allProcessedModels.get(name);
+            try {
+                allModels.add(((List<Object>) models.get("models")).get(0));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        additionalProperties.put("parent", modelInheritanceSupport(allModels));
+
+        return allProcessedModels;
+    }
+
+    protected List<Map<String, Object>> modelInheritanceSupport(List<?> allModels) {
+        Map<CodegenModel, List<CodegenModel>> byParent = new LinkedHashMap<>();
+        for (Object model : allModels) {
+            Map entry = (Map) model;
+            CodegenModel parent = ((CodegenModel)entry.get("model")).parentModel;
+            if(null!= parent) {
+                byParent.computeIfAbsent(parent, k -> new LinkedList<>()).add((CodegenModel)entry.get("model"));
+            }
+        }
+
+        List<Map<String, Object>> parentsList = new ArrayList<>();
+        for (Map.Entry<CodegenModel, List<CodegenModel>> parentModelEntry : byParent.entrySet()) {
+            CodegenModel parentModel = parentModelEntry.getKey();
+            List<Map<String, Object>> childrenList = new ArrayList<>();
+            Map<String, Object> parent = new HashMap<>();
+            parent.put("classname", parentModel.classname);
+            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            for (CodegenModel model : childrenModels) {
+                Map<String, Object> child = new HashMap<>();
+                child.put("name", model.name);
+                child.put("classname", model.classname);
+                childrenList.add(child);
+            }
+            parent.put("children", childrenList);
+            parent.put("discriminator", parentModel.discriminator);
+            if(parentModel.discriminator != null && parentModel.discriminator.getMapping() != null)
+            {
+                parentModel.discriminator.getMapping().replaceAll((key, value) -> OpenAPIUtil.getSimpleRef(value));
+            }
+            parentsList.add(parent);
+        }
+
+        return parentsList;
+    }
+
+    @Override
     public Map<String, Object> postProcessModelsEnum(Map<String, Object> objs) {
         objs = super.postProcessModelsEnum(objs);
 
@@ -820,5 +881,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setDefaultInterfaces(boolean defaultInterfaces) {
         this.defaultInterfaces = defaultInterfaces;
+    }
+
+    public void setThrowsException(boolean throwsException) {
+        this.throwsException = throwsException;
     }
 }

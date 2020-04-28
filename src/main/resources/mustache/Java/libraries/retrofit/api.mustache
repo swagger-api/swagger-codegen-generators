@@ -36,7 +36,7 @@ public interface {{classname}} {
   {{#isMultipart}}@retrofit.http.Multipart{{/isMultipart}}{{^isMultipart}}@retrofit.http.FormUrlEncoded{{/isMultipart}}{{/-first}}{{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}} {{operationId}}({{^allParams}});{{/allParams}}
-    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}
+    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{>libraries/retrofit/cookieParams}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}
   );{{/hasMore}}{{/allParams}}
 
   /**
@@ -55,7 +55,7 @@ public interface {{classname}} {
   {{#isMultipart}}@retrofit.http.Multipart{{/isMultipart}}{{^isMultipart}}@retrofit.http.FormUrlEncoded{{/isMultipart}}{{/-first}}{{/formParams}}
   @{{httpMethod}}("{{{path}}}")
   void {{operationId}}(
-    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}, {{/allParams}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> cb
+    {{#allParams}}{{>libraries/retrofit/queryParams}}{{>libraries/retrofit/pathParams}}{{>libraries/retrofit/headerParams}}{{>libraries/retrofit/bodyParams}}{{>libraries/retrofit/formParams}}{{>libraries/retrofit/cookieParams}}, {{/allParams}}Callback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> cb
   );
   {{/operation}}
 }

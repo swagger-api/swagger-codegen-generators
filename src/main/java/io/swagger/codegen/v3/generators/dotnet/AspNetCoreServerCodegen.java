@@ -2,15 +2,12 @@ package io.swagger.codegen.v3.generators.dotnet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.samskivert.mustache.Mustache;
-import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
-import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -19,11 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
@@ -151,11 +146,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             supportingFiles.add(new SupportingFile("Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
-            supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
-
+            supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
         } else if (aspNetCoreVersion.equals("2.1")) {
             apiTemplateFiles.put("2.1/controller.mustache", ".cs");
             addInterfaceControllerTemplate();
@@ -163,21 +156,20 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             supportingFiles.add(new SupportingFile("2.1/Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("2.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             supportingFiles.add(new SupportingFile("2.1/Dockerfile.mustache", packageFolder, "Dockerfile"));
-            supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
+            supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
         } else {
             apiTemplateFiles.put("3.0/controller.mustache", ".cs");
             addInterfaceControllerTemplate();
 
+            supportingFiles.add(new SupportingFile("3.0" + File.separator + "Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
+            supportingFiles.add(new SupportingFile("3.0" + File.separator + "Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
+
+            supportingFiles.add(new SupportingFile("3.0/Startup.mustache", packageFolder, "Startup.cs"));
             supportingFiles.add(new SupportingFile("3.0/Program.mustache", packageFolder, "Program.cs"));
             supportingFiles.add(new SupportingFile("3.0/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             supportingFiles.add(new SupportingFile("3.0/Dockerfile.mustache", packageFolder, "Dockerfile"));
-            supportingFiles.add(new SupportingFile("3.0/Startup.mustache", packageFolder, "Startup.cs"));
-
-            supportingFiles.add(new SupportingFile("3.0" + File.separator + "Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
-            supportingFiles.add(new SupportingFile("3.0" + File.separator + "Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
         }
 
         if (!additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  **/
 @ApiModel(description="{{{description}}}")
 {{/description}}
-public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfaceModels}}{{#@first}}implements {{/@first}}{{name}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}} {
+public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}} {
   {{#vars}}{{#isEnum}}{{^isContainer}}
 
 {{>enumClass}}{{/isContainer}}{{/isEnum}}{{#items.isEnum}}{{#items}}
