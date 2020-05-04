@@ -78,6 +78,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2062,6 +2065,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 Schema schema = body.getContent().get(contentType).getSchema();
                 if (schema != null && StringUtils.isNotBlank(schema.get$ref())) {
                     schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
+                    try {
+                        schemaName = URLDecoder.decode(schemaName, StandardCharsets.UTF_8.name());
+                    } catch (UnsupportedEncodingException e) {
+                        LOGGER.error("Could not decoded string: " + schemaName, e);
+                    }
                     schema = schemas.get(schemaName);
                 }
                 final CodegenContent codegenContent = new CodegenContent(contentType);
