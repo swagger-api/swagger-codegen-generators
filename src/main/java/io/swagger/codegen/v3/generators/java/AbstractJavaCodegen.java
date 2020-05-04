@@ -50,6 +50,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String JAVA8_MODE = "java8";
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
+    public static final String USE_NULL_FOR_UNKNOWN_ENUM_VALUE = "useNullForUnknownEnumValue";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -81,6 +82,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    protected boolean useNullForUnknownEnumValue = true;
 
     public AbstractJavaCodegen() {
         super();
@@ -202,6 +204,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
         }
         additionalProperties.put(SUPPORT_JAVA6, supportJava6);
+
+        if (additionalProperties.containsKey(USE_NULL_FOR_UNKNOWN_ENUM_VALUE)) {
+            this.setUseNullForUnknownEnumValue(Boolean.valueOf(additionalProperties.get(USE_NULL_FOR_UNKNOWN_ENUM_VALUE).toString()));
+        }
+        additionalProperties.put(USE_NULL_FOR_UNKNOWN_ENUM_VALUE, useNullForUnknownEnumValue);
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
@@ -442,6 +449,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if (dateLibrary.equals("legacy")) {
             additionalProperties.put("legacyDates", true);
         }
+
+
     }
 
     private void sanitizeConfig() {
@@ -1355,6 +1364,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava8Mode(boolean enabled) {
         this.java8Mode = enabled;
+    }
+
+    public void setUseNullForUnknownEnumValue(boolean useNullForUnknownEnumValue) {
+        this.useNullForUnknownEnumValue = useNullForUnknownEnumValue;
     }
 
     @Override

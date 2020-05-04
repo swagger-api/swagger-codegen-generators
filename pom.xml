@@ -10,9 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.swagger.codegen.v3</groupId>
+    <groupId>com.observepoint.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.14</version>
+    <version>1.0.15</version>
     <packaging>jar</packaging>
 
     <build>
@@ -265,5 +265,31 @@
         <reflections-version>0.9.11</reflections-version>
 
     </properties>
+
+    <profiles>
+        <profile>
+            <id>observepoint-publish</id>
+            <repositories>
+                <repository>
+                    <id>observepoint-nexus-snapshots</id>
+                    <url>https://nexus.observepoint.com/repository/snapshots</url>
+                </repository>
+                <repository>
+                    <id>observepoint-nexus-releases</id>
+                    <url>https://nexus.observepoint.com/repository/releases</url>
+                </repository>
+            </repositories>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>observepoint-nexus-snapshots</id>
+                    <url>https://nexus.observepoint.com/repository/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>observepoint-nexus-releases</id>
+                    <url>https://nexus.observepoint.com/repository/releases</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
 </project>
