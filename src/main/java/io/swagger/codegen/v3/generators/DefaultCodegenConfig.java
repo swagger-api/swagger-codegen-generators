@@ -255,7 +255,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         setTemplateEngine();
 
         //Must always be the path to classpach templates
-    	embeddedTemplateDir = getTemplateDir();
+        embeddedTemplateDir = getTemplateDir();
     }
 
     public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
