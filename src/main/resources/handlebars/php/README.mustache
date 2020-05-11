@@ -41,5 +41,5 @@ composer run test
 
 ## Getting Started
 
-Please take a look at our demo code: [https://github.com/secuconnect/secuconnect-java-sdk-demo](https://github.com/secuconnect/secuconnect-java-sdk-demo)
+Please take a look at our demo code: [https://github.com/secuconnect/secuconnect-php-sdk-demo](https://github.com/secuconnect/secuconnect-php-sdk-demo)
 
