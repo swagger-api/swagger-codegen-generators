@@ -97,8 +97,8 @@ export class {{classname}} {
      {{#parameters}}* @param {{paramName}} {{description}}
      {{/parameters}}*/
     {{! if you change this method signature, also change the version below }}
-    public {{nickname}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/parameters}}{{^useHttpClient}}{{#hasParams}}, {{/hasParams}}extraHttpRequestParams?: RequestOptionsArgs{{/useHttpClient}}): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}{}{{/returnType}}> {
-        return this.{{nickname}}WithHttpInfo({{#parameters}}{{paramName}}, {{/parameters}}extraHttpRequestParams)
+    public {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/parameters}}{{^useHttpClient}}{{#hasParams}}, {{/hasParams}}extraHttpRequestParams?: RequestOptionsArgs{{/useHttpClient}}): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}{}{{/returnType}}> {
+        return this.{{nickname}}{{#isForm}}Form{{/isForm}}WithHttpInfo({{#parameters}}{{paramName}}, {{/parameters}}extraHttpRequestParams)
             .map((response: Response) => {
                 if (response.status === 204) {
                     return undefined;
@@ -127,10 +127,10 @@ export class {{classname}} {
      * @param reportProgress flag to report request and response progress.{{/useHttpClient}}
      */
     {{#useHttpClient}}
-    public {{nickname}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'body', reportProgress?: boolean): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>;
-    public {{nickname}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
-    public {{nickname}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
-    public {{nickname}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'body', reportProgress?: boolean): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>;
+    public {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
+    public {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
+    public {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{^isConstEnumParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/isConstEnumParam}}{{/parameters}}observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
     {{/useHttpClient}}
     {{^useHttpClient}}
     public {{nickname}}WithHttpInfo({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}extraHttpRequestParams?: RequestOptionsArgs): Observable<Response> {
@@ -258,6 +258,7 @@ export class {{classname}} {
             '{{{mediaType}}}'{{#hasMore}},{{/hasMore}}
             {{/consumes}}
         ];
+{{^isForm}}
 {{#bodyParam}}
         const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected != undefined) {
@@ -269,7 +270,9 @@ export class {{classname}} {
 {{/useHttpClient}}
         }
 {{/bodyParam}}
+{{/isForm}}
 
+{{#isForm}}
 {{#hasFormParams}}
         const canConsumeForm = this.canConsumeForm(consumes);
 
@@ -319,15 +322,20 @@ export class {{classname}} {
 {{/formParams}}
 
 {{/hasFormParams}}
+{{/isForm}}
 {{#useHttpClient}}
         return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}('{{httpMethod}}',`${this.basePath}{{{path}}}`,
             {
+{{^isForm}}
 {{#bodyParam}}
                 body: {{paramName}},
 {{/bodyParam}}
+{{/isForm}}
+{{#isForm}}
 {{#hasFormParams}}
                 body: convertFormParamsToString ? formParams.toString() : formParams,
 {{/hasFormParams}}
+{{/isForm}}
 {{#hasQueryParams}}
                 params: queryParameters,
 {{/hasQueryParams}}
@@ -345,12 +353,16 @@ export class {{classname}} {
         let requestOptions: RequestOptionsArgs = new RequestOptions({
             method: '{{httpMethod}}',
             headers: headers,
+{{^isForm}}
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
 {{/bodyParam}}
+{{/isForm}}
+{{#isForm}}
 {{#hasFormParams}}
             body: convertFormParamsToString ? formParams.toString() : formParams,
 {{/hasFormParams}}
+{{/isForm}}
 {{#isResponseFile}}
             responseType: ResponseContentType.Blob,
 {{/isResponseFile}}
