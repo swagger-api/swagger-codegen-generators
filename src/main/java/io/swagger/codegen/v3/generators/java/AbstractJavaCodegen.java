@@ -50,6 +50,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String JAVA8_MODE = "java8";
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
+    private static final String NOT_NULL_JACKSON_ANNOTATION = "notNullJacksonAnnotation" ;
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -202,6 +203,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setSupportJava6(Boolean.valueOf(additionalProperties.get(SUPPORT_JAVA6).toString()));
         }
         additionalProperties.put(SUPPORT_JAVA6, supportJava6);
+
+        if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+            this.setNotNullJacksonAnnotation(Boolean.valueOf(additionalProperties.get(NOT_NULL_JACKSON_ANNOTATION).toString()));
+        }
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
@@ -376,6 +381,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
         } else {
             importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
+        }
+
+        if(this.isNotNullJacksonAnnotation()){
+            importMapping.put("JsonInclude","com.fasterxml.jackson.annotation.JsonInclude");
         }
 
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
@@ -902,6 +911,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 codegenModel.imports.add("Schema");
             }
         }
+
+        if(this.isNotNullJacksonAnnotation()){
+            codegenModel.imports.add("JsonInclude");
+        }
+
         if (codegenModel.discriminator != null && additionalProperties.containsKey("jackson")) {
             codegenModel.imports.add("JsonSubTypes");
             codegenModel.imports.add("JsonTypeInfo");

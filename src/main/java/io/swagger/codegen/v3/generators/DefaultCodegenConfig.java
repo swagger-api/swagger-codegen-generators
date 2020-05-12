@@ -115,6 +115,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
+    private static final String NOT_NULL_JACKSON_ANNOTATION = "notNullJacksonAnnotation" ;
     public static final String REQUEST_BODY_NAME = "body";
     public static final String DEFAULT_TEMPLATE_DIR = "handlebars";
 
@@ -175,6 +176,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected boolean useOas2 = false;
     protected boolean copyFistAllOfProperties = false;
     protected boolean ignoreImportMapping;
+    private boolean notNullJacksonAnnotation;
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -252,7 +254,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             this.setUseOas2(Boolean.valueOf(additionalProperties.get(CodegenConstants.USE_OAS2).toString()));
         }
 
+        if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+            this.setNotNullJacksonAnnotation(Boolean.valueOf(additionalProperties.get(NOT_NULL_JACKSON_ANNOTATION).toString()));
+        }
+
         setTemplateEngine();
+    }
+
+    protected void setNotNullJacksonAnnotation(Boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
     }
 
     public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
@@ -4288,5 +4298,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public OpenAPI getOpenAPI() {
         return this.openAPI;
+    }
+
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
     }
 }
