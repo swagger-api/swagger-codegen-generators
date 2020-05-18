@@ -82,6 +82,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    private boolean notNullJacksonAnnotation;
 
     public AbstractJavaCodegen() {
         super();
@@ -168,6 +169,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
+        cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "Option: to set Jackson to ignore null fields when serializing"));
     }
 
     @Override
@@ -1470,5 +1472,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public boolean defaultIgnoreImportMappingOption() {
         return true;
+    }
+
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
+    }
+
+    public void setNotNullJacksonAnnotation(Boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
     }
 }

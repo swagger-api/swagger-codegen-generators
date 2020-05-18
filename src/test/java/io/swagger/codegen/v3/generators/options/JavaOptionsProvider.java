@@ -74,6 +74,7 @@ public class JavaOptionsProvider implements OptionsProvider {
                 .put("hideGenerationTimestamp", "true")
                 .put(CodegenConstants.ALLOW_UNICODE_IDENTIFIERS, ALLOW_UNICODE_IDENTIFIERS_VALUE)
                 .put(CodegenConstants.USE_OAS2, "true")
+                .put("notNullJacksonAnnotation", "true")
                 //.put("supportJava6", "true")
                 .build();
     }
