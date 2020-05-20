@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,7 +33,7 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
+public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures, NotNullAnnotationFeatures {
     static final String MEDIA_TYPE = "mediaType";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
@@ -44,10 +45,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     public static final String PLAY_VERSION = "playVersion";
     public static final String PARCELABLE_MODEL = "parcelableModel";
     public static final String USE_RUNTIME_EXCEPTION = "useRuntimeException";
-
     public static final String PLAY_24 = "play24";
     public static final String PLAY_25 = "play25";
-
     public static final String RETROFIT_1 = "retrofit";
     public static final String RETROFIT_2 = "retrofit2";
 
@@ -62,6 +61,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     protected boolean performBeanValidation = false;
     protected boolean useGzipFeature = false;
     protected boolean useRuntimeException = false;
+    private boolean notNullJacksonAnnotation = false;
 
 
     public JavaClientCodegen() {
@@ -82,6 +82,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         cliOptions.add(CliOption.newBoolean(PERFORM_BEANVALIDATION, "Perform BeanValidation"));
         cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
         cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
+        cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "adds @JsonInclude(JsonInclude.Include.NON_NULL) annotation to model classes"));
 
         supportedLibraries.put("jersey1", "HTTP client: Jersey client 1.19.4. JSON processing: Jackson 2.10.1. Enable Java6 support using '-DsupportJava6=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.");
         supportedLibraries.put("feign", "HTTP client: OpenFeign 9.4.0. JSON processing: Jackson 2.10.1");
@@ -155,6 +156,10 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             this.setUseBeanValidation(convertPropertyToBooleanAndWriteBack(USE_BEANVALIDATION));
         }
 
+        if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)){
+            this.setNotNullJacksonAnnotation(convertPropertyToBoolean(NOT_NULL_JACKSON_ANNOTATION));
+        }
+
         if (additionalProperties.containsKey(PERFORM_BEANVALIDATION)) {
             this.setPerformBeanValidation(convertPropertyToBooleanAndWriteBack(PERFORM_BEANVALIDATION));
         }
@@ -202,6 +207,14 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         if (performBeanValidation) {
             supportingFiles.add(new SupportingFile("BeanValidationException.mustache", invokerFolder,
                     "BeanValidationException.java"));
+        }
+
+        if (notNullJacksonAnnotation) {
+            writePropertyBack(NOT_NULL_JACKSON_ANNOTATION, notNullJacksonAnnotation);
+        }
+
+        if(notNullJacksonAnnotation){
+            importMapping.put("JsonInclude","com.fasterxml.jackson.annotation.JsonInclude");
         }
 
         //TODO: add doc to retrofit1 and feign
@@ -457,6 +470,9 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
                 model.imports.add("JsonCreator");
             }
         }
+        if (notNullJacksonAnnotation){
+            model.imports.add("JsonInclude");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -609,6 +625,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
      */
     static boolean isJsonVendorMimeType(String mime) {
         return mime != null && JSON_VENDOR_MIME_PATTERN.matcher(mime).matches();
+    }
+
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
     }
 
 }

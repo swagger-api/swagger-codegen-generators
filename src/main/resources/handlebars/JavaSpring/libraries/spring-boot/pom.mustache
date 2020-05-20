@@ -85,6 +85,13 @@
             <version>2.6.4</version>
         </dependency>
         {{/threetenbp}}
+        {{#notNullJacksonAnnotation}}
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+        {{/notNullJacksonAnnotation}}
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
         <dependency>
