@@ -149,7 +149,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "BasePathFilter.mustache", packageFolder + File.separator + "Filters", "BasePathFilter.cs"));
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
             supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
-        } else if (aspNetCoreVersion.equals("2.1")) {
+        } else if (aspNetCoreVersion.equals("2.1") || aspNetCoreVersion.equals("2.2")) {
             apiTemplateFiles.put("2.1/controller.mustache", ".cs");
             addInterfaceControllerTemplate();
 
