@@ -106,12 +106,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations"));
         cliOptions.add(CliOption.newBoolean(IMPLICIT_HEADERS, "Use of @ApiImplicitParams for headers."));
         cliOptions.add(CliOption.newBoolean(SWAGGER_DOCKET_CONFIG, "Generate Spring Swagger Docket configuration class."));
-        cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
-                "Use Optional container for optional parameters"));
+        cliOptions.add(CliOption.newBoolean(USE_OPTIONAL, "Use Optional container for optional parameters"));
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
         cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
         cliOptions.add(CliOption.newBoolean(THROWS_EXCEPTION, "Throws Exception in operation methods").defaultValue("false"));
-        cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "adds @JsonInclude(JsonInclude.Include.NON_NULL) annotation to model classes"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -237,10 +235,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             this.setUseBeanValidation(convertPropertyToBoolean(USE_BEANVALIDATION));
         }
 
-        if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)){
-            this.setNotNullJacksonAnnotation(convertPropertyToBoolean(NOT_NULL_JACKSON_ANNOTATION));
-        }
-
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
         }
@@ -275,17 +269,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             this.setSwaggerDocketConfig(Boolean.valueOf(additionalProperties.get(SWAGGER_DOCKET_CONFIG).toString()));
         }
 
-        if (notNullJacksonAnnotation) {
-           writePropertyBack(NOT_NULL_JACKSON_ANNOTATION, notNullJacksonAnnotation);
-        }
-
         typeMapping.put("file", "Resource");
         typeMapping.put("binary", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
 
-        if(notNullJacksonAnnotation){
-            importMapping.put("JsonInclude","com.fasterxml.jackson.annotation.JsonInclude");
-        }
+
 
         if (useOptional) {
             writePropertyBack(USE_OPTIONAL, useOptional);
@@ -801,9 +789,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 model.imports.add("JsonCreator");
             }
         }
-        if (notNullJacksonAnnotation){
-            model.imports.add("JsonInclude");
-        }
     }
 
     @Override
@@ -907,5 +892,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     @Override
     public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
         this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation(){
+        return notNullJacksonAnnotation;
     }
 }

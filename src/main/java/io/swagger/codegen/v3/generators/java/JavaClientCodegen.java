@@ -82,7 +82,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         cliOptions.add(CliOption.newBoolean(PERFORM_BEANVALIDATION, "Perform BeanValidation"));
         cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
         cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
-        cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "adds @JsonInclude(JsonInclude.Include.NON_NULL) annotation to model classes"));
 
         supportedLibraries.put("jersey1", "HTTP client: Jersey client 1.19.4. JSON processing: Jackson 2.10.1. Enable Java6 support using '-DsupportJava6=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.");
         supportedLibraries.put("feign", "HTTP client: OpenFeign 9.4.0. JSON processing: Jackson 2.10.1");
@@ -156,10 +155,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             this.setUseBeanValidation(convertPropertyToBooleanAndWriteBack(USE_BEANVALIDATION));
         }
 
-        if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)){
-            this.setNotNullJacksonAnnotation(convertPropertyToBoolean(NOT_NULL_JACKSON_ANNOTATION));
-        }
-
         if (additionalProperties.containsKey(PERFORM_BEANVALIDATION)) {
             this.setPerformBeanValidation(convertPropertyToBooleanAndWriteBack(PERFORM_BEANVALIDATION));
         }
@@ -189,7 +184,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         if(!"resttemplate".equals(getLibrary())) {
             supportingFiles.add(new SupportingFile("StringUtil.mustache", invokerFolder, "StringUtil.java"));
         }
-
         supportingFiles.add(new SupportingFile("auth/HttpBasicAuth.mustache", authFolder, "HttpBasicAuth.java"));
         supportingFiles.add(new SupportingFile("auth/ApiKeyAuth.mustache", authFolder, "ApiKeyAuth.java"));
         supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
@@ -207,14 +201,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         if (performBeanValidation) {
             supportingFiles.add(new SupportingFile("BeanValidationException.mustache", invokerFolder,
                     "BeanValidationException.java"));
-        }
-
-        if (notNullJacksonAnnotation) {
-            writePropertyBack(NOT_NULL_JACKSON_ANNOTATION, notNullJacksonAnnotation);
-        }
-
-        if(notNullJacksonAnnotation){
-            importMapping.put("JsonInclude","com.fasterxml.jackson.annotation.JsonInclude");
         }
 
         //TODO: add doc to retrofit1 and feign
@@ -367,7 +353,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
                     }
                 }
             }
-
         }
 
         // camelize path variables for Feign client
@@ -387,7 +372,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
                 op.path = StringUtils.join(items, "/");
             }
         }
-
         return objs;
     }
 
@@ -469,9 +453,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
                 model.imports.add("JsonValue");
                 model.imports.add("JsonCreator");
             }
-        }
-        if (notNullJacksonAnnotation){
-            model.imports.add("JsonInclude");
         }
     }
 
@@ -632,4 +613,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         this.notNullJacksonAnnotation = notNullJacksonAnnotation;
     }
 
+    @Override
+    public boolean isNotNullJacksonAnnotation(){
+        return notNullJacksonAnnotation;
+    }
 }

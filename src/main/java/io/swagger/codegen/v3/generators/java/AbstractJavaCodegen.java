@@ -9,6 +9,7 @@ import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
@@ -81,7 +83,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
-
+    private NotNullAnnotationFeatures notNullOption;
 
     public AbstractJavaCodegen() {
         super();
@@ -151,7 +153,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC));
         cliOptions.add(CliOption.newBoolean(WITH_XML, "whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)"));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.USE_OAS2, CodegenConstants.USE_OAS2_DESC));
-
+        if(this instanceof NotNullAnnotationFeatures){
+            cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "adds @JsonInclude(JsonInclude.Include.NON_NULL) annotation to model classes"));
+        }
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
         dateOptions.put("java8", "Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets \"" + JAVA8_MODE + "\" to true");
@@ -327,6 +331,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(FULL_JAVA_UTIL)) {
             this.setFullJavaUtil(Boolean.valueOf(additionalProperties.get(FULL_JAVA_UTIL).toString()));
+        }
+        if (this instanceof NotNullAnnotationFeatures) {
+            notNullOption = (NotNullAnnotationFeatures)this;
+            if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+                notNullOption.setNotNullJacksonAnnotation(convertPropertyToBoolean(NOT_NULL_JACKSON_ANNOTATION));
+                writePropertyBack(NOT_NULL_JACKSON_ANNOTATION, notNullOption.isNotNullJacksonAnnotation());
+                if (notNullOption.isNotNullJacksonAnnotation()) {
+                    importMapping.put("JsonInclude", "com.fasterxml.jackson.annotation.JsonInclude");
+                }
+            }
         }
 
         if (fullJavaUtil) {
@@ -914,6 +928,17 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allSchemas);
             codegenModel = AbstractJavaCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
+        if (this instanceof NotNullAnnotationFeatures) {
+            if (this instanceof NotNullAnnotationFeatures) {
+                notNullOption = (NotNullAnnotationFeatures)this;
+                if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+                    if (notNullOption.isNotNullJacksonAnnotation()) {
+                        codegenModel.imports.add("JsonInclude");
+                    }
+                }
+            }
+        }
+
         return codegenModel;
     }
 
@@ -954,6 +979,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 model.imports.add("JsonTypeId");
             }
         }
+
     }
 
     @Override
@@ -1004,7 +1030,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 listIterator.add(newImportMap);
             }
         }
-
         return postProcessModelsEnum(objs);
     }
 
@@ -1237,7 +1262,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 count += 1;
                 codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, (count < numVars) ? true : false);
             }
-
             if (!codegenProperties.isEmpty()) {
                 codegenModel.getVendorExtensions().put(CodegenConstants.HAS_VARS_EXT_NAME, true);
                 codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, false);
@@ -1246,13 +1270,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 codegenModel.getVendorExtensions().put(CodegenConstants.HAS_VARS_EXT_NAME, false);
                 codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, false);
             }
-
-
             codegenModel.vars = codegenProperties;
         }
         return codegenModel;
-
-
     }
 
     protected static boolean isSameEnum(CodegenProperty actual, CodegenProperty other) {
@@ -1478,7 +1498,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         .value(Boolean.FALSE.toString()));
             }
         }
-
         super.setLanguageArguments(languageArguments);
     }
 
@@ -1486,6 +1505,4 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public boolean defaultIgnoreImportMappingOption() {
         return true;
     }
-
-
 }

@@ -7,5 +7,5 @@ public interface NotNullAnnotationFeatures {
 
     void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation);
 
-
+    boolean isNotNullJacksonAnnotation();
 }
