@@ -1,0 +1,70 @@
+package {{package}}
+
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+{{^operations.complexRequestTypes.isEmpty}}import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import akka.http.scaladsl.marshalling.ToEntityMarshaller
+{{/operations.complexRequestTypes.isEmpty}}
+{{#hasCookieParams}}import akka.http.scaladsl.model.headers.HttpCookiePair
+{{/hasCookieParams}}
+import {{invokerPackage}}.AkkaHttpHelper._
+{{#imports}}import {{import}}
+{{/imports}}
+
+{{#operations}}
+class {{classname}}(
+    {{classVarName}}Service: {{classname}}Service{{#hasComplexTypes}},
+    {{classVarName}}Marshaller: {{classname}}Marshaller{{/hasComplexTypes}}
+) {
+  {{#hasComplexTypes}}import {{classVarName}}Marshaller._
+  {{/hasComplexTypes}}
+
+  lazy val route: Route =
+  {{#operation}}
+    path({{#vendorExtensions.paths}}{{#isText}}"{{/isText}}{{value}}{{#isText}}"{{/isText}}{{#hasMore}} / {{/hasMore}}{{/vendorExtensions.paths}}) { {{^pathParams.isEmpty}}({{#pathParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}) => {{/pathParams.isEmpty}}
+      {{vendorExtensions.lowercaseHttpMethod}} {
+        {{^queryParams.isEmpty}}parameters({{#vendorExtensions.queryParamsWithSupportedType}}"{{baseName}}".as[{{dataType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.queryParamsWithSupportedType}}) { ({{#queryParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}) =>{{/queryParams.isEmpty}}
+          {{#headerParams}}{{#required}}headerValueByName{{/required}}{{^required}}optionalHeaderValueByName{{/required}}("{{baseName}}") { {{paramName}} => {{/headerParams}}
+            {{^formParams.isEmpty}}formFields({{#formParams}}"{{baseName}}".as[{{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}String{{/isPrimitiveType}}]{{^required}}.?{{/required}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) { ({{#formParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/formParams}}) =>{{/formParams.isEmpty}}
+              {{#allParams}}{{#isCookieParam}}{{#required}}cookie({{/required}}{{^required}}optionalCookie({{/required}}"{{baseName}}"){ {{paramName}} => {{/isCookieParam}}{{/allParams}}
+                {{#bodyParam}}{{^isPrimitiveType}}entity(as[{{dataType}}]){ body =>{{/isPrimitiveType}}{{/bodyParam}}
+                  {{classVarName}}Service.{{operationId}}({{#allParams}}{{paramName}} = {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+               {{#bodyParam}}{{^isPrimitiveType}} }{{/isPrimitiveType}}{{/bodyParam}}
+             {{#allParams}}{{#isCookieParam}} }{{/isCookieParam}}{{/allParams}}
+           {{^formParams.isEmpty}} }{{/formParams.isEmpty}}
+         {{#headerParams}} }{{/headerParams}}
+       {{^queryParams.isEmpty}} }{{/queryParams.isEmpty}}
+      }
+    }{{^@last}} ~{{/@last}}
+  {{/operation}}
+}
+
+trait {{classname}}Service {
+
+{{#operation}}
+{{#responses}}  def {{operationId}}{{code}}{{#baseType}}(response{{baseType}}{{containerType}}: {{dataType}}){{^isPrimitiveType}}(implicit toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]){{/isPrimitiveType}}{{/baseType}}: Route =
+    complete(({{code}}, {{#baseType}}response{{baseType}}{{containerType}}{{/baseType}}{{^baseType}}"{{message}}"{{/baseType}}))
+{{/responses}}
+  /**
+{{#responses}}   * {{#code}}Code: {{.}}{{/code}}{{#message}}, Message: {{.}}{{/message}}{{#dataType}}, DataType: {{.}}{{/dataType}}
+   {{/responses}}
+   */
+  def {{operationId}}({{#vendorExtensions.paramsWithSupportedType}}{{paramName}}: {{^required}}{{^isBodyParam}}Option[{{/isBodyParam}}{{/required}}{{dataType}}{{^required}}{{^isBodyParam}}]{{/isBodyParam}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.paramsWithSupportedType}}){{^vendorExtensions.complexReturnTypes.isEmpty}}
+      (implicit {{#vendorExtensions.complexReturnTypes}}toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]{{^@last}}, {{/@last}}{{/vendorExtensions.complexReturnTypes}}){{/vendorExtensions.complexReturnTypes.isEmpty}}: Route
+
+{{/operation}}
+}
+
+{{#hasComplexTypes}}
+trait {{classname}}Marshaller {
+{{#complexRequestTypes}}  implicit def fromRequestUnmarshaller{{.}}: FromRequestUnmarshaller[{{.}}]
+
+{{/complexRequestTypes}}
+
+{{#complexReturnTypes}}  implicit def toEntityMarshaller{{baseType}}{{containerType}}: ToEntityMarshaller[{{dataType}}]
+
+{{/complexReturnTypes}}
+}
+{{/hasComplexTypes}}
+
+{{/operations}}
