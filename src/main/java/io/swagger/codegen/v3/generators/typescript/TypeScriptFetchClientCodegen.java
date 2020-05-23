@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
@@ -76,6 +78,7 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
 
         supportingFiles.add(new SupportingFile("index.mustache", "", "index.ts"));
         supportingFiles.add(new SupportingFile("api.mustache", "", "api.ts"));
+        supportingFiles.add(new SupportingFile("api_test.mustache", "", "api_test.spec.ts"));
         supportingFiles.add(new SupportingFile("configuration.mustache", "", "configuration.ts"));
         supportingFiles.add(new SupportingFile("custom.d.mustache", "", "custom.d.ts"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
@@ -142,6 +145,15 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
             }
         }
         return false;
+    }
+
+    @Override
+    public void postProcessParameter(CodegenParameter parameter) {
+        super.postProcessParameter(parameter);
+
+        String type = applyLocalTypeMapping(parameter.dataType);
+        parameter.dataType = type;
+        parameter.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, isLanguagePrimitive(type));
     }
 
     private void addNpmPackageGeneration() {
