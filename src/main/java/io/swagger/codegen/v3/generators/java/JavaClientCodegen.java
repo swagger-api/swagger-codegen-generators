@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,7 +33,7 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
+public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures, NotNullAnnotationFeatures {
     static final String MEDIA_TYPE = "mediaType";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
@@ -62,6 +63,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     protected boolean performBeanValidation = false;
     protected boolean useGzipFeature = false;
     protected boolean useRuntimeException = false;
+    private boolean notNullJacksonAnnotation = false;
 
 
     public JavaClientCodegen() {
@@ -611,4 +613,13 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         return mime != null && JSON_VENDOR_MIME_PATTERN.matcher(mime).matches();
     }
 
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
+    }
 }
