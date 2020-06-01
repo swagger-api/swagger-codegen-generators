@@ -266,13 +266,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allModels.put(modelName, codegenModel);
             }
         }
+        postProcessAllCodegenModels(allModels);
+        return processedModels;
+    }
+
+    protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
         if (supportsInheritance) {
             for (String name : allModels.keySet()) {
                 final CodegenModel codegenModel = allModels.get(name);
                 fixUpParentAndInterfaces(codegenModel, allModels);
             }
         }
-        return processedModels;
     }
 
     /**
