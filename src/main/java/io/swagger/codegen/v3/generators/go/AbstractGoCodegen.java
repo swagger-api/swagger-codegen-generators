@@ -9,10 +9,12 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.SchemaHandler;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
@@ -243,12 +245,32 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         if(schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             Schema inner = arraySchema.getItems();
-            return "[]" + getTypeDeclaration(inner);
+            if (inner instanceof ComposedSchema && schema.getExtensions() != null && schema.getExtensions().containsKey("x-schema-name")) {
+                final ComposedSchema composedSchema = (ComposedSchema) inner;
+                final String prefix;
+                if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+                    prefix = SchemaHandler.ALL_OF_PREFFIX;
+                } else if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
+                    prefix = SchemaHandler.ONE_OF_PREFFIX;
+                } else {
+                    prefix = SchemaHandler.ANY_OF_PREFFIX;
+                }
+                return "[]" + toModelName(prefix + schema.getExtensions().get("x-schema-name")) + SchemaHandler.ARRAY_ITEMS_SUFFIX;
+            } else {
+                return "[]" + getTypeDeclaration(inner);
+            }
         } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             MapSchema mapSchema = (MapSchema) schema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
 
             return getSchemaType(schema) + "[string]" + getTypeDeclaration(inner);
+        } else if (schema.get$ref() != null) {
+            final String simpleRefName = OpenAPIUtil.getSimpleRef(schema.get$ref());
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(simpleRefName, this.openAPI);
+            if (refSchema != null && (refSchema instanceof ArraySchema || refSchema instanceof MapSchema)) {
+                refSchema.addExtension("x-schema-name", simpleRefName);
+                return getTypeDeclaration(refSchema);
+            }
         }
         // Not using the supertype invocation, because we want to UpperCamelize
         // the type.
@@ -271,7 +293,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
         if (schema.get$ref() != null) {
             final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
-            if (refSchema != null && !isObjectSchema(refSchema)) {
+            if (refSchema != null && !isObjectSchema(refSchema) && refSchema.getEnum() == null) {
                 schemaType = super.getSchemaType(refSchema);
             }
         }
