@@ -569,7 +569,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         if (!getBooleanValue(codegenModel, CodegenConstants.IS_ALIAS_EXT_NAME)) {
             boolean isAlias = schema instanceof ArraySchema
                     || schema instanceof MapSchema
-                    || (!isObjectSchema(schema));
+                    || (!isObjectSchema(schema) && schema.getEnum() == null);
 
             codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, isAlias);
         }
