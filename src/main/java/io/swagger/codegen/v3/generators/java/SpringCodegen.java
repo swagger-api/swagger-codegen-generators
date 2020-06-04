@@ -14,6 +14,7 @@ import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.URLPathUtil;
@@ -36,7 +37,7 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
+public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures, NotNullAnnotationFeatures {
     static Logger LOGGER = LoggerFactory.getLogger(SpringCodegen.class);
     public static final String DEFAULT_LIBRARY = "spring-boot";
     public static final String TITLE = "title";
@@ -78,6 +79,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean defaultInterfaces = true;
     protected String springBootVersion = "1.5.22.RELEASE";
     protected boolean throwsException = false;
+    private boolean notNullJacksonAnnotation = false;
 
     public SpringCodegen() {
         super();
@@ -589,6 +591,16 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         return objs;
+    }
+
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
     }
 
     private interface DataTypeAssigner {
