@@ -109,7 +109,6 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
@@ -268,9 +267,45 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         if (supportsInheritance) {
-            processCodegenModels(allModels);
+            for (String name : allModels.keySet()) {
+                final CodegenModel codegenModel = allModels.get(name);
+                fixUpParentAndInterfaces(codegenModel, allModels);
+            }
         }
         return processedModels;
+    }
+
+    /**
+     * Fix up all parent and interface CodegenModel references.
+     * @param allModels
+     */
+    protected void fixUpParentAndInterfaces(CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
+        if (codegenModel.parent != null) {
+            codegenModel.parentModel = allModels.get(codegenModel.parent);
+        }
+        if (codegenModel.interfaces != null && !codegenModel.interfaces.isEmpty()) {
+            codegenModel.interfaceModels = new ArrayList<CodegenModel>(codegenModel.interfaces.size());
+            for (String intf : codegenModel.interfaces) {
+                CodegenModel intfModel = allModels.get(intf);
+                if (intfModel != null) {
+                    codegenModel.interfaceModels.add(intfModel);
+                }
+            }
+        }
+        CodegenModel parent = codegenModel.parentModel;
+        // if a discriminator exists on the parent, don't add this child to the inheritance hierarchy
+        // TODO Determine what to do if the parent discriminator name == the grandparent discriminator name
+        while (parent != null) {
+            if (parent.children == null) {
+                parent.children = new ArrayList<CodegenModel>();
+            }
+            parent.children.add(codegenModel);
+            if (parent.discriminator == null) {
+                parent = allModels.get(parent.parent);
+            } else {
+                parent = null;
+            }
+        }
     }
 
     // override with any special post-processing
@@ -2144,31 +2179,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
                 CodegenParameter codegenParameter = fromParameter(param, imports);
-                // rename parameters to make sure all of them have unique names
-                if (ensureUniqueParams) {
-                    while (true) {
-                        boolean exists = false;
-                        for (CodegenParameter cp : allParams) {
-                            if (codegenParameter.paramName != null && codegenParameter.paramName.equals(cp.paramName)) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                        if (exists) {
-                            codegenParameter.paramName = generateNextName(codegenParameter.paramName);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-
-                // set isPrimitiveType and baseType for allParams
-                /*if (languageSpecificPrimitives.contains(p.baseType)) {
-                    p.isPrimitiveType = true;
-                    p.baseType = getSwaggerType(p);
-                }*/
-
-
                 allParams.add(codegenParameter);
                 // Issue #2561 (neilotoole) : Moved setting of is<Type>Param flags
                 // from here to fromParameter().
@@ -4229,6 +4239,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         this.addCodegenContentParemeters(codegenOperation, codegenContents);
         for (CodegenContent content : codegenContents) {
+            if (ensureUniqueParams) {
+                ensureUniqueParameters(content.getParameters());
+            }
+
             Collections.sort(content.getParameters(), (CodegenParameter one, CodegenParameter another) -> {
                     if (one.required == another.required){
                         return 0;
@@ -4260,6 +4274,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             addParemeters(content, codegenOperation.queryParams);
             addParemeters(content, codegenOperation.pathParams);
             addParemeters(content, codegenOperation.cookieParams);
+        }
+    }
+
+    protected void ensureUniqueParameters(List<CodegenParameter> codegenParameters) {
+        if (codegenParameters == null || codegenParameters.isEmpty()) {
+            return;
+        }
+        for (CodegenParameter codegenParameter : codegenParameters) {
+            long count = codegenParameters.stream()
+                    .filter(codegenParam -> codegenParam.paramName.equals(codegenParameter.paramName))
+                    .count();
+            if (count > 1l) {
+                codegenParameter.paramName = generateNextName(codegenParameter.paramName);
+            }
         }
     }
 
