@@ -34,8 +34,22 @@ type {{classname}}Service service
 */
 {{#hasOptionalParams}}
 
-type {{{classname}}}{{{nickname}}}Opts struct { {{#parameters}}{{^required}}
-{{#isPrimitiveType}}	{{vendorExtensions.x-exportParamName}} optional.{{vendorExtensions.x-optionalDataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}	{{vendorExtensions.x-exportParamName}} optional.Interface{{/isPrimitiveType}}{{/required}}{{/parameters}}
+type {{{classname}}}{{{nickname}}}Opts struct {
+{{#parameters}}
+{{^required}}
+{{#isPrimitiveType}}
+{{#isFile}}
+    {{vendorExtensions.x-exportParamName}} optional.Interface
+{{/isFile}}
+{{^isFile}}
+    {{vendorExtensions.x-exportParamName}} optional.{{vendorExtensions.x-optionalDataType}}
+{{/isFile}}
+{{/isPrimitiveType}}
+{{^isPrimitiveType}}
+    {{vendorExtensions.x-exportParamName}} optional.Interface
+{{/isPrimitiveType}}
+{{/required}}
+{{/parameters}}
 }
 
 {{/hasOptionalParams}}

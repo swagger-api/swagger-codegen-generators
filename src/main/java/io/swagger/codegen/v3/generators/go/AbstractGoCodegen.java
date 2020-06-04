@@ -92,7 +92,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         typeMapping.put("file", "*os.File");
         // map binary to string as a workaround
         // the correct solution is to use []byte
-        typeMapping.put("binary", "string");
+        typeMapping.put("binary", "*os.File");
         typeMapping.put("ByteArray", "string");
         typeMapping.put("object", "interface{}");
         typeMapping.put("UUID", "string");
@@ -255,7 +255,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
                 } else {
                     prefix = SchemaHandler.ANY_OF_PREFFIX;
                 }
-                return "[]" + toModelName(prefix + schema.getExtensions().get("x-schema-name")) + SchemaHandler.ARRAY_ITEMS_SUFFIX;
+                return "[]" + toModelName(prefix + schema.getExtensions().remove("x-schema-name")) + SchemaHandler.ARRAY_ITEMS_SUFFIX;
             } else {
                 return "[]" + getTypeDeclaration(inner);
             }
