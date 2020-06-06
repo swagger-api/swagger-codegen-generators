@@ -785,17 +785,28 @@ public class JavaModelTest extends AbstractCodegenTest {
 
     @Test(description = "convert a boolean parameter")
     public void booleanPropertyTest() {
-        final BooleanSchema property = new BooleanSchema();
+        final BooleanSchema propertyNonNull = new BooleanSchema();
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
-        final CodegenProperty cp = codegen.fromProperty("property", property);
+        final CodegenProperty cpNonNull = codegen.fromProperty("property", propertyNonNull);
 
-        Assert.assertEquals(cp.baseName, "property");
-        Assert.assertEquals(cp.datatype, "Boolean");
-        Assert.assertEquals(cp.name, "property");
-        Assert.assertEquals(cp.baseType, "Boolean");
-        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
-        Assert.assertTrue(getBooleanValue(cp, CodegenConstants.IS_BOOLEAN_EXT_NAME));
-        Assert.assertEquals(cp.getter, "isProperty");
+        Assert.assertEquals(cpNonNull.baseName, "property");
+        Assert.assertEquals(cpNonNull.datatype, "boolean");
+        Assert.assertEquals(cpNonNull.name, "property");
+        Assert.assertEquals(cpNonNull.baseType, "Boolean");
+        Assert.assertTrue(getBooleanValue(cpNonNull, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+        Assert.assertTrue(getBooleanValue(cpNonNull, CodegenConstants.IS_BOOLEAN_EXT_NAME));
+        Assert.assertEquals(cpNonNull.getter, "isProperty");
+
+        final Schema propertyNullable = new BooleanSchema().nullable(true);
+        final CodegenProperty cpNullable = codegen.fromProperty("property", propertyNullable);
+
+        Assert.assertEquals(cpNullable.baseName, "property");
+        Assert.assertEquals(cpNullable.datatype, "Boolean");
+        Assert.assertEquals(cpNullable.name, "property");
+        Assert.assertEquals(cpNullable.baseType, "Boolean");
+        Assert.assertTrue(getBooleanValue(cpNullable, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+        Assert.assertTrue(getBooleanValue(cpNullable, CodegenConstants.IS_BOOLEAN_EXT_NAME));
+        Assert.assertEquals(cpNullable.getter, "getProperty");
     }
 
     @Test(description = "convert an integer property")

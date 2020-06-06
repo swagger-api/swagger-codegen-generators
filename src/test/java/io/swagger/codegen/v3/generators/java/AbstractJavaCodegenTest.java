@@ -2,10 +2,13 @@ package io.swagger.codegen.v3.generators.java;
 
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -104,6 +107,27 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(fakeJavaCodegen.toModelName("$name"), "Name");
         Assert.assertEquals(fakeJavaCodegen.toModelName("nam#e"), "Name");
         Assert.assertEquals(fakeJavaCodegen.toModelName("$another-fake?"), "AnotherFake");
+    }
+
+    @Test
+    public void booleanField() throws Exception {
+        String name = "myBooleanField";
+        Schema nullableSchema = new BooleanSchema().nullable(true);
+        Schema nonNullableSchema = new BooleanSchema().nullable(false);
+        Schema nullableNotSpecifiedSchema = new BooleanSchema(); // default (in Spec) is nullable: false
+
+        CodegenProperty nullableProperty = fakeJavaCodegen.fromProperty(name, nullableSchema);
+        CodegenProperty nonNullableProperty = fakeJavaCodegen.fromProperty(name, nonNullableSchema);
+        CodegenProperty nullableNotSpecifiedProperty = fakeJavaCodegen.fromProperty(name, nullableNotSpecifiedSchema);
+
+        Assert.assertEquals("getMyBooleanField", nullableProperty.getter);
+        Assert.assertEquals("Boolean", nullableProperty.datatypeWithEnum);
+
+        Assert.assertEquals("isMyBooleanField", nonNullableProperty.getter);
+        Assert.assertEquals("boolean", nonNullableProperty.datatypeWithEnum);
+
+        Assert.assertEquals("isMyBooleanField", nullableNotSpecifiedProperty.getter);
+        Assert.assertEquals("boolean", nullableNotSpecifiedProperty.datatypeWithEnum);
     }
 
     @Test
