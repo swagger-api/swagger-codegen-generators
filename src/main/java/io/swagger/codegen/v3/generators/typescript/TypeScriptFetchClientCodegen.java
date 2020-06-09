@@ -3,6 +3,8 @@ package io.swagger.codegen.v3.generators.typescript;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
@@ -15,6 +17,8 @@ import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -114,6 +118,27 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
         } else {
             return super.getTypeDeclaration(propertySchema);
         }
+    }
+
+    @Override
+    public CodegenParameter fromParameter(Parameter parameter, Set<String> imports) {
+        final CodegenParameter codegenParameter = super.fromParameter(parameter, imports);
+        if (parameter.getSchema() != null && isObjectSchema(parameter.getSchema())) {
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+        }
+        return codegenParameter;
+    }
+
+    @Override
+    public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
+        final CodegenParameter codegenParameter = super.fromRequestBody(body, name, schema, schemas, imports);
+        if (schema == null) {
+            schema = getSchemaFromBody(body);
+        }
+        if (schema != null && isObjectSchema(schema)) {
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+        }
+        return codegenParameter;
     }
 
     @Override
