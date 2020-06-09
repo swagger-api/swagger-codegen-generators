@@ -2415,7 +2415,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     arraySchema.setItems(inner);
 
                 } else if (isObjectSchema(inner)) {
-                    codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                    //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                    codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
                 }
 
                 collectionFormat = getCollectionFormat(parameter);
@@ -2669,7 +2670,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                 arraySchema.setItems(inner);
             } else if (isObjectSchema(inner)) {
-                codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
             }
 
             CodegenProperty codegenProperty = fromProperty("property", schema);

@@ -124,7 +124,8 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
     public CodegenParameter fromParameter(Parameter parameter, Set<String> imports) {
         final CodegenParameter codegenParameter = super.fromParameter(parameter, imports);
         if (parameter.getSchema() != null && isObjectSchema(parameter.getSchema())) {
-            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            codegenParameter.getVendorExtensions().put("x-is-object", Boolean.TRUE);
         }
         return codegenParameter;
     }
@@ -136,7 +137,8 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
             schema = getSchemaFromBody(body);
         }
         if (schema != null && isObjectSchema(schema)) {
-            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            codegenParameter.getVendorExtensions().put("x-is-object", Boolean.TRUE);
         }
         return codegenParameter;
     }
