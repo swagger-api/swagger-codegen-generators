@@ -115,10 +115,10 @@
         {{#models}}
         {{#model}}
             {{#isComposedModel}}
-            defs.{{name}} = {};
+            defs["{{name}}"] = {};
             {{/isComposedModel}}
             {{^isComposedModel}}
-            defs.{{name}} = {{{modelJson}}};
+            defs["{{name}}"] = {{{modelJson}}};
             {{/isComposedModel}}
         {{/model}}
     {{/models}}
