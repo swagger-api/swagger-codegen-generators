@@ -3061,7 +3061,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    private void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
+    protected void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
         addVars(codegenModel, properties, required, null, null);
     }
 
