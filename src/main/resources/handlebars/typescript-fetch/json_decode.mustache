@@ -1,0 +1,93 @@
+{{>licenseInfo}}
+
+/*
+ * https://github.com/joanllenas/ts.data.json
+ *
+ * This template is modeled after modelGeneric.mustache
+ * and does not yet support:
+ * - `additionalPropertiesType`
+ * - `isEnum` (top level)
+ * Type issues:
+ * - objects passed to the generator are returned as "any", at top level and also nested
+ * Future improvements:
+ * - Can use `dataFormat` over `datatype` to further validate: uuid, uri, date vs. date-time
+ */
+
+import * as moment from "moment";
+import { JsonDecoder, ok, err } from "ts.data.json";
+import * as api from "./api";
+
+type Decoder = typeof JsonDecoder & {
+  [k: string]: any;
+  enum: <T>(values: any[], name: string) => JsonDecoder.Decoder<T>;
+};
+
+const decoder: Decoder = {
+  ...JsonDecoder,
+  any: JsonDecoder.succeed, // should always pass
+  todo: JsonDecoder.succeed, // should pass until properly handled
+  unused: JsonDecoder.succeed, // not currently used but should pass until properly handled
+  Date: new JsonDecoder.Decoder<any>((json: any) => {
+    if (moment(json).isValid()) {
+      return ok<any>(json);
+    } else {
+      return err<any>("Date is not valid");
+    }
+  }),
+  enum: <T>(values: any[], name: string) =>
+    JsonDecoder.oneOf(
+      values.map((v: T) => JsonDecoder.isExactly(v)),
+      name
+    ),
+};
+
+// Generic response
+decoder.Response = () => decoder.todo
+
+{{#*inline "innerDecoder"}}decoder.{{{_type}}}{{^isPrimitiveType}}(){{/isPrimitiveType}}{{/inline~}}
+
+{{#*inline "unused"}}decoder.unused/*{{{tag}}}*/{{/inline~}}
+{{#*inline "optional_open"}}{{^required}}decoder.optional({{/required}}{{/inline~}}
+{{#*inline "optional_close"}}{{^required}}){{/required}}{{/inline~}}
+{{#*inline "enum"}}decoder.enum<api.{{classname}}.{{{enumName}}}>([{{#allowableValues}}{{#enumVars}}{{{value}}}{{^@last}}, {{/@last}}{{/enumVars}}{{/allowableValues}}], "{{classname}}.{{{enumName}}}"){{/inline~}}
+
+{{#*inline "vars_inner"}}
+  {{#vendorExtensions.x-is-list-container}}
+    {{name}}: {{>optional_open}}{{#isEnum}}decoder.array({{>enum}}, "{{classname}}.{{{name}}}"){{/isEnum}}{{^isEnum}}decoder.array({{>innerDecoder _type=items.baseType}}, "{{{classname}}}.{{{name}}}"){{/isEnum}}{{>optional_close}},
+  {{/vendorExtensions.x-is-list-container}}
+  {{#vendorExtensions.x-is-map-container}}
+    {{name}}: {{>optional_open}}decoder.object({}, "{{{classname}}}.{{{name}}}"){{>optional_close}},
+  {{/vendorExtensions.x-is-map-container}}
+  {{^vendorExtensions.x-is-list-container}}{{^vendorExtensions.x-is-map-container}}
+    {{name}}: {{>optional_open}}{{#isEnum}}{{>enum}}{{/isEnum}}{{^isEnum}}{{>innerDecoder _type=datatype}}{{/isEnum}}{{>optional_close}},
+  {{/vendorExtensions.x-is-map-container}}{{/vendorExtensions.x-is-list-container}}
+{{/inline~}}
+
+{{#models}}{{#model}}
+{{#isEnum}}
+decoder.{{classname}} = () => {{>unused tag='isEnum'}}
+{{/isEnum}}
+{{^isEnum}}
+{{#arrayModelType}}
+decoder.{{classname}} = () => decoder.array<api.{{{arrayModelType}}}>({{#isEnum}}{{>unused tag='arrayModelType_isEnum'}}{{/isEnum}}{{^isEnum}}{{>innerDecoder _type=arrayModelType}}{{/isEnum}}, "{{classname}}")
+{{else}}
+decoder.{{classname}} = () => decoder.object<api.{{classname}}>(
+  {
+  {{#parent}}
+    // {{{parent}}}
+  {{#parentModel}}{{#vars}}
+    {{>vars_inner}}
+  {{/vars}}{{/parentModel}}
+    //
+  {{/parent}}
+  {{#vars}}
+    {{>vars_inner}}
+  {{/vars}}
+  }, "{{classname}}"
+);
+{{/arrayModelType}}
+
+{{/isEnum}}
+{{/model}}{{/models}}
+
+export default decoder
