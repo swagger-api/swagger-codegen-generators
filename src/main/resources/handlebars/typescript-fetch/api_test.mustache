@@ -1,0 +1,43 @@
+{{>licenseInfo}}
+
+import * as api from "./api"
+import { Configuration } from "./configuration"
+
+const config: Configuration = {}
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+describe("{{classname}}", () => {
+  let instance: api.{{classname}}
+  beforeEach(function() {
+    instance = new api.{{classname}}(config)
+  });
+
+{{#operation}}
+{{#contents}}
+{{#@first}}
+  test("{{operationId}}", () => {
+    {{#parameters}}
+    {{#isObject}}
+    const {{{paramName}}}: api.{{{dataType}}} = {{>api_test_default_value}}
+    {{/isObject}}
+    {{^isObject}}
+    {{#hasInnerObject}}
+    const {{{paramName}}}: Array<api.{{{baseType}}}> = {{>api_test_default_value}}
+    {{/hasInnerObject}}
+    {{^hasInnerObject}}
+    const {{{paramName}}}: {{{dataType}}} = {{>api_test_default_value}}
+    {{/hasInnerObject}}
+    {{/isObject}}
+    {{/parameters}}
+    return expect(instance.{{operationId}}({{#parameters}}{{{paramName}}}, {{/parameters}}{})).resolves.toBe(null)
+  })
+{{/@first}}
+{{/contents}}
+{{/operation}}
+})
+
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
