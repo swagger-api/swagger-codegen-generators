@@ -942,6 +942,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    protected void addAdditionPropertiesToCodeGenModel(CodegenModel codegenModel, Schema schema) {
+        super.addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+        addVars(codegenModel, schema.getProperties(), schema.getRequired());
+    }
+
+    @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         if(serializeBigDecimalAsString) {
             if (property.baseType.equals("BigDecimal")) {
