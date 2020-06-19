@@ -1418,6 +1418,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             }
+
+            final List<Schema> oneOf = composed.getOneOf();
+            if (oneOf != null && !oneOf.isEmpty()) {
+                if (schema.getDiscriminator() != null) {
+                    codegenModel.discriminator = schema.getDiscriminator();
+                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    }
+                }
+            }
+
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
                 codegenModel.parent = toModelName(parentName);
