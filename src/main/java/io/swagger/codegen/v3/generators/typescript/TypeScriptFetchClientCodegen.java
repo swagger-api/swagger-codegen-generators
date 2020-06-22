@@ -3,9 +3,13 @@ package io.swagger.codegen.v3.generators.typescript;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BinarySchema;
@@ -13,6 +17,8 @@ import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +82,7 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
 
         supportingFiles.add(new SupportingFile("index.mustache", "", "index.ts"));
         supportingFiles.add(new SupportingFile("api.mustache", "", "api.ts"));
+        supportingFiles.add(new SupportingFile("api_test.mustache", "", "api_test.spec.ts"));
         supportingFiles.add(new SupportingFile("configuration.mustache", "", "configuration.ts"));
         supportingFiles.add(new SupportingFile("custom.d.mustache", "", "custom.d.ts"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
@@ -114,6 +121,29 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
     }
 
     @Override
+    public CodegenParameter fromParameter(Parameter parameter, Set<String> imports) {
+        final CodegenParameter codegenParameter = super.fromParameter(parameter, imports);
+        if (parameter.getSchema() != null && isObjectSchema(parameter.getSchema())) {
+            //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            codegenParameter.getVendorExtensions().put("x-is-object", Boolean.TRUE);
+        }
+        return codegenParameter;
+    }
+
+    @Override
+    public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
+        final CodegenParameter codegenParameter = super.fromRequestBody(body, name, schema, schemas, imports);
+        if (schema == null) {
+            schema = getSchemaFromBody(body);
+        }
+        if (schema != null && isObjectSchema(schema)) {
+            //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+            codegenParameter.getVendorExtensions().put("x-is-object", Boolean.TRUE);
+        }
+        return codegenParameter;
+    }
+
+    @Override
     public String getSchemaType(Schema schema) {
         String swaggerType = super.getSchemaType(schema);
         if (isLanguagePrimitive(swaggerType) || isLanguageGenericType(swaggerType)) {
@@ -141,6 +171,15 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
             }
         }
         return false;
+    }
+
+    @Override
+    public void postProcessParameter(CodegenParameter parameter) {
+        super.postProcessParameter(parameter);
+
+        String type = applyLocalTypeMapping(parameter.dataType);
+        parameter.dataType = type;
+        parameter.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, isLanguagePrimitive(type));
     }
 
     private void addNpmPackageGeneration() {
