@@ -1431,7 +1431,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
-                codegenModel.parent = toModelName(parentName);
+                codegenModel.parent = typeMapping.containsKey(parentName) ? typeMapping.get(parentName): toModelName(parentName);
                 addImport(codegenModel, codegenModel.parent);
                 if (allDefinitions != null) {
                     if (supportsInheritance) {
