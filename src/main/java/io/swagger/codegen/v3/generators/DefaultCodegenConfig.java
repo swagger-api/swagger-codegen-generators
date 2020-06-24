@@ -2414,8 +2414,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.vendorExtensions.putAll(parameter.getExtensions());
         }
 
-        if (parameter.getSchema() != null) {
-            Schema parameterSchema = parameter.getSchema();
+        Schema parameterSchema = parameter.getSchema();
+        if (parameterSchema == null) {
+            parameterSchema = getSchemaFromParameter(parameter);
+        }
+        if (parameterSchema != null) {
             String collectionFormat = null;
             if (parameterSchema instanceof ArraySchema) { // for array parameter
                 final ArraySchema arraySchema = (ArraySchema) parameterSchema;
@@ -3975,6 +3978,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         Schema schema = null;
         for (String contentType : response.getContent().keySet()) {
             schema = response.getContent().get(contentType).getSchema();
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
+            break;
+        }
+        return schema;
+    }
+
+    protected Schema getSchemaFromParameter(Parameter parameter) {
+        if (parameter.getContent() == null || parameter.getContent().isEmpty()) {
+            return null;
+        }
+        Schema schema = null;
+        for (String contentType : parameter.getContent().keySet()) {
+            schema = parameter.getContent().get(contentType).getSchema();
             if (schema != null) {
                 schema.addExtension("x-content-type", contentType);
             }
