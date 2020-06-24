@@ -586,6 +586,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
+    public String customTemplateDir() {
+        return "";
+    }
+
     public String getCommonTemplateDir() {
         return this.commonTemplateDir;
     }
