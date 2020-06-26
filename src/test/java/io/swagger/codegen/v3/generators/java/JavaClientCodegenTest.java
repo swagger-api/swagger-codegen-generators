@@ -271,7 +271,7 @@ public class JavaClientCodegenTest extends AbstractCodegenTest {
 
         codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, String.join(File.separator, "user", "custom", "location"));
         codegen.processOpts();
-        Assert.assertEquals(codegen.templateDir(), String.join(File.separator, "user", "custom", "location"));
+        Assert.assertEquals(codegen.customTemplateDir(), String.join(File.separator, "user", "custom", "location"));
     }
 
     @Test
