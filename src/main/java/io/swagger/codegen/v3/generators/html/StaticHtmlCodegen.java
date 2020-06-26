@@ -134,14 +134,6 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public void processOpts() {
-        super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-    }
-
-    @Override
     public String escapeQuotationMark(String input) {
         // just return the original string
         return input;

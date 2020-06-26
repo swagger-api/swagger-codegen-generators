@@ -56,12 +56,6 @@ public class AkkaHttpServerCodegen extends AbstractScalaCodegen  {
     }
 
     @Override
-    public void processOpts() {
-        super.processOpts();
-        embeddedTemplateDir = templateDir = getTemplateDir();
-    }
-
-    @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         return setComplexTypes(objs);
     }
