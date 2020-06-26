@@ -284,13 +284,6 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
             setGoogleCloudFunctions(
