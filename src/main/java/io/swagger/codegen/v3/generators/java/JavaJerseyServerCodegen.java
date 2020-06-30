@@ -87,10 +87,6 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         addTemplateFiles();
 
         // use default library if unset

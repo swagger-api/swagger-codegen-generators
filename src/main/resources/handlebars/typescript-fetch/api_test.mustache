@@ -15,12 +15,26 @@ describe("{{classname}}", () => {
   });
 
 {{#operation}}
+{{#contents}}
+{{#@first}}
   test("{{operationId}}", () => {
-    {{#allParams}}
-    const {{{paramName}}}: {{^isPrimitiveType}}api.{{/isPrimitiveType}}{{{dataType}}} = {{>api_test_default_value}}
-    {{/allParams}}
-    return expect(instance.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}{})).resolves.toBe(null)
+    {{#parameters}}
+    {{#isObject}}
+    const {{{paramName}}}: api.{{{dataType}}} = {{>api_test_default_value}}
+    {{/isObject}}
+    {{^isObject}}
+    {{#hasInnerObject}}
+    const {{{paramName}}}: Array<api.{{{baseType}}}> = {{>api_test_default_value}}
+    {{/hasInnerObject}}
+    {{^hasInnerObject}}
+    const {{{paramName}}}: {{{dataType}}} = {{>api_test_default_value}}
+    {{/hasInnerObject}}
+    {{/isObject}}
+    {{/parameters}}
+    return expect(instance.{{operationId}}({{#parameters}}{{{paramName}}}, {{/parameters}}{})).resolves.toBe(null)
   })
+{{/@first}}
+{{/contents}}
 {{/operation}}
 })
 

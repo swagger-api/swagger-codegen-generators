@@ -142,6 +142,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, String> modelDocTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> reservedWordsMappings = new HashMap<String, String>();
     protected String templateDir;
+    protected String customTemplateDir;
     protected String templateVersion;
     protected String embeddedTemplateDir;
     protected String commonTemplateDir = "_common";
@@ -181,8 +182,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
-            this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
+            this.customTemplateDir = additionalProperties.get(CodegenConstants.TEMPLATE_DIR).toString();
         }
+        this.embeddedTemplateDir = this.templateDir = getTemplateDir();
 
         if (additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION) != null) {
             setIgnoreImportMapping(Boolean.parseBoolean( additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION).toString()));
@@ -266,13 +268,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allModels.put(modelName, codegenModel);
             }
         }
+        postProcessAllCodegenModels(allModels);
+        return processedModels;
+    }
+
+    protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
         if (supportsInheritance) {
             for (String name : allModels.keySet()) {
                 final CodegenModel codegenModel = allModels.get(name);
                 fixUpParentAndInterfaces(codegenModel, allModels);
             }
         }
-        return processedModels;
     }
 
     /**
@@ -580,6 +586,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else {
             return templateDir;
         }
+    }
+
+    public String customTemplateDir() {
+        return this.customTemplateDir;
     }
 
     public String getCommonTemplateDir() {
@@ -1414,9 +1424,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             }
+
+            final List<Schema> oneOf = composed.getOneOf();
+            if (oneOf != null && !oneOf.isEmpty()) {
+                if (schema.getDiscriminator() != null) {
+                    codegenModel.discriminator = schema.getDiscriminator();
+                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    }
+                }
+            }
+
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
-                codegenModel.parent = toModelName(parentName);
+                codegenModel.parent = typeMapping.containsKey(parentName) ? typeMapping.get(parentName): toModelName(parentName);
                 addImport(codegenModel, codegenModel.parent);
                 if (allDefinitions != null) {
                     if (supportsInheritance) {
@@ -2399,8 +2420,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.vendorExtensions.putAll(parameter.getExtensions());
         }
 
-        if (parameter.getSchema() != null) {
-            Schema parameterSchema = parameter.getSchema();
+        Schema parameterSchema = parameter.getSchema();
+        if (parameterSchema == null) {
+            parameterSchema = getSchemaFromParameter(parameter);
+        }
+        if (parameterSchema != null) {
             String collectionFormat = null;
             if (parameterSchema instanceof ArraySchema) { // for array parameter
                 final ArraySchema arraySchema = (ArraySchema) parameterSchema;
@@ -2410,6 +2434,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                     arraySchema.setItems(inner);
 
+                } else if (isObjectSchema(inner)) {
+                    //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                    codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
                 }
 
                 collectionFormat = getCollectionFormat(parameter);
@@ -2662,6 +2689,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (inner == null) {
                 inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                 arraySchema.setItems(inner);
+            } else if (isObjectSchema(inner)) {
+                //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
             }
 
             CodegenProperty codegenProperty = fromProperty("property", schema);
@@ -3051,7 +3081,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    private void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
+    protected void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
         addVars(codegenModel, properties, required, null, null);
     }
 
@@ -3954,6 +3984,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         Schema schema = null;
         for (String contentType : response.getContent().keySet()) {
             schema = response.getContent().get(contentType).getSchema();
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
+            break;
+        }
+        return schema;
+    }
+
+    protected Schema getSchemaFromParameter(Parameter parameter) {
+        if (parameter.getContent() == null || parameter.getContent().isEmpty()) {
+            return null;
+        }
+        Schema schema = null;
+        for (String contentType : parameter.getContent().keySet()) {
+            schema = parameter.getContent().get(contentType).getSchema();
             if (schema != null) {
                 schema.addExtension("x-content-type", contentType);
             }
