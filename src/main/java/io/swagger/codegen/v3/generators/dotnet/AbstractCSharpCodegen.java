@@ -1073,11 +1073,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    protected void addCodegenContentParemeters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
         }
     }
 /*

@@ -445,10 +445,11 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
             return;
         }
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.cookieParams);
         }
         for (CodegenContent content : codegenContents) {
             addHasMore(content.getParameters());
