@@ -5,7 +5,6 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
