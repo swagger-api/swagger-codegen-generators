@@ -2165,8 +2165,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                 requiredParams.add(formParameter.copy());
                             }
                             allParams.add(formParameter);
-
-                            codegenContent.getParameters().add(formParameter.copy());
                         }
                         codegenContents.add(codegenContent);
                     }
@@ -2188,7 +2186,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
             }
@@ -4282,7 +4279,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenOperation.getContents().add(content);
             return;
         }
-        this.addCodegenContentParemeters(codegenOperation, codegenContents);
+        this.addCodegenContentParameters(codegenOperation, codegenContents);
         for (CodegenContent content : codegenContents) {
             if (ensureUniqueParams) {
                 ensureUniqueParameters(content.getParameters());
@@ -4304,7 +4301,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.getContents().addAll(codegenContents);
     }
 
-    protected void addParemeters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
+    protected void addParameters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
         if (codegenParameters == null || codegenParameters.isEmpty()) {
             return;
         }
@@ -4313,12 +4310,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    protected void addCodegenContentParemeters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.cookieParams);
         }
     }
 

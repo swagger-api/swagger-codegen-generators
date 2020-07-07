@@ -134,6 +134,17 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
 
     @Override
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+        }
+    }
+
+    @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
     }
