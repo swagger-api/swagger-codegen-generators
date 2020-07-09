@@ -4313,6 +4313,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
             addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.formParams);
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);
