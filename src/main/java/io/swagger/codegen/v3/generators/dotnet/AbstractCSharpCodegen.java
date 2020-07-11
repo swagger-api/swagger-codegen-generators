@@ -1081,6 +1081,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             addParameters(content, codegenOperation.pathParams);
         }
     }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
+    }
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override
