@@ -28,7 +28,7 @@ import java.util.Optional;
 {{>generatedAnnotation}}
 {{#operations}}
 @Controller
-public class {{classname}} {
+public interface {{classname}} {
 
 {{#operation}}
 {{#contents}}
@@ -45,7 +45,7 @@ public class {{classname}} {
     })
     {{/implicitHeaders}}
     @{{#lambda.capitalise}}{{httpMethod}}{{/lambda.capitalise}}(value = "{{{path}}}"{{#hasProduces}}, produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}}, consumes = {{braces "left"}}{{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}}{{braces "right"}}{{/hasConsumes}})
-    public Single<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+    default Single<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         return Single.fromCallable(() -> {
             throw new UnsupportedOperationException();
         });
