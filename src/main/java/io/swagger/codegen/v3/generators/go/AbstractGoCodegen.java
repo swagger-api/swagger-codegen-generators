@@ -583,4 +583,9 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public ISchemaHandler getSchemaHandler() {
         return new GoSchemaHandler(this);
     }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
+    }
 }
