@@ -59,10 +59,6 @@ public class JavaResteasyEapServerCodegen extends AbstractJavaJAXRSServerCodegen
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
         apiTestTemplateFiles.clear(); // TODO: add test template
 

@@ -99,10 +99,6 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
 
         // clear model and api doc template as this codegen

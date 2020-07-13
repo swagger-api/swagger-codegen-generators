@@ -52,6 +52,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String JAVA8_MODE = "java8";
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
+    public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -331,6 +332,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(FULL_JAVA_UTIL)) {
             this.setFullJavaUtil(Boolean.valueOf(additionalProperties.get(FULL_JAVA_UTIL).toString()));
+        }
+
+        if (additionalProperties.containsKey(ERROR_ON_UNKNOWN_ENUM)) {
+            boolean errorOnUnknownEnum = Boolean.parseBoolean(additionalProperties.get(ERROR_ON_UNKNOWN_ENUM).toString());
+            additionalProperties.put(ERROR_ON_UNKNOWN_ENUM, errorOnUnknownEnum);
         }
 
         if (this instanceof NotNullAnnotationFeatures) {
@@ -942,6 +948,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    protected void addAdditionPropertiesToCodeGenModel(CodegenModel codegenModel, Schema schema) {
+        super.addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+        addVars(codegenModel, schema.getProperties(), schema.getRequired());
+    }
+
+    @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         if(serializeBigDecimalAsString) {
             if (property.baseType.equals("BigDecimal")) {
@@ -1508,6 +1520,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public boolean defaultIgnoreImportMappingOption() {
+        return true;
+    }
+
+    @Override
+    public boolean checkAliasModel() {
         return true;
     }
 }

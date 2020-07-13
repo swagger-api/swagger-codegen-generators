@@ -45,11 +45,6 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
 
     @Override
     public void processOpts() {
-        // Set the template dir first, before super.processOpts(), otherwise it is going to
-        // be set to /spec location.
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         super.processOpts();
 
@@ -92,7 +87,7 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
     @Override
     public String getHelp() {
         return "[WORK IN PROGRESS: generated code depends from Swagger v2 libraries] "
-                + "Generates a Java JAXRS Server according to JAXRS 2.0 specification, assuming an " 
+                + "Generates a Java JAXRS Server according to JAXRS 2.0 specification, assuming an "
                 + "Apache CXF runtime and a Java EE runtime with CDI enabled.";
     }
 

@@ -150,14 +150,6 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
     }
 
     @Override
-    public void processOpts() {
-        super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-    }
-
-    @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
 
