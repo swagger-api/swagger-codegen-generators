@@ -75,7 +75,7 @@ public class PhpClientCodegenTest {
         codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, "/absolute/path");
         codegen.processOpts();
 
-        Assert.assertEquals(codegen.templateDir(), "/absolute/path");
+        Assert.assertEquals(codegen.customTemplateDir(), "/absolute/path");
         Assert.assertEquals(codegen.embeddedTemplateDir(), "handlebars" + File.separator + "php");
     }
 }

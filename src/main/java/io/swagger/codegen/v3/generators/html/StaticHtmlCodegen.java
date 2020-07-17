@@ -8,8 +8,10 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.SchemaHandler;
 import io.swagger.codegen.v3.utils.Markdown;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -132,14 +134,6 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public void processOpts() {
-        super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-    }
-
-    @Override
     public String escapeQuotationMark(String input) {
         // just return the original string
         return input;
@@ -155,7 +149,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
 
     /**
      * Convert Markdown text to HTML
-     * 
+     *
      * @param input
      *            text in Markdown; may be null.
      * @return the text, converted to Markdown. For null input, "" is returned.
@@ -201,4 +195,8 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
         property.unescapedDescription = toHtml(property.unescapedDescription);
     }
 
+    @Override
+    public ISchemaHandler getSchemaHandler() {
+        return new HtmlSchemaHandler(this);
+    }
 }

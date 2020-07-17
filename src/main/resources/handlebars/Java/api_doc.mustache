@@ -63,7 +63,7 @@ try {
 {{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
-{{#parameters}} **{{paramName}}** | {{#is this 'primitive-type'}}**{{dataType}}**{{/is}}{{#isNot this 'primitive-type'}}{{#is this 'file'}}**{{dataType}}**{{/is}}{{#isNot this 'file'}}[**{{dataType}}**]({{baseType}}.md){{/isNot}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
+{{#parameters}} **{{paramName}}** | {{#is this 'primitive-type'}}**{{dataType}}**{{/is}}{{#isNot this 'primitive-type'}}{{#isBinary}}**{{dataType}}**{{/isBinary}}{{^isBinary}}[**{{dataType}}**]({{baseType}}.md){{/isBinary}}{{/isNot}}| {{description}} |{{^required}} [optional]{{/required}}{{#defaultValue}} [default to {{defaultValue}}]{{/defaultValue}}{{#allowableValues}} [enum: {{#values}}{{{.}}}{{^@last}}, {{/@last}}{{/values}}]{{/allowableValues}}
 {{/parameters}}
 
 ### Return type

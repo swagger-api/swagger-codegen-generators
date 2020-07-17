@@ -6,11 +6,8 @@ var {{classname}} = require('../{{implFolder}}/{{classname}}Service');
 {{#operation}}
 {{#contents}}
 
-module.exports.{{nickname}} = function {{nickname}} (req, res, next) {
-  {{#parameters}}
-  var {{paramName}} = req.swagger.params['{{baseName}}'].value;
-  {{/parameters}}
-  {{classname}}.{{nickname}}({{#parameters}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}})
+module.exports.{{nickname}} = function {{nickname}} (req, res, next{{#parameters}}{{#@first}}, {{/@first}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
+  {{classname}}.{{nickname}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
     .then(function (response) {
       utils.writeJson(res, response);
     })

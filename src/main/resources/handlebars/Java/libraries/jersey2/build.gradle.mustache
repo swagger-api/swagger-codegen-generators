@@ -111,8 +111,8 @@ ext {
     {{^useOas2}}
     swagger_annotations_version = "2.0.0"
     {{/useOas2}}
-    jackson_version = "2.8.9"
-    jersey_version = "2.25.1"
+    jackson_version = "2.10.1"
+    jersey_version = "2.26"
     {{#supportJava6}}
     commons_io_version=2.5
     commons_lang3_version=3.6
@@ -134,17 +134,17 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
     compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
     {{#joda}}
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_version",
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_version"
     {{/joda}}
     {{#java8}}
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version",
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
     {{/java8}}
     {{#supportJava6}}
     compile "commons-io:commons-io:$commons_io_version"
     compile "org.apache.commons:commons-lang3:$commons_lang3_version"
     {{/supportJava6}}
     {{#threetenbp}}
-    compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$jackson_version",
+    compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$jackson_version"
     {{/threetenbp}}
     {{^java8}}
     compile "com.brsanthu:migbase64:2.2"

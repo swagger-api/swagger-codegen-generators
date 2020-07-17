@@ -5,9 +5,12 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
@@ -27,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
@@ -90,6 +94,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         typeMapping.put("int", "number");
         typeMapping.put("float", "number");
         typeMapping.put("number", "number");
+        typeMapping.put("BigDecimal", "number");
         typeMapping.put("long", "number");
         typeMapping.put("short", "number");
         typeMapping.put("char", "string");
@@ -109,7 +114,6 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PROPERTY_NAMING, CodegenConstants.MODEL_PROPERTY_NAMING_DESC).defaultValue("camelCase"));
         cliOptions.add(new CliOption(CodegenConstants.SUPPORTS_ES6, CodegenConstants.SUPPORTS_ES6_DESC).defaultValue("false"));
-
     }
 
     @Override
@@ -238,6 +242,19 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     }
 
     @Override
+    public void addImport(CodegenModel codegenModel, String type) {
+        if (type == null) {
+            return;
+        }
+        String[] names = type.split("( [|&] )|[<>]");
+        for (String name : names) {
+            if (needToImport(name)) {
+                codegenModel.imports.add(name);
+            }
+        }
+    }
+
+    @Override
     public String toDefaultValue(Schema propertySchema) {
         if (propertySchema instanceof StringSchema) {
             StringSchema sp = (StringSchema) propertySchema;
@@ -269,16 +286,41 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     }
 
     @Override
-    public String getSchemaType(Schema schema) {
+    public String  getSchemaType(Schema schema) {
         String swaggerType = super.getSchemaType(schema);
+        if (schema instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema)schema;
+            if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+                return String.join(" & ", getTypesFromInterfaces(composedSchema.getAllOf()));
+            } else if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
+                return String.join(" | ", getTypesFromInterfaces(composedSchema.getOneOf()));
+            } else if (composedSchema.getAnyOf() != null && !composedSchema.getAnyOf().isEmpty()) {
+                return String.join(" | ", getTypesFromInterfaces(composedSchema.getAnyOf()));
+            } else {
+                return "object";
+            }
+        }
         String type = null;
         if (typeMapping.containsKey(swaggerType)) {
             type = typeMapping.get(swaggerType);
             if (languageSpecificPrimitives.contains(type))
                 return type;
-        } else
+        } else {
             type = swaggerType;
+        }
         return toModelName(type);
+    }
+
+    private List<String> getTypesFromInterfaces(List<Schema> interfaces) {
+        return interfaces.stream().map(schema -> {
+                String schemaType = getSchemaType(schema);
+                if (schema instanceof ArraySchema) {
+                    ArraySchema ap = (ArraySchema) schema;
+                    Schema inner = ap.getItems();
+                    schemaType = schemaType + "<" + getSchemaType(inner) + ">";
+                }
+                return schemaType;
+            }).distinct().collect(Collectors.toList());
     }
 
     @Override
@@ -402,7 +444,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
                 }
             }
-        } 
+        }
 
         return objs;
     }
@@ -424,5 +466,10 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public String escapeUnsafeCharacters(String input) {
         return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
+
+    @Override
+    public ISchemaHandler getSchemaHandler() {
+        return new TypeScriptSchemaHandler(this);
     }
 }

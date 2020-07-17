@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -86,6 +87,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("datetime");
         languageSpecificPrimitives.add("date");
         languageSpecificPrimitives.add("object");
+        languageSpecificPrimitives.add("binary_type");
 
         instantiationTypes.put("map", "dict");
 
@@ -93,6 +95,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "int");
         typeMapping.put("float", "float");
         typeMapping.put("number", "float");
+        typeMapping.put("BigDecimal", "float");
         typeMapping.put("long", "int");
         typeMapping.put("double", "float");
         typeMapping.put("array", "list");
@@ -123,7 +126,7 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
                         "assert", "else", "if", "pass", "yield", "break", "except", "import",
                         "print", "class", "exec", "in", "raise", "continue", "finally", "is",
                         "return", "def", "for", "lambda", "try", "self", "nonlocal", "None", "True", "nonlocal",
-                        "float", "int", "str", "date", "datetime"));
+                        "float", "int", "str", "date", "datetime", "False", "await", "async"));
 
         regexModifiers = new HashMap<Character, String>();
         regexModifiers.put('i', "IGNORECASE");
@@ -158,8 +161,6 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
         Boolean excludeTests = false;
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
 
         if(additionalProperties.containsKey(CodegenConstants.EXCLUDE_TESTS)) {
             excludeTests = Boolean.valueOf(additionalProperties.get(CodegenConstants.EXCLUDE_TESTS).toString());
@@ -233,6 +234,17 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         modelPackage = packageName + "." + modelPackage;
         apiPackage = packageName + "." + apiPackage;
 
+    }
+
+    @Override
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        final List<String> imports = codegenModel.imports.stream()
+                .filter(model -> model.equals(codegenModel.parent))
+                .collect(Collectors.toList());
+        codegenModel.imports.clear();
+        codegenModel.imports.addAll(imports);
+        return codegenModel;
     }
 
     private static String dropDots(String str) {

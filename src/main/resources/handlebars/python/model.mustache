@@ -11,7 +11,6 @@ import six
 {{import}}  # noqa: F401,E501
 {{/imports}}
 
-
 {{#models}}
 {{#model}}
 class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}):
@@ -40,21 +39,35 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
         '{{name}}': '{{{datatype}}}'{{#hasMore}},{{/hasMore}}
 {{/vars}}
     }
+{{#parent}}
+    if hasattr({{parent}}, "swagger_types"):
+        swagger_types.update({{parent}}.swagger_types)
+{{/parent}}
 
     attribute_map = {
 {{#vars}}
         '{{name}}': '{{baseName}}'{{#hasMore}},{{/hasMore}}
 {{/vars}}
     }
+{{#parent}}
+    if hasattr({{parent}}, "attribute_map"):
+        attribute_map.update({{parent}}.attribute_map)
+{{/parent}}
 {{#discriminator}}
 
     discriminator_value_class_map = {
-        {{#children}}'{{^vendorExtensions.x-discriminator-value}}{{name}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{vendorExtensions.x-discriminator-value}}}{{/vendorExtensions.x-discriminator-value}}': '{{{classname}}}'{{^@last}},
-        {{/@last}}{{/children}}
+        {{#if discriminator.mapping}}
+          {{#each discriminator.mapping}}
+            '{{@key}}'.lower(): '{{this}}',
+          {{/each}}
+        {{else}}
+          {{#children}}'{{^vendorExtensions.x-discriminator-value}}{{name}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{vendorExtensions.x-discriminator-value}}}{{/vendorExtensions.x-discriminator-value}}': '{{{classname}}}'{{^@last}},
+          {{/@last}}{{/children}}
+        {{/if}}
     }
 {{/discriminator}}
 
-    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}):  # noqa: E501
+    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}{{#parent}}, *args, **kwargs{{/parent}}):  # noqa: E501
         """{{classname}} - a model defined in Swagger"""  # noqa: E501
 {{#vars}}{{#@first}}
 {{/@first}}
@@ -71,6 +84,9 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
             self.{{name}} = {{name}}
 {{/required}}
 {{/vars}}
+{{#parent}}
+        {{parent}}.__init__(self, *args, **kwargs)
+{{/parent}}
 
 {{#vars}}
     @property

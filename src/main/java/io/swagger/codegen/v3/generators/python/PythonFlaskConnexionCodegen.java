@@ -70,6 +70,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         languageSpecificPrimitives.add("object");
         languageSpecificPrimitives.add("byte");
         languageSpecificPrimitives.add("bytearray");
+        languageSpecificPrimitives.add("binary_type");
 
         typeMapping.clear();
         typeMapping.put("integer", "int");
@@ -101,7 +102,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
                         "assert", "else", "if", "pass", "yield", "break", "except", "import",
                         "print", "class", "exec", "in", "raise", "continue", "finally", "is",
                         "return", "def", "for", "lambda", "try", "self", "None", "True", "False", "nonlocal",
-                        "float", "int", "str", "date", "datetime"));
+                        "float", "int", "str", "date", "datetime", "False", "await", "async"));
 
         // set the output folder here
         outputFolder = "generated-code/connexion";
@@ -157,12 +158,6 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-        //apiTemplateFiles.clear();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        embeddedTemplateDir = templateDir = getTemplateDir();
 
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
@@ -327,6 +322,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         final Paths paths = openAPI.getPaths();
         addRouterControllerExtensions(paths);
         final Map<String, SecurityScheme> securitySchemes = openAPI.getComponents() != null ? openAPI.getComponents().getSecuritySchemes() : null;

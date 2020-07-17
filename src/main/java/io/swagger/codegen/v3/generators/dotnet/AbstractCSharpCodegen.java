@@ -4,6 +4,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
@@ -15,6 +16,7 @@ import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
 import io.swagger.codegen.v3.utils.ModelUtils;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -106,7 +109,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter",
+                        "Client", "client", "parameter", "File",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
@@ -217,10 +220,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         // {{packageVersion}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_VERSION)) {
@@ -433,7 +432,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // This is different in C# than most other generators, because enums in C# are compiled to integral types,
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
-                        var.allowableValues = refModel.allowableValues;
+                        var.allowableValues = new HashMap<>(refModel.allowableValues);
                         updateCodegenPropertyEnum(var);
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
@@ -532,6 +531,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);
         if (objs != null) {
+            boolean hasAuthMethods = false;
             Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -580,8 +580,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                     }
 
                     processOperation(operation);
+                    if (getBooleanValue(operation, CodegenConstants.HAS_AUTH_METHODS_EXT_NAME)) {
+                        hasAuthMethods = true;
+                    }
                 }
             }
+            objs.put("hasAuthMethods", hasAuthMethods);
         }
 
         return objs;
@@ -901,8 +905,19 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         this.interfacePrefix = interfacePrefix;
     }
 
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (typeMapping.containsKey(name.toLowerCase()) && isReservedWord(name.toLowerCase())) {
+            typeMapping.remove(name.toLowerCase());
+        }
+        return codegenModel;
+    }
+
     @Override
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         // C# only supports enums as literals for int, int?, long, long?, byte, and byte?. All else must be treated as strings.
         // Per: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/enum
         // The approved types for an enum are byte, sbyte, short, ushort, int, uint, long, or ulong.
@@ -959,6 +974,18 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
+
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if ( urlInfo != null && urlInfo.getPort() > 0) {
+            additionalProperties.put("serverUrl", String.format("%s://%s:%s", urlInfo.getProtocol(), urlInfo.getHost(), urlInfo.getPort()));
+
+            if (StringUtils.isNotBlank(urlInfo.getPath())) {
+                additionalProperties.put("basePathWithoutHost", urlInfo.getPath());
+            }
+        } else {
+            additionalProperties.put("serverUrl", URLPathUtil.LOCAL_HOST);
+        }
+
         if (this.preserveNewLines) {
             Map<String, Schema> schemaMap = openAPI.getComponents() != null ? openAPI.getComponents().getSchemas() : null;
             if (schemaMap != null) {
@@ -1045,6 +1072,20 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(new CsharpHelper());
     }
 
+    @Override
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+        }
+    }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
+    }
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override

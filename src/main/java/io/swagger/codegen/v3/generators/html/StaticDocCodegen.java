@@ -80,8 +80,6 @@ public class StaticDocCodegen extends DefaultCodegenConfig implements CodegenCon
     @Override
     public void processOpts() {
         super.processOpts();
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
     }
 
     @Override

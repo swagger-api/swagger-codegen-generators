@@ -5,7 +5,7 @@
   public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} {
     {{#allowableValues}}
     {{#enumVars}}
-    {{{name}}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+    {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
     {{/enumVars}}
     {{/allowableValues}}
 
@@ -34,7 +34,7 @@
           return b;
         }
       }
-      return null;
+      {{^errorOnUnknownEnum}}return null;{{/errorOnUnknownEnum}}{{#errorOnUnknownEnum}}throw new IllegalArgumentException("Unexpected value '" + text + "' for '{{{classname}}}' enum.");{{/errorOnUnknownEnum}}
     }
     {{#gson}}
     public static class Adapter extends TypeAdapter<{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}> {
