@@ -73,10 +73,6 @@ public class GoServerCodegen extends AbstractGoCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
         }
