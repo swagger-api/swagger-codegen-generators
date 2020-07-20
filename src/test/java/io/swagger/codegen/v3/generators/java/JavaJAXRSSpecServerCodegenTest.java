@@ -32,9 +32,8 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest{
         File petFile = new File(output, "src/gen/java/io/swagger/model/Pet.java");
         final String content = FileUtils.readFileToString(petFile);
         
-        Assert.assertTrue(content.contains("import com.fasterxml.jackson.annotation.JsonCreator;\r\n" + 
-                "import com.fasterxml.jackson.annotation.JsonValue;"));
-        
+        Assert.assertTrue(content.contains("import com.fasterxml.jackson.annotation.JsonCreator;")); 
+        Assert.assertTrue(content.contains("import com.fasterxml.jackson.annotation.JsonValue;"));
         folder.delete();
     }
 }
