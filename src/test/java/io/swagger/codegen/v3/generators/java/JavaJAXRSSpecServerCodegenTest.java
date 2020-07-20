@@ -13,12 +13,12 @@ import io.swagger.codegen.v3.config.CodegenConfigurator;
 import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 
 public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest{
-	
-	private TemporaryFolder folder = new TemporaryFolder();
-	
+    
+    private TemporaryFolder folder = new TemporaryFolder();
+    
     @Test
     public void responseWithoutContent() throws Exception {
-    	folder.create();
+        folder.create();
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -33,7 +33,7 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest{
         final String content = FileUtils.readFileToString(petFile);
         
         Assert.assertTrue(content.contains("import com.fasterxml.jackson.annotation.JsonCreator;\r\n" + 
-        		"import com.fasterxml.jackson.annotation.JsonValue;"));
+                "import com.fasterxml.jackson.annotation.JsonValue;"));
         
         folder.delete();
     }
