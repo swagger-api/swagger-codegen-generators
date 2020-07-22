@@ -473,6 +473,6 @@ public class DartClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getDefaultTemplateDir() {
-        return null;
+        return "dart";
     }
 }
