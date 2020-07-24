@@ -1057,8 +1057,10 @@ public class JavaModelTest extends AbstractCodegenTest {
 
     @Test
     public void generateModelDiscriminatorOrderSchemas() throws Exception {
-        folder.create();
-        final File output = folder.getRoot();
+        TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        temporaryFolder.create();
+        final File output = temporaryFolder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
             .setLang("java")
@@ -1068,9 +1070,9 @@ public class JavaModelTest extends AbstractCodegenTest {
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
 
-        File orderFile = new File(output, "src/main/java/io/swagger/client/model/DSubSubSubBase.java");
-        Assert.assertTrue(orderFile.exists());
-        folder.delete();
+        File child = new File(output, "src/main/java/io/swagger/client/model/DSubSubSubBase.java");
+        Assert.assertTrue(child.exists());
+        temporaryFolder.delete();
     }
 
 }
