@@ -1055,4 +1055,22 @@ public class JavaModelTest extends AbstractCodegenTest {
         folder.delete();
     }
 
+    @Test
+    public void generateModelDiscriminatorOrderSchemas() throws Exception {
+        folder.create();
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+            .setLang("java")
+            .setInputSpecURL("src/test/resources/3_0_0/discriminator_order_schemas.yaml")
+            .setOutputDir(output.getAbsolutePath());
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        File orderFile = new File(output, "src/main/java/io/swagger/client/model/DSubSubSubBase.java");
+        Assert.assertTrue(orderFile.exists());
+        folder.delete();
+    }
+
 }
