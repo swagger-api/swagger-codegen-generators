@@ -9,23 +9,25 @@ class {{classname}} {
   {{classname}}([ApiClient apiClient]) : apiClient = apiClient ?? defaultApiClient;
 
   {{#operation}}
+  {{#contents}}
+  {{#@first}}
   /// {{summary}}
   ///
   /// {{notes}}
   {{#isDeprecated}}
   @deprecated
   {{/isDeprecated}}
-  {{#returnType}}Future<{{{returnType}}}> {{/returnType}}{{^returnType}}Future {{/returnType}}{{nickname}}({{#allParams}}{{#required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{ {{#allParams}}{{^required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/allParams}} }{{/hasOptionalParams}}) async {
+  {{#returnType}}Future<{{{returnType}}}> {{/returnType}}{{^returnType}}Future {{/returnType}}{{nickname}}({{#parameters}}{{#required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{ {{#parameters}}{{^required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}} }{{/hasOptionalParams}}) async {
     Object postBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
 
     // verify required params are set
-    {{#allParams}}
+    {{#parameters}}
       {{#required}}
     if({{paramName}} == null) {
      throw new ApiException(400, "Missing required param: {{paramName}}");
     }
       {{/required}}
-    {{/allParams}}
+    {{/parameters}}
 
     // create path and map variables
     String path = "{{{path}}}".replaceAll("{format}","json"){{#pathParams}}.replaceAll("{" + "{{baseName}}" + "}", {{{paramName}}}.toString()){{/pathParams}};
@@ -103,6 +105,8 @@ class {{classname}} {
       return {{#returnType}}null{{/returnType}};
     }
   }
+  {{/@first}}
+  {{/contents}}
   {{/operation}}
 }
 {{/operations}}

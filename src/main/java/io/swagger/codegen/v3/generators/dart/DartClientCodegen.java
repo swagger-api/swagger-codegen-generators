@@ -10,6 +10,10 @@ import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,6 +27,8 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class DartClientCodegen extends DefaultCodegenConfig {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DartClientCodegen.class);
 
     public static final String BROWSER_CLIENT = "browserClient";
     public static final String PUB_NAME = "pubName";
@@ -48,9 +54,11 @@ public class DartClientCodegen extends DefaultCodegenConfig {
         outputFolder = "generated-code/dart";
         modelTemplateFiles.put("model.mustache", ".dart");
         apiTemplateFiles.put("api.mustache", ".dart");
+        apiTestTemplateFiles.put("api_test.mustache", ".dart");
         embeddedTemplateDir = templateDir = "dart";
         apiPackage = "lib.api";
         modelPackage = "lib.model";
+        testPackage = "tests";
         modelDocTemplateFiles.put("object_doc.mustache", ".md");
         apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
@@ -67,7 +75,7 @@ public class DartClientCodegen extends DefaultCodegenConfig {
                 "is", "library", "new", "null", "operator", "part", "rethrow",
                 "return", "set", "static", "super", "switch", "sync*", "this",
                 "throw", "true", "try", "typedef", "var", "void", "while",
-                "with", "yield", "yield*" )
+                "int", "double", "with", "yield", "yield*" )
         );
 
         languageSpecificPrimitives = new HashSet<String>(
@@ -94,6 +102,7 @@ public class DartClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("number", "num");
         typeMapping.put("float", "double");
         typeMapping.put("double", "double");
+        typeMapping.put("BigDecimal", "double");
         typeMapping.put("object", "Object");
         typeMapping.put("integer", "int");
         typeMapping.put("Date", "DateTime");
@@ -209,6 +218,11 @@ public class DartClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String apiTestFileFolder() {
+        return outputFolder + "/" + sourceFolder + "/" + testPackage().replace('/', File.separatorChar);
+    }
+
+    @Override
     public String apiDocFileFolder() {
         return (outputFolder + "/" + apiDocPath).replace('/', File.separatorChar);
     }
@@ -256,6 +270,10 @@ public class DartClientCodegen extends DefaultCodegenConfig {
             LOGGER.warn(name + " (reserved word) cannot be used as model filename. Renamed to " + camelize("model_" + name));
             name = "model_" + name; // e.g. return => ModelReturn (after camelize)
         }
+        if (Character.isDigit(name.charAt(0))) {
+            LOGGER.warn(name + " start with number. Renamed to " + camelize("model_" + name));
+            name = "model_" + name; // e.g. return => ModelReturn (after camelize)
+        }
 
         // camelize the model name
         // phone_number => PhoneNumber
@@ -273,11 +291,26 @@ public class DartClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toApiTestFilename(String name) {
+        return underscore(toApiName(name)) + "_test";
+    }
+
+    @Override
     public String toDefaultValue(Schema schema) {
         if (schema instanceof MapSchema) {
             return "{}";
         } else if (schema instanceof ArraySchema) {
             return "[]";
+        } else if (schema instanceof StringSchema) {
+            if (schema.getDefault() != null) {
+                String _default = schema.getDefault().toString();
+                if (schema.getEnum() == null) {
+                    return String.format("\"%s\"", escapeText(_default));
+                } else {
+                    // convert to enum var name later in postProcessModels
+                    return _default;
+                }
+            }
         }
         return super.toDefaultValue(schema);
     }
@@ -310,6 +343,9 @@ public class DartClientCodegen extends DefaultCodegenConfig {
             }
         } else {
             type = swaggerType;
+        }
+        if (type == null) {
+            type = "Object";
         }
         return toModelName(type);
     }

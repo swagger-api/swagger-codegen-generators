@@ -1,8 +1,11 @@
 class {{classname}} {
   {{#vars}}{{#description}}/* {{{description}}} */{{/description}}
   {{{datatype}}} {{name}} = {{{defaultValue}}};
-  {{#allowableValues}}{{#min}} // range from {{min}} to {{max}}{{/min}}//{{^min}}enum {{name}}Enum { {{#values}} {{.}}, {{/values}} };{{/min}}{{/allowableValues}}
+  {{#allowableValues}}
+  {{#min}} // range from {{min}} to {{max}}{{/min}}//{{^min}}enum {{name}}Enum { {{#values}} {{.}}, {{/values}} };{{/min}}
+  {{/allowableValues}}
   {{/vars}}
+
   {{classname}}();
 
   @override
@@ -17,20 +20,7 @@ class {{classname}} {
     {{name}} = json['{{baseName}}'] == null ? null : DateTime.parse(json['{{baseName}}']);
   {{/isDateTime}}
   {{^isDateTime}}
-    {{name}} =
-    {{#complexType}}
-      {{#isListContainer}}{{complexType}}.listFromJson(json['{{baseName}}']){{/isListContainer}}{{^isListContainer}}
-      {{#isMapContainer}}{{complexType}}.mapFromJson(json['{{baseName}}']){{/isMapContainer}}
-      {{^isMapContainer}}new {{complexType}}.fromJson(json['{{baseName}}']){{/isMapContainer}}{{/isListContainer}}
-    {{/complexType}}
-    {{^complexType}}
-      {{#isListContainer}}
-        (json['{{baseName}}'] as List).map((item) => item as {{items.datatype}}).toList()
-      {{/isListContainer}}
-      {{^isListContainer}}
-        json['{{baseName}}']
-      {{/isListContainer}}
-    {{/complexType}};
+    {{name}} = {{#complexType}}{{#isListContainer}}{{complexType}}.listFromJson(json['{{baseName}}']){{/isListContainer}}{{^isListContainer}}{{#isMapContainer}}{{complexType}}.mapFromJson(json['{{baseName}}']){{/isMapContainer}}{{^isMapContainer}}new {{complexType}}.fromJson(json['{{baseName}}']){{/isMapContainer}}{{/isListContainer}}{{/complexType}}{{^complexType}}{{#isListContainer}}(json['{{baseName}}'] as List).map((item) => item as {{items.datatype}}).toList(){{/isListContainer}}{{^isListContainer}}json['{{baseName}}']{{/isListContainer}}{{/complexType}};
   {{/isDateTime}}
   {{/vars}}
   }
