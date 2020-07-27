@@ -4,7 +4,6 @@ import com.github.jknack.handlebars.Options;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -63,10 +62,6 @@ public class JavaHelper {
             builder.append("import ");
             builder.append(importMap.get("import"));
             builder.append(";\n");
-        }
-        boolean serializableMode = Boolean.valueOf(String.valueOf(templateData.get("serializableModel")));
-        if (serializableMode) {
-            builder.append("import java.io.Serializable;\n");
         }
         return builder.toString();
     }

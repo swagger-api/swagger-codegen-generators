@@ -28,6 +28,7 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractPhpCodegen.class);
 
     public static final String VARIABLE_NAMING_CONVENTION = "variableNamingConvention";
+    public static final String PACKAGE_PATH = "packagePath";
     public static final String SRC_BASE_PATH = "srcBasePath";
     // composerVendorName/composerProjectName has be replaced by gitUserId/gitRepoId. prepare to remove these.
     // public static final String COMPOSER_VENDOR_NAME = "composerVendorName";
@@ -51,7 +52,7 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
         additionalProperties.put("infoUrl", "https://developer.secuconnect.com/");
         additionalProperties.put(CodegenConstants.GIT_USER_ID, "secuconnect");
-        additionalProperties.put(CodegenConstants.GIT_REPO_ID, "gitRepoId");
+        additionalProperties.put(CodegenConstants.GIT_REPO_ID, "secuconnect-php-sdk");
 
         modelTemplateFiles.put("model.mustache", ".php");
         apiTemplateFiles.put("api.mustache", ".php");
@@ -124,7 +125,8 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(VARIABLE_NAMING_CONVENTION, "naming convention of variable name, e.g. camelCase.")
                 .defaultValue("snake_case"));
         cliOptions.add(new CliOption(CodegenConstants.INVOKER_PACKAGE, "The main namespace to use for all classes. e.g. Yay\\Pets"));
-        cliOptions.add(new CliOption(SRC_BASE_PATH, "The directory to serve as source root."));
+        cliOptions.add(new CliOption(PACKAGE_PATH, "The main package name for classes. e.g. GeneratedPetstore"));
+        cliOptions.add(new CliOption(SRC_BASE_PATH, "The directory under packagePath to serve as source root."));
         // cliOptions.add(new CliOption(COMPOSER_VENDOR_NAME, "The vendor name used in the composer package name. The template uses {{composerVendorName}}/{{composerProjectName}} for the composer package name. e.g. yaypets. IMPORTANT NOTE (2016/03): composerVendorName will be deprecated and replaced by gitUserId in the next swagger-codegen release"));
         cliOptions.add(new CliOption(CodegenConstants.GIT_USER_ID, CodegenConstants.GIT_USER_ID_DESC));
         // cliOptions.add(new CliOption(COMPOSER_PROJECT_NAME, "The project name used in the composer package name. The template uses {{composerVendorName}}/{{composerProjectName}} for the composer package name. e.g. petstore-client. IMPORTANT NOTE (2016/03): composerProjectName will be deprecated and replaced by gitRepoId in the next swagger-codegen release"));
@@ -135,6 +137,12 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
+
+        if (additionalProperties.containsKey(PACKAGE_PATH)) {
+            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
+        } else {
+            additionalProperties.put(PACKAGE_PATH, packagePath);
+        }
 
         if (additionalProperties.containsKey(SRC_BASE_PATH)) {
             this.setSrcBasePath((String) additionalProperties.get(SRC_BASE_PATH));
@@ -204,6 +212,17 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
         // make test path available in mustache template
         additionalProperties.put("testBasePath", testBasePath);
+
+        // // apache v2 license
+        // supportingFiles.add(new SupportingFile("LICENSE", getPackagePath(), "LICENSE"));
+    }
+
+    public String getPackagePath() {
+        return packagePath;
+    }
+
+    public String toPackagePath(String packageName, String basePath) {
+        return (getPackagePath() + File.separatorChar + toSrcPath(packageName, basePath));
     }
 
     public String toSrcPath(String packageName, String basePath) {
@@ -245,32 +264,32 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
     @Override
     public String apiFileFolder() {
-        return (outputFolder + File.separator + toSrcPath(apiPackage, srcBasePath));
+        return (outputFolder + File.separator + toPackagePath(apiPackage, srcBasePath));
     }
 
     @Override
     public String modelFileFolder() {
-        return (outputFolder + File.separator + toSrcPath(modelPackage, srcBasePath));
+        return (outputFolder + File.separator + toPackagePath(modelPackage, srcBasePath));
     }
 
     @Override
     public String apiTestFileFolder() {
-        return (outputFolder + File.separator + testBasePath + File.separator + apiDirName);
+        return (outputFolder + File.separator + getPackagePath() + File.separator + testBasePath + File.separator + apiDirName);
     }
 
     @Override
     public String modelTestFileFolder() {
-        return (outputFolder + File.separator + testBasePath + File.separator + modelDirName);
+        return (outputFolder + File.separator + getPackagePath() + File.separator + testBasePath + File.separator + modelDirName);
     }
 
     @Override
     public String apiDocFileFolder() {
-        return (outputFolder + File.separator + apiDocPath);
+        return (outputFolder + File.separator + getPackagePath() + File.separator + apiDocPath);
     }
 
     @Override
     public String modelDocFileFolder() {
-        return (outputFolder + File.separator + modelDocPath);
+        return (outputFolder + File.separator + getPackagePath() + File.separator + modelDocPath);
     }
 
     @Override

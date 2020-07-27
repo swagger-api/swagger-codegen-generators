@@ -88,10 +88,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
     @Override
     public void processOpts() {
         super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            String templateVersion = getTemplateVersion();
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         if (additionalProperties.containsKey(USE_GZIP_FEATURE)) {
             this.setUseGzipFeature(convertPropertyToBooleanAndWriteBack(USE_GZIP_FEATURE));

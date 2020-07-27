@@ -124,6 +124,9 @@ public class SchemaHandler implements ISchemaHandler {
         final Schema itemsSchema = arraySchema.getItems();
         if (itemsSchema instanceof ComposedSchema) {
             final CodegenModel composedModel = this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
+            if (composedModel == null) {
+                return null;
+            }
             this.updateArrayModel(codegenModel, composedModel.name, arraySchema);
             return composedModel;
         }

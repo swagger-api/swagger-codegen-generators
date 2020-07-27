@@ -34,12 +34,14 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(PhpClientCodegen.class);
 
     public static final String VARIABLE_NAMING_CONVENTION = "variableNamingConvention";
+    public static final String PACKAGE_PATH = "packagePath";
     public static final String SRC_BASE_PATH = "srcBasePath";
     public static final String COMPOSER_VENDOR_NAME = "composerVendorName";
     public static final String COMPOSER_PROJECT_NAME = "composerProjectName";
     protected String invokerPackage = "Secuconnect\\Client";
     protected String composerVendorName = null;
     protected String composerProjectName = null;
+    protected String packagePath = "";
     protected String artifactVersion = "2.0.0";
     protected String srcBasePath = "lib";
     protected String testBasePath = "test";
@@ -58,6 +60,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         importMapping.clear();
 
         supportsInheritance = true;
+//        outputFolder = "generated-code" + File.separator + "php";
         modelTemplateFiles.put("model.mustache", ".php");
         apiTemplateFiles.put("api.mustache", ".php");
 //        modelTestTemplateFiles.put("model_test.mustache", ".php");
@@ -135,7 +138,8 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(VARIABLE_NAMING_CONVENTION, "naming convention of variable name, e.g. camelCase.")
                 .defaultValue("snake_case"));
         cliOptions.add(new CliOption(CodegenConstants.INVOKER_PACKAGE, "The main namespace to use for all classes. e.g. Yay\\Pets"));
-        cliOptions.add(new CliOption(SRC_BASE_PATH, "The directory to serve as source root."));
+        cliOptions.add(new CliOption(PACKAGE_PATH, "The main package name for classes. e.g. GeneratedPetstore"));
+        cliOptions.add(new CliOption(SRC_BASE_PATH, "The directory under packagePath to serve as source root."));
         cliOptions.add(new CliOption(COMPOSER_VENDOR_NAME, "The vendor name used in the composer package name. The template uses {{composerVendorName}}/{{composerProjectName}} for the composer package name. e.g. yaypets. IMPORTANT NOTE (2016/03): composerVendorName will be deprecated and replaced by gitUserId in the next swagger-codegen release"));
         cliOptions.add(new CliOption(CodegenConstants.GIT_USER_ID, CodegenConstants.GIT_USER_ID_DESC));
         cliOptions.add(new CliOption(COMPOSER_PROJECT_NAME, "The project name used in the composer package name. The template uses {{composerVendorName}}/{{composerProjectName}} for the composer package name. e.g. petstore-client. IMPORTANT NOTE (2016/03): composerProjectName will be deprecated and replaced by gitRepoId in the next swagger-codegen release"));
@@ -143,6 +147,14 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(CodegenConstants.ARTIFACT_VERSION, "The version to use in the composer package version field. e.g. 1.2.3"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, "hides the timestamp when files were generated")
                 .defaultValue(Boolean.TRUE.toString()));
+    }
+
+    public String getPackagePath() {
+        return packagePath;
+    }
+
+    public String toPackagePath(String packageName, String basePath) {
+        return (getPackagePath() + File.separatorChar + toSrcPath(packageName, basePath));
     }
 
     public String toSrcPath(String packageName, String basePath) {
@@ -230,9 +242,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         super.processOpts();
 
-        embeddedTemplateDir = getTemplateDir();
-        if (StringUtils.isBlank(templateDir)) {
-            templateDir = embeddedTemplateDir;
+        if (additionalProperties.containsKey(PACKAGE_PATH)) {
+            this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
+        } else {
+            additionalProperties.put(PACKAGE_PATH, packagePath);
         }
 
         if (additionalProperties.containsKey(SRC_BASE_PATH)) {
@@ -284,14 +297,17 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         // make test path available in mustache template
         additionalProperties.put("testBasePath", testBasePath);
 
-        supportingFiles.add(new SupportingFile("ApiException.mustache", toSrcPath(invokerPackage, srcBasePath), "ApiException.php"));
-        supportingFiles.add(new SupportingFile("Configuration.mustache", toSrcPath(invokerPackage, srcBasePath), "Configuration.php"));
-        supportingFiles.add(new SupportingFile("ObjectSerializer.mustache", toSrcPath(invokerPackage, srcBasePath), "ObjectSerializer.php"));
-        supportingFiles.add(new SupportingFile("ModelInterface.mustache", toSrcPath(modelPackage, srcBasePath), "ModelInterface.php"));
-        supportingFiles.add(new SupportingFile("HeaderSelector.mustache", toSrcPath(invokerPackage, srcBasePath), "HeaderSelector.php"));
-        supportingFiles.add(new SupportingFile("composer.mustache", "", "composer.json"));
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("phpunit.xml.mustache", "", "phpunit.xml.dist"));
+        supportingFiles.add(new SupportingFile("ApiException.mustache", toPackagePath(invokerPackage, srcBasePath), "ApiException.php"));
+        supportingFiles.add(new SupportingFile("Configuration.mustache", toPackagePath(invokerPackage, srcBasePath), "Configuration.php"));
+        supportingFiles.add(new SupportingFile("ObjectSerializer.mustache", toPackagePath(invokerPackage, srcBasePath), "ObjectSerializer.php"));
+        supportingFiles.add(new SupportingFile("ModelInterface.mustache", toPackagePath(modelPackage, srcBasePath), "ModelInterface.php"));
+        supportingFiles.add(new SupportingFile("HeaderSelector.mustache", toPackagePath(invokerPackage, srcBasePath), "HeaderSelector.php"));
+        supportingFiles.add(new SupportingFile("composer.mustache", getPackagePath(), "composer.json"));
+        supportingFiles.add(new SupportingFile("README.mustache", getPackagePath(), "README.md"));
+//        supportingFiles.add(new SupportingFile("phpunit.xml.mustache", getPackagePath(), "phpunit.xml.dist"));
+//        supportingFiles.add(new SupportingFile(".travis.yml", getPackagePath(), ".travis.yml"));
+//        supportingFiles.add(new SupportingFile(".php_cs", getPackagePath(), ".php_cs"));
+//        supportingFiles.add(new SupportingFile("git_push.sh.mustache", getPackagePath(), "git_push.sh"));
     }
 
     @Override
@@ -304,32 +320,32 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String apiFileFolder() {
-        return (outputFolder + "/" + toSrcPath(apiPackage, srcBasePath));
+        return (outputFolder + "/" + toPackagePath(apiPackage, srcBasePath));
     }
 
     @Override
     public String modelFileFolder() {
-        return (outputFolder + "/" + toSrcPath(modelPackage, srcBasePath));
+        return (outputFolder + "/" + toPackagePath(modelPackage, srcBasePath));
     }
 
     @Override
     public String apiTestFileFolder() {
-        return (outputFolder + "/" + testBasePath + "/" + apiDirName);
+        return (outputFolder + "/" + getPackagePath() + "/" + testBasePath + "/" + apiDirName);
     }
 
     @Override
     public String modelTestFileFolder() {
-        return (outputFolder + "/" + testBasePath + "/" + modelDirName);
+        return (outputFolder + "/" + getPackagePath() + "/" + testBasePath + "/" + modelDirName);
     }
 
     @Override
     public String apiDocFileFolder() {
-        return (outputFolder + "/" + apiDocPath);
+        return (outputFolder + "/" + getPackagePath() + "/" + apiDocPath);
     }
 
     @Override
     public String modelDocFileFolder() {
-        return (outputFolder + "/" + modelDocPath);
+        return (outputFolder + "/" + getPackagePath() + "/" + modelDocPath);
     }
 
     @Override
@@ -406,6 +422,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
     public void setArtifactVersion(String artifactVersion) {
         this.artifactVersion = artifactVersion;
+    }
+
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
     }
 
     public void setSrcBasePath(String srcBasePath) {
