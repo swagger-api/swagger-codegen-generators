@@ -111,7 +111,7 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCha
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
