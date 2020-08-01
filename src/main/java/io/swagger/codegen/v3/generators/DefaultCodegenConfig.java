@@ -2697,7 +2697,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (codegenProperty.complexType != null) {
                 imports.add(codegenProperty.complexType);
             }
-            imports.add(codegenProperty.baseType);
+            if (codegenParameter.baseType != null) {
+                imports.add(codegenProperty.baseType);
+            }
             CodegenProperty innerCp = codegenProperty;
             while(innerCp != null) {
                 if(innerCp.complexType != null) {
@@ -2717,7 +2719,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             setParameterNullable(codegenParameter, codegenProperty);
 
             while (codegenProperty != null) {
-                imports.add(codegenProperty.baseType);
+                if (codegenProperty.baseType != null) {
+                    imports.add(codegenProperty.baseType);
+                }
                 codegenProperty = codegenProperty.items;
             }
         }
