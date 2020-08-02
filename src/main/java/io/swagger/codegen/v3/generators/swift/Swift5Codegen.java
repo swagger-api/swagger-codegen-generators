@@ -244,6 +244,14 @@ public class Swift5Codegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
+        /*
+         * Template Location.  This is the location which templates will be read from.  The generator
+         * will use the resource stream to attempt to read the templates.
+         */
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
+        
         // Setup project name
         if (additionalProperties.containsKey(PROJECT_NAME)) {
             setProjectName((String) additionalProperties.get(PROJECT_NAME));
