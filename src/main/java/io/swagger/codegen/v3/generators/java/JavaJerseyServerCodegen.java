@@ -28,9 +28,6 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
      * Default library template to use. (Default:{@value #DEFAULT_JERSEY_LIBRARY})
      */
     public static final String DEFAULT_JERSEY_LIBRARY = LIBRARY_JERSEY2;
-    public static final String USE_TAGS = "useTags";
-
-    protected boolean useTags = false;
 
     public JavaJerseyServerCodegen() {
         super();
@@ -46,7 +43,6 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
         cliOptions.add(library);
         cliOptions.add(CliOption.newBoolean(SUPPORT_JAVA6, "Whether to support Java6 with the Jersey1/2 library."));
-        cliOptions.add(CliOption.newBoolean(USE_TAGS, "use tags for creating interface and controller classnames"));
     }
 
     @Override
@@ -96,10 +92,6 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
         if (additionalProperties.containsKey(CodegenConstants.IMPL_FOLDER)) {
             implFolder = (String) additionalProperties.get(CodegenConstants.IMPL_FOLDER);
-        }
-
-        if (additionalProperties.containsKey(USE_TAGS)) {
-            this.setUseTags(Boolean.valueOf(additionalProperties.get(USE_TAGS).toString()));
         }
 
         addDateLibrary();
@@ -175,109 +167,4 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
         return objs;
     }
-
-    /* (non-Javadoc)
-     * @see io.swagger.codegen.languages.AbstractJavaJAXRSServerCodegen#postProcessOperations(java.util.Map)
-     */
-    @Override
-    public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
-        objs = super.postProcessOperations(objs);
-
-        if (useTags) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
-            if (operations != null) {
-
-                // collect paths
-                List<String> allPaths = new ArrayList<>();
-                @SuppressWarnings("unchecked")
-                List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
-                for (CodegenOperation operation: ops) {
-                    String path = operation.path;
-                    if (path.startsWith("/")) {
-                        path = path.substring(1);
-                    }
-                    allPaths.add(path);
-                }
-
-                if (!allPaths.isEmpty()) {
-                    // find common prefix
-                    StringBuilder basePathSB = new StringBuilder();
-                    String firstPath = allPaths.remove(0);
-                    String[] parts = firstPath.split("/");
-                    partsLoop:
-                    for (String part : parts) {
-                        for (String path : allPaths) {
-                            if (!path.startsWith(basePathSB.toString() + part)) {
-                                break partsLoop;
-                            }
-                        }
-                        basePathSB.append(part).append("/");
-                    }
-                    String basePath = basePathSB.toString();
-                    if (basePath.endsWith("/")) {
-                        basePath = basePath.substring(0, basePath.length() - 1);
-                    }
-
-                    if (basePath.length() > 0) {
-                        // update operations
-                        for (CodegenOperation operation: ops) {
-                            operation.path = operation.path.substring(basePath.length() + (operation.path.startsWith("/") ? 1 : 0));
-                            operation.baseName = basePath;
-                            operation.subresourceOperation = !operation.path.isEmpty();
-                        }
-
-                        // save base path in objects
-                        objs.put("apiBasePath", basePath);
-                    }
-                }
-            }
-        }
-
-        return objs;
-    }
-
-    @Override
-    public void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations) {
-        if (useTags) {
-            // only add operations to group; base path extraction is done in postProcessOperations
-            List<CodegenOperation> opList = operations.get(tag);
-            if (opList == null) {
-                opList = new ArrayList<CodegenOperation>();
-                operations.put(tag, opList);
-            }
-            opList.add(co);
-        } else  {
-            String basePath = resourcePath;
-            if (basePath.startsWith("/")) {
-                basePath = basePath.substring(1);
-            }
-            int pos = basePath.indexOf("/");
-            if (pos > 0) {
-                basePath = basePath.substring(0, pos);
-            }
-
-            if (basePath == "") {
-                basePath = "default";
-            }
-            else {
-                if (co.path.startsWith("/" + basePath)) {
-                    co.path = co.path.substring(("/" + basePath).length());
-                }
-                co.subresourceOperation = !co.path.isEmpty();
-            }
-            List<CodegenOperation> opList = operations.get(basePath);
-            if (opList == null) {
-                opList = new ArrayList<CodegenOperation>();
-                operations.put(basePath, opList);
-            }
-            opList.add(co);
-            co.baseName = basePath;
-        }
-    }
-
-    public void setUseTags(boolean useTags) {
-        this.useTags = useTags;
-    }
-
 }

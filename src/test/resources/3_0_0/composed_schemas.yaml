@@ -58,6 +58,24 @@ paths:
         '400':
           description: bad input parameter
 
+  /inventory/admin:
+    get:
+      tags:
+        - admins
+      summary: basic operation for an admin
+      operationId: inventoryAdmin
+      description: |
+        This does nothing special, here for testing tag based processing
+      responses:
+        '200':
+          description: The warehouse pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+
 components:
   schemas:
     PartOne:
