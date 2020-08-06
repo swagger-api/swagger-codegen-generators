@@ -25,6 +25,21 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
      */
     private static final String API_PATH = "/src/gen/java/io/swagger/api/";
 
+    /**
+     * List containing the operationIds which are tagged as Admin
+     */
+    private static final List<String> ADMIN_OPERATIONIDS = Arrays.asList("inventoryAdmin");
+
+    /**
+     * List containing the operationIds which are tagged as Developer
+     */
+    private static final List<String> DEVELOPER_OPERATIONIDS = Arrays.asList("searchInventory");
+
+    /**
+     * All the operationIds in the test file. 
+     */
+    private static final List<String> ALL_OPERATIONIDS = Arrays.asList("inventoryAdmin", "searchInventory");
+
     private final TemporaryFolder folder = new TemporaryFolder();
     private File output = null;
 
@@ -49,24 +64,6 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
 
-        listFiles(output, 0);
-
-    }
-
-    private void listFiles(File dir, int level) {
-        File[] files = dir.listFiles();
-
-        String prefix = "JAXRS";
-        for (int index = 0; index < level; index++) {
-            prefix += "-";
-        }
-
-        for (File file : files) {
-            System.out.println(prefix + " " + file.getName());
-            if (file.isDirectory()) {
-                listFiles(file, level + 1);
-            }
-        }
     }
 
     @After
@@ -85,6 +82,9 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
 
         /* Verify that the file generated is a class */
         testIsClass(API_PATH, "InventoryApi");
+
+        /* Verify the API file contains the operations we expected */
+        testContainsOperations(API_PATH, "InventoryApi", ALL_OPERATIONIDS, true);
 
 
         /* Verify that the application class is generated */
@@ -107,6 +107,9 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
         /* Verify that the file generated is an interface */
         testIsInterface(API_PATH, "InventoryApi");
 
+        /* Verify the API file contains the operations we expected */
+        testContainsOperations(API_PATH, "InventoryApi", ALL_OPERATIONIDS, true);
+
         /* Verify that the application class is not generated */
         final File application = new File(output, "/src/gen/java/io/swagger/api/RestApplication.java");
         Assert.assertFalse(application.exists(), "Expected application file to not exist");
@@ -126,6 +129,12 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
         /* Verify that the API files generated are classes */
         testIsClass(API_PATH, "AdminsApi");
         testIsClass(API_PATH, "DevelopersApi");
+
+        /* Verify the API file contains the operations we expected, and doesn't contain the ones it shouldn't */
+        testContainsOperations(API_PATH, "AdminsApi", ADMIN_OPERATIONIDS, true);
+        testContainsOperations(API_PATH, "AdminsApi", DEVELOPER_OPERATIONIDS, false);
+        testContainsOperations(API_PATH, "DevelopersApi", ADMIN_OPERATIONIDS, false);
+        testContainsOperations(API_PATH, "DevelopersApi", DEVELOPER_OPERATIONIDS, true);
 
         /* Verify that the application class is generated */
         final File application = new File(output, "/src/gen/java/io/swagger/api/RestApplication.java");
@@ -147,6 +156,12 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
         /* Verify that the API files generated are interfaces */
         testIsInterface(API_PATH, "AdminsApi");
         testIsInterface(API_PATH, "DevelopersApi");
+
+        /* Verify the API file contains the operations we expected, and doesn't contain the ones it shouldn't */
+        testContainsOperations(API_PATH, "AdminsApi", ADMIN_OPERATIONIDS, true);
+        testContainsOperations(API_PATH, "AdminsApi", DEVELOPER_OPERATIONIDS, false);
+        testContainsOperations(API_PATH, "DevelopersApi", ADMIN_OPERATIONIDS, false);
+        testContainsOperations(API_PATH, "DevelopersApi", DEVELOPER_OPERATIONIDS, true);
 
         /* Verify that the application class is not generated */
         final File application = new File(output, "/src/gen/java/io/swagger/api/RestApplication.java");
@@ -180,8 +195,7 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
         final String expectedContent = 
             "public class " + className + " {";
 
-        final File controllerFile = new File(output, path + className + ".java");
-        final String content = FileUtils.readFileToString(controllerFile);
+        final String content = getFileContents(path, className);
 
         Assert.assertTrue(content.contains(expectedContent));
     }
@@ -190,15 +204,51 @@ public class JavaJAXRSSpecServerCodegenTest extends AbstractCodegenTest {
      * Helper method to check that a generated file is an interface. 
      * @param path the path the file is expected to be in
      * @param className the name of the class generated to check
-     * @throws IOException
+     * @throws IOException if an error occurs reading the file. 
      */
     private void testIsInterface(final String path, final String className) throws IOException {
         final String expectedContent = 
             "public interface " + className + " {";
 
+        final String content = getFileContents(path, className);
+
+        Assert.assertTrue(content.contains(expectedContent));
+    }
+
+    /**
+     * Helper method to check that a file contains methods for the supplied opertationIds. 
+     * @param path the path the file is expected to be in
+     * @param className the name of the class generated to read
+     * @param operationIds list of operationIds to look for in the file
+     * @param expected boolean controlling if this is testing if the operation is expected (true) or not (false). 
+     * @param IOException if an error occurs reading the file.
+     */
+    private void testContainsOperations(final String path, final String className, final List<String> operationIds, boolean expected) throws IOException {
+
+        final String content = getFileContents(path, className);
+
+        Assert.assertNotNull(operationIds, "Expected operationIds to be non-null");
+        Assert.assertFalse(operationIds.isEmpty(), "Expected operationIds to be non-empty");
+
+        for (String operationId : operationIds) {
+            /* Operations always become the method name and are immediately followed with an open bracket. */
+            Assert.assertEquals(content.contains(operationId + "("), expected, 
+                "Operation " + operationId + " in " + className);
+        }
+
+    }
+
+    /**
+     * Get the contents of a file as a String. 
+     * @param path the path the file is expected to be in
+     * @param className the name of the class generated to read
+     * @throws IOException if an error occurs reading the file. 
+     */
+    private String getFileContents(final String path, final String className) throws IOException {
+
         final File controllerFile = new File(output, path + className + ".java");
         final String content = FileUtils.readFileToString(controllerFile);
 
-        Assert.assertTrue(content.contains(expectedContent));
+        return content;
     }
 }
