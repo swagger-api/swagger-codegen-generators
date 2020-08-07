@@ -524,7 +524,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             List<Map<String, Object>> childrenList = new ArrayList<>();
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
-            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            List<CodegenModel> childrenModels = parentModelEntry.getValue();
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);
