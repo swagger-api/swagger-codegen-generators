@@ -246,5 +246,8 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         this.useBeanValidation = useBeanValidation;
     }
 
-
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/server.yaml";
+    }
 }
