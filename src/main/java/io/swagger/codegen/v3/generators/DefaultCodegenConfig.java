@@ -81,19 +81,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -2291,6 +2279,22 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
         // TODO: codegenResponse.examples = toExamples(response.getExamples());
+        List<String> mediaTypes = new LinkedList<>();
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+                    mediaTypes.add(name);
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+                        examples.put(name, response.getContent().get(name).getExamples());
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
