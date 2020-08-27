@@ -284,13 +284,6 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
             setGoogleCloudFunctions(
@@ -452,10 +445,11 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
             return;
         }
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.cookieParams);
         }
         for (CodegenContent content : codegenContents) {
             addHasMore(content.getParameters());

@@ -39,10 +39,6 @@ public class GoClientCodegen extends AbstractGoCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if (this.additionalProperties.containsKey("packageName")) {
             this.setPackageName((String)this.additionalProperties.get("packageName"));
         } else {

@@ -53,8 +53,6 @@ public class RClientCodegen extends DefaultCodegenConfig {
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
         apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
-        embeddedTemplateDir = templateDir = "r";
-
         // default HIDE_GENERATION_TIMESTAMP to true
         hideGenerationTimestamp = Boolean.TRUE;
 
