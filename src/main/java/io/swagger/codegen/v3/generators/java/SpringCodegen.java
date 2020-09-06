@@ -77,7 +77,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean useOptional = false;
     protected boolean openFeign = false;
     protected boolean defaultInterfaces = true;
-    protected String springBootVersion = "1.5.22.RELEASE";
+    protected String springBootVersion = "2.1.16.RELEASE";
     protected boolean throwsException = false;
     private boolean notNullJacksonAnnotation = false;
 
@@ -161,9 +161,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public void processOpts() {
-        setUseOas2(true);
-        additionalProperties.put(CodegenConstants.USE_OAS2, true);
-
         // Process java8 option before common java ones to change the default dateLibrary to java8.
         if (additionalProperties.containsKey(JAVA8_MODE)) {
             this.setJava8(Boolean.valueOf(additionalProperties.get(JAVA8_MODE).toString()));
@@ -310,6 +307,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + basePackage).replace(".", java.io.File.separator), "Swagger2SpringBoot.java"));
                 supportingFiles.add(new SupportingFile("RFC3339DateFormat.mustache",
                         (sourceFolder + File.separator + basePackage).replace(".", java.io.File.separator), "RFC3339DateFormat.java"));
+                supportingFiles.add(new SupportingFile("swaggerUiConfiguration.mustache",
+                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerUiConfiguration.java"));
                 supportingFiles.add(new SupportingFile("application.mustache",
                         ("src.main.resources").replace(".", java.io.File.separator), "application.properties"));
             }
@@ -322,7 +321,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerUiConfiguration.java"));
                 supportingFiles.add(new SupportingFile("RFC3339DateFormat.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "RFC3339DateFormat.java"));
-                supportingFiles.add(new SupportingFile("application.properties",
+                supportingFiles.add(new SupportingFile("application.properties.mustache",
                         ("src.main.resources").replace(".", java.io.File.separator), "swagger.properties"));
             }
             if (library.equals(SPRING_CLOUD_LIBRARY)) {
@@ -476,7 +475,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public String getArgumentsLocation() {
-        return null;
+        return "/arguments/server.yaml";
     }
 
     @Override

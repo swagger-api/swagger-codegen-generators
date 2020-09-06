@@ -31,7 +31,12 @@ public class SwaggerDocumentationConfig {
 
     @Bean
     public Docket customImplementation(){
+        {{#useOas2}}
         return new Docket(DocumentationType.SWAGGER_2)
+        {{/useOas2}}
+        {{^useOas2}}
+        return new Docket(DocumentationType.OAS_30)
+        {{/useOas2}}
                 .select()
                     .apis(RequestHandlerSelectors.basePackage("{{apiPackage}}"))
                     .build()
@@ -52,5 +57,4 @@ public class SwaggerDocumentationConfig {
                 {{/useOptional}}
                 .apiInfo(apiInfo());
     }
-
 }
