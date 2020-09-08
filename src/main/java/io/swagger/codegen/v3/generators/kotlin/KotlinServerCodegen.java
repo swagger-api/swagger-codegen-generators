@@ -162,10 +162,6 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if (!additionalProperties.containsKey(GENERATE_APIS)) {
             additionalProperties.put(GENERATE_APIS, true);
         }

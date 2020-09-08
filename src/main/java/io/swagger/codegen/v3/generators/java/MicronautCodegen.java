@@ -35,6 +35,7 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     private static final String BASE_PACKAGE = "basePackage";
     private static final String USE_TAGS = "useTags";
     private static final String IMPLICIT_HEADERS = "implicitHeaders";
+    private static final String SKIP_SUPPORT_FILES = "skipSupportFiles";
 
     private String title = "swagger-petstore";
     private String configPackage = "io.swagger.configuration";
@@ -66,6 +67,7 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         cliOptions.add(new CliOption(TITLE, "server title name or client service name"));
         cliOptions.add(new CliOption(CONFIG_PACKAGE, "configuration package for generated code"));
         cliOptions.add(new CliOption(BASE_PACKAGE, "base package (invokerPackage) for generated code"));
+        cliOptions.add(new CliOption(SKIP_SUPPORT_FILES, "skip support files such as pom.xml, mvnw, etc from code generation."));
         cliOptions.add(CliOption.newBoolean(USE_TAGS, "use tags for creating interface and controller classnames"));
         cliOptions.add(CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations"));
         cliOptions.add(CliOption.newBoolean(IMPLICIT_HEADERS, "Use of @ApiImplicitParams for headers."));
@@ -118,10 +120,6 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
 
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         // clear model and api doc template as this codegen
         // does not support auto-generated markdown doc at the moment
         //TODO: add doc templates
@@ -152,6 +150,11 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
         }
 
+        boolean skipSupportFiles = false;
+        if (additionalProperties.containsKey(SKIP_SUPPORT_FILES)) {
+            skipSupportFiles = Boolean.valueOf(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
+        }
+
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
         }
@@ -164,14 +167,15 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             writePropertyBack(USE_OPTIONAL, useOptional);
         }
 
-        supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("mvnw", "", "mvnw"));
-        supportingFiles.add(new SupportingFile("mvnw.cmd", "", "mvnw.cmd"));
-        supportingFiles.add(new SupportingFile("unsupportedOperationExceptionHandler.mustache",
+        if (!skipSupportFiles) {
+            supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
+            supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+            supportingFiles.add(new SupportingFile("mvnw", "", "mvnw"));
+            supportingFiles.add(new SupportingFile("mvnw.cmd", "", "mvnw.cmd"));
+            supportingFiles.add(new SupportingFile("unsupportedOperationExceptionHandler.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", File.separator), "UnsupportedOperationExceptionHandler.java"));
-        supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator).replace(".", File.separator), "MainApplication.java"));
-
+            supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator).replace(".", File.separator), "MainApplication.java"));
+        }
         addHandlebarsLambdas(additionalProperties);
     }
 
