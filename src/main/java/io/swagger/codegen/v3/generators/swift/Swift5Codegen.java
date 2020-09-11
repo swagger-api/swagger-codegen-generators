@@ -346,6 +346,8 @@ public class Swift5Codegen extends DefaultCodegenConfig {
             "",
             ".gitignore"));
 
+        copyFistAllOfProperties = true;
+
     }
 
     @Override
