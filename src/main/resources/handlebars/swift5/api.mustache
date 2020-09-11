@@ -144,18 +144,25 @@ open class {{classname}} {
 
         let nonNullParameters = APIHelper.rejectNil(formParams)
         let parameters = APIHelper.convertBoolToString(nonNullParameters)
-            {{/hasFormParams}}
-            {{^hasFormParams}}
+        {{/hasFormParams}}
+        {{^hasFormParams}}
         let parameters: [String:Any]? = nil
-            {{/hasFormParams}}
-        {{/bodyParam}}{{#hasQueryParams}}
+        {{/hasFormParams}}
+        {{/bodyParam}}
+        {{#queryParams}}
+        {{#@first}}
         var url = URLComponents(string: URLString)
         url?.queryItems = APIHelper.mapValuesToQueryItems([
-            {{#queryParams}}
+        {{/@first}}
             {{> _param}}{{#hasMore}}, {{/hasMore}}
-            {{/queryParams}}
-        ]){{/hasQueryParams}}{{^hasQueryParams}}
-        let url = URLComponents(string: URLString){{/hasQueryParams}}{{#headerParams}}{{^secondaryParam}}
+        {{#@last}}
+        ])
+        {{/@last}}
+        {{/queryParams}}
+        {{^queryParams}}
+        let url = URLComponents(string: URLString)
+        {{/queryParams}}
+        {{#headerParams}}{{^secondaryParam}}
         let nillableHeaders: [String: Any?] = [{{/secondaryParam}}
             {{> _param}}{{#hasMore}},{{/hasMore}}{{^hasMore}}
         ]
