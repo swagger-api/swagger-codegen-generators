@@ -358,12 +358,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
