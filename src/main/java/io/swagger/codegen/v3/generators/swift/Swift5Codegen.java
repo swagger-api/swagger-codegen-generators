@@ -196,11 +196,14 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         typeMapping.put("float", "Float");
         typeMapping.put("number", "Double");
         typeMapping.put("double", "Double");
-        typeMapping.put("object", "JSONValue");
+        typeMapping.put("object", "Any");
+        typeMapping.put("Object", "Any");
         typeMapping.put("file", "URL");
         typeMapping.put("binary", "Data");
         typeMapping.put("ByteArray", "Data");
         typeMapping.put("UUID", "UUID");
+        typeMapping.put("URI", "String");
+        typeMapping.put("BigDecimal", "Decimal");
 
         importMapping = new HashMap<>();
 
@@ -597,6 +600,13 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         }
 
         return codegenModel;
+    }
+
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
+        }
     }
 
     @Override
