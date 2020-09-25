@@ -99,10 +99,6 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
 
         // clear model and api doc template as this codegen
@@ -192,11 +188,6 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
         if (this.generateNonSpringApplication) {
             writeOptional(outputFolder, new SupportingFile("server/nonspring-web.mustache", ("src/main/webapp/WEB-INF"), "web.xml"));
         }
-    }
-
-    @Override
-    public String getArgumentsLocation() {
-        return "";
     }
 
     @Override

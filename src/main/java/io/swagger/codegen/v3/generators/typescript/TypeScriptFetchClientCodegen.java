@@ -76,10 +76,6 @@ public class TypeScriptFetchClientCodegen extends AbstractTypeScriptClientCodege
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         supportingFiles.add(new SupportingFile("index.mustache", "", "index.ts"));
         supportingFiles.add(new SupportingFile("api.mustache", "", "api.ts"));
         supportingFiles.add(new SupportingFile("api_test.mustache", "", "api_test.spec.ts"));
