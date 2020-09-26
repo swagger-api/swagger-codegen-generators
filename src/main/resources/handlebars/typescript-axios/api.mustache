@@ -1,0 +1,11 @@
+/* tslint:disable */
+/* eslint-disable */
+{{>licenseInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+export * from './{{tsApiPackage}}/{{classFilename}}';
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
