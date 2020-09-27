@@ -1,6 +1,9 @@
   class {{classname}}
-    {{#allowableValues}}{{#enumVars}}
-    {{{name}}} = {{{value}}}.freeze{{/enumVars}}{{/allowableValues}}
+    {{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}} = {{{value}}}.freeze
+    {{/enumVars}}
+    {{/allowableValues}}
 
     # Builds the enum from string
     # @param [String] The enum value in the form of the string
