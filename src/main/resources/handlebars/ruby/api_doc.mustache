@@ -5,13 +5,14 @@ All URIs are relative to *{{basePath}}*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-{{#operations}}{{#operation}}[**{{operationId}}**]({{classname}}.md#{{operationId}}) | **{{httpMethod}}** {{path}} | {{#summary}}{{summary}}{{/summary}}
-{{/operation}}{{/operations}}
+{{#operations}}{{#operation}}{{#contents}}[**{{operationId}}**]({{classname}}.md#{{operationId}}) | **{{httpMethod}}** {{path}} | {{#summary}}{{summary}}{{/summary}}
+{{/contents}}{{/operation}}{{/operations}}
 
 {{#operations}}
 {{#operation}}
+{{#contents}}
 # **{{operationId}}**
-> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}{{#hasParams}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}){{/hasParams}}
+> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}{{#hasParams}}({{#parameters}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}){{/hasParams}}
 
 {{{summary}}}{{#notes}}
 
@@ -37,16 +38,16 @@ require '{{{gemName}}}'
 {{/hasAuthMethods}}
 
 api_instance = {{{moduleName}}}::{{{classname}}}.new{{#hasParams}}
-{{#vendorExtensions.x-codegen-hasRequiredParams}}{{#allParams}}{{#required}}
+{{#vendorExtensions.x-codegen-hasRequiredParams}}{{#parameters}}{{#required}}
 {{{paramName}}} = {{{example}}} # {{{dataType}}} | {{{description}}}
-{{/required}}{{/allParams}}{{/vendorExtensions.x-codegen-hasRequiredParams}}{{#hasOptionalParams}}
-opts = { {{#allParams}}{{^required}}
-  {{{paramName}}}: {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} # {{{dataType}}} | {{{description}}}{{/required}}{{/allParams}}
+{{/required}}{{/parameters}}{{/vendorExtensions.x-codegen-hasRequiredParams}}{{#hasOptionalParams}}
+opts = { {{#parameters}}{{^required}}
+  {{{paramName}}}: {{{example}}}{{#vendorExtensions.x-codegen-hasMoreOptional}},{{/vendorExtensions.x-codegen-hasMoreOptional}} # {{{dataType}}} | {{{description}}}{{/required}}{{/parameters}}
 }{{/hasOptionalParams}}{{/hasParams}}
 
 begin
 {{#summary}}  #{{{.}}}
-{{/summary}}  {{#returnType}}result = {{/returnType}}api_instance.{{{operationId}}}{{#hasParams}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}){{/hasParams}}{{#returnType}}
+{{/summary}}  {{#returnType}}result = {{/returnType}}api_instance.{{{operationId}}}{{#hasParams}}({{#parameters}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}){{/hasParams}}{{#returnType}}
   p result{{/returnType}}
 rescue {{{moduleName}}}::ApiError => e
   puts "Exception when calling {{classname}}->{{{operationId}}}: #{e}"
@@ -54,11 +55,11 @@ end
 ```
 
 ### Parameters
-{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#@last}}
+{{^parameters}}This endpoint does not need any parameter.{{/parameters}}{{#parameters}}{{#@last}}
 Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------{{/@last}}{{/allParams}}
-{{#allParams}} **{{paramName}}** | {{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}[**{{dataType}}**]({{baseType}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
-{{/allParams}}
+------------- | ------------- | ------------- | -------------{{/@last}}{{/parameters}}
+{{#parameters}} **{{paramName}}** | {{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{#isFile}}**{{dataType}}**{{/isFile}}{{^isFile}}[**{{dataType}}**]({{baseType}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}
+{{/parameters}}
 
 ### Return type
 
@@ -75,5 +76,6 @@ Name | Type | Description  | Notes
 
 
 
+{{/contents}}
 {{/operation}}
 {{/operations}}

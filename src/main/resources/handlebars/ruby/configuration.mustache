@@ -2,8 +2,6 @@
 {{> api_info}}
 =end
 
-require 'uri'
-
 module {{moduleName}}
   class Configuration
     # Defines url scheme
@@ -122,7 +120,7 @@ module {{moduleName}}
     def initialize
       @scheme = '{{scheme}}'
       @host = '{{host}}'
-      @base_path = '{{contextPath}}'
+      @base_path = '{{basePath}}'
       @api_key = {}
       @api_key_prefix = {}
       @timeout = 0
@@ -166,8 +164,7 @@ module {{moduleName}}
     end
 
     def base_url
-      url = "#{scheme}://#{[host, base_path].join('/').gsub(/\/+/, '/')}".sub(/\/+\z/, '')
-      URI.encode(url)
+      "#{scheme}://#{[host, base_path].join('/').gsub(/\/+/, '/')}".sub(/\/+\z/, '')
     end
 
     # Gets API key (with prefix if set).
@@ -207,6 +204,15 @@ module {{moduleName}}
             value: basic_auth_token
           },
 {{/isBasic}}
+{{#isBearer}}
+        '{{name}}' =>
+          {
+            type: 'bearer',
+            in: 'header',
+            key: 'Authorization',
+            value: "Bearer #{access_token}"
+          },
+{{/isBearer}}
 {{#isOAuth}}
         '{{name}}' =>
           {

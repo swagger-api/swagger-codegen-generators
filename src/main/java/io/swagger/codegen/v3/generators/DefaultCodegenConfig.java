@@ -2276,6 +2276,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         configureDataForTestTemplate(codegenOperation);
 
+        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||| returnBaseType: " + codegenOperation.returnBaseType);
+        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||| returnContainer: " + codegenOperation.returnContainer);
+        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||| returnType: " + codegenOperation.returnType);
+        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||| returnSimpleType: " + codegenOperation.returnSimpleType);
+
         return codegenOperation;
     }
 

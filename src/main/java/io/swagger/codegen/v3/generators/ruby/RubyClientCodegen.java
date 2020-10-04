@@ -1,7 +1,22 @@
 package io.swagger.codegen.v3.generators.ruby;
 
-import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,38 +247,38 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
         writeOptional(outputFolder, new SupportingFile("configuration_spec.mustache", specFolder, "configuration_spec.rb"));
         writeOptional(outputFolder, new SupportingFile("api_client_spec.mustache", specFolder, "api_client_spec.rb"));
         // not including base object test as the moment as not all API has model
-        //writeOptional(outputFolder, new SupportingFile("base_object_spec.mustache", specFolder, "base_object_spec.rb"));
+        writeOptional(outputFolder, new SupportingFile("base_object_spec.mustache", specFolder, "base_object_spec.rb"));
     }
 
-//    @Override
-//    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Model> definitions, Swagger swagger) {
-//        CodegenOperation op = super.fromOperation(path, httpMethod, operation, definitions, swagger);
-//        // Set vendor-extension to be used in template:
-//        //     x-codegen-hasMoreRequired
-//        //     x-codegen-hasMoreOptional
-//        //     x-codegen-hasRequiredParams
-//        CodegenParameter lastRequired = null;
-//        CodegenParameter lastOptional = null;
-//        for (CodegenParameter p : op.allParams) {
-//            if (p.required) {
-//                lastRequired = p;
-//            } else {
-//                lastOptional = p;
-//            }
-//        }
-//        for (CodegenParameter p : op.allParams) {
-//            if (p == lastRequired) {
-//                p.vendorExtensions.put("x-codegen-hasMoreRequired", false);
-//            } else if (p == lastOptional) {
-//                p.vendorExtensions.put("x-codegen-hasMoreOptional", false);
-//            } else {
-//                p.vendorExtensions.put("x-codegen-hasMoreRequired", true);
-//                p.vendorExtensions.put("x-codegen-hasMoreOptional", true);
-//            }
-//        }
-//        op.vendorExtensions.put("x-codegen-hasRequiredParams", lastRequired != null);
-//        return op;
-//    }
+    @Override
+    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> definitions, OpenAPI openAPI) {
+        CodegenOperation op = super.fromOperation(path, httpMethod, operation, definitions, openAPI);
+        // Set vendor-extension to be used in template:
+        //     x-codegen-hasMoreRequired
+        //     x-codegen-hasMoreOptional
+        //     x-codegen-hasRequiredParams
+        CodegenParameter lastRequired = null;
+        CodegenParameter lastOptional = null;
+        for (CodegenParameter p : op.allParams) {
+            if (p.required) {
+                lastRequired = p;
+            } else {
+                lastOptional = p;
+            }
+        }
+        for (CodegenParameter p : op.allParams) {
+            if (p == lastRequired) {
+                p.vendorExtensions.put("x-codegen-hasMoreRequired", false);
+            } else if (p == lastOptional) {
+                p.vendorExtensions.put("x-codegen-hasMoreOptional", false);
+            } else {
+                p.vendorExtensions.put("x-codegen-hasMoreRequired", true);
+                p.vendorExtensions.put("x-codegen-hasMoreOptional", true);
+            }
+        }
+        op.vendorExtensions.put("x-codegen-hasRequiredParams", lastRequired != null);
+        return op;
+    }
 
     @Override
     public CodegenType getTag() {
@@ -338,74 +353,66 @@ public class RubyClientCodegen extends DefaultCodegenConfig {
         return (outputFolder + "/" + modelDocPath).replace('/', File.separatorChar);
     }
 
-//    @Override
-//    public String getTypeDeclaration(Property p) {
-//        if (p instanceof ArrayProperty) {
-//            ArrayProperty ap = (ArrayProperty) p;
-//            Property inner = ap.getItems();
-//            return getSwaggerType(p) + "<" + getTypeDeclaration(inner) + ">";
-//        } else if (p instanceof MapProperty) {
-//            MapProperty mp = (MapProperty) p;
-//            Property inner = mp.getAdditionalProperties();
-//            return getSwaggerType(p) + "<String, " + getTypeDeclaration(inner) + ">";
-//        }
-//        return super.getTypeDeclaration(p);
-//    }
+    @Override
+    public String getTypeDeclaration(Schema schema) {
+        if (schema instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema) schema;
+            Schema inner = arraySchema.getItems();
+            return getSchemaType(schema) + "<" + getTypeDeclaration(inner) + ">";
+        } else if (schema instanceof MapSchema) {
+            MapSchema mapSchema = (MapSchema) schema;
+            if (mapSchema.getAdditionalProperties() instanceof Schema) {
+                Schema inner = (Schema) mapSchema.getAdditionalProperties();
+                return getSchemaType(schema) + "<String, " + getTypeDeclaration(inner) + ">";
+            }
+        }
+        return super.getTypeDeclaration(schema);
+    }
 
-//    @Override
-//    public String toDefaultValue(Property p) {
-//        if (p instanceof IntegerProperty) {
-//            IntegerProperty dp = (IntegerProperty) p;
-//            if (dp.getDefault() != null) {
-//                return dp.getDefault().toString();
-//            }
-//        } else if (p instanceof LongProperty) {
-//            LongProperty dp = (LongProperty) p;
-//            if (dp.getDefault() != null) {
-//                return dp.getDefault().toString();
-//            }
-//        } else if (p instanceof DoubleProperty) {
-//            DoubleProperty dp = (DoubleProperty) p;
-//            if (dp.getDefault() != null) {
-//                return dp.getDefault().toString();
-//            }
-//        } else if (p instanceof FloatProperty) {
-//            FloatProperty dp = (FloatProperty) p;
-//            if (dp.getDefault() != null) {
-//                return dp.getDefault().toString();
-//            }
-//        } else if (p instanceof BooleanProperty) {
-//            BooleanProperty bp = (BooleanProperty) p;
-//            if (bp.getDefault() != null) {
-//                return bp.getDefault().toString();
-//            }
-//        } else if (p instanceof StringProperty) {
-//            StringProperty sp = (StringProperty) p;
-//            if (sp.getDefault() != null) {
-//                return "'" + escapeText(sp.getDefault()) + "'";
-//            }
-//        }
-//
-//        return null;
-//    }
+    @Override
+    public String toDefaultValue(Schema schema) {
+        if (schema instanceof IntegerSchema) {
+            IntegerSchema integerSchema = (IntegerSchema) schema;
+            if (integerSchema.getDefault() != null) {
+                return integerSchema.getDefault().toString();
+            }
+        } else if (schema instanceof NumberSchema) {
+            NumberSchema numberSchema = (NumberSchema) schema;
+            if (numberSchema.getDefault() != null) {
+                return numberSchema.getDefault().toString();
+            }
+        } else if (schema instanceof BooleanSchema) {
+            BooleanSchema booleanSchema = (BooleanSchema) schema;
+            if (booleanSchema.getDefault() != null) {
+                return booleanSchema.getDefault().toString();
+            }
+        } else if (schema instanceof StringSchema) {
+            StringSchema stringSchema = (StringSchema) schema;
+            if (stringSchema.getDefault() != null) {
+                return "'" + escapeText(stringSchema.getDefault()) + "'";
+            }
+        }
 
-//    @Override
-//    public String getSwaggerType(Property p) {
-//        String swaggerType = super.getSwaggerType(p);
-//        String type = null;
-//        if (typeMapping.containsKey(swaggerType)) {
-//            type = typeMapping.get(swaggerType);
-//            if (languageSpecificPrimitives.contains(type)) {
-//                return type;
-//            }
-//        } else {
-//            type = swaggerType;
-//        }
-//        if (type == null) {
-//            return null;
-//        }
-//        return toModelName(type);
-//    }
+        return null;
+    }
+
+    @Override
+    public String getSchemaType(Schema schema) {
+        String swaggerType = super.getSchemaType(schema);
+        String type = null;
+        if (typeMapping.containsKey(swaggerType)) {
+            type = typeMapping.get(swaggerType);
+            if (languageSpecificPrimitives.contains(type)) {
+                return type;
+            }
+        } else {
+            type = swaggerType;
+        }
+        if (type == null) {
+            return null;
+        }
+        return toModelName(type);
+    }
 
     @Override
     public String toVarName(String name) {
