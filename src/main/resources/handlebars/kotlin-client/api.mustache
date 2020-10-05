@@ -34,7 +34,7 @@ class {{classname}}(basePath: kotlin.String = "{{{basePath}}}") : ApiClient(base
                 "{{path}}"{{#pathParams}}.replace("{" + "{{baseName}}" + "}", "${{paramName}}"){{/pathParams}}{{#hasQueryParams}}, query = localVariableQuery{{/hasQueryParams}}{{#or hasFormParams hasHeaderParams}}, headers = localVariableHeaders{{/or}}
         )
         val response = request<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Any?{{/returnType}}>(
-                localVariableConfig{{#or hasFormParams hasHeaderParams}}, localVariableBody{{/or}}
+                localVariableConfig{{#or hasFormParams hasBodyParam}}, localVariableBody{{/or}}
         )
 
         return when (response.responseType) {

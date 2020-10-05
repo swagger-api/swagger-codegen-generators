@@ -106,11 +106,6 @@ public class JavaResteasyEapServerCodegen extends AbstractJavaJAXRSServerCodegen
     }
 
     @Override
-    public String getArgumentsLocation() {
-        return "";
-    }
-
-    @Override
     public String getDefaultTemplateDir() {
         return JAXRS_TEMPLATE_DIRECTORY_NAME +  "/resteasy/eap";
     }

@@ -358,12 +358,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -2290,7 +2296,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         final Schema responseSchema = getSchemaFromResponse(response);
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
-        // TODO: codegenResponse.examples = toExamples(response.getExamples());
+
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+
+                        for (String exampleName : response.getContent().get(name).getExamples().keySet()) {
+                            examples.put(exampleName, response.getContent().get(name).getExamples().get(exampleName).getValue());
+                        }
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
+
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
