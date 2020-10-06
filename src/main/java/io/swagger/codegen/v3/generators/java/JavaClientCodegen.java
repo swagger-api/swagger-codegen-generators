@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,7 +33,7 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
+public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures, NotNullAnnotationFeatures {
     static final String MEDIA_TYPE = "mediaType";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
@@ -62,6 +63,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     protected boolean performBeanValidation = false;
     protected boolean useGzipFeature = false;
     protected boolean useRuntimeException = false;
+    private boolean notNullJacksonAnnotation = false;
 
 
     public JavaClientCodegen() {
@@ -119,10 +121,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     @Override
     public void processOpts() {
         super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            String templateVersion = getTemplateVersion();
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {
             LOGGER.warn("You specified both RxJava versions 1 and 2 but they are mutually exclusive. Defaulting to v2.");
@@ -526,7 +524,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             List<Map<String, Object>> childrenList = new ArrayList<>();
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
-            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            List<CodegenModel> childrenModels = parentModelEntry.getValue();
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);
@@ -611,4 +609,13 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         return mime != null && JSON_VENDOR_MIME_PATTERN.matcher(mime).matches();
     }
 
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
+    }
 }

@@ -1,16 +1,20 @@
 package io.swagger.codegen.v3.generators.go;
 
 import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.SchemaHandler;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +81,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         typeMapping.put("number", "float32");
         typeMapping.put("float", "float32");
         typeMapping.put("double", "float64");
+        typeMapping.put("BigDecimal", "float64");
         typeMapping.put("boolean", "bool");
         typeMapping.put("string", "string");
         typeMapping.put("UUID", "string");
@@ -87,7 +92,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         typeMapping.put("file", "*os.File");
         // map binary to string as a workaround
         // the correct solution is to use []byte
-        typeMapping.put("binary", "string");
+        typeMapping.put("binary", "*os.File");
         typeMapping.put("ByteArray", "string");
         typeMapping.put("object", "interface{}");
         typeMapping.put("UUID", "string");
@@ -240,12 +245,32 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         if(schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             Schema inner = arraySchema.getItems();
-            return "[]" + getTypeDeclaration(inner);
+            if (inner instanceof ComposedSchema && schema.getExtensions() != null && schema.getExtensions().containsKey("x-schema-name")) {
+                final ComposedSchema composedSchema = (ComposedSchema) inner;
+                final String prefix;
+                if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+                    prefix = SchemaHandler.ALL_OF_PREFFIX;
+                } else if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
+                    prefix = SchemaHandler.ONE_OF_PREFFIX;
+                } else {
+                    prefix = SchemaHandler.ANY_OF_PREFFIX;
+                }
+                return "[]" + toModelName(prefix + schema.getExtensions().remove("x-schema-name")) + SchemaHandler.ARRAY_ITEMS_SUFFIX;
+            } else {
+                return "[]" + getTypeDeclaration(inner);
+            }
         } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             MapSchema mapSchema = (MapSchema) schema;
             Schema inner = (Schema) mapSchema.getAdditionalProperties();
 
             return getSchemaType(schema) + "[string]" + getTypeDeclaration(inner);
+        } else if (schema.get$ref() != null) {
+            final String simpleRefName = OpenAPIUtil.getSimpleRef(schema.get$ref());
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(simpleRefName, this.openAPI);
+            if (refSchema != null && (refSchema instanceof ArraySchema || refSchema instanceof MapSchema)) {
+                refSchema.addExtension("x-schema-name", simpleRefName);
+                return getTypeDeclaration(refSchema);
+            }
         }
         // Not using the supertype invocation, because we want to UpperCamelize
         // the type.
@@ -265,6 +290,14 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     @Override
     public String getSchemaType(Schema schema) {
         String schemaType = super.getSchemaType(schema);
+
+        if (schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && refSchema.getEnum() == null) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+
         String type;
         if(typeMapping.containsKey(schemaType)) {
             type = typeMapping.get(schemaType);
@@ -325,34 +358,36 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         boolean addedTimeImport = false;
         boolean addedOSImport = false;
         for (CodegenOperation operation : operations) {
-            for (CodegenParameter param : operation.allParams) {
-                // import "os" if the operation uses files
-                if (!addedOSImport && param.dataType == "*os.File") {
-                    imports.add(createMapping("import", "os"));
-                    addedOSImport = true;
-                }
+            for (CodegenContent codegenContent : operation.getContents()) {
+                for (CodegenParameter param : codegenContent.getParameters()) {
+                    // import "os" if the operation uses files
+                    if (!addedOSImport && param.dataType == "*os.File") {
+                        imports.add(createMapping("import", "os"));
+                        addedOSImport = true;
+                    }
 
-                // import "time" if the operation has a required time parameter.
-                if (param.required) {
-                    if (!addedTimeImport && param.dataType == "time.Time") {
-                        imports.add(createMapping("import", "time"));
-                        addedTimeImport = true;
+                    // import "time" if the operation has a required time parameter.
+                    if (param.required) {
+                        if (!addedTimeImport && param.dataType == "time.Time") {
+                            imports.add(createMapping("import", "time"));
+                            addedTimeImport = true;
+                        }
                     }
-                }
 
-                // import "optionals" package if the parameter is primitive and optional
-                if (!param.required && getBooleanValue(param, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME)) {
-                    if (!addedOptionalImport) {
-                        imports.add(createMapping("import", "github.com/antihax/optional"));
-                        addedOptionalImport = true;
+                    // import "optionals" package if the parameter is primitive and optional
+                    if (!param.required && param.getIsPrimitiveType()) {
+                        if (!addedOptionalImport) {
+                            imports.add(createMapping("import", "github.com/antihax/optional"));
+                            addedOptionalImport = true;
+                        }
+                        // We need to specially map Time type to the optionals package
+                        if (param.dataType == "time.Time") {
+                            param.vendorExtensions.put("x-optionalDataType", "Time");
+                            continue;
+                        }
+                        // Map optional type to dataType
+                        param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
                     }
-                    // We need to specially map Time type to the optionals package
-                    if (param.dataType == "time.Time") {
-                        param.vendorExtensions.put("x-optionalDataType", "Time");
-                        continue;
-                    }
-                    // Map optional type to dataType
-                    param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
                 }
             }
         }
@@ -426,7 +461,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        OpenAPI openAPI = (OpenAPI)objs.get("openapi");
+        OpenAPI openAPI = (OpenAPI)objs.get("openAPI");
         if(openAPI != null) {
             try {
                 objs.put("swagger-yaml", Yaml.mapper().writeValueAsString(openAPI));
@@ -526,5 +561,31 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     public void setWithXml(boolean withXml) {
         this.withXml = withXml;
+    }
+
+    @Override
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (!getBooleanValue(codegenModel, CodegenConstants.IS_ALIAS_EXT_NAME)) {
+            boolean isAlias = schema instanceof ArraySchema
+                    || schema instanceof MapSchema
+                    || (!isObjectSchema(schema) && schema.getEnum() == null);
+
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, isAlias);
+        }
+
+
+
+        return codegenModel;
+    }
+
+    @Override
+    public ISchemaHandler getSchemaHandler() {
+        return new GoSchemaHandler(this);
+    }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
     }
 }

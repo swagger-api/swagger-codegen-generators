@@ -158,14 +158,6 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-        //apiTemplateFiles.clear();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
@@ -330,6 +322,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         final Paths paths = openAPI.getPaths();
         addRouterControllerExtensions(paths);
         final Map<String, SecurityScheme> securitySchemes = openAPI.getComponents() != null ? openAPI.getComponents().getSecuritySchemes() : null;

@@ -78,6 +78,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,10 +109,9 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
 import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
@@ -140,6 +142,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, String> modelDocTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> reservedWordsMappings = new HashMap<String, String>();
     protected String templateDir;
+    protected String customTemplateDir;
     protected String templateVersion;
     protected String embeddedTemplateDir;
     protected String commonTemplateDir = "_common";
@@ -179,8 +182,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
-            this.setTemplateDir((String) additionalProperties.get(CodegenConstants.TEMPLATE_DIR));
+            this.customTemplateDir = additionalProperties.get(CodegenConstants.TEMPLATE_DIR).toString();
         }
+        this.embeddedTemplateDir = this.templateDir = getTemplateDir();
 
         if (additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION) != null) {
             setIgnoreImportMapping(Boolean.parseBoolean( additionalProperties.get(CodegenConstants.IGNORE_IMPORT_MAPPING_OPTION).toString()));
@@ -264,10 +268,50 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 allModels.put(modelName, codegenModel);
             }
         }
-        if (supportsInheritance) {
-            processCodegenModels(allModels);
-        }
+        postProcessAllCodegenModels(allModels);
         return processedModels;
+    }
+
+    protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
+        if (supportsInheritance) {
+            for (String name : allModels.keySet()) {
+                final CodegenModel codegenModel = allModels.get(name);
+                fixUpParentAndInterfaces(codegenModel, allModels);
+            }
+        }
+    }
+
+    /**
+     * Fix up all parent and interface CodegenModel references.
+     * @param allModels
+     */
+    protected void fixUpParentAndInterfaces(CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
+        if (codegenModel.parent != null) {
+            codegenModel.parentModel = allModels.get(codegenModel.parent);
+        }
+        if (codegenModel.interfaces != null && !codegenModel.interfaces.isEmpty()) {
+            codegenModel.interfaceModels = new ArrayList<CodegenModel>(codegenModel.interfaces.size());
+            for (String intf : codegenModel.interfaces) {
+                CodegenModel intfModel = allModels.get(intf);
+                if (intfModel != null) {
+                    codegenModel.interfaceModels.add(intfModel);
+                }
+            }
+        }
+        CodegenModel parent = codegenModel.parentModel;
+        // if a discriminator exists on the parent, don't add this child to the inheritance hierarchy
+        // TODO Determine what to do if the parent discriminator name == the grandparent discriminator name
+        while (parent != null) {
+            if (parent.children == null) {
+                parent.children = new ArrayList<CodegenModel>();
+            }
+            parent.children.add(codegenModel);
+            if (parent.discriminator == null) {
+                parent = allModels.get(parent.parent);
+            } else {
+                parent = null;
+            }
+        }
     }
 
     // override with any special post-processing
@@ -314,12 +358,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -542,6 +592,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         } else {
             return templateDir;
         }
+    }
+
+    public String customTemplateDir() {
+        return this.customTemplateDir;
     }
 
     public String getCommonTemplateDir() {
@@ -1241,6 +1295,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return Codegen Model object
      */
     public CodegenModel fromModel(String name, Schema schema) {
+        if (openAPI != null && openAPI.getComponents() != null && openAPI.getComponents().getSchemas() != null) {
+            return fromModel(name, schema, openAPI.getComponents().getSchemas());
+        }
         return fromModel(name, schema, null);
     }
 
@@ -1373,9 +1430,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             }
+
+            final List<Schema> oneOf = composed.getOneOf();
+            if (oneOf != null && !oneOf.isEmpty()) {
+                if (schema.getDiscriminator() != null) {
+                    codegenModel.discriminator = schema.getDiscriminator();
+                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    }
+                }
+            }
+
             if (parent != null) {
                 codegenModel.parentSchema = parentName;
-                codegenModel.parent = toModelName(parentName);
+                codegenModel.parent = typeMapping.containsKey(parentName) ? typeMapping.get(parentName): toModelName(parentName);
                 addImport(codegenModel, codegenModel.parent);
                 if (allDefinitions != null) {
                     if (supportsInheritance) {
@@ -2059,6 +2127,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 Schema schema = body.getContent().get(contentType).getSchema();
                 if (schema != null && StringUtils.isNotBlank(schema.get$ref())) {
                     schemaName = OpenAPIUtil.getSimpleRef(schema.get$ref());
+                    try {
+                        schemaName = URLDecoder.decode(schemaName, StandardCharsets.UTF_8.name());
+                    } catch (UnsupportedEncodingException e) {
+                        LOGGER.error("Could not decoded string: " + schemaName, e);
+                    }
                     schema = schemas.get(schemaName);
                 }
                 final CodegenContent codegenContent = new CodegenContent(contentType);
@@ -2098,8 +2171,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                 requiredParams.add(formParameter.copy());
                             }
                             allParams.add(formParameter);
-
-                            codegenContent.getParameters().add(formParameter.copy());
                         }
                         codegenContents.add(codegenContent);
                     }
@@ -2121,7 +2192,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    codegenContent.getParameters().add(bodyParam.copy());
                     codegenContents.add(codegenContent);
                 }
             }
@@ -2133,31 +2203,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
                 CodegenParameter codegenParameter = fromParameter(param, imports);
-                // rename parameters to make sure all of them have unique names
-                if (ensureUniqueParams) {
-                    while (true) {
-                        boolean exists = false;
-                        for (CodegenParameter cp : allParams) {
-                            if (codegenParameter.paramName != null && codegenParameter.paramName.equals(cp.paramName)) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                        if (exists) {
-                            codegenParameter.paramName = generateNextName(codegenParameter.paramName);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-
-                // set isPrimitiveType and baseType for allParams
-                /*if (languageSpecificPrimitives.contains(p.baseType)) {
-                    p.isPrimitiveType = true;
-                    p.baseType = getSwaggerType(p);
-                }*/
-
-
                 allParams.add(codegenParameter);
                 // Issue #2561 (neilotoole) : Moved setting of is<Type>Param flags
                 // from here to fromParameter().
@@ -2170,9 +2215,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 } else if (param instanceof CookieParameter || "cookie".equalsIgnoreCase(param.getIn())) {
                     cookieParams.add(codegenParameter.copy());
                 }
-                if (!codegenParameter.required) {
-                    codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_OPTIONAL_PARAMS_EXT_NAME, Boolean.TRUE);
-                } else {
+                if (codegenParameter.required) {
                     requiredParams.add(codegenParameter.copy());
                 }
             }
@@ -2219,6 +2262,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         boolean hasRequiredParams = codegenOperation.requiredParams.size() > 0;
         codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_REQUIRED_PARAMS_EXT_NAME, hasRequiredParams);
 
+        boolean hasOptionalParams = codegenOperation.allParams.stream()
+                .anyMatch(codegenParameter -> !codegenParameter.required);
+        codegenOperation.getVendorExtensions().put(CodegenConstants.HAS_OPTIONAL_PARAMS_EXT_NAME, hasOptionalParams);
+
         // set Restful Flag
         codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_SHOW_EXT_NAME, codegenOperation.getIsRestfulShow());
         codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESTFUL_INDEX_EXT_NAME, codegenOperation.getIsRestfulIndex());
@@ -2249,7 +2296,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         final Schema responseSchema = getSchemaFromResponse(response);
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
-        // TODO: codegenResponse.examples = toExamples(response.getExamples());
+
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+
+                        for (String exampleName : response.getContent().get(name).getExamples().keySet()) {
+                            examples.put(exampleName, response.getContent().get(name).getExamples().get(exampleName).getValue());
+                        }
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
+
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
@@ -2376,8 +2442,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.vendorExtensions.putAll(parameter.getExtensions());
         }
 
-        if (parameter.getSchema() != null) {
-            Schema parameterSchema = parameter.getSchema();
+        Schema parameterSchema = parameter.getSchema();
+        if (parameterSchema == null) {
+            parameterSchema = getSchemaFromParameter(parameter);
+        }
+        if (parameterSchema != null) {
             String collectionFormat = null;
             if (parameterSchema instanceof ArraySchema) { // for array parameter
                 final ArraySchema arraySchema = (ArraySchema) parameterSchema;
@@ -2387,6 +2456,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                     arraySchema.setItems(inner);
 
+                } else if (isObjectSchema(inner)) {
+                    //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                    codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
                 }
 
                 collectionFormat = getCollectionFormat(parameter);
@@ -2639,6 +2711,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (inner == null) {
                 inner = new StringSchema().description("//TODO automatically added by swagger-codegen");
                 arraySchema.setItems(inner);
+            } else if (isObjectSchema(inner)) {
+                //fixme: codegenParameter.getVendorExtensions().put(CodegenConstants.HAS_INNER_OBJECT_NAME, Boolean.TRUE);
+                codegenParameter.getVendorExtensions().put("x-has-inner-object", Boolean.TRUE);
             }
 
             CodegenProperty codegenProperty = fromProperty("property", schema);
@@ -2647,7 +2722,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (codegenProperty.complexType != null) {
                 imports.add(codegenProperty.complexType);
             }
-            imports.add(codegenProperty.baseType);
+            if (codegenParameter.baseType != null) {
+                imports.add(codegenProperty.baseType);
+            }
             CodegenProperty innerCp = codegenProperty;
             while(innerCp != null) {
                 if(innerCp.complexType != null) {
@@ -2667,7 +2744,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             setParameterNullable(codegenParameter, codegenProperty);
 
             while (codegenProperty != null) {
-                imports.add(codegenProperty.baseType);
+                if (codegenProperty.baseType != null) {
+                    imports.add(codegenProperty.baseType);
+                }
                 codegenProperty = codegenProperty.items;
             }
         }
@@ -3028,7 +3107,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    private void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
+    protected void addVars(CodegenModel codegenModel, Map<String, Schema> properties, List<String> required) {
         addVars(codegenModel, properties, required, null, null);
     }
 
@@ -3939,6 +4018,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return schema;
     }
 
+    protected Schema getSchemaFromParameter(Parameter parameter) {
+        if (parameter.getContent() == null || parameter.getContent().isEmpty()) {
+            return null;
+        }
+        Schema schema = null;
+        for (String contentType : parameter.getContent().keySet()) {
+            schema = parameter.getContent().get(contentType).getSchema();
+            if (schema != null) {
+                schema.addExtension("x-content-type", contentType);
+            }
+            break;
+        }
+        return schema;
+    }
+
     protected Parameter getParameterFromRef(String ref, OpenAPI openAPI) {
         String parameterName = ref.substring(ref.lastIndexOf('/') + 1);
         Map<String, Parameter> parameterMap = openAPI.getComponents().getParameters();
@@ -4214,8 +4308,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenOperation.getContents().add(content);
             return;
         }
-        this.addCodegenContentParemeters(codegenOperation, codegenContents);
+        this.addCodegenContentParameters(codegenOperation, codegenContents);
         for (CodegenContent content : codegenContents) {
+            if (ensureUniqueParams) {
+                ensureUniqueParameters(content.getParameters());
+            }
+
             Collections.sort(content.getParameters(), (CodegenParameter one, CodegenParameter another) -> {
                     if (one.required == another.required){
                         return 0;
@@ -4232,7 +4330,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenOperation.getContents().addAll(codegenContents);
     }
 
-    protected void addParemeters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
+    protected void addParameters(CodegenContent codegenContent, List<CodegenParameter> codegenParameters) {
         if (codegenParameters == null || codegenParameters.isEmpty()) {
             return;
         }
@@ -4241,12 +4339,28 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    protected void addCodegenContentParemeters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.formParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.cookieParams);
+        }
+    }
+
+    protected void ensureUniqueParameters(List<CodegenParameter> codegenParameters) {
+        if (codegenParameters == null || codegenParameters.isEmpty()) {
+            return;
+        }
+        for (CodegenParameter codegenParameter : codegenParameters) {
+            long count = codegenParameters.stream()
+                    .filter(codegenParam -> codegenParam.paramName.equals(codegenParameter.paramName))
+                    .count();
+            if (count > 1l) {
+                codegenParameter.paramName = generateNextName(codegenParameter.paramName);
+            }
         }
     }
 

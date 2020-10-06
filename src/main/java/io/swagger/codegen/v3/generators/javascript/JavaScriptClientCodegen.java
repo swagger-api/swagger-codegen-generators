@@ -92,9 +92,6 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         modelTestTemplateFiles.put("model_test.mustache", ".js");
         apiTemplateFiles.put("api.mustache", ".js");
         apiTestTemplateFiles.put("api_test.mustache", ".js");
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
         apiPackage = "api";
         modelPackage = "model";
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
@@ -142,6 +139,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("int", "Number");
         typeMapping.put("float", "Number");
         typeMapping.put("number", "Number");
+        typeMapping.put("BigDecimal", "Number");
         typeMapping.put("DateTime", "Date");
         typeMapping.put("date", "Date");
         typeMapping.put("long", "Number");
@@ -152,7 +150,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         typeMapping.put("integer", "Number");
         // binary not supported in JavaScript client right now, using String as a workaround
         typeMapping.put("ByteArray", "Blob"); // I don't see ByteArray defined in the Swagger docs.
-        typeMapping.put("binary", "Blob");
+        typeMapping.put("binary", "File");
+        typeMapping.put("file", "File");
+        typeMapping.put("URI", "String");
         typeMapping.put("UUID", "String");
 
         importMapping.clear();

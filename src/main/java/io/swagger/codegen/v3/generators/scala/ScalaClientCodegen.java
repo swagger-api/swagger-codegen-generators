@@ -119,8 +119,6 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
     public void processOpts() {
         super.processOpts();
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
-
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
         }
