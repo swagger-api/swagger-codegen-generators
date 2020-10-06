@@ -21,10 +21,11 @@ import static org.testng.Assert.*;
  */
 public class RubyClientCodegenTest {
 
-  private TemporaryFolder folder = new TemporaryFolder();
+  private TemporaryFolder folder = null;
 
   @BeforeMethod
   public void setUp() throws Exception {
+      folder = new TemporaryFolder();
       folder.create();
   }
 
@@ -71,9 +72,7 @@ public class RubyClientCodegenTest {
       Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP), Boolean.TRUE);
       Assert.assertTrue(codegen.getHideGenerationTimestamp());
       Assert.assertEquals(codegen.modelPackage(), "models");
-      Assert.assertNull(codegen.additionalProperties().get(CodegenConstants.MODEL_PACKAGE));
       Assert.assertEquals(codegen.apiPackage(), "api");
-      Assert.assertNull(codegen.additionalProperties().get(CodegenConstants.API_PACKAGE));
   }
 
   @Test
