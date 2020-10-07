@@ -32,8 +32,9 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         final String content = FileUtils.readFileToString(petControllerFile);
 
 
-        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@ApiParam(value = \"description\",required=true) @PathVariable(\"id\") Long id" + System.lineSeparator() +
-            ",@ApiParam(value = \"Localized Text object containing updated data.\" ,required=true )  @Valid @RequestBody LocalizedText body" + System.lineSeparator() +
+
+        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@Parameter(description = \"description\",required=true, schema=@Schema()) @PathVariable(\"id\") Long id" + System.lineSeparator() +
+            ", @Parameter(description = \"Localized Text object containing updated data.\" ,required=true, schema=@Schema())@Valid @RequestBody LocalizedText body" + System.lineSeparator() +
             ");"));
 
         this.folder.delete();
