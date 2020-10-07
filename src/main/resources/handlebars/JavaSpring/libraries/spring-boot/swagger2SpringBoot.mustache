@@ -6,10 +6,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
+{{#useOas2}}
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+{{/useOas2}}
 
 @SpringBootApplication
+{{#useOas2}}
 @EnableSwagger2
+{{/useOas2}}
 @ComponentScan(basePackages = { "{{basePackage}}", "{{apiPackage}}" , "{{configPackage}}"})
 public class Swagger2SpringBoot implements CommandLineRunner {
 
