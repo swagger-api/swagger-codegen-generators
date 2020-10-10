@@ -16,6 +16,7 @@ import io.swagger.annotations.*;
 {{^useOas2}}
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -68,7 +69,7 @@ import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture
 
 {{>generatedAnnotation}}
 {{#useOas2}}
-    @Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
+@Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
 {{/useOas2}}
 {{#operations}}
 public interface {{classname}} {
@@ -115,11 +116,15 @@ public interface {{classname}} {
     {{/useOas2}}
     {{^useOas2}}
     @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
-        {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = { {{#each scopes}}"{{@key}}"{{^@last}}, {{/@last}}{{/each}} }{{/isOAuth}}){{#hasMore}},
-    {{/hasMore}}{{/authMethods}}
-}{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+        {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
+            {{#scopes}}"{{scope}}"{{#hasMore}},
+            {{/hasMore}}{{/scopes}}
+        }{{/isOAuth}}){{#hasMore}},
+        {{/hasMore}}{{/authMethods}}
+    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}{{#baseType}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/baseType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
+        {{/hasMore}}{{/responses}} })
     {{/useOas2}}
     @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
         produces = "{{{vendorExtensions.x-accepts}}}", {{/hasProduces}}{{#hasConsumes}}

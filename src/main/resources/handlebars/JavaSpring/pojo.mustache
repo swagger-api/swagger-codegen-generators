@@ -1,9 +1,7 @@
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
  */{{#description}}
-{{#useOas2}}@ApiModel(description = "{{{description}}}"){{/useOas2}}
-{{^useOas2}}@Schema(description = "{{{description}}}"){{/useOas2}}
-{{/description}}
+{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
 {{#useBeanValidation}}@Validated{{/useBeanValidation}}
 {{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 {{#notNullJacksonAnnotation}}@JsonInclude(JsonInclude.Include.NON_NULL){{/notNullJacksonAnnotation}}
@@ -95,10 +93,13 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
  {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
   {{/vendorExtensions.extraAnnotation}}
-  {{#useOas2}}@ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}value = "{{{description}}}"){{/useOas2}}{{^useOas2}}@Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}description = "{{{description}}}"){{/useOas2}}
-{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}
-
-  public {{{datatypeWithEnum}}} {{getter}}() {
+  {{#useOas2}}
+  @ApiModelProperty({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}value = "{{{description}}}")
+  {{/useOas2}}
+  {{^useOas2}}
+  @Schema({{#example}}example = "{{{example}}}", {{/example}}{{#required}}required = {{required}}, {{/required}}{{#isReadOnly}}accessMode = Schema.AccessMode.READ_ONLY, {{/isReadOnly}}description = "{{{description}}}")
+  {{/useOas2}}
+  {{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
   }
 
