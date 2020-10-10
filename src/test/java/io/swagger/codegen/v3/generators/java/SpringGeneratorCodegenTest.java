@@ -38,9 +38,8 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         final File petControllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
         final String content = FileUtils.readFileToString(petControllerFile);
 
-        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@ApiParam(value = \"description\",required=true) @PathVariable(\"id\") Long id" +
-            ",@ApiParam(value = \"Localized Text object containing updated data.\" ,required=true ) @Valid @RequestBody LocalizedText body" + System.lineSeparator() +
-            ");"));
+        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@ApiParam(value = \"description\", required=true) @PathVariable(\"id\") Long id"));
+        Assert.assertTrue(content.contains("@ApiParam(value = \"Localized Text object containing updated data.\", required=true ) @Valid @RequestBody LocalizedText body"));
 
         folder.delete();
     }
@@ -61,9 +60,9 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
 
         final File petControllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
         final String content = FileUtils.readFileToString(petControllerFile);
-        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@Parameter(in = ParameterIn.PATH, description = \"description\" ,required=true,schema=@Schema()) @PathVariable(\"id\") Long id" +
-            ",@Parameter(in = ParameterIn.DEFAULT, description = \"Localized Text object containing updated data.\" ,required=true,schema=@Schema()) @Valid @RequestBody LocalizedText body" + System.lineSeparator() +
-            ");"));
+
+        Assert.assertTrue(content.contains("ResponseEntity<LocalizedText> updateTest(@Parameter(in = ParameterIn.PATH, description = \"description\", required=true, schema=@Schema()) @PathVariable(\"id\") Long id"));
+        Assert.assertTrue(content.contains("@Parameter(in = ParameterIn.DEFAULT, description = \"Localized Text object containing updated data.\", required=true, schema=@Schema()) @Valid @RequestBody LocalizedText body"));
 
         folder.delete();
     }
