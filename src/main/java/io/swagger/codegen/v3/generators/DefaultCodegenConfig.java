@@ -3866,7 +3866,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         // put "enumVars" map into `allowableValues", including `name` and `value`
-        List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> enumVars = new ArrayList<>();
         String commonPrefix = findCommonPrefixOfVars(values);
         int truncateIdx = commonPrefix.length();
         for (Object value : values) {
@@ -3881,6 +3881,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             enumVars.add(enumVar);
         }
         allowableValues.put("enumVars", enumVars);
+
+        // check repeated enum var names
+        if (enumVars != null & !enumVars.isEmpty()) {
+            for (int i = 0; i < enumVars.size(); i++) {
+                final Map<String, String> enumVarList = enumVars.get(i);
+                final String enumVarName = enumVarList.get("name");
+                for (int j = 0; j < enumVars.size(); j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    final Map<String, String> enumVarToCheckList = enumVars.get(j);
+                    final String enumVarNameToCheck = enumVarToCheckList.get("name");
+                    if (enumVarName.equals(enumVarNameToCheck)) {
+                        enumVarToCheckList.put("name", enumVarName + "_" + j);
+                    }
+                }
+            }
+        }
 
         // handle default value for enum, e.g. available => StatusEnum.AVAILABLE
         if (var.defaultValue != null) {
