@@ -26,7 +26,7 @@ public class MicronautGeneratorCodegenTest extends AbstractCodegenTest {
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
                 .setLang("micronaut")
-                .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
+                .setInputSpecURL("src/test/resources/3_0_0/parameterValidation.yaml")
                 .setOutputDir(output.getAbsolutePath());
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
@@ -57,11 +57,12 @@ public class MicronautGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(content.contains(expectedContent));
     }
 
-    @Test(description = "verify that parameters are listed as follows: header, query, path, cookie, body")
+    @Test(description = "verify that parameters are listed as follows: header, path, query, cookie, body")
     public void testApiParameters() throws IOException {
-        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@Parameter(description = \"Localized Text object containing updated data.\" ) @Valid @Body LocalizedText body" + System.lineSeparator()
-                                 + ",@Parameter(description = \"description\") @PathVariable(\"id\") Long id" + System.lineSeparator()
-                                 + ")";
+        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@Parameter(description = \"Localized Text object.\" ) @Valid @Body LocalizedText body" + System.lineSeparator()
+                                 + ",@NotNull @Pattern(regexp=\"[0-9]+\") @Parameter(description = \"header description\" ) @Valid @Header(value = \"x-header\") String xHeader" + System.lineSeparator()
+                                 + ",@Parameter(description = \"path description\") @PathVariable(\"id\") Long id" + System.lineSeparator()
+                                 + ",@Nullable @Parameter(description = \"query description\") @Valid @QueryValue(value = \"name\") String name";
         final File controllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
         final String content = FileUtils.readFileToString(controllerFile);
         Assert.assertTrue(content.contains(expectedContent));

@@ -111,7 +111,7 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCha
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
@@ -358,12 +358,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -2290,7 +2296,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         final Schema responseSchema = getSchemaFromResponse(response);
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
-        // TODO: codegenResponse.examples = toExamples(response.getExamples());
+
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+
+                        for (String exampleName : response.getContent().get(name).getExamples().keySet()) {
+                            examples.put(exampleName, response.getContent().get(name).getExamples().get(exampleName).getValue());
+                        }
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
+
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
@@ -2697,7 +2722,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (codegenProperty.complexType != null) {
                 imports.add(codegenProperty.complexType);
             }
-            imports.add(codegenProperty.baseType);
+            if (codegenParameter.baseType != null) {
+                imports.add(codegenProperty.baseType);
+            }
             CodegenProperty innerCp = codegenProperty;
             while(innerCp != null) {
                 if(innerCp.complexType != null) {
@@ -2717,7 +2744,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             setParameterNullable(codegenParameter, codegenProperty);
 
             while (codegenProperty != null) {
-                imports.add(codegenProperty.baseType);
+                if (codegenProperty.baseType != null) {
+                    imports.add(codegenProperty.baseType);
+                }
                 codegenProperty = codegenProperty.items;
             }
         }
@@ -3837,7 +3866,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         // put "enumVars" map into `allowableValues", including `name` and `value`
-        List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> enumVars = new ArrayList<>();
         String commonPrefix = findCommonPrefixOfVars(values);
         int truncateIdx = commonPrefix.length();
         for (Object value : values) {
@@ -3852,6 +3881,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             enumVars.add(enumVar);
         }
         allowableValues.put("enumVars", enumVars);
+
+        // check repeated enum var names
+        if (enumVars != null & !enumVars.isEmpty()) {
+            for (int i = 0; i < enumVars.size(); i++) {
+                final Map<String, String> enumVarList = enumVars.get(i);
+                final String enumVarName = enumVarList.get("name");
+                for (int j = 0; j < enumVars.size(); j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    final Map<String, String> enumVarToCheckList = enumVars.get(j);
+                    final String enumVarNameToCheck = enumVarToCheckList.get("name");
+                    if (enumVarName.equals(enumVarNameToCheck)) {
+                        enumVarToCheckList.put("name", enumVarName + "_" + j);
+                    }
+                }
+            }
+        }
 
         // handle default value for enum, e.g. available => StatusEnum.AVAILABLE
         if (var.defaultValue != null) {
@@ -4313,6 +4360,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
             addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.formParams);
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);

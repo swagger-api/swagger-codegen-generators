@@ -335,7 +335,7 @@
 
                                 {{#examples}}
                                   <li class="">
-                                    <a data-toggle="tab" href="#responses-{{nickname}}-{{code}}-example">Response Example</a>
+                                    <a data-toggle="tab" href="#responses-{{nickname}}-{{code}}-example-{{@index}}">Response Example</a>
                                   </li>
                                 {{/examples}}
                               {{/schema}}
@@ -376,7 +376,7 @@
                                   <input id='responses-{{nickname}}-{{code}}-schema-data' type='hidden' value=''></input>
                                 </div>
                                 {{#examples}}
-                                  <div class="tab-pane" id="responses-{{nickname}}-{{code}}-example">
+                                  <div class="tab-pane" id="responses-{{nickname}}-{{code}}-example-{{@index}}">
                                       <pre class="prettyprint"><code class="json">{{example}}</code></pre>
                                 </div>
                                 {{/examples}}
