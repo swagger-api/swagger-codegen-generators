@@ -752,7 +752,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
         if (propertySchema.get$ref() != null) {
             final Schema refSchema = OpenAPIUtil.getSchemaFromName(swaggerType, this.openAPI);
-            if (refSchema != null && !isObjectSchema(refSchema) && refSchema.getEnum() == null) {
+            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
                 swaggerType = super.getSchemaType(refSchema);
             }
         }
