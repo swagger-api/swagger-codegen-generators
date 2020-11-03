@@ -14,13 +14,16 @@ import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -37,6 +40,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
@@ -53,6 +57,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
+    public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -173,6 +178,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
+        cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
     }
 
     @Override
@@ -1065,6 +1071,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (openAPI == null || openAPI.getPaths() == null){
             return;
         }
+        boolean checkDuplicatedModelName = Boolean.parseBoolean(additionalProperties.get(CHECK_DUPLICATED_MODEL_NAME) != null ? additionalProperties.get(CHECK_DUPLICATED_MODEL_NAME).toString() : "");
+        if (checkDuplicatedModelName) {
+            this.checkDuplicatedModelNameIgnoringCase(openAPI);
+        }
+
         for (String pathname : openAPI.getPaths().keySet()) {
             PathItem pathItem = openAPI.getPaths().get(pathname);
 
@@ -1122,6 +1133,103 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     protected boolean needToImport(String type) {
         return super.needToImport(type) && type.indexOf(".") < 0;
+    }
+
+    protected void checkDuplicatedModelNameIgnoringCase(OpenAPI openAPI) {
+        final Map<String, Schema> schemas = openAPI.getComponents().getSchemas();
+        final Map<String, Map<String, Schema>> schemasRepeated = new HashMap<>();
+
+        for (String schemaKey : schemas.keySet()) {
+            final Schema schema = schemas.get(schemaKey);
+            final String lowerKeyDefinition = schemaKey.toLowerCase();
+
+            if (schemasRepeated.containsKey(lowerKeyDefinition)) {
+                Map<String, Schema> modelMap = schemasRepeated.get(lowerKeyDefinition);
+                if (modelMap == null) {
+                    modelMap = new HashMap<>();
+                    schemasRepeated.put(lowerKeyDefinition, modelMap);
+                }
+                modelMap.put(schemaKey, schema);
+            } else {
+                schemasRepeated.put(lowerKeyDefinition, null);
+            }
+        }
+        for (String lowerKeyDefinition : schemasRepeated.keySet()) {
+            final Map<String, Schema> modelMap = schemasRepeated.get(lowerKeyDefinition);
+            if (modelMap == null) {
+                continue;
+            }
+            int index = 1;
+            for (String name : modelMap.keySet()) {
+                final Schema schema = modelMap.get(name);
+                final String newModelName = name + index;
+                schemas.put(newModelName, schema);
+                replaceDuplicatedInPaths(openAPI.getPaths(), name, newModelName);
+                replaceDuplicatedInModelProperties(schemas, name, newModelName);
+                schemas.remove(name);
+                index++;
+            }
+        }
+    }
+
+    protected void replaceDuplicatedInPaths(Paths paths, String modelName, String newModelName) {
+        if (paths == null || paths.isEmpty()) {
+            return;
+        }
+        paths.values().stream()
+            .flatMap(pathItem -> pathItem.readOperations().stream())
+            .filter(operation -> {
+                final RequestBody requestBody = operation.getRequestBody();
+                if (requestBody == null || requestBody.getContent() == null || requestBody.getContent().isEmpty()) {
+                    return false;
+                }
+                final Optional<MediaType> mediaTypeOptional = requestBody.getContent().values().stream().findAny();
+                if (!mediaTypeOptional.isPresent()) {
+                    return false;
+                }
+                final MediaType mediaType = mediaTypeOptional.get();
+                final Schema schema = mediaType.getSchema();
+                if (schema.get$ref() != null) {
+                    return true;
+                }
+                return false;
+            })
+            .forEach(operation -> {
+                Schema schema = this.getSchemaFromBody(operation.getRequestBody());
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
+        paths.values().stream()
+            .flatMap(path -> path.readOperations().stream())
+            .flatMap(operation -> operation.getResponses().values().stream())
+            .filter(response -> {
+                if (response.getContent() == null || response.getContent().isEmpty()) {
+                    return false;
+                }
+                final Optional<MediaType> mediaTypeOptional = response.getContent().values().stream().findFirst();
+                if (!mediaTypeOptional.isPresent()) {
+                    return false;
+                }
+                final MediaType mediaType = mediaTypeOptional.get();
+                final Schema schema = mediaType.getSchema();
+                if (schema.get$ref() != null) {
+                    return true;
+                }
+                return false;
+            }).forEach(response -> {
+                final Optional<MediaType> mediaTypeOptional = response.getContent().values().stream().findFirst();
+                final Schema schema = mediaTypeOptional.get().getSchema();
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
+    }
+
+    protected void replaceDuplicatedInModelProperties(Map<String, Schema> definitions, String modelName, String newModelName) {
+        definitions.values().stream()
+            .flatMap(model -> model.getProperties().values().stream())
+            .filter(property -> ((Schema) property).get$ref() != null)
+            .forEach(property -> {
+                final Schema schema = (Schema) property;
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
     }
 /*
     @Override
