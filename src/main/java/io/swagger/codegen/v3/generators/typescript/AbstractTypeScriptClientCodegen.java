@@ -8,6 +8,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -38,7 +39,7 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
-
+    private static final String X_DISCRIMINATOR_TYPE = "x-discriminator-value";
     private static final String UNDEFINED_VALUE = "undefined";
 
     protected String modelPropertyNaming= "camelCase";
@@ -47,6 +48,8 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     public AbstractTypeScriptClientCodegen() {
         super();
+
+        LOGGER.info("But at least im in typescript codegen ctor");
 
         // clear import mapping (from default generator) as TS does not use it
         // at the moment
@@ -94,7 +97,6 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         typeMapping.put("int", "number");
         typeMapping.put("float", "number");
         typeMapping.put("number", "number");
-        typeMapping.put("BigDecimal", "number");
         typeMapping.put("long", "number");
         typeMapping.put("short", "number");
         typeMapping.put("char", "string");
@@ -437,16 +439,43 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
             Map<String, Object> mo = (Map<String, Object>) _mo;
             CodegenModel cm = (CodegenModel) mo.get("model");
             cm.imports = new TreeSet(cm.imports);
+            // name enum with model name, e.g. StatusEnum => Pet.StatusEnum
             for (CodegenProperty var : cm.vars) {
-                // name enum with model name, e.g. StatuEnum => Pet.StatusEnum
-                boolean isEnum = getBooleanValue(var, IS_ENUM_EXT_NAME);
-                if (Boolean.TRUE.equals(isEnum)) {
+                if (Boolean.TRUE.equals(var.getIsEnum())) {
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
+                }
+            }
+            if (cm.parent != null) {
+                for (CodegenProperty var : cm.allVars) {
+                    if (Boolean.TRUE.equals(var.getIsEnum())) {
+                        var.datatypeWithEnum = var.datatypeWithEnum
+                            .replace(var.enumName, cm.classname + "." + var.enumName);
+                    }
                 }
             }
         }
 
         return objs;
+    }
+
+    @Override
+    protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
+        LOGGER.info("Post processed all codegenmodesl in TS");
+        super.postProcessAllCodegenModels(allModels);
+        for (CodegenModel cm : allModels.values()) {
+            if(cm.discriminator != null) {
+                cm.dataType = String.join(" | ", cm.discriminator.getMapping().keySet());
+
+                for (Map.Entry<String, String> discriminatorMapping : cm.discriminator.getMapping().entrySet()) {
+                    String simpleRef = OpenAPIUtil.getSimpleRef(discriminatorMapping.getValue());
+                    String discriminatorValue = toModelName(simpleRef);
+                    CodegenModel discriminatorModel = allModels.get(discriminatorValue);
+                    cm.imports.add(discriminatorMapping.getKey());
+                    cm.vendorExtensions.put(CodegenConstants.IS_ALIAS_EXT_NAME, Boolean.TRUE);
+                    this.setDiscriminatorValue(discriminatorModel, cm.discriminator.getPropertyName(), discriminatorMapping.getKey());
+                }
+            }
+        }
     }
 
     public void setSupportsES6(Boolean value) {
@@ -455,6 +484,30 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     public Boolean getSupportsES6() {
         return supportsES6;
+    }
+
+    private void setDiscriminatorValue(CodegenModel model, String baseName, String value) {
+        for (CodegenProperty prop : model.allVars) {
+            if (prop.baseName.equals(baseName)) {
+                prop.discriminatorValue = value;
+            }
+        }
+        for (CodegenProperty prop : model.vars) {
+            if (prop.baseName.equals(baseName)) {
+                prop.discriminatorValue = value;
+            }
+        }
+        if (model.children != null) {
+            final boolean newDiscriminator = model.discriminator != null;
+            for (CodegenModel child : model.children) {
+                this.setDiscriminatorValue(child, baseName, newDiscriminator ? value : this.getDiscriminatorValue(child));
+            }
+        }
+    }
+
+    private String getDiscriminatorValue(CodegenModel model) {
+        return model.vendorExtensions.containsKey(X_DISCRIMINATOR_TYPE) ?
+            (String) model.vendorExtensions.get(X_DISCRIMINATOR_TYPE) : model.classname;
     }
 
     @Override
