@@ -2697,7 +2697,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenParameter.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, isFile);
 
                     if (codegenProperty.complexType != null) {
-                        imports.add(codegenProperty.complexType);
+                        addImportsForComplexType(imports, codegenProperty);
                     }
                 }
                 setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
@@ -2766,6 +2766,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         postProcessParameter(codegenParameter);
         return codegenParameter;
     }
+
 
     public boolean isDataTypeBinary(String dataType) {
         if (dataType != null) {
@@ -2881,6 +2882,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             reservedWords.add(word.toLowerCase());
         }
     }
+
+    protected void addImportsForComplexType(Set<String> imports, CodegenProperty codegenProperty) {
+        imports.add(codegenProperty.complexType);
+        if(codegenProperty.items != null && codegenProperty.items.complexType != null){
+            addImportsForComplexType(imports, codegenProperty.items);
+        }
+    }
+
 
     protected boolean isReservedWord(String word) {
         return word != null && reservedWords.contains(word.toLowerCase());
