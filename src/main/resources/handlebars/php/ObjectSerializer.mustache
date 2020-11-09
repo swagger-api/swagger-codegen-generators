@@ -116,6 +116,8 @@ class ObjectSerializer
     {
         if (is_array($object)) {
             return implode(',', $object);
+        } else if (is_object($object)) {
+            return json_decode(json_encode(ObjectSerializer::sanitizeForSerialization($object)), true);
         } else {
             return self::toString($object, $format);
         }
