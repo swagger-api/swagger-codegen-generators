@@ -468,7 +468,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                 }
             }
         }
-        LOGGER.info("POST PROCESSED in angualar ts");
+
         return result;
     }
 

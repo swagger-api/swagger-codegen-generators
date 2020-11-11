@@ -8,7 +8,6 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
-import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -33,13 +32,9 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
-    private static final String X_DISCRIMINATOR_TYPE = "x-discriminator-value";
     private static final String UNDEFINED_VALUE = "undefined";
 
     protected String modelPropertyNaming= "camelCase";
@@ -48,8 +43,6 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     public AbstractTypeScriptClientCodegen() {
         super();
-
-        LOGGER.info("But at least im in typescript codegen ctor");
 
         // clear import mapping (from default generator) as TS does not use it
         // at the moment
@@ -97,6 +90,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         typeMapping.put("int", "number");
         typeMapping.put("float", "number");
         typeMapping.put("number", "number");
+        typeMapping.put("BigDecimal", "number");
         typeMapping.put("long", "number");
         typeMapping.put("short", "number");
         typeMapping.put("char", "string");
