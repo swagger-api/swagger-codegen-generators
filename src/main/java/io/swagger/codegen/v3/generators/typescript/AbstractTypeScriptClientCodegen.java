@@ -460,12 +460,10 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     @Override
     protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
-        LOGGER.info("Post processed all codegenmodesl in TS");
         super.postProcessAllCodegenModels(allModels);
         for (CodegenModel cm : allModels.values()) {
             if(cm.discriminator != null) {
                 cm.dataType = String.join(" | ", cm.discriminator.getMapping().keySet());
-
                 for (Map.Entry<String, String> discriminatorMapping : cm.discriminator.getMapping().entrySet()) {
                     String simpleRef = OpenAPIUtil.getSimpleRef(discriminatorMapping.getValue());
                     String discriminatorValue = toModelName(simpleRef);
@@ -486,28 +484,13 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         return supportsES6;
     }
 
-    private void setDiscriminatorValue(CodegenModel model, String baseName, String value) {
-        for (CodegenProperty prop : model.allVars) {
-            if (prop.baseName.equals(baseName)) {
-                prop.discriminatorValue = value;
-            }
-        }
+    private void setDiscriminatorValue(CodegenModel model, String propertyName, String value) {
+        // override the datatype with the value for the taggedUnion type
         for (CodegenProperty prop : model.vars) {
-            if (prop.baseName.equals(baseName)) {
-                prop.discriminatorValue = value;
+            if (prop.baseName.equals(propertyName)) {
+                prop.datatype = "'" + value + "'";
             }
         }
-        if (model.children != null) {
-            final boolean newDiscriminator = model.discriminator != null;
-            for (CodegenModel child : model.children) {
-                this.setDiscriminatorValue(child, baseName, newDiscriminator ? value : this.getDiscriminatorValue(child));
-            }
-        }
-    }
-
-    private String getDiscriminatorValue(CodegenModel model) {
-        return model.vendorExtensions.containsKey(X_DISCRIMINATOR_TYPE) ?
-            (String) model.vendorExtensions.get(X_DISCRIMINATOR_TYPE) : model.classname;
     }
 
     @Override
