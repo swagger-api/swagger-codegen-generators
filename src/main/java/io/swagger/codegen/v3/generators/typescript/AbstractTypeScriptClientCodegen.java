@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
+
     private static final String UNDEFINED_VALUE = "undefined";
 
     protected String modelPropertyNaming= "camelCase";
