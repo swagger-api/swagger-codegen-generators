@@ -170,6 +170,10 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         supportingFiles.add(new SupportingFile("YearMonthDay.mustache",
                     sourceFolder,
                     "YearMonthDate.swift"));
+
+        supportingFiles.add(new SupportingFile("mocks.mustache",
+                    sourceFolder,
+                    "Mocks.swift"));
     }
 
     @Override
