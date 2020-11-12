@@ -40,6 +40,8 @@ public class KotlinClientCodegenOptionsTest extends AbstractOptionsTest {
             times = 1;
             codegen.setUseRxRetrofit2(KotlinClientCodegenOptionsProvider.RX_RETROFIT_2);
             times = 1;
+            codegen.setGenerateTestFramework(KotlinClientCodegenOptionsProvider.GENERATE_TEST_FRAMEWORK);
+            times = 1;
         }};
     }
 }

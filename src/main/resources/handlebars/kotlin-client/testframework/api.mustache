@@ -1,0 +1,67 @@
+{{>licenseInfo}}
+package {{apiPackage}}
+
+{{#imports}}import {{import}}
+{{/imports}}
+
+import io.appflate.restmock.RESTMockServer
+import io.appflate.restmock.RequestsVerifier
+import io.appflate.restmock.utils.RequestMatchers
+import it.sky.testfoundation.core.restmockutils.QueryParameter
+import it.sky.testfoundation.core.restmockutils.RESTMockEndpointData
+import it.sky.testfoundation.core.restmockutils.URLBuilder
+import it.sky.testfoundation.core.restmockutils.matchers.MultipleRequestMatcher
+import it.sky.testfoundation.core.restmockutils.matchers.body.AlwaysMatchBodyRequestMatcher
+import it.sky.testfoundation.core.restmockutils.matchers.body.BodyRequestMatcher
+import it.sky.testfoundation.core.restmockutils.matchers.headers.AlwaysMatchHeadersRequestMatcher
+import it.sky.testfoundation.core.restmockutils.matchers.headers.HeadersRequestMatcher
+
+{{#operations}}
+/**
+ * Returns [RESTMockEndpointData] for [{{classname}}]
+ */
+class {{classname}}URLs(private val urlBuilder: URLBuilder) {
+{{#operation}}
+
+    /**
+     * Returns [RESTMockEndpointData] for [{{../classname}}.{{operationId}}]
+     */
+    fun {{operationId}}EndpointData(
+        {{#pathParams}}
+        {{paramName}}: {{{dataType}}}{{#or hasMore ../hasQueryParams ../hasHeaderParams ../hasBodyParam}},{{/or}}
+        {{/pathParams}}
+        {{#queryParams}}
+        {{paramName}}: {{{dataType}}}{{#or hasMore ../hasHeaderParams ../hasBodyParam}},{{/or}}
+        {{/queryParams}}
+        {{#hasHeaderParams}}
+        headersRequestMatcher: HeadersRequestMatcher = AlwaysMatchHeadersRequestMatcher(){{#hasBodyParam}},{{/hasBodyParam}}
+        {{/hasHeaderParams}}
+        {{#hasBodyParam}}
+        bodyRequestMatcher: BodyRequestMatcher<{{bodyParam.dataType}}> = AlwaysMatchBodyRequestMatcher()
+        {{/hasBodyParam}}
+    ) = MultipleRequestMatcher.Builder()
+        .withMatcher(
+            RequestMatchers.pathEndsWith(
+                urlBuilder.buildUrl(
+                    "{{path}}"{{#hasQueryParams}},{{/hasQueryParams}}
+                    {{#queryParams}}
+                    QueryParameter("{{paramName}}", {{paramName}}){{#hasMore}},{{/hasMore}}
+                    {{/queryParams}}
+                )
+            )
+        )
+        {{#hasHeaderParams}}
+        .withMatcher(headersRequestMatcher)
+        {{/hasHeaderParams}}
+        {{#hasBodyParam}}
+        .withMatcher(bodyRequestMatcher)
+        {{/hasBodyParam}}
+        .build().run {
+            RESTMockEndpointData(
+                RESTMockServer.when{{httpMethod}}(this),
+                RequestsVerifier.verify{{httpMethod}}(this)
+            )
+        }
+{{/operation}}
+}
+{{/operations}}
