@@ -1258,8 +1258,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         // number
-        if ("Integer".equals(datatype) || "Long".equals(datatype) ||
-                "Float".equals(datatype) || "Double".equals(datatype)) {
+        if ("Integer".equals(datatype) || "Long".equals(datatype) || "Float".equals(datatype) || "Double".equals(datatype) || "BigDecimal".equals(datatype)) {
             String varName = "NUMBER_" + value;
             varName = varName.replaceAll("-", "MINUS_");
             varName = varName.replaceAll("\\+", "PLUS_");
@@ -1281,7 +1280,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (value == null) {
             return null;
         }
-        if ("Integer".equals(datatype) || "Double".equals(datatype)) {
+        System.out.println("|||||||||||||||||||||||||||| datatype: " + datatype);
+        if ("Integer".equals(datatype) || "Double".equals(datatype) || "Boolean".equals(datatype)) {
             return value;
         } else if ("Long".equals(datatype)) {
             // add l to number, e.g. 2048 => 2048l
@@ -1289,6 +1289,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if ("Float".equals(datatype)) {
             // add f to number, e.g. 3.14 => 3.14f
             return value + "f";
+        } else if ("BigDecimal".equals(datatype)) {
+            return "new BigDecimal(" + escapeText(value) + ")";
         } else {
             return "\"" + escapeText(value) + "\"";
         }
