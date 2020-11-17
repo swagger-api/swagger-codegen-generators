@@ -5,64 +5,63 @@
 // https://github.com/swagger-api/swagger-codegen
 //
 
-import Foundation
-import Alamofire{{#usePromiseKit}}
+import Foundation{{#usePromiseKit}}{{^useReactiveAPI}}
+import Alamofire {{/useReactiveAPI}}
 import PromiseKit{{/usePromiseKit}}{{#useRxSwift}}
-import RxSwift{{/useRxSwift}}
+import RxSwift{{/useRxSwift}}{{#useReactiveAPI}}
+import ReactiveAPI
+import RxSwift{{/useReactiveAPI}}
 
 {{#swiftUseApiNamespace}}
 extension {{projectName}}API {
 {{/swiftUseApiNamespace}}
-
 {{#description}}
-/** {{description}} */{{/description}}
-open class {{classname}} {
-{{#operation}}
-{{#contents}}
-    {{#parameters}}
-    {{#isEnum}}
+/** {{description}} */{{/description~}}
+{{#if useReactiveAPI}}open{{else}}final{{/if}} class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
     /**
      * enum for parameter {{paramName}}
      */
-    public enum {{enumName}}_{{operationId}}: {{^isContainer}}{{{dataType}}}{{/isContainer}}{{#isContainer}}String{{/isContainer}} { {{#allowableValues}}{{#enumVars}}
-        case {{name}} = {{#isContainer}}"{{/isContainer}}{{#isString}}"{{/isString}}{{{value}}}{{#isString}}"{{/isString}}{{#isContainer}}"{{/isContainer}}{{/enumVars}}{{/allowableValues}}
-    }
+    public enum {{enumName}}_{{operationId}}: {{#isNot this 'container'}}{{{dataType}}}, CustomStringConvertible{{/isNot}}{{#is this 'container'}}String, CustomStringConvertible{{/is}} { {{#allowableValues}}{{#enumVars}}
+        case {{name}} = {{#is ../../this 'container'}}"{{/is}}{{#is ../../this 'string'}}"{{/is}}{{{value}}}{{#is ../../this 'string'}}"{{/is}}{{#is ../../this 'container'}}"{{/is}}{{/enumVars}}{{/allowableValues}}
 
-    {{/isEnum}}
-    {{/parameters}}
+        public var description: String {
+            return "\(rawValue)"
+        }
+    }{{/is~}}{{/allParams}}
     /**
-     {{#summary}}
-     {{{summary}}}
-     {{/summary}}{{#parameters}}
-     - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     {{#summary}}{{{summary}}}
+     {{/summary}}{{#allParams}}
+     - parameter {{paramName}}: ({{#is this 'form-param'}}form{{/is}}{{#is this 'query-param'}}query{{/is}}{{#is this 'path-param'}}path{{/is}}{{#is this 'header-param'}}header{{/is}}{{#is this 'body-param'}}body{{/is}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/allParams}}
      - parameter completion: completion handler to receive the data and the error objects
      */
-    open class func {{operationId}}({{#parameters}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}{{#hasParams}}, {{/hasParams}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
-        {{operationId}}WithRequestBuilder({{#parameters}}{{paramName}}: {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}).execute { (response, error) -> Void in
-        {{#returnType}}
-            completion(response?.body, error)
-        {{/returnType}}
-        {{^returnType}}
-            if error == nil {
-                completion((), error)
-            } else {
-                completion(nil, error)
-            }
-        {{/returnType}}
-        }
+    {{#if useReactiveAPI}}
+    public func {{operationId}}({{#contents}}{{#parameters}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/parameters}}{{/contents}}) -> Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+        return request(.{{httpMethod}}, url: absoluteURL("{{{path}}}"){{#hasHeaderParams}},
+            headers: [{{#headerParams}}{{> _param}}{{/headerParams}}]{{/hasHeaderParams}}{{#hasQueryParams}},
+            queryParams: [{{#queryParams}}{{> _param}}{{/queryParams}}]{{/hasQueryParams}}{{#bodyParams}},
+            body: {{paramName}}{{/bodyParams}})
     }
-
+    {{else}}open class func {{operationId}}({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}{{#has this 'params'}}, {{/has}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
+        {{operationId}}WithRequestBuilder({{#allParams}}{{paramName}}: {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}).execute { (response, error) -> Void in{{#returnType}}
+            completion(response?.body, error){{/returnType~}}{{^returnType}}
+            if error == nil {
+            completion((), error)
+            } else {
+            completion(nil, error)
+            }{{/returnType}}
+        }
+        }
+    {{/if}}
 {{#usePromiseKit}}
     /**
-     {{#summary}}
-     {{{summary}}}
-     {{/summary}}{{#parameters}}
-     - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     {{#summary}}{{{summary}}}
+     {{/summary}}{{#allParams}}
+     - parameter {{paramName}}: ({{#is this 'form-param'}}form{{/is}}{{#is this 'query-param'}}query{{/is}}{{#is this 'path-param'}}path{{/is}}{{#is this 'header-param'}}header{{/is}}{{#is this 'body-param'}}body{{/is}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/allParams}}
      - returns: Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>
      */
-    open class func {{operationId}}({{#parameters}} {{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) -> Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+    open class func {{operationId}}({{#allParams}} {{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}) -> Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
         let deferred = Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>.pending()
-        {{operationId}}({{#parameters}}{{paramName}}: {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) { data, error in
+        {{operationId}}({{#allParams}}{{paramName}}: {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}) { data, error in
             if let error = error {
                 deferred.reject(error)
             } else {
@@ -71,18 +70,16 @@ open class {{classname}} {
         }
         return deferred.promise
     }
-{{/usePromiseKit}}
-{{#useRxSwift}}
+{{/usePromiseKit}}{{#useRxSwift}}
     /**
-     {{#summary}}
-     {{{summary}}}
-     {{/summary}}{{#parameters}}
-     - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+     {{#summary}}{{{summary}}}
+     {{/summary}}{{#allParams}}
+     - parameter {{paramName}}: ({{#is this 'form-param'}}form{{/is}}{{#is this 'query-param'}}query{{/is}}{{#is this 'path-param'}}path{{/is}}{{#is this 'header-param'}}header{{/is}}{{#is this 'body-param'}}body{{/is}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/allParams}}
      - returns: Observable<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>
      */
-    open class func {{operationId}}({{#parameters}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) -> Observable<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+    open class func {{operationId}}({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}) -> Observable<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
         return Observable.create { observer -> Disposable in
-            {{operationId}}({{#parameters}}{{paramName}}: {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) { data, error in
+            {{operationId}}({{#allParams}}{{paramName}}: {{paramName}}{{#has this 'more'}}, {{/has}}{{/allParams}}) { data, error in
                 if let error = error {
                     observer.on(.error(error))
                 } else {
@@ -92,73 +89,61 @@ open class {{classname}} {
             }
             return Disposables.create()
         }
-    }
-{{/useRxSwift}}
+    }{{/useRxSwift}}
+{{^useReactiveAPI}}
+        /**
+    {{#summary}}{{{summary}}}{{/summary}}
+        - {{httpMethod}} {{{path}}}{{#notes}}
+            - {{{notes}}}{{/notes}}{{#subresourceOperation}}
+            - subresourceOperation: {{subresourceOperation}}{{/subresourceOperation}}{{#defaultResponse}}
+            - defaultResponse: {{defaultResponse}}{{/defaultResponse}}{{#authMethods}}
+            - {{#is this 'basic'}}BASIC{{/is}}{{#is this 'oauth'}}OAuth{{/is}}{{#is this 'api-key'}}API Key{{/is}}:
+            - type: {{type}}{{#keyParamName}} {{keyParamName}} {{#is ../../this 'key-in-query'}}(QUERY){{/is}}{{#is ../../this 'key-in-heaer'}}(HEADER){{/is}}{{/keyParamName}}
+            - name: {{name}}{{/authMethods}}{{#responseHeaders}}
+            - responseHeaders: {{responseHeaders}}{{/responseHeaders}}{{#examples}}
+            - examples: {{{examples}}}{{/examples}}{{#externalDocs}}
+            - externalDocs: {{externalDocs}}{{/externalDocs}}{{#has this 'params'}}
+    {{/has}}{{#allParams}}
+            - parameter {{paramName}}: ({{#is this 'form-param'}}form{{/is}}{{#is this 'qery-param'}}query{{/is}}{{#is this 'path-param'}}path{{/is}}{{#is this 'header-param'}}header{{/is}}{{#is this 'body-param'}}body{{/is}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/allParams}}
 
-    /**
-     {{#summary}}
-     {{{summary}}}
-     {{/summary}}
-     - {{httpMethod}} {{{path}}}{{#notes}}
-     - {{{notes}}}{{/notes}}{{#subresourceOperation}}
-     - subresourceOperation: {{subresourceOperation}}{{/subresourceOperation}}{{#defaultResponse}}
-     - defaultResponse: {{defaultResponse}}{{/defaultResponse}}{{#authMethods}}
-     - {{#isBasic}}BASIC{{/isBasic}}{{#isOAuth}}OAuth{{/isOAuth}}{{#isApiKey}}API Key{{/isApiKey}}:
-       - type: {{type}}{{#keyParamName}} {{keyParamName}} {{#isKeyInQuery}}(QUERY){{/isKeyInQuery}}{{#isKeyInHeaer}}(HEADER){{/isKeyInHeaer}}{{/keyParamName}}
-       - name: {{name}}{{/authMethods}}{{#responseHeaders}}
-     - responseHeaders: {{responseHeaders}}{{/responseHeaders}}{{#examples}}
-     - examples: {{{examples}}}{{/examples}}{{#externalDocs}}
-     - externalDocs: {{externalDocs}}{{/externalDocs}}{{#hasParams}}
-     {{/hasParams}}{{#parameters}}
-     - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
+        - returns: RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{description}}
+        */
+        open class func {{operationId}}WithRequestBuilder({{#allParams}}{{paramName}}: {{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}_{{operationId}}{{/isNot}}{{/is}}{{#isNot this 'enum'}}{{{dataType}}}{{/isNot}}{{^required}}? = nil{{/required}}{{#has this 'more'}}, {{/has}}{{/allParams}}) -> RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
+    {{^pathParams}}let{{/pathParams}}{{#pathParams}}{{^secondaryParam}}var{{/secondaryParam}}{{/pathParams}} path = "{{{path}}}"{{#pathParams}}
+            let {{paramName}}PreEscape = "\({{paramName}}{{#is this 'enum'}}{{#is this 'container'}}{{{dataType}}}{{/is}}{{#isNot this 'container'}}.rawValue{{/isNot}}{{/is}})"
+            let {{paramName}}PostEscape = {{paramName}}PreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+            path = path.replacingOccurrences(of: "{{=<% %>=}}{<%baseName%>}<%={{ }}=%>", with: {{paramName}}PostEscape, options: .literal, range: nil){{/pathParams}}
+        let URLString = {{projectName}}API.basePath + path{{#bodyParam}}
+            let parameters = JSONEncodingHelper.encodingParameters(forEncodableObject: {{paramName}})
+    {{/bodyParam~}}{{^bodyParam}}{{#formParams}}
+            let formParams: [String:Any?] = [
+        {{> _param}}{{#has this 'more'}},{{/has}}
+            ]
 
-     - returns: RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{description}}
-     */
-    open class func {{operationId}}WithRequestBuilder({{#parameters}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) -> RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {
-        {{^pathParams}}let{{/pathParams}}{{#pathParams}}{{^secondaryParam}}var{{/secondaryParam}}{{/pathParams}} path = "{{{path}}}"{{#pathParams}}
-        let {{paramName}}PreEscape = "\({{paramName}}{{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}.rawValue{{/isContainer}}{{/isEnum}})"
-        let {{paramName}}PostEscape = {{paramName}}PreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
-        path = path.replacingOccurrences(of: "{{braces "left"}}{{baseName}}{{braces "right"}}", with: {{paramName}}PostEscape, options: .literal, range: nil){{/pathParams}}
-        let URLString = {{projectName}}API.basePath + path
-        {{#bodyParam}}
-        let parameters = JSONEncodingHelper.encodingParameters(forEncodableObject: {{paramName}})
-        {{/bodyParam}}
-        {{^bodyParam}}
-            {{#hasFormParams}}
-        let formParams: [String:Any?] = [
-                {{#formParams}}
-            {{> _param}}{{#hasMore}},{{/hasMore}}
-                {{/formParams}}
-        ]
-
-        let nonNullParameters = APIHelper.rejectNil(formParams)
-        let parameters = APIHelper.convertBoolToString(nonNullParameters)
-            {{/hasFormParams}}
-            {{^hasFormParams}}
-        let parameters: [String:Any]? = nil
-            {{/hasFormParams}}
-        {{/bodyParam}}{{#hasQueryParams}}
-        var url = URLComponents(string: URLString)
-        url?.queryItems = APIHelper.mapValuesToQueryItems([
-            {{#queryParams}}
-            {{> _param}}{{#hasMore}}, {{/hasMore}}
-            {{/queryParams}}
-        ]){{/hasQueryParams}}{{^hasQueryParams}}
-        let url = URLComponents(string: URLString){{/hasQueryParams}}{{#headerParams}}{{^secondaryParam}}
-        let nillableHeaders: [String: Any?] = [{{/secondaryParam}}
-            {{> _param}}{{#hasMore}},{{/hasMore}}{{^hasMore}}
-        ]
-        let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders){{/hasMore}}{{/headerParams}}
+            let nonNullParameters = APIHelper.rejectNil(formParams)
+            let parameters = APIHelper.convertBoolToString(nonNullParameters)
+    {{/formParams}}{{^formParams}}
+            let parameters: [String:Any]? = nil
+    {{/formParams}}{{/bodyParam}}{{#queryParams}}
+            var url = URLComponents(string: URLString)
+            url?.queryItems = APIHelper.mapValuesToQueryItems([
+        {{> _param}}{{#has this 'more'}}, {{/has}}
+            ]){{/queryParams}}{{^queryParams}}
+            let url = URLComponents(string: URLString){{/queryParams}}{{#headerParams}}{{^secondaryParam}}
+            let nillableHeaders: [String: Any?] = [{{/secondaryParam}}
+    {{> _param}}{{#has this 'more'}},{{/has}}{{#hasNot this 'more'}}
+            ]
+            let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders){{/hasNot}}{{/headerParams}}
 
         let requestBuilder: RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>.Type = {{projectName}}API.requestBuilderFactory.{{#returnType}}getBuilder(){{/returnType}}{{^returnType}}getNonDecodableBuilder(){{/returnType}}
 
-        return requestBuilder.init(method: "{{httpMethod}}", URLString: (url?.string ?? URLString), parameters: parameters, isBody: {{hasBodyParam}}{{#headerParams}}{{^secondaryParam}}, headers: headerParameters{{/secondaryParam}}{{/headerParams}})
-    }
+        return requestBuilder.init(method: "{{httpMethod}}", URLString: (url?.string ?? URLString), parameters: parameters, isBody: {{has this 'body-param'}}{{#headerParams}}{{^secondaryParam}}, headers: headerParameters{{/secondaryParam}}{{/headerParams}})
+        }
+{{/useReactiveAPI}}
 
-{{/contents}}
-{{/operation}}
+{{/operation~}}
 }
 {{#swiftUseApiNamespace}}
 }
-{{/swiftUseApiNamespace}}
-{{/operations}}
+{{/swiftUseApiNamespace~}}
+{{/operations~}}

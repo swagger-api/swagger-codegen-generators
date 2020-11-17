@@ -51,10 +51,11 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public static final String SWIFT_USE_API_NAMESPACE = "swiftUseApiNamespace";
     public static final String DEFAULT_POD_AUTHORS = "Swagger Codegen";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
+    public static final String LIBRARY_REACTIVE_API = "ReactiveAPI";
 
     private static final String LIBRARY_PROMISE_KIT = "PromiseKit";
     private static final String LIBRARY_RX_SWIFT = "RxSwift";
-    protected static final String[] RESPONSE_LIBRARIES = {LIBRARY_PROMISE_KIT, LIBRARY_RX_SWIFT};
+    protected static final String[] RESPONSE_LIBRARIES = {LIBRARY_PROMISE_KIT, LIBRARY_RX_SWIFT, LIBRARY_REACTIVE_API};
     private String projectName = "SwaggerClient";
     private boolean unwrapRequired;
     private boolean objcCompatible = false;
@@ -97,6 +98,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
                 Arrays.asList(
                         "Data",
                         "Date",
+                        "YearMonthDay",
                         "URL", // for file
                         "UUID",
                         "Array",
@@ -181,6 +183,9 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         if (ArrayUtils.contains(responseAs, LIBRARY_RX_SWIFT)) {
             additionalProperties.put("useRxSwift", true);
         }
+        if (ArrayUtils.contains(responseAs, LIBRARY_REACTIVE_API)) {
+            additionalProperties.put("useReactiveAPI", true);
+        }
 
         // Setup swiftUseApiNamespace option, which makes all the API
         // classes inner-class of {{projectName}}API
@@ -194,36 +199,38 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
         setLenientTypeCast(convertPropertyToBooleanAndWriteBack(LENIENT_TYPE_CAST));
 
-        supportingFiles.add(new SupportingFile("Podspec.mustache",
-                "",
-                projectName + ".podspec"));
-        supportingFiles.add(new SupportingFile("Cartfile.mustache",
-                "",
-                "Cartfile"));
-        supportingFiles.add(new SupportingFile("APIHelper.mustache",
-                sourceFolder,
-                "APIHelper.swift"));
-        supportingFiles.add(new SupportingFile("AlamofireImplementations.mustache",
-                sourceFolder,
-                "AlamofireImplementations.swift"));
-        supportingFiles.add(new SupportingFile("Configuration.mustache",
-                sourceFolder,
-                "Configuration.swift"));
-        supportingFiles.add(new SupportingFile("Extensions.mustache",
-                sourceFolder,
-                "Extensions.swift"));
-        supportingFiles.add(new SupportingFile("Models.mustache",
-                sourceFolder,
-                "Models.swift"));
-        supportingFiles.add(new SupportingFile("APIs.mustache",
-                sourceFolder,
-                "APIs.swift"));
-        supportingFiles.add(new SupportingFile("git_push.sh.mustache",
-                "",
-                "git_push.sh"));
-        supportingFiles.add(new SupportingFile("gitignore.mustache",
-                "",
-                ".gitignore"));
+        if (!ArrayUtils.contains(responseAs, LIBRARY_REACTIVE_API)) {
+            supportingFiles.add(new SupportingFile("Podspec.mustache",
+                    "",
+                    projectName + ".podspec"));
+            supportingFiles.add(new SupportingFile("Cartfile.mustache",
+                    "",
+                    "Cartfile"));
+            supportingFiles.add(new SupportingFile("APIHelper.mustache",
+                    sourceFolder,
+                    "APIHelper.swift"));
+            supportingFiles.add(new SupportingFile("AlamofireImplementations.mustache",
+                    sourceFolder,
+                    "AlamofireImplementations.swift"));
+            supportingFiles.add(new SupportingFile("Configuration.mustache",
+                    sourceFolder,
+                    "Configuration.swift"));
+            supportingFiles.add(new SupportingFile("Extensions.mustache",
+                    sourceFolder,
+                    "Extensions.swift"));
+            supportingFiles.add(new SupportingFile("Models.mustache",
+                    sourceFolder,
+                    "Models.swift"));
+            supportingFiles.add(new SupportingFile("APIs.mustache",
+                    sourceFolder,
+                    "APIs.swift"));
+            supportingFiles.add(new SupportingFile("git_push.sh.mustache",
+                    "",
+                    "git_push.sh"));
+            supportingFiles.add(new SupportingFile("gitignore.mustache",
+                    "",
+                    ".gitignore"));
+        }
     }
 
     @Override
@@ -379,7 +386,16 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         if (name.length() == 0) {
             return "DefaultAPI";
         }
-        return initialCaps(name) + "API";
+
+        if (!StringUtils.isEmpty(modelNameSuffix)) { // set api suffix
+            name = name + "_" + modelNameSuffix;
+        }
+
+        if (!StringUtils.isEmpty(modelNamePrefix)) { // set api prefix
+            name = modelNamePrefix + "_" + name;
+        }
+
+        return camelize(name) + "API";
     }
 
     @Override

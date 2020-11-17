@@ -1,4 +1,7 @@
-public enum {{classname}}: {{dataType}}, Codable {
+public enum {{classname}}: {{dataType}}, Codable, Hashable, CaseIterable, CustomStringConvertible {
 {{#allowableValues}}{{#enumVars}}    case {{name}} = "{{{value}}}"
 {{/enumVars}}{{/allowableValues}}
+    public var description: String {
+        return rawValue
+    }
 }

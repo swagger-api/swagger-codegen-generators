@@ -169,16 +169,16 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         typeMapping.put("float", "kotlin.Float");
         typeMapping.put("long", "kotlin.Long");
         typeMapping.put("double", "kotlin.Double");
-        typeMapping.put("number", "java.math.BigDecimal");
+        typeMapping.put("number", "Long");
         typeMapping.put("date-time", "java.time.LocalDateTime");
-        typeMapping.put("date", "java.time.LocalDate");
+        typeMapping.put("date", "java.time.LocalDateTime");
         typeMapping.put("file", "java.io.File");
         typeMapping.put("array", "kotlin.Array");
         typeMapping.put("list", "kotlin.Array");
         typeMapping.put("map", "kotlin.collections.Map");
         typeMapping.put("object", "kotlin.Any");
-        typeMapping.put("binary", "kotlin.Array<kotlin.Byte>");
-        typeMapping.put("Date", "java.time.LocalDate");
+        typeMapping.put("binary", "kotlin.ByteArray");
+        typeMapping.put("Date", "java.time.LocalDateTime");
         typeMapping.put("DateTime", "java.time.LocalDateTime");
 
         instantiationTypes.put("array", "arrayOf");
@@ -186,7 +186,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         instantiationTypes.put("map", "mapOf");
 
         importMapping = new HashMap<>();
-        importMapping.put("BigDecimal", "java.math.BigDecimal");
+        importMapping.put("BigDecimal", "Long");
         importMapping.put("UUID", "java.util.UUID");
         importMapping.put("File", "java.io.File");
         importMapping.put("Date", "java.util.Date");
@@ -249,7 +249,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String escapeReservedWord(String name) {
         // TODO: Allow enum escaping as an option (e.g. backticks vs append/prepend underscore vs match model property escaping).
-        return String.format("`%s`", name);
+        return String.format("_%s", name);
     }
 
     @Override
@@ -460,7 +460,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 break;
         }
 
-        if (isReservedWord(modified)) {
+        if (reservedWords.contains(modified) || Character.isDigit(modified.charAt(0))) {
             return escapeReservedWord(modified);
         }
 
@@ -531,15 +531,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         }
 
         String modifiedName = name.replaceAll("\\.", "");
-        modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
-        modifiedName = titleCase(modifiedName);
-
-        if (modifiedName.equalsIgnoreCase("Companion")) {
-            modifiedName = "_" + modifiedName;
+        if (isReservedWord(modifiedName)) {
+            modifiedName = escapeReservedWord(modifiedName);
         }
 
-        return modifiedName;
+        modifiedName = sanitizeKotlinSpecificNames(modifiedName);
+
+        return titleCase(modifiedName);
     }
 
     @Override

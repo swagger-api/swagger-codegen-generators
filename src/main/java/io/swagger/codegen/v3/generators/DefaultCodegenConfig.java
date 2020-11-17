@@ -1983,6 +1983,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
+     * Transform path to perform path substitutions.
+     * @param path path of the Swagger API
+     * @return it simply returns the passed path
+     */
+    public String transformPath(String path) {
+        return path;
+    }
+
+    /**
      * Convert Swagger Operation object to Codegen Operation object
      *
      * @param path the path of the operation
@@ -2008,7 +2017,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
         operationId = removeNonNameElementToCamelCase(operationId);
-        codegenOperation.path = path;
+        codegenOperation.path = transformPath(path);
         codegenOperation.operationId = toOperationId(operationId);
         codegenOperation.summary = escapeText(operation.getSummary());
         codegenOperation.unescapedNotes = operation.getDescription();
@@ -2245,7 +2254,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         codegenOperation.bodyParam = bodyParam;
-        codegenOperation.httpMethod = httpMethod.toUpperCase();
+        codegenOperation.httpMethod = transformHttpMethod(httpMethod);
 
         // move "required" parameters in front of "optional" parameters
         if (sortParamsByRequiredFlag) {
@@ -2294,6 +2303,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         configureDataForTestTemplate(codegenOperation);
 
         return codegenOperation;
+    }
+
+    /**
+     * Performs operations on the HTTP method
+     * @param httpMethod Swagger API HTTP Method
+     * @return if returns the HTTP method uppercased
+     */
+    public String transformHttpMethod(String httpMethod) {
+        return httpMethod.toUpperCase();
     }
 
     /**
@@ -3331,6 +3349,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return camelized string
      */
     public static String camelize(String word, boolean lowercaseFirstLetter) {
+
+        if (word.isEmpty()) {
+            return word;
+        }
+
         // Replace all slashes with dots (package separator)
         String originalWord = word;
         LOGGER.trace("camelize start - " + originalWord);
@@ -3414,7 +3437,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         if (lowercaseFirstLetter && word.length() > 0) {
             word = word.substring(0, 1).toLowerCase() + word.substring(1);
         }
-        LOGGER.trace("camelize end - {} (new: {})", originalWord, word);
+
+        // fix removing underscores. Names beginning with a number should have an underscore as first character
+        if (Character.isDigit(word.charAt(0))) {
+            word = "_" + word;
+        }
+
         return word;
     }
 

@@ -1,27 +1,27 @@
 /**
- * {{{description}}}
+* {{{description}}}
 {{#vars}}
- * @param {{name}} {{{description}}}
+    * @param {{name}} {{{description}}}
 {{/vars}}
- */
+*/
+@JsonClass(generateAdapter = true)
 data class {{classname}} (
-{{#requiredVars}}
-{{>data_class_req_var}}{{^@last}},{{/@last}}
-{{/requiredVars}}
-{{#has this 'required'}}{{#has this 'optional'}},{{/has}}{{/has}}
-{{#optionalVars}}
-{{>data_class_opt_var}}{{^@last}},{{/@last}}
-{{/optionalVars}}
-) {
+{{#allVars}}
+{{>data_class_val}}{{^@last}},
+{{/@last}}
+{{/allVars}}
+)
+
+
 {{#has this 'enums'}}{{#vars}}{{#is this 'enum'}}
-    /**
-    * {{{description}}}
-    * Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
-    */
-    enum class {{nameInCamelCase}}(val value: {{datatype}}){
-    {{#allowableValues}}{{#enumVars}}
-        {{&name}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
-    {{/enumVars}}{{/allowableValues}}
-    }
-{{/is}}{{/vars}}{{/has}}
+/**
+* {{{description}}}
+* Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
+*/
+enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
+{{#allowableValues}}{{#enumVars}}
+    @Json(name = {{{value}}})
+    {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+{{/enumVars}}{{/allowableValues}}
 }
+{{/is}}{{/vars}}{{/has}}
