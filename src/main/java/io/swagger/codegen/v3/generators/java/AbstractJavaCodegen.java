@@ -1280,7 +1280,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (value == null) {
             return null;
         }
-        System.out.println("|||||||||||||||||||||||||||| datatype: " + datatype);
         if ("Integer".equals(datatype) || "Double".equals(datatype) || "Boolean".equals(datatype)) {
             return value;
         } else if ("Long".equals(datatype)) {
