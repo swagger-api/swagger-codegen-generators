@@ -53,7 +53,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
-        {{#useOas2}}
+        
         <!--SpringFox dependencies -->
         {{#useOas2}}
         <dependency>
@@ -63,24 +63,35 @@
         </dependency>
         {{/useOas2}}
         {{^useOas2}}
+        {{#springBootV2}}
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-oas</artifactId>
             <version>${springfox-version}</version>
         </dependency>
-        {{/useOas2}}
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox-version}</version>
-        </dependency>{{/useOas2}}
+        </dependency>
+        {{/springBootV2}}
+        {{/useOas2}}
+        {{#useOas2}}
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox-version}</version>
+        </dependency>
+        {{/useOas2}}
         {{^useOas2}}
+        {{^springBootV2}}
         <!-- SpringDoc dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc-version}</version>
         </dependency>
+        {{/springBootV2}}
         {{/useOas2}}
 
         {{#withXml}}
