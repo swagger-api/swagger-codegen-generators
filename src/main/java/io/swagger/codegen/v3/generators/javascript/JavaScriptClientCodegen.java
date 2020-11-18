@@ -1064,7 +1064,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumValue(String value, String datatype) {
-        if ("Integer".equals(datatype) || "Number".equals(datatype)) {
+        if ("Integer".equals(datatype) || "Number".equals(datatype) || "Boolean".equals(datatype)) {
             return value;
         } else {
             return "\"" + escapeText(value) + "\"";

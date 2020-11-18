@@ -362,6 +362,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
+    public boolean isPrimivite(String datatype) {
+        return "number".equalsIgnoreCase(datatype)
+            || "integer".equalsIgnoreCase(datatype)
+            || "boolean".equalsIgnoreCase(datatype);
+    }
+
     /**
      * update codegen property enum with proper naming convention
      * and handling of numbers, special characters
@@ -1465,6 +1471,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 // comment out below as allowableValues is not set in post processing model enum
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
+                if (codegenModel.dataType.equals("BigDecimal")) {
+                    addImport(codegenModel, "BigDecimal");
+                }
             }
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
@@ -1474,6 +1483,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 postProcessModelProperty(codegenModel, prop);
             }
         }
+
         return codegenModel;
     }
 
