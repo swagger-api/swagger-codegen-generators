@@ -1484,14 +1484,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
 
-        System.out.println(codegenModel.name);
-        System.out.println(codegenModel.dataType);
-        System.out.println(codegenModel.getIsInteger());
-        System.out.println(codegenModel.getIsNumber());
-        System.out.println(codegenModel.getIsBoolean());
-        System.out.println("--------");
-
-
         return codegenModel;
     }
 
