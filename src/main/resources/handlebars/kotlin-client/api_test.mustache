@@ -43,7 +43,7 @@ class {{classname}}URLs(private val urlBuilder: URLBuilder) {
         .withMatcher(
             RequestMatchers.pathEndsWith(
                 urlBuilder.buildUrl(
-                    "{{path}}"{{#hasQueryParams}},{{/hasQueryParams}}
+                    "{{{pathToKotlinStringTemplate path}}}"{{#hasQueryParams}},{{/hasQueryParams}}
                     {{#queryParams}}
                     QueryParameter("{{paramName}}", {{paramName}}){{#hasMore}},{{/hasMore}}
                     {{/queryParams}}

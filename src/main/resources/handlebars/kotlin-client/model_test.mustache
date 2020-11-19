@@ -15,8 +15,8 @@ import it.sky.mocker.annotations.GenerateMocker
 typealias {{classname}} = {{dataType}}
 {{/is}}
 {{#isNot this 'alias'}}
-{{#is this 'enum'}}{{>enum_class_with_mock}}{{/is}}
-{{#isNot this 'enum'}}{{>data_class_with_mock}}{{/isNot}}
+{{#is this 'enum'}}{{>enum_class_test}}{{/is}}
+{{#isNot this 'enum'}}{{>data_class_test}}{{/isNot}}
 {{/isNot}}
 {{/model}}
 {{/models}}

@@ -16,13 +16,11 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String USE_RX_RETROFIT_2 = "useRxRetrofit2";
-    public static final String GENERATE_TEST_FRAMEWORK = "generateTestFramework";
 
     private static Logger LOGGER = LoggerFactory.getLogger(KotlinClientCodegen.class);
 
     protected String dateLibrary = DateLibrary.JAVA8.value;
     protected boolean useRxRetrofit2 = false;
-    protected boolean generateTestFramework = false;
 
     public enum DateLibrary {
         STRING("string"),
@@ -55,7 +53,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         dateLibrary.setEnum(dateOptions);
         cliOptions.add(dateLibrary);
         cliOptions.add(new CliOption(USE_RX_RETROFIT_2, "Use RxJava 2 with Retrofit 2"));
-        cliOptions.add(new CliOption(GENERATE_TEST_FRAMEWORK, "Generate test framework"));
     }
 
     @Override
@@ -89,10 +86,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         this.useRxRetrofit2 = useRxRetrofit2;
     }
 
-    public void setGenerateTestFramework(boolean generateTestFramework) {
-        this.generateTestFramework = generateTestFramework;
-    }
-
     @Override
     public void processOpts() {
         super.processOpts();
@@ -122,84 +115,55 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         }
         additionalProperties.put(USE_RX_RETROFIT_2, useRxRetrofit2);
 
-        if (additionalProperties.containsKey(GENERATE_TEST_FRAMEWORK)) {
-            setGenerateTestFramework(convertPropertyToBoolean(GENERATE_TEST_FRAMEWORK));
-        }
-        additionalProperties.put(GENERATE_TEST_FRAMEWORK, generateTestFramework);
-
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
         supportingFiles.add(new SupportingFile("build.gradle.mustache", "", "build.gradle"));
         supportingFiles.add(new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
 
-        addSupportingFiles(useRxRetrofit2, generateTestFramework);
-        addTemplateFiles(generateTestFramework);
+        addSupportingFiles(useRxRetrofit2);
+        addTemplateFiles();
     }
 
-    private void addSupportingFiles(boolean useRxRetrofit2, boolean generateTestFramework) {
+    private void addSupportingFiles(boolean useRxRetrofit2) {
         if (useRxRetrofit2) {
             final String apiInfrastructureFolder = (sourceFolder + File.separator + apiPackage + File.separator + "infrastructure").replace(".", File.separator);
             supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", apiInfrastructureFolder, "Parameters.kt"));
-            return;
+        } else {
+            final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
+
+            supportingFiles.add(new SupportingFile("infrastructure/ApiClient.kt.mustache", infrastructureFolder, "ApiClient.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/ApiAbstractions.kt.mustache", infrastructureFolder, "ApiAbstractions.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/ApiInfrastructureResponse.kt.mustache", infrastructureFolder, "ApiInfrastructureResponse.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/ApplicationDelegates.kt.mustache", infrastructureFolder, "ApplicationDelegates.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/RequestConfig.kt.mustache", infrastructureFolder, "RequestConfig.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/RequestMethod.kt.mustache", infrastructureFolder, "RequestMethod.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/ResponseExtensions.kt.mustache", infrastructureFolder, "ResponseExtensions.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/Serializer.kt.mustache", infrastructureFolder, "Serializer.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/Errors.kt.mustache", infrastructureFolder, "Errors.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/LocalDateAdapter.kt.mustache", infrastructureFolder, "LocalDateAdapter.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/LocalDateTimeAdapter.kt.mustache", infrastructureFolder, "LocalDateTimeAdapter.kt"));
         }
-
-        if(generateTestFramework) {
-            return;
-        }
-
-        final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
-
-        supportingFiles.add(new SupportingFile("infrastructure/ApiClient.kt.mustache", infrastructureFolder, "ApiClient.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/ApiAbstractions.kt.mustache", infrastructureFolder, "ApiAbstractions.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/ApiInfrastructureResponse.kt.mustache", infrastructureFolder, "ApiInfrastructureResponse.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/ApplicationDelegates.kt.mustache", infrastructureFolder, "ApplicationDelegates.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/RequestConfig.kt.mustache", infrastructureFolder, "RequestConfig.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/RequestMethod.kt.mustache", infrastructureFolder, "RequestMethod.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/ResponseExtensions.kt.mustache", infrastructureFolder, "ResponseExtensions.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/Serializer.kt.mustache", infrastructureFolder, "Serializer.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/Errors.kt.mustache", infrastructureFolder, "Errors.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/LocalDateAdapter.kt.mustache", infrastructureFolder, "LocalDateAdapter.kt"));
-        supportingFiles.add(new SupportingFile("infrastructure/LocalDateTimeAdapter.kt.mustache", infrastructureFolder, "LocalDateTimeAdapter.kt"));
     }
 
-    private void addTemplateFiles(boolean generateTestFramework) {
-        if(generateTestFramework) {
-            modelTemplateFiles.put("testframework/model.mustache", ".kt");
-            apiTemplateFiles.put("testframework/api.mustache", ".kt");
-        } else {
-            modelTemplateFiles.put("model.mustache", ".kt");
-            apiTemplateFiles.put("api.mustache", ".kt");
-        }
+    private void addTemplateFiles() {
+        modelTemplateFiles.put("model.mustache", ".kt");
+        apiTemplateFiles.put("api.mustache", ".kt");
+        modelTestTemplateFiles.put("model_test.mustache", ".kt");
+        apiTestTemplateFiles.put("api_test.mustache", ".kt");
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
         apiDocTemplateFiles.put("api_doc.mustache", ".md");
     }
 
     @Override
-    public String transformPath(String path) {
-        // Retrofit needs path to not start with / to be able to use relative paths
-        if (useRxRetrofit2 && path.startsWith("/")) {
-            return path.substring(1);
-        }
-
-        if(generateTestFramework) {
-            String kotlinStringTemplatePath = path.replace("{", "$").replace("}", "");
-            if(path.startsWith("/")) {
-                return kotlinStringTemplatePath.substring(1);
-            } else {
-                return kotlinStringTemplatePath;
-            }
-        }
-
-        return super.transformPath(path);
+    public String toApiTestFilename(String name) {
+        String apiTestFileName = super.toApiFilename(name);
+        apiTestFileName += "URLs";
+        return apiTestFileName;
     }
 
     @Override
-    public String toApiFilename(String name) {
-        String apiFileName = super.toApiFilename(name);
-        if(generateTestFramework) {
-            apiFileName += "URLs";
-        }
-        return apiFileName;
+    public String toModelTestFilename(String name) {
+        return toModelFilename(name);
     }
 
 }

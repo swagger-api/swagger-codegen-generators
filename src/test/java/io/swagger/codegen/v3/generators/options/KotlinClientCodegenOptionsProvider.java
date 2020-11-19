@@ -34,7 +34,6 @@ public class KotlinClientCodegenOptionsProvider implements OptionsProvider {
                 .put(CodegenConstants.ENUM_PROPERTY_NAMING, ENUM_PROPERTY_NAMING)
                 .put(KotlinClientCodegen.DATE_LIBRARY, DATE_LIBRARY)
                 .put(KotlinClientCodegen.USE_RX_RETROFIT_2, String.valueOf(RX_RETROFIT_2))
-                .put(KotlinClientCodegen.GENERATE_TEST_FRAMEWORK, String.valueOf(GENERATE_TEST_FRAMEWORK))
                 .build();
     }
 
