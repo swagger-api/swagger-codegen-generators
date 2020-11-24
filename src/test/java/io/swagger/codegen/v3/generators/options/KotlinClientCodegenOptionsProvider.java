@@ -15,7 +15,6 @@ public class KotlinClientCodegenOptionsProvider implements OptionsProvider {
     public static final String ENUM_PROPERTY_NAMING = "camelCase";
     public static final String DATE_LIBRARY = KotlinClientCodegen.DateLibrary.JAVA8.value;
     public static final boolean RX_RETROFIT_2 = false;
-    public static final boolean GENERATE_TEST_FRAMEWORK = false;
 
     @Override
     public String getLanguage() {
