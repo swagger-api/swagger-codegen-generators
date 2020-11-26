@@ -1,0 +1,22 @@
+{{>licenseInfo}}
+package {{modelPackage}}
+
+{{#threetenbp}}
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.LocalDate
+{{/threetenbp}}
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+import it.sky.mocker.annotations.GenerateMocker
+
+{{#models}}
+{{#model}}
+{{#is this 'alias'}}
+typealias {{classname}} = {{dataType}}
+{{/is}}
+{{#isNot this 'alias'}}
+{{#is this 'enum'}}{{>enum_class_test}}{{/is}}
+{{#isNot this 'enum'}}{{>data_class_test}}{{/isNot}}
+{{/isNot}}
+{{/model}}
+{{/models}}

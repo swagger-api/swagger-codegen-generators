@@ -1,0 +1,19 @@
+import Foundation
+import {{packageName}}
+
+{{#models}}{{#model}}
+public extension {{classname}} {
+{{#isEnum}}
+    static func mock() -> {{classname}}
+        {{classname}}.allCases.randomElement()!
+    }
+{{/isEnum}}
+{{^isEnum}}
+    static func mock({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}? = nil{{/required}}{{#required}} = {{{datatypeWithEnum}}}.mock(){{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) -> {{classname}} {
+        {{classname}}({{#allVars}}{{name}}: {{name}}{{#has this 'more'}}, {{/has}}{{/allVars}})
+    }
+{{/isEnum}}
+}
+
+{{/model}}{{/models}}
+

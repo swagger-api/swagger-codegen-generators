@@ -12,8 +12,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class KotlinClientCodegen extends AbstractKotlinCodegen {
 
     public static final String DATE_LIBRARY = "dateLibrary";
@@ -46,12 +44,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         packageName = "io.swagger.client";
 
         outputFolder = "generated-code" + File.separator + "kotlin-client";
-        modelTemplateFiles.put("model.mustache", ".kt");
-        apiTemplateFiles.put("api.mustache", ".kt");
-        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-        apiDocTemplateFiles.put("api_doc.mustache", ".md");
-        apiPackage = packageName + ".apis";
-        modelPackage = packageName + ".models";
 
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<>();
@@ -97,7 +89,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
-
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             setDateLibrary(additionalProperties.get(DATE_LIBRARY).toString());
         }
@@ -129,12 +120,17 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
         supportingFiles.add(new SupportingFile("build.gradle.mustache", "", "build.gradle"));
         supportingFiles.add(new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
 
-        final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
+        addSupportingFiles(useRxRetrofit2);
+        addTemplateFiles();
+    }
 
+    private void addSupportingFiles(boolean useRxRetrofit2) {
         if (useRxRetrofit2) {
             final String apiInfrastructureFolder = (sourceFolder + File.separator + apiPackage + File.separator + "infrastructure").replace(".", File.separator);
             supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", apiInfrastructureFolder, "Parameters.kt"));
         } else {
+            final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
+
             supportingFiles.add(new SupportingFile("infrastructure/ApiClient.kt.mustache", infrastructureFolder, "ApiClient.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/ApiAbstractions.kt.mustache", infrastructureFolder, "ApiAbstractions.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/ApiInfrastructureResponse.kt.mustache", infrastructureFolder, "ApiInfrastructureResponse.kt"));
@@ -147,18 +143,27 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
             supportingFiles.add(new SupportingFile("infrastructure/LocalDateAdapter.kt.mustache", infrastructureFolder, "LocalDateAdapter.kt"));
             supportingFiles.add(new SupportingFile("infrastructure/LocalDateTimeAdapter.kt.mustache", infrastructureFolder, "LocalDateTimeAdapter.kt"));
         }
+    }
 
+    private void addTemplateFiles() {
+        modelTemplateFiles.put("model.mustache", ".kt");
+        apiTemplateFiles.put("api.mustache", ".kt");
+        modelTestTemplateFiles.put("model_test.mustache", ".kt");
+        apiTestTemplateFiles.put("api_test.mustache", ".kt");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
     }
 
     @Override
-    public String transformPath(String path) {
-        // Retrofit needs path to not start with / to be able to use relative paths
-        if (useRxRetrofit2 && path.startsWith("/")) {
-            return path.substring(1);
-        }
+    public String toApiTestFilename(String name) {
+        String apiTestFileName = super.toApiFilename(name);
+        apiTestFileName += "URLs";
+        return apiTestFileName;
+    }
 
-
-        return super.transformPath(path);
+    @Override
+    public String toModelTestFilename(String name) {
+        return toModelFilename(name);
     }
 
 }

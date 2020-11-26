@@ -36,6 +36,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     public static final String PROJECT_NAME = "projectName";
     public static final String RESPONSE_AS = "responseAs";
+    public static final String PACKAGE_NAME = "packageName";
+
     public static final String UNWRAP_REQUIRED = "unwrapRequired";
     public static final String OBJC_COMPATIBLE = "objcCompatible";
     public static final String POD_SOURCE = "podSource";
@@ -62,7 +64,9 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     private boolean lenientTypeCast = false;
     private boolean swiftUseApiNamespace;
     private String[] responseAs = new String[0];
+    private String packageName = new String();
     protected String sourceFolder = "Classes" + File.separator + "Swaggers";
+    protected String sourceTestFolder = "Classes" + File.separator + "Tests";
 
 
     // new attributes
@@ -76,6 +80,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         apiTemplateFiles.put("api.mustache", ".swift");
         apiPackage = File.separator + "APIs";
         modelPackage = File.separator + "Models";
+        modelTestTemplateFiles.put("model_test.mustache", ".swift");
+        apiTestTemplateFiles.put("api_test.mustache", ".swift");
 
         // default HIDE_GENERATION_TIMESTAMP to true
         hideGenerationTimestamp = Boolean.TRUE;
@@ -152,6 +158,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
             additionalProperties.put(PROJECT_NAME, projectName);
         }
         sourceFolder = projectName + File.separator + sourceFolder;
+        sourceTestFolder = projectName + File.separator + sourceTestFolder;
 
         // Setup unwrapRequired option, which makes all the
         // properties with "required" non-optional
@@ -177,6 +184,13 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
             }
         }
         additionalProperties.put(RESPONSE_AS, responseAs);
+
+        // Package name
+        if (additionalProperties.containsKey(PACKAGE_NAME)) {
+            setPackageName((String) additionalProperties.get(PACKAGE_NAME));
+        } else {
+            additionalProperties.put(PACKAGE_NAME, packageName);
+        }
         if (ArrayUtils.contains(responseAs, LIBRARY_PROMISE_KIT)) {
             additionalProperties.put("usePromiseKit", true);
         }
@@ -256,6 +270,16 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public String apiFileFolder() {
         return outputFolder + File.separator + sourceFolder
                 + apiPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
+    public String apiTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + apiPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
+    public String modelTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
 
     @Override
@@ -517,6 +541,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     public void setResponseAs(String[] responseAs) {
         this.responseAs = responseAs;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
     public void setSwiftUseApiNamespace(boolean swiftUseApiNamespace) {

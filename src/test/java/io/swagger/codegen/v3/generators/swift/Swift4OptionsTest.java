@@ -6,6 +6,8 @@ import io.swagger.codegen.v3.generators.options.Swift4OptionsProvider;
 import mockit.Expectations;
 import mockit.Tested;
 
+import java.nio.channels.spi.SelectorProvider;
+
 public class Swift4OptionsTest extends AbstractOptionsTest {
 
     @Tested
@@ -36,6 +38,9 @@ public class Swift4OptionsTest extends AbstractOptionsTest {
             times = 1;
             clientCodegen.setLenientTypeCast(Boolean.valueOf(Swift4OptionsProvider.LENIENT_TYPE_CAST_VALUE));
             times = 1;
+            clientCodegen.setPackageName(Swift4OptionsProvider.PACKAGE_NAME_VALUE);
+            times = 1;
+
         }};
     }
 }

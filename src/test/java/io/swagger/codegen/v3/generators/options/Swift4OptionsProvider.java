@@ -11,6 +11,7 @@ public class Swift4OptionsProvider implements OptionsProvider {
     public static final String ENSURE_UNIQUE_PARAMS_VALUE = "true";
     public static final String PROJECT_NAME_VALUE = "Swagger";
     public static final String RESPONSE_AS_VALUE = "test";
+    public static final String PACKAGE_NAME_VALUE = "___";
     public static final String UNWRAP_REQUIRED_VALUE = "true";
     public static final String OBJC_COMPATIBLE_VALUE = "false";
     public static final String LENIENT_TYPE_CAST_VALUE = "false";
@@ -41,6 +42,7 @@ public class Swift4OptionsProvider implements OptionsProvider {
                 .put(CodegenConstants.ENSURE_UNIQUE_PARAMS, ENSURE_UNIQUE_PARAMS_VALUE)
                 .put(Swift4Codegen.PROJECT_NAME, PROJECT_NAME_VALUE)
                 .put(Swift4Codegen.RESPONSE_AS, RESPONSE_AS_VALUE)
+                .put(Swift4Codegen.PACKAGE_NAME, PACKAGE_NAME_VALUE)
                 .put(Swift4Codegen.UNWRAP_REQUIRED, UNWRAP_REQUIRED_VALUE)
                 .put(Swift4Codegen.OBJC_COMPATIBLE, OBJC_COMPATIBLE_VALUE)
                 .put(Swift4Codegen.LENIENT_TYPE_CAST, LENIENT_TYPE_CAST_VALUE)

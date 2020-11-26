@@ -102,6 +102,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
                 "Optionally use libraries to manage response.  Currently "
                         + StringUtils.join(RESPONSE_LIBRARIES, ", ")
                         + " are available."));
+        cliOptions.add(new CliOption(PACKAGE_NAME, "Package/Framework name (to be used in import ...)"));
         cliOptions.add(new CliOption(UNWRAP_REQUIRED,
                 "Treat 'required' properties in response as non-optional "
                         + "(which would crash the app if api returns null as opposed "

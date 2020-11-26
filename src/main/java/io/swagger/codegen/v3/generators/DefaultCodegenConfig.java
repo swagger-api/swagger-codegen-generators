@@ -26,6 +26,8 @@ import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsHelper;
 import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
 import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
+import io.swagger.codegen.v3.generators.handlebars.PathToKotlinStringTemplateHelper;
+import io.swagger.codegen.v3.generators.handlebars.RemoveLeadingSlashHelper;
 import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
@@ -3703,6 +3705,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         handlebars.registerHelper(BracesHelper.NAME, new BracesHelper());
         handlebars.registerHelper(BaseItemsHelper.NAME, new BaseItemsHelper());
         handlebars.registerHelper(NotEmptyHelper.NAME, new NotEmptyHelper());
+        RemoveLeadingSlashHelper removeLeadingSlashHelper = new RemoveLeadingSlashHelper();
+        handlebars.registerHelper(RemoveLeadingSlashHelper.NAME, removeLeadingSlashHelper);
+        handlebars.registerHelper(PathToKotlinStringTemplateHelper.NAME, new PathToKotlinStringTemplateHelper(removeLeadingSlashHelper));
         handlebars.registerHelpers(new StringUtilHelper());
     }
 

@@ -29,6 +29,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     protected String packageName;
 
     protected String sourceFolder = "src/main/kotlin";
+    protected String sourceTestFolder = "src/test/kotlin";
 
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
@@ -241,6 +242,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String apiTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + apiPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
         return input.replace("\"", "");
@@ -340,6 +346,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String modelFileFolder() {
         return outputFolder + File.separator + sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
+    public String modelTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
 
     @Override
