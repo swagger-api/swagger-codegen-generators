@@ -127,7 +127,9 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     private void addSupportingFiles(boolean useRxRetrofit2) {
         if (useRxRetrofit2) {
             final String apiInfrastructureFolder = (sourceFolder + File.separator + apiPackage + File.separator + "infrastructure").replace(".", File.separator);
+            final String apiTestInfrastructureFolder = (sourceTestFolder + File.separator + apiPackage + File.separator + "infrastructure").replace(".", File.separator);
             supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", apiInfrastructureFolder, "Parameters.kt"));
+            supportingFiles.add(new SupportingFile("infrastructure/Parameters.kt.mustache", apiTestInfrastructureFolder, "Parameters.kt"));
         } else {
             final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
 
