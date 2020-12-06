@@ -30,7 +30,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private static final String ASP_NET_CORE_VERSION_OPTION = "--aspnet-core-version";
     private static final String INTERFACE_ONLY_OPTION = "--interface-only";
     private static final String INTERFACE_CONTROLLER_OPTION = "--interface-controller";
-    private final String DEFAULT_ASP_NET_CORE_VERSION = "3.0";
+    private final String DEFAULT_ASP_NET_CORE_VERSION = "3.1";
     private String aspNetCoreVersion;
 
     @SuppressWarnings("hiding")
@@ -139,6 +139,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         String packageFolder = sourceFolder + File.separator + packageName;
 
+        boolean isThreeDotOneVersion = aspNetCoreVersion.equals("3.1");
+
         if (aspNetCoreVersion.equals("2.0")) {
             apiTemplateFiles.put("controller.mustache", ".cs");
             addInterfaceControllerTemplate();
@@ -168,7 +170,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
             supportingFiles.add(new SupportingFile("3.0/Startup.mustache", packageFolder, "Startup.cs"));
             supportingFiles.add(new SupportingFile("3.0/Program.mustache", packageFolder, "Program.cs"));
-            supportingFiles.add(new SupportingFile("3.0/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            if (isThreeDotOneVersion) {
+                supportingFiles.add(new SupportingFile("3.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            } else {
+                supportingFiles.add(new SupportingFile("3.0/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            }
             supportingFiles.add(new SupportingFile("3.0/Dockerfile.mustache", packageFolder, "Dockerfile"));
         }
 
@@ -193,7 +199,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
         supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
 
-        supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
+        if (isThreeDotOneVersion) {
+            supportingFiles.add(new SupportingFile("3.1/Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
+        } else {
+            supportingFiles.add(new SupportingFile("Properties" + File.separator + "launchSettings.json", packageFolder + File.separator + "Properties", "launchSettings.json"));
+        }
 
         supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "README.md", packageFolder + File.separator + "wwwroot", "README.md"));
         supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "index.html", packageFolder + File.separator + "wwwroot", "index.html"));

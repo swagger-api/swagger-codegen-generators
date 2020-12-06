@@ -1,5 +1,5 @@
 
-public struct {{classname}}: Codable {
+public {{#useModelClasses}}class{{/useModelClasses}}{{^useModelClasses}}struct{{/useModelClasses}} {{classname}}: Codable {
 
 {{#allVars}}
 {{#isEnum}}
@@ -25,7 +25,7 @@ public struct {{classname}}: Codable {
 {{/allVars}}
 
 {{#hasVars}}
-    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}?{{/required}}{{#hasMore}}, {{/hasMore}}{{/allVars}}) {
+    public init({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/allVars}}) {
         {{#allVars}}
         self.{{name}} = {{name}}
         {{/allVars}}
@@ -84,4 +84,3 @@ public struct {{classname}}: Codable {
 {{/vendorExtensions.x-codegen-has-escaped-property-names}}{{/additionalPropertiesType}}
 
 }
-

@@ -53,7 +53,15 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
-                "kotlin.collections.Set"
+                "kotlin.collections.Set",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
@@ -138,7 +146,15 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
-                "kotlin.collections.Map"
+                "kotlin.collections.Map",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
         instantiationLibraryFunction = new HashSet<>(Arrays.asList(
@@ -449,6 +465,25 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         }
 
         return modified;
+    }
+
+    @Override
+    public String toEnumValue(String value, String datatype) {
+        if (isPrimivite(datatype)) {
+            return value;
+        }
+        return super.toEnumValue(value, datatype);
+    }
+
+    @Override
+    public boolean isPrimivite(String datatype) {
+        return "kotlin.Byte".equalsIgnoreCase(datatype)
+            || "kotlin.Short".equalsIgnoreCase(datatype)
+            || "kotlin.Int".equalsIgnoreCase(datatype)
+            || "kotlin.Long".equalsIgnoreCase(datatype)
+            || "kotlin.Float".equalsIgnoreCase(datatype)
+            || "kotlin.Double".equalsIgnoreCase(datatype)
+            || "kotlin.Boolean".equalsIgnoreCase(datatype);
     }
 
     @Override
