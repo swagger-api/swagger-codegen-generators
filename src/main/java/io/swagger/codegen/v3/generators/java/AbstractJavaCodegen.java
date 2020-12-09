@@ -22,7 +22,6 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +43,11 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
-    public static final String FULL_JAVA_UTIL = "fullJavaUtil";
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String JAVA8_MODE = "java8";
 
-    protected String dateLibrary = "joda";
+    protected String dateLibrary = "java8";
     protected boolean java8Mode = false;
     protected String invokerPackage = "io.swagger";
     protected String groupId = "io.swagger";
@@ -70,10 +68,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String projectTestFolder = "src" + File.separator + "test";
     protected String sourceFolder = projectFolder + File.separator + "java";
     protected String testFolder = projectTestFolder + File.separator + "java";
-    protected String localVariablePrefix = "";
-    protected boolean fullJavaUtil;
-    protected String javaUtilPrefix = "";
-    protected Boolean serializableModel = false;
     protected boolean serializeBigDecimalAsString = false;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
@@ -142,16 +136,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CodegenConstants.SERIALIZABLE_MODEL, CodegenConstants.SERIALIZABLE_MODEL_DESC));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING, CodegenConstants
                 .SERIALIZE_BIG_DECIMAL_AS_STRING_DESC));
-        cliOptions.add(CliOption.newBoolean(FULL_JAVA_UTIL, "whether to use fully qualified name for classes under java.util. This option only works for Java API client"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.USE_OAS2, CodegenConstants.USE_OAS2_DESC));
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
         dateOptions.put("java8", "Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets \"" + JAVA8_MODE + "\" to true");
-        dateOptions.put("threetenbp", "Backport of JSR310 (preferred for jdk < 1.8)");
-        dateOptions.put("java8-localdatetime", "Java 8 using LocalDateTime (for legacy app only)");
-        dateOptions.put("joda", "Joda (for legacy app only)");
-        dateOptions.put("legacy", "Legacy java.util.Date (if you really have a good reason not to use threetenbp");
         dateLibrary.setEnum(dateOptions);
         cliOptions.add(dateLibrary);
 
@@ -188,9 +177,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         modelTemplateFiles.put("model.mustache", ".java");
         apiTemplateFiles.put("api.mustache", ".java");
-//        apiTestTemplateFiles.put("api_test.mustache", ".java");
-//        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-//        apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
             this.setGroupId((String) additionalProperties.get(CodegenConstants.GROUP_ID));
@@ -294,14 +280,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setSourceFolder((String) additionalProperties.get(CodegenConstants.SOURCE_FOLDER));
         }
 
-        if (additionalProperties.containsKey(CodegenConstants.LOCAL_VARIABLE_PREFIX)) {
-            this.setLocalVariablePrefix((String) additionalProperties.get(CodegenConstants.LOCAL_VARIABLE_PREFIX));
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.SERIALIZABLE_MODEL)) {
-            this.setSerializableModel(Boolean.valueOf(additionalProperties.get(CodegenConstants.SERIALIZABLE_MODEL).toString()));
-        }
-
         if (additionalProperties.containsKey(CodegenConstants.LIBRARY)) {
             this.setLibrary((String) additionalProperties.get(CodegenConstants.LIBRARY));
         }
@@ -310,43 +288,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setSerializeBigDecimalAsString(Boolean.valueOf(additionalProperties.get(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING).toString()));
         }
 
-        // need to put back serializableModel (boolean) into additionalProperties as value in additionalProperties is string
-        additionalProperties.put(CodegenConstants.SERIALIZABLE_MODEL, serializableModel);
-
-        if (additionalProperties.containsKey(FULL_JAVA_UTIL)) {
-            this.setFullJavaUtil(Boolean.valueOf(additionalProperties.get(FULL_JAVA_UTIL).toString()));
-        }
-
-        if (fullJavaUtil) {
-            javaUtilPrefix = "java.util.";
-        }
-        additionalProperties.put(FULL_JAVA_UTIL, fullJavaUtil);
-        additionalProperties.put("javaUtilPrefix", javaUtilPrefix);
-
         // make api and model doc path available in mustache template
         additionalProperties.put("apiDocPath", apiDocPath);
         additionalProperties.put("modelDocPath", modelDocPath);
 
         importMapping.put("List", "java.util.List");
-
-        if (fullJavaUtil) {
-            typeMapping.put("array", "java.util.List");
-            typeMapping.put("map", "java.util.Map");
-            typeMapping.put("DateTime", "java.util.Date");
-            typeMapping.put("UUID", "java.util.UUID");
-            typeMapping.remove("List");
-            importMapping.remove("Date");
-            importMapping.remove("Map");
-            importMapping.remove("HashMap");
-            importMapping.remove("Array");
-            importMapping.remove("ArrayList");
-            importMapping.remove("List");
-            importMapping.remove("Set");
-            importMapping.remove("DateTime");
-            importMapping.remove("UUID");
-            instantiationTypes.put("array", "java.util.ArrayList");
-            instantiationTypes.put("map", "java.util.HashMap");
-        }
 
         this.sanitizeConfig();
 
@@ -383,34 +329,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             setDateLibrary(additionalProperties.get("dateLibrary").toString());
         }
 
-        if ("threetenbp".equals(dateLibrary)) {
-            additionalProperties.put("threetenbp", "true");
-            additionalProperties.put("jsr310", "true");
-            typeMapping.put("date", "LocalDate");
-            typeMapping.put("DateTime", "OffsetDateTime");
-            importMapping.put("LocalDate", "org.threeten.bp.LocalDate");
-            importMapping.put("OffsetDateTime", "org.threeten.bp.OffsetDateTime");
-        } else if ("joda".equals(dateLibrary)) {
-            additionalProperties.put("joda", "true");
-            typeMapping.put("date", "LocalDate");
-            typeMapping.put("DateTime", "DateTime");
-            importMapping.put("LocalDate", "org.joda.time.LocalDate");
-            importMapping.put("DateTime", "org.joda.time.DateTime");
-        } else if (dateLibrary.startsWith("java8")) {
-            additionalProperties.put("java8", true);
-            additionalProperties.put("jsr310", "true");
-            typeMapping.put("date", "LocalDate");
-            importMapping.put("LocalDate", "java.time.LocalDate");
-            if ("java8-localdatetime".equals(dateLibrary)) {
-                typeMapping.put("DateTime", "LocalDateTime");
-                importMapping.put("LocalDateTime", "java.time.LocalDateTime");
-            } else {
-                typeMapping.put("DateTime", "OffsetDateTime");
-                importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
-            }
-        } else if (dateLibrary.equals("legacy")) {
-            additionalProperties.put("legacyDates", true);
-        }
+        additionalProperties.put("java8", true);
+        additionalProperties.put("jsr310", "true");
+        typeMapping.put("date", "LocalDate");
+        importMapping.put("LocalDate", "java.time.LocalDate");
+        typeMapping.put("DateTime", "OffsetDateTime");
+        importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
     }
 
     private void sanitizeConfig() {
@@ -653,11 +577,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (schema instanceof ArraySchema) {
             final ArraySchema arraySchema = (ArraySchema) schema;
             final String pattern;
-            if (fullJavaUtil) {
-                pattern = "new java.util.ArrayList<%s>()";
-            } else {
-                pattern = "new ArrayList<%s>()";
-            }
+            pattern = "new ArrayList<%s>()";
             if (arraySchema.getItems() == null) {
                 return null;
             }
@@ -674,11 +594,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return String.format(pattern, typeDeclaration);
         } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             final String pattern;
-            if (fullJavaUtil) {
-                pattern = "new java.util.HashMap<%s>()";
-            } else {
-                pattern = "new HashMap<%s>()";
-            }
+            pattern = "new HashMap<%s>()";
             if (schema.getAdditionalProperties() == null) {
                 return null;
             }
@@ -695,11 +611,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return String.format(pattern, typeDeclaration);
         } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
             final String pattern;
-            if (fullJavaUtil) {
-                pattern = "new java.util.HashMap<%s>()";
-            } else {
-                pattern = "new HashMap<%s>()";
-            }
+            pattern = "new HashMap<%s>()";
             if (schema.getAdditionalProperties() == null) {
                 return null;
             }
@@ -892,12 +804,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
         }
 
-        if (!fullJavaUtil) {
-            if ("array".equals(property.containerType)) {
-                model.imports.add("ArrayList");
-            } else if ("map".equals(property.containerType)) {
-                model.imports.add("HashMap");
-            }
+        if ("array".equals(property.containerType)) {
+            model.imports.add("ArrayList");
+        } else if ("map".equals(property.containerType)) {
+            model.imports.add("HashMap");
         }
 
         boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
@@ -1306,25 +1216,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         this.testFolder = testFolder;
     }
 
-    public void setLocalVariablePrefix(String localVariablePrefix) {
-        this.localVariablePrefix = localVariablePrefix;
-    }
-
     public void setSerializeBigDecimalAsString(boolean s) {
         this.serializeBigDecimalAsString = s;
-    }
-
-    public void setSerializableModel(Boolean serializableModel) {
-        this.serializableModel = serializableModel;
     }
 
     private String sanitizePath(String p) {
         //prefer replace a ", instead of a fuLL URL encode for readability
         return p.replaceAll("\"", "%22");
-    }
-
-    public void setFullJavaUtil(boolean fullJavaUtil) {
-        this.fullJavaUtil = fullJavaUtil;
     }
 
     public void setDateLibrary(String library) {

@@ -60,17 +60,11 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         importMapping.clear();
 
         supportsInheritance = true;
-//        outputFolder = "generated-code" + File.separator + "php";
         modelTemplateFiles.put("model.mustache", ".php");
         apiTemplateFiles.put("api.mustache", ".php");
-//        modelTestTemplateFiles.put("model_test.mustache", ".php");
-//        apiTestTemplateFiles.put("api_test.mustache", ".php");
         embeddedTemplateDir = "php";
         apiPackage = invokerPackage + "\\" + apiDirName;
         modelPackage = invokerPackage + "\\" + modelDirName;
-
-//        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-//        apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
         setReservedWordsLowerCase(
                 Arrays.asList(
@@ -397,23 +391,32 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public String getSchemaType(Schema property) {
-        String schemaType = super.getSchemaType(property);
-        String type = null;
+    public String getSchemaType(Schema schema) {
+        String schemaType = super.getSchemaType(schema);
+
+        schemaType = getAlias(schemaType);
+
+        // don't apply renaming on types from the typeMapping
         if (typeMapping.containsKey(schemaType)) {
-            type = typeMapping.get(schemaType);
-            if (languageSpecificPrimitives.contains(type)) {
-                return type;
-            } else if (instantiationTypes.containsKey(type)) {
-                return type;
+            return typeMapping.get(schemaType);
+        }
+
+        if (null == schemaType) {
+            if (schema.getName() != null) {
+                LOGGER.warn("No Type defined for Property " + schema.getName());
+            } else {
+                // LOGGER.error("No Type defined.", new Exception());
             }
-        } else {
-            type = schemaType;
         }
-        if (type == null) {
-            return null;
+        return toModelName(schemaType);
+    }
+
+    @Override
+    public String getAlias(String name) {
+        if (typeAliases != null && typeAliases.containsKey(name)) {
+            return typeAliases.get(name);
         }
-        return toModelName(type);
+        return name;
     }
 
     public void setInvokerPackage(String invokerPackage) {

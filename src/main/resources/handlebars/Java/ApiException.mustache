@@ -3,11 +3,11 @@
 package {{invokerPackage}};
 
 import com.google.gson.Gson;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 {{>generatedAnnotation}}
-public class ApiException extends{{#useRuntimeException}} RuntimeException {{/useRuntimeException}}{{^useRuntimeException}} Exception {{/useRuntimeException}}{
+public class ApiException extends Exception {
     private int code = 0;
     private Map<String, List<String>> responseHeaders = null;
     private String responseBody = null;
@@ -42,6 +42,11 @@ public class ApiException extends{{#useRuntimeException}} RuntimeException {{/us
     }
 
     public ApiException(int code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public ApiException(String message, int code) {
         super(message);
         this.code = code;
     }

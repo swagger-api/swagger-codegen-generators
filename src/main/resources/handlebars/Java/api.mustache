@@ -1,31 +1,23 @@
 package {{package}};
 
-import {{invokerPackage}}.ApiCallback;
-import {{invokerPackage}}.ApiClient;
-import {{invokerPackage}}.ApiException;
-import {{invokerPackage}}.ApiResponse;
-import {{invokerPackage}}.Configuration;
-import {{invokerPackage}}.Pair;
-import {{invokerPackage}}.ProgressRequestBody;
-import {{invokerPackage}}.ProgressResponseBody;
 import com.google.gson.reflect.TypeToken;
-import java.io.IOException;
+import {{invokerPackage}}.*;
 {{#imports}}import {{import}};
 {{/imports}}
+import okhttp3.Call;
+
 import java.lang.reflect.Type;
-{{^fullJavaUtil}}
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-{{/fullJavaUtil}}
 
 {{#operations}}
 public class {{classname}} {
     private ApiClient {{localVariablePrefix}}apiClient;
 
     public {{classname}}() {
-        this(Configuration.getDefaultApiClient());
+        this(Environment.getGlobalEnv().getApiClient());
     }
 
     public {{classname}}(ApiClient apiClient) {
@@ -59,7 +51,7 @@ public class {{classname}} {
      */
     public com.squareup.okhttp.Call {{operationId}}Call({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
         Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
-        
+
         // create path and map variables
         String {{localVariablePrefix}}localVarPath = "{{{path}}}"{{#pathParams}}
             .replaceAll("\\{" + "{{baseName}}" + "\\}", {{localVariablePrefix}}apiClient.escapeString({{{paramName}}}.toString())){{/pathParams}};
@@ -108,7 +100,7 @@ public class {{classname}} {
         String[] {{localVariablePrefix}}localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#has this 'more'}}, {{/has}}{{/authMethods}} };
         return {{localVariablePrefix}}apiClient.buildCall({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarCollectionQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAuthNames, progressRequestListener);
     }
-    
+
     @SuppressWarnings("rawtypes")
     private com.squareup.okhttp.Call {{operationId}}ValidateBeforeCall({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
         {{#parameters}}{{#required}}
@@ -117,7 +109,7 @@ public class {{classname}} {
             throw new ApiException("Missing the required parameter '{{paramName}}' when calling {{operationId}}(Async)");
         }
         {{/required}}{{/parameters}}
-        
+
         com.squareup.okhttp.Call {{localVariablePrefix}}call = {{operationId}}Call({{#parameters}}{{paramName}}, {{/parameters}}progressListener, progressRequestListener);
         return {{localVariablePrefix}}call;
     }

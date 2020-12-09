@@ -1,18 +1,10 @@
 package io.swagger.codegen.v3.generators.php;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.HashSet;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import io.swagger.v3.oas.models.media.*;
@@ -56,9 +48,6 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
 
         modelTemplateFiles.put("model.mustache", ".php");
         apiTemplateFiles.put("api.mustache", ".php");
-//        apiTestTemplateFiles.put("api_test.mustache", ".php");
-//        modelDocTemplateFiles.put("model_doc.mustache", ".md");
-//        apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
         apiPackage = invokerPackage + "\\" + apiDirName;
         modelPackage = invokerPackage + "\\" + modelDirName;
@@ -337,23 +326,32 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
-    public String getSchemaType(Schema property) {
-        String schemaType = super.getSchemaType(property);
-        String type = null;
+    public String getSchemaType(Schema schema) {
+        String schemaType = super.getSchemaType(schema);
+
+        schemaType = getAlias(schemaType);
+
+        // don't apply renaming on types from the typeMapping
         if (typeMapping.containsKey(schemaType)) {
-            type = typeMapping.get(schemaType);
-            if (languageSpecificPrimitives.contains(type)) {
-                return type;
-            } else if (instantiationTypes.containsKey(type)) {
-                return type;
+            return typeMapping.get(schemaType);
+        }
+
+        if (null == schemaType) {
+            if (schema.getName() != null) {
+                LOGGER.warn("No Type defined for Property " + schema.getName());
+            } else {
+                // LOGGER.error("No Type defined.", new Exception());
             }
-        } else {
-            type = schemaType;
         }
-        if (type == null) {
-            return null;
+        return toModelName(schemaType);
+    }
+
+    @Override
+    public String getAlias(String name) {
+        if (typeAliases != null && typeAliases.containsKey(name)) {
+            return typeAliases.get(name);
         }
-        return toModelName(type);
+        return name;
     }
 
     public void setInvokerPackage(String invokerPackage) {

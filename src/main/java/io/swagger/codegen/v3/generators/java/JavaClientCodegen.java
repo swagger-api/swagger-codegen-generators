@@ -1,15 +1,11 @@
 package io.swagger.codegen.v3.generators.java;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.features.GzipFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,26 +21,20 @@ import java.util.regex.Pattern;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatures {
+public class JavaClientCodegen extends AbstractJavaCodegen {
     static final String MEDIA_TYPE = "mediaType";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
 
-    public static final String USE_RUNTIME_EXCEPTION = "useRuntimeException";
-
-    protected boolean useGzipFeature = false;
-    protected boolean useRuntimeException = false;
-
-
     public JavaClientCodegen() {
         super();
-        artifactVersion = "2.0.0";
+        artifactVersion = "3.0.0";
         outputFolder = "generated-code" + File.separator + "java";
-        invokerPackage = "io.secuconnect.client";
-        groupId = "io.secuconnect";
+        invokerPackage = "com.secuconnect.client";
+        groupId = "com.secuconnect";
         artifactId = "secuconnect-java-sdk";
-        apiPackage = "io.secuconnect.client.api";
-        modelPackage = "io.secuconnect.client.model";
+        apiPackage = "com.secuconnect.client.api";
+        modelPackage = "com.secuconnect.client.model";
         scmConnection = "scm:git:git@github.com:secuconnect/secuconnect-java-sdk.git";
         scmDeveloperConnection = "scm:git:git@github.com:secuconnect/secuconnect-java-sdk.git";
         scmUrl = "https://github.com/secuconnect/secuconnect-java-sdk";
@@ -56,18 +46,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         developerOrganizationUrl = "http://secuconnect.com";
         artifactUrl = "https://github.com/secuconnect/secuconnect-java-sdk";
         artifactDescription = "Secuconnect Java";
-
-        cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
-        cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
-
-        supportedLibraries.put("okhttp-gson", "HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.8.1. Enable gzip request encoding using '-DuseGzipFeature=true'.");
-
-        CliOption libraryOption = new CliOption(CodegenConstants.LIBRARY, "library template (sub-template) to use");
-        libraryOption.setEnum(supportedLibraries);
-        // set okhttp-gson as the default
-        libraryOption.setDefault("okhttp-gson");
-        cliOptions.add(libraryOption);
-        setLibrary("okhttp-gson");
     }
 
     @Override
@@ -89,45 +67,22 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
     public void processOpts() {
         super.processOpts();
 
-        if (additionalProperties.containsKey(USE_GZIP_FEATURE)) {
-            this.setUseGzipFeature(convertPropertyToBooleanAndWriteBack(USE_GZIP_FEATURE));
-        }
-
-        if (additionalProperties.containsKey(USE_RUNTIME_EXCEPTION)) {
-            this.setUseRuntimeException(convertPropertyToBooleanAndWriteBack(USE_RUNTIME_EXCEPTION));
-        }
-
         final String invokerFolder = (sourceFolder + File.separator + invokerPackage).replace(".", File.separator);
-        final String authFolder = (sourceFolder + File.separator + invokerPackage + ".auth").replace(".", File.separator);
-        final String apiFolder = (sourceFolder + File.separator + apiPackage).replace(".", File.separator);
 
         //Common files
-        supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("ApiClient.mustache", invokerFolder, "ApiClient.java"));
-        supportingFiles.add(new SupportingFile("StringUtil.mustache", invokerFolder, "StringUtil.java"));
-
-        supportingFiles.add(new SupportingFile("auth/OAuth.mustache", authFolder, "OAuth.java"));
 
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
 
-        supportingFiles.add(new SupportingFile("apiException.mustache", invokerFolder, "ApiException.java"));
-        supportingFiles.add(new SupportingFile("Configuration.mustache", invokerFolder, "Configuration.java"));
+        supportingFiles.add(new SupportingFile("ApiException.mustache", invokerFolder, "ApiException.java"));
         supportingFiles.add(new SupportingFile("Pair.mustache", invokerFolder, "Pair.java"));
-        supportingFiles.add(new SupportingFile("auth/Authentication.mustache", authFolder, "Authentication.java"));
 
-        if ("okhttp-gson".equals(getLibrary()) || StringUtils.isEmpty(getLibrary())) {
-            // the "okhttp-gson" library template requires "ApiCallback.mustache" for async call
-            supportingFiles.add(new SupportingFile("ApiCallback.mustache", invokerFolder, "ApiCallback.java"));
-            supportingFiles.add(new SupportingFile("ApiResponse.mustache", invokerFolder, "ApiResponse.java"));
-            supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));
-            supportingFiles.add(new SupportingFile("ProgressRequestBody.mustache", invokerFolder, "ProgressRequestBody.java"));
-            supportingFiles.add(new SupportingFile("ProgressResponseBody.mustache", invokerFolder, "ProgressResponseBody.java"));
-            supportingFiles.add(new SupportingFile("GzipRequestInterceptor.mustache", invokerFolder, "GzipRequestInterceptor.java"));
-            additionalProperties.put("gson", "true");
-        } else {
-            LOGGER.error("Unknown library option (-l/--library): " + getLibrary());
-        }
+        supportingFiles.add(new SupportingFile("ApiCallback.mustache", invokerFolder, "ApiCallback.java"));
+        supportingFiles.add(new SupportingFile("ApiResponse.mustache", invokerFolder, "ApiResponse.java"));
+        supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));
+        supportingFiles.add(new SupportingFile("ProgressRequestBody.mustache", invokerFolder, "ProgressRequestBody.java"));
+        supportingFiles.add(new SupportingFile("ProgressResponseBody.mustache", invokerFolder, "ProgressResponseBody.java"));
+        additionalProperties.put("gson", "true");
     }
 
     @Override
@@ -188,15 +143,9 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         super.postProcessModelProperty(model, property);
         boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
         if(!BooleanUtils.toBoolean(isEnum)) {
-            //final String lib = getLibrary();
             //Needed imports for Jackson based libraries
             if(additionalProperties.containsKey("gson")) {
                 model.imports.add("SerializedName");
-//                model.imports.add("TypeAdapter");
-//                model.imports.add("JsonAdapter");
-//                model.imports.add("JsonReader");
-//                model.imports.add("JsonWriter");
-//                model.imports.add("IOException");
             }
         }
     }
@@ -280,14 +229,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements GzipFeatur
         }
 
         return parentsList;
-    }
-
-    public void setUseGzipFeature(boolean useGzipFeature) {
-        this.useGzipFeature = useGzipFeature;
-    }
-
-    public void setUseRuntimeException(boolean useRuntimeException) {
-        this.useRuntimeException = useRuntimeException;
     }
 
     final private static Pattern JSON_MIME_PATTERN = Pattern.compile("(?i)application\\/json(;.*)?");

@@ -1,31 +1,21 @@
-{{>licenseInfo}}
-
 package {{invokerPackage}};
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.RequestBody;
-
-import java.io.IOException;
-
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 
-public class ProgressRequestBody extends RequestBody {
+import java.io.IOException;
 
-    public interface ProgressRequestListener {
-        void onRequestProgress(long bytesWritten, long contentLength, boolean done);
-    }
+public class ProgressRequestBody extends RequestBody {
 
     private final RequestBody requestBody;
 
-    private final ProgressRequestListener progressListener;
-
-    public ProgressRequestBody(RequestBody requestBody, ProgressRequestListener progressListener) {
+    public ProgressRequestBody(RequestBody requestBody) {
         this.requestBody = requestBody;
-        this.progressListener = progressListener;
     }
 
     @Override
@@ -59,7 +49,6 @@ public class ProgressRequestBody extends RequestBody {
                 }
 
                 bytesWritten += byteCount;
-                progressListener.onRequestProgress(bytesWritten, contentLength, bytesWritten == contentLength);
             }
         };
     }

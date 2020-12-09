@@ -15,16 +15,12 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public class JavaHelper {
 
     public CharSequence getClassDefinition(CodegenModel codegenModel, Options options) throws IOException {
-        final Boolean serializableModel = options.get(CodegenConstants.SERIALIZABLE_MODEL) != null ? options.get(CodegenConstants.SERIALIZABLE_MODEL) : Boolean.FALSE;
         final StringBuilder builder = new StringBuilder();
         builder.append(codegenModel.classname);
         if (StringUtils.isNotBlank(codegenModel.parent)) {
             builder.append(StringUtils.SPACE);
             builder.append("extends ");
             builder.append(codegenModel.parent);
-        }
-        if (serializableModel) {
-            builder.append(" implements Serializable");
         }
         return builder.toString();
     }
