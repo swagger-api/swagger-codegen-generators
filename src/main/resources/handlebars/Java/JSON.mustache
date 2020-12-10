@@ -100,6 +100,20 @@ public class JSON {
                 return BankAccountDescriptor.class;
             }
         })
+        .registerTypeSelector(OneOfSmartTransactionsDeliveryOptionsModel.class, new TypeSelector<OneOfSmartTransactionsDeliveryOptionsModel>() {
+            @Override
+            public Class<? extends OneOfSmartTransactionsDeliveryOptionsModel> getClassForElement(JsonElement readElement) {
+                if (readElement.getAsJsonObject().has("type")) {
+                    if ("shipping".equals(readElement.getAsJsonObject().get("type").toString())) {
+                        return SmartTransactionsShippingModel.class;
+                    } else if ("collection".equals(readElement.getAsJsonObject().get("type").toString())) {
+                        return SmartTransactionsCollectionModel.class;
+                    }
+                }
+
+                return null;
+            }
+        })
         ;
         return fireBuilder.createGsonBuilder();
     }

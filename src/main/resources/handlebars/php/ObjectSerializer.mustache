@@ -5,6 +5,9 @@ namespace {{invokerPackage}};
 use Secuconnect\Client\Model\BankAccountDescriptor;
 use Secuconnect\Client\Model\CreditCardDescriptor;
 use Secuconnect\Client\Model\OneOfPaymentContainersDTOModelPrivate;
+use Secuconnect\Client\Model\OneOfSmartTransactionsDeliveryOptionsModel;
+use Secuconnect\Client\Model\SmartTransactionsCollectionModel;
+use Secuconnect\Client\Model\SmartTransactionsShippingModel;
 
 /**
  * ObjectSerializer
@@ -49,7 +52,7 @@ class ObjectSerializer
                     throw new \InvalidArgumentException("Invalid value for enum '$swaggerType', must be one of: '$imploded'");
                 }
                 if ($value !== null) {
-                    $values[$data::attributeMap()[$property]] = self::sanitizeForSerialization($value, $swaggerType, $formats[$property]);
+                    $values[$data::attributeMap()[$property]] = self::sanitizeForSerialization($value, $formats[$property]);
                 }
             }
             return (object)$values;
@@ -278,6 +281,17 @@ class ObjectSerializer
                 }
 
                 if (is_subclass_of($subclass, $class)) {
+                    $class = $subclass;
+                }
+            } elseif (trim($class, '\\') === OneOfSmartTransactionsDeliveryOptionsModel::class) {
+                $subclass = null;
+                if ($data->type === 'shipping') {
+                    $subclass = SmartTransactionsShippingModel::class;
+                } elseif ($data->type === 'collection') {
+                    $subclass = SmartTransactionsCollectionModel::class;
+                }
+
+                if ($subclass && is_subclass_of($subclass, $class)) {
                     $class = $subclass;
                 }
             } else {
