@@ -350,12 +350,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    public boolean isPrimivite(String datatype) {
+        return "number".equalsIgnoreCase(datatype)
+            || "integer".equalsIgnoreCase(datatype)
+            || "boolean".equalsIgnoreCase(datatype);
+    }
+
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -1319,6 +1331,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
+        codegenModel.discriminator = schema.getDiscriminator();
+
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
             codegenModel.xmlNamespace = schema.getXml().getNamespace();
@@ -1384,11 +1398,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
 
-                if (schema.getDiscriminator() != null) {
-                    codegenModel.discriminator = schema.getDiscriminator();
-                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
-                    }
+                if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
                 }
 
                 for (int i = 0; i < allOf.size(); i++) {
@@ -1452,6 +1463,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 // comment out below as allowableValues is not set in post processing model enum
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
+                if (codegenModel.dataType.equals("BigDecimal")) {
+                    addImport(codegenModel, "BigDecimal");
+                }
             }
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
@@ -1461,6 +1475,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 postProcessModelProperty(codegenModel, prop);
             }
         }
+
         return codegenModel;
     }
 
@@ -2279,7 +2294,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         final Schema responseSchema = getSchemaFromResponse(response);
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
-        // TODO: codegenResponse.examples = toExamples(response.getExamples());
+
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+
+                        for (String exampleName : response.getContent().get(name).getExamples().keySet()) {
+                            examples.put(exampleName, response.getContent().get(name).getExamples().get(exampleName).getValue());
+                        }
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
+
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
@@ -3838,7 +3872,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         // put "enumVars" map into `allowableValues", including `name` and `value`
-        List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> enumVars = new ArrayList<>();
         String commonPrefix = findCommonPrefixOfVars(values);
         int truncateIdx = commonPrefix.length();
         for (Object value : values) {
@@ -3853,6 +3887,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             enumVars.add(enumVar);
         }
         allowableValues.put("enumVars", enumVars);
+
+        // check repeated enum var names
+        if (enumVars != null & !enumVars.isEmpty()) {
+            for (int i = 0; i < enumVars.size(); i++) {
+                final Map<String, String> enumVarList = enumVars.get(i);
+                final String enumVarName = enumVarList.get("name");
+                for (int j = 0; j < enumVars.size(); j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    final Map<String, String> enumVarToCheckList = enumVars.get(j);
+                    final String enumVarNameToCheck = enumVarToCheckList.get("name");
+                    if (enumVarName.equals(enumVarNameToCheck)) {
+                        enumVarToCheckList.put("name", enumVarName + "_" + j);
+                    }
+                }
+            }
+        }
 
         // handle default value for enum, e.g. available => StatusEnum.AVAILABLE
         if (var.defaultValue != null) {

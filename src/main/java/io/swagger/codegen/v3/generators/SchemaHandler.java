@@ -33,7 +33,6 @@ public class SchemaHandler implements ISchemaHandler {
     public void processComposedSchemas(CodegenModel codegenModel, Schema schema, Map<String, CodegenModel> allModels) {
         if (schema instanceof ComposedSchema) {
             this.addComposedModel(this.processComposedSchema(codegenModel, (ComposedSchema) schema, allModels));
-            return;
         }
         if (schema instanceof ArraySchema) {
             this.addComposedModel(this.processArrayItemSchema(codegenModel, (ArraySchema) schema, allModels));
