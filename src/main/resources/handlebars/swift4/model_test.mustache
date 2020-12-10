@@ -4,7 +4,7 @@ import {{packageName}}
 {{#models}}{{#model}}
 public extension {{classname}} {
 {{#isEnum}}
-    static func mock() -> {{classname}}
+    static func mock() -> {{classname}} {
         {{classname}}.allCases.randomElement()!
     }
 {{/isEnum}}
