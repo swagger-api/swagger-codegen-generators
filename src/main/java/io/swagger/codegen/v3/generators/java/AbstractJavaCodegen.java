@@ -783,6 +783,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     return String.format("%sf", schema.getDefault().toString());
                 } else if (schema.getDefault() != null && SchemaTypeUtil.DOUBLE_FORMAT.equals(schema.getFormat())) {
                     return String.format("%sd", schema.getDefault().toString());
+                } else {
+                    return String.format("new BigDecimal(%s)", schema.getDefault().toString());
                 }
             }
         } else if (schema instanceof StringSchema) {
