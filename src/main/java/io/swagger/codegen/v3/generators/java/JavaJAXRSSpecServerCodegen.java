@@ -6,6 +6,7 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -146,16 +147,20 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
-        if (useOas2) {
-            model.imports.remove("ApiModelProperty");
-            model.imports.remove("ApiModel");
-        } else {
-            model.imports.remove("Schema");
+        boolean isEnum = ExtensionHelper.getBooleanValue(model, CodegenConstants.IS_ENUM_EXT_NAME);
+        if (!Boolean.TRUE.equals(isEnum)) {
+            model.imports.add("JsonProperty");
+            boolean hasEnums = ExtensionHelper.getBooleanValue(model, CodegenConstants.HAS_ENUMS_EXT_NAME);
+            if (Boolean.TRUE.equals(hasEnums)) {
+                model.imports.add("JsonValue");
+                model.imports.add("JsonCreator");
+            }
+        } else { // enum class
+            //Needed imports for Jackson's JsonCreator
+            if (additionalProperties.containsKey("jackson")) {
+                model.imports.add("JsonCreator");
+            }
         }
-        model.imports.remove("JsonSerialize");
-        model.imports.remove("ToStringSerializer");
-        model.imports.remove("JsonValue");
-        model.imports.remove("JsonProperty");
     }
 
     @Override
