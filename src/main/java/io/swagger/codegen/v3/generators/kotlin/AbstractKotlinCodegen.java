@@ -468,6 +468,25 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toEnumValue(String value, String datatype) {
+        if (isPrimivite(datatype)) {
+            return value;
+        }
+        return super.toEnumValue(value, datatype);
+    }
+
+    @Override
+    public boolean isPrimivite(String datatype) {
+        return "kotlin.Byte".equalsIgnoreCase(datatype)
+            || "kotlin.Short".equalsIgnoreCase(datatype)
+            || "kotlin.Int".equalsIgnoreCase(datatype)
+            || "kotlin.Long".equalsIgnoreCase(datatype)
+            || "kotlin.Float".equalsIgnoreCase(datatype)
+            || "kotlin.Double".equalsIgnoreCase(datatype)
+            || "kotlin.Boolean".equalsIgnoreCase(datatype);
+    }
+
+    @Override
     public String toInstantiationType(Schema p) {
         if (p instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) p);
