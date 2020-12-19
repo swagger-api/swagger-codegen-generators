@@ -2150,8 +2150,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
                     codegenParameter.description = body.getDescription();
                     codegenParameter.unescapedDescription = body.getDescription();
-                    codegenParameter.baseName = REQUEST_BODY_NAME;
-                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    String bodyName = REQUEST_BODY_NAME;
+                    if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+                        bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+                    }
+                    codegenParameter.baseName = bodyName;
+                    codegenParameter.paramName = bodyName;
                     codegenParameter.dataType = "Object";
                     codegenParameter.baseType = "Object";
 
@@ -2653,8 +2657,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
         CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        codegenParameter.baseName = REQUEST_BODY_NAME;
-        codegenParameter.paramName = REQUEST_BODY_NAME;
+
+        String bodyName = REQUEST_BODY_NAME;
+        if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+            bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+        }
+        codegenParameter.baseName = bodyName;
+        codegenParameter.paramName = bodyName;
         codegenParameter.description = body.getDescription();
         codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
@@ -2765,7 +2774,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
         }
         else {
-            CodegenProperty codegenProperty = fromProperty(REQUEST_BODY_NAME, schema);
+            CodegenProperty codegenProperty = fromProperty(bodyName, schema);
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.baseType = codegenProperty.baseType;
             if (codegenProperty.complexType != null) {
