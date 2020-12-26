@@ -117,7 +117,7 @@ var JSONSchemaView = (function () {
 
     _classCallCheck(this, JSONSchemaView);
 
-    this.schema = schema; //console.log(schema);
+    this.schema = schema;
     this.open = open;
     this.options = options;
     this.isCollapsed = open <= 0;
@@ -130,7 +130,7 @@ var JSONSchemaView = (function () {
     // Determine if a schema is an array
     this.isArray = !this.isAny && this.schema && this.schema.type === 'array';
 
-    this.isObject = this.schema && (this.schema.type === 'object' || this.schema.properties || this.schema.anyOf || this.schema.oneof || this.schema.allOf);
+    this.isObject = this.schema && (this.schema.type === 'object' || this.schema.properties || this.schema.allOf);
 
     // Determine if a schema is a primitive
     this.isPrimitive = !this.isAny && !this.isArray && !this.isObject;
