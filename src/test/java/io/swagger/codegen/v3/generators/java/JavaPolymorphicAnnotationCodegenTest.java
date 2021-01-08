@@ -4,11 +4,13 @@ import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
 import org.apache.commons.io.FileUtils;
+import org.junit.internal.matchers.StringContains;
 import org.junit.rules.TemporaryFolder;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertThat;
 
 public class JavaPolymorphicAnnotationCodegenTest {
 
@@ -30,11 +32,11 @@ public class JavaPolymorphicAnnotationCodegenTest {
         final File petControllerFile = new File(output, "/src/main/java/io/swagger/model/PolymorphicResponse.java");
         final String content = FileUtils.readFileToString(petControllerFile);
 
-        Assert.assertTrue(content.contains(
-            "@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )\n" +
-                "@JsonSubTypes({\n" +
-                "        @JsonSubTypes.Type(value = Error.class, name = \"Error\"),\n" +
-                "        @JsonSubTypes.Type(value = Success.class, name = \"Success\"),\n" +
+        assertThat(content, StringContains.containsString(
+            "@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )" + System.lineSeparator() +
+                "@JsonSubTypes({" + System.lineSeparator() +
+            "        @JsonSubTypes.Type(value = Error.class, name = \"Error\")," + System.lineSeparator() +
+                "        @JsonSubTypes.Type(value = Success.class, name = \"Success\")," + System.lineSeparator() +
                 "})"));
 
         this.folder.delete();
