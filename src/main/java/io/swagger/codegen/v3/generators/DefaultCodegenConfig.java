@@ -2185,7 +2185,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             allParams.add(formParameter);
                         }
-                        codegenContents.add(codegenContent);
                     }
                 } else {
                     bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
@@ -2193,20 +2192,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                         bodyParams.add(bodyParam.copy());
                         allParams.add(bodyParam);
-                    } else {
-                        boolean alreadyAdded = false;
-                        for (Schema usedSchema : foundSchemas) {
-                            if (alreadyAdded = usedSchema.equals(schema)) {
-                                break;
-                            }
-                        }
-                        if (alreadyAdded) {
-                            continue;
-                        }
                     }
-                    foundSchemas.add(schema);
+                }
+
+                if (!foundSchemas.contains(schema)) {
                     codegenContents.add(codegenContent);
                 }
+                foundSchemas.add(schema);
             }
         }
 
