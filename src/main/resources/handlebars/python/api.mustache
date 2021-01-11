@@ -54,7 +54,7 @@ class {{classname}}(object):
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: {{#returnType}}{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
+        :rtype: {{#returnType}}{{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
@@ -86,7 +86,7 @@ class {{classname}}(object):
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: {{#returnType}}{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
+        :rtype: {{#returnType}}{{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
         """
 
         all_params = [{{#parameters}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/parameters}}]  # noqa: E501
