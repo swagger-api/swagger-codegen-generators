@@ -22,6 +22,10 @@ extension YearMonthDay: Codable, Equatable, Hashable, Comparable {
         day = calendar.component(.day, from: date)
     }
 
+    public static func mock(_ date: Date = Date()) -> YearMonthDay {
+        YearMonthDay(from: date)
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawDate = try container.decode(String.self)
