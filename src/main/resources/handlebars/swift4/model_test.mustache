@@ -12,7 +12,7 @@ public extension {{packageName}}.{{classname}} {
 {{/isEnum}}
 {{^isEnum}}
 public extension {{packageName}}.{{classname}} {
-static func mock({{#allVars}}{{name}}: {{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#required}} = {{#is this 'container'}}[]{{/is}}{{#isNot this 'container'}}{{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}.mock(){{/isNot}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) -> {{packageName}}.{{classname}} {
+    static func mock({{#allVars}}{{name}}: {{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#required}} = {{#is this 'container'}}[]{{/is}}{{#isNot this 'container'}}{{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}.mock(){{/isNot}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) -> {{packageName}}.{{classname}} {
         {{packageName}}.{{classname}}({{#allVars}}{{name}}: {{name}}{{#has this 'more'}}, {{/has}}{{/allVars}})
     }
 }
