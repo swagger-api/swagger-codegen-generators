@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class SwiftPackagePrefixHelper implements Helper<String> {
 
-    private final String[] foundationTypes = {"String", "Date", "Int", "Bool"};
+    private final String[] foundationTypes = {"String", "Date", "Int", "Bool", "Float", "Double"};
 
     public interface FuncPackage {
         String name();
