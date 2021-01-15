@@ -1,19 +1,29 @@
-import Foundation
-import {{packageName}}
-
 {{#models}}{{#model}}
-public extension {{classname}} {
+{{^isAlias}}
+import Foundation
+import SkyTestFoundation
+import {{packageName}}
 {{#isEnum}}
-    static func mock() -> {{classname}} {
-        {{classname}}.allCases.randomElement()!
+public extension {{packageName}}.{{classname}} {
+    static func mock() -> {{packageName}}.{{classname}} {
+        {{packageName}}.{{classname}}.allCases.randomElement()!
     }
+}
 {{/isEnum}}
 {{^isEnum}}
-    static func mock({{#allVars}}{{name}}: {{{datatypeWithEnum}}}{{^required}}? = nil{{/required}}{{#required}} = {{#is this 'container'}}[]{{/is}}{{#isNot this 'container'}}{{{datatypeWithEnum}}}.mock(){{/isNot}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) -> {{classname}} {
-        {{classname}}({{#allVars}}{{name}}: {{name}}{{#has this 'more'}}, {{/has}}{{/allVars}})
+public extension {{packageName}}.{{classname}} {
+    static func mock({{#allVars}}{{name}}: {{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#required}} = {{#is this 'container'}}[]{{/is}}{{#isNot this 'container'}}{{#isEnum}}{{packageName}}.{{classname}}.{{datatypeWithEnum}}{{/isEnum}}{{^isEnum}}{{{swiftPackagePrefix datatypeWithEnum}}}{{/isEnum}}.mock(){{/isNot}}{{/required}}{{#has this 'more'}}, {{/has}}{{/allVars}}) -> {{packageName}}.{{classname}} {
+        {{packageName}}.{{classname}}({{#allVars}}{{name}}: {{name}}{{#has this 'more'}}, {{/has}}{{/allVars}})
     }
-{{/isEnum}}
 }
-
+{{/isEnum}}
+{{#allVars}}{{#is this 'enum'}}
+public extension {{packageName}}.{{classname}}.{{enumName}} {
+    static func mock() -> {{packageName}}.{{classname}}.{{enumName}} {
+        {{packageName}}.{{classname}}.{{enumName}}.allCases.randomElement()!
+    }
+}
+{{/is}}{{/allVars}}
+{{/isAlias}}
 {{/model}}{{/models}}
 
