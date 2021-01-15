@@ -148,6 +148,11 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String getPackageName() {
+        return packageName;
+    }
+
+    @Override
     public void processOpts() {
         super.processOpts();
 
