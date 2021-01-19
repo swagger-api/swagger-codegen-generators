@@ -68,6 +68,9 @@ import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture
 {{/async}}
 
 {{>generatedAnnotation}}
+{{#useBeanValidation}}
+@Validated
+{{/useBeanValidation}}
 {{#useOas2}}
 @Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
 {{/useOas2}}

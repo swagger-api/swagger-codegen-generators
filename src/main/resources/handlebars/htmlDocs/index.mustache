@@ -205,6 +205,19 @@
           {{/vendorExtensions.anyOf-model}}
       {{/items}}
       {{/vars}}
+      {{#docNoObjects}}
+      {{#isEnum}}
+        <div class="param-enum-header">Enum:</div>
+        {{#allowableValues}}
+        {{#values}}
+        <div class="param-enum">{{{this}}}</div>
+        {{/values}}
+        {{/allowableValues}}
+      {{/isEnum}}
+      {{#arrayModelType}}
+      <div class="param-desc"><span class="param-type"><a href="#{{arrayModelType}}">array[{{arrayModelType}}]</a></span></div>
+      {{/arrayModelType}}
+      {{/docNoObjects}}
     </div>  <!-- field-items -->
   </div>
   {{/model}}
