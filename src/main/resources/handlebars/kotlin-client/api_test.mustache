@@ -40,7 +40,7 @@ class {{classname}}URLs(private val urlBuilder: URLBuilder) {
         headersRequestMatcher: HeadersRequestMatcher = AlwaysMatchHeadersRequestMatcher(){{#hasBodyParam}},{{/hasBodyParam}}
         {{/hasHeaderParams}}
         {{#hasBodyParam}}
-        bodyRequestMatcher: BodyRequestMatcher<{{bodyParam.dataType}}> = AlwaysMatchBodyRequestMatcher()
+        bodyRequestMatcher: BodyRequestMatcher<{{{bodyParam.dataType}}}> = AlwaysMatchBodyRequestMatcher()
         {{/hasBodyParam}}
     ) = MultipleRequestMatcher.Builder()
         .withMatcher(
