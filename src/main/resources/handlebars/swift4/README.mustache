@@ -53,8 +53,8 @@ Class | Method | HTTP request | Description
 - **Flow**: {{{flow}}}
 - **Authorization URL**: {{{authorizationUrl}}}
 - **Scopes**: {{^scopes}}N/A{{/scopes}}
-{{#scopes}} - **{{{scope}}}**: {{{description}}}
-{{/scopes}}
+{{#each scopes}} - **{{@key}}**: {{{this}}}
+{{/each}}
 {{/is}}
 
 {{/authMethods}}

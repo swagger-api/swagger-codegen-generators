@@ -59,8 +59,8 @@ public class {{classname}}  {
     {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}@AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
@@ -70,8 +70,8 @@ public class {{classname}}  {
     {{^useOas2}}
     @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
         {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}"{{scope}}"{{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}"{{@key}}"{{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
