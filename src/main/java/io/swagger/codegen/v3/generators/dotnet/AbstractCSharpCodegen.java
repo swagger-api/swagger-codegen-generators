@@ -111,13 +111,13 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter", "File",
+                        "Client", "client", "parameter", "File", "List", "list",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
                         "localVarPostBody", "localVarHttpHeaderAccepts", "localVarHttpHeaderAccept",
                         "localVarHttpContentTypes", "localVarHttpContentType",
-                        "localVarStatusCode",
+                        "localVarStatusCode", "ApiResponse", "apiresponse",
                         // C# reserved words
                         "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
                         "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
@@ -750,12 +750,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public String getSchemaType(Schema propertySchema) {
         String swaggerType = super.getSchemaType(propertySchema);
 
-        if (propertySchema.get$ref() != null) {
-            final Schema refSchema = OpenAPIUtil.getSchemaFromName(swaggerType, this.openAPI);
-            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
-                swaggerType = super.getSchemaType(refSchema);
-            }
-        }
+        swaggerType = getRefSchemaTargetType(propertySchema, swaggerType);
 
         String type;
 
@@ -773,6 +768,20 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             type = swaggerType;
         }
         return toModelName(type);
+    }
+
+    protected String getRefSchemaTargetType(Schema schema, String schemaType) {
+        if (schemaType == null) {
+            return null;
+        }
+        if (schema != null && schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+        return schemaType;
+
     }
 
     /**

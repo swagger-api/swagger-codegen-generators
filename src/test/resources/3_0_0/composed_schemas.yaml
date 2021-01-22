@@ -168,3 +168,9 @@ components:
       properties:
         name:
           type: string
+
+    List:
+      type: object
+      properties:
+        name:
+          type: string

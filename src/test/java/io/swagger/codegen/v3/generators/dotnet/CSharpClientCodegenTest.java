@@ -54,5 +54,8 @@ public class CSharpClientCodegenTest extends AbstractCodegenTest {
 
         CodegenModel codegenModel = codegenWrapper.getAllModels().get("ModelClient");
         Assert.assertNotNull(codegenModel);
+
+        codegenModel = codegenWrapper.getAllModels().get("ModelList");
+        Assert.assertNotNull(codegenModel);
     }
 }
