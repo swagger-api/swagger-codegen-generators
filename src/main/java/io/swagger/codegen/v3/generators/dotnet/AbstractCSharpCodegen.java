@@ -1090,7 +1090,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParameters(content, codegenOperation.bodyParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);

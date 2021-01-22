@@ -140,7 +140,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);
             addParameters(content, codegenOperation.cookieParams);
-            addParameters(content, codegenOperation.bodyParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
         }
     }
 
