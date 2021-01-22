@@ -106,7 +106,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 Arrays.asList("IDictionary")
         );
 
-        setReservedWordsLowerCase(
+        setReservedWords(
                 Arrays.asList(
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
@@ -743,7 +743,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     protected boolean isReservedWord(String word) {
         // NOTE: This differs from super's implementation in that C# does _not_ want case insensitive matching.
-        return reservedWords.contains(word);
+        return reservedWords.contains(word.toLowerCase());
     }
 
     @Override

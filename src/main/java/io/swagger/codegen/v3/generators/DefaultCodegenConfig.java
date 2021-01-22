@@ -2901,6 +2901,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
+    protected void setReservedWords(List<String> words) {
+        reservedWords = new HashSet<String>();
+        reservedWords.addAll(words);
+    }
+
     protected boolean isReservedWord(String word) {
         return word != null && reservedWords.contains(word.toLowerCase());
     }
