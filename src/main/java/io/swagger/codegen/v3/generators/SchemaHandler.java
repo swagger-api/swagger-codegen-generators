@@ -224,6 +224,8 @@ public class SchemaHandler implements ISchemaHandler {
         this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
         codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
         codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
+        boolean isInterface = codegenModel.arrayModelType.startsWith(ALL_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ONE_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ANY_OF_PREFFIX);
+        codegenModel.getVendorExtensions().put("x-array-model-type-is-interface", isInterface);
 
         arraySchema.setItems(items);
     }
