@@ -9,8 +9,8 @@ import re  # noqa: F401
 # python 2 and python 3 compatibility library
 import six
 # Model imports
-{{#operations}}{{#operation}}{{#contents}}{{#returnType}}from . import {{returnType}}
-{{/returnType}}{{/contents}}{{/operation}}{{/operations}}
+{{#operations}}{{#operation}}{{#unless returnTypeIsPrimitive}}{{#returnType}}from . import {{returnType}}
+{{/returnType}}{{/unless}}{{/operation}}{{/operations}}
 # Importing for doctring purposes
 # Api Client
 from {{packageName}}.api_client import ApiClient
