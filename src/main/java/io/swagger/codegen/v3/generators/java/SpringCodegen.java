@@ -702,6 +702,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     private void forceOas2() {
         setUseOas2(true);
         additionalProperties.put(CodegenConstants.USE_OAS2, true);
+        importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
+        importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
+        importMapping.remove("Schema");
     }
 
     private boolean isSpringCloudLibrary() {
