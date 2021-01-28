@@ -70,7 +70,7 @@ public class ApiClient {
         auth = new ApiKeyAuth({{#is this 'key-in-header'}}"header"{{/is}}{{#isNot this 'key-in-header'}}"query"{{/isNot}}, "{{keyParamName}}");
         {{/is}}
         {{#is this 'oauth'}}
-        auth = new OAuth(OAuthFlow.{{flow}}, "{{authorizationUrl}}", "{{tokenUrl}}", "{{#scopes}}{{scope}}{{#hasMore}}, {{/hasMore}}{{/scopes}}");
+        auth = new OAuth(OAuthFlow.{{flow}}, "{{authorizationUrl}}", "{{tokenUrl}}", "{{#each scopes}}{{@key}}{{^@last}}, {{/@last}}{{/each}}");
         {{/is}}
       } else {{/authMethods}}{
         throw new RuntimeException("auth name \"" + authName + "\" not found in available auth names");
