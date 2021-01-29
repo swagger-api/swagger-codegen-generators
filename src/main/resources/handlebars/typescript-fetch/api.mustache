@@ -139,7 +139,7 @@ export const {{classname}}FetchParamCreator = function (configuration?: Configur
             // oauth required
             if (configuration && configuration.accessToken) {
 				const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-					? configuration.accessToken("{{name}}", [{{#scopes}}"{{{scope}}}"{{^@last}}, {{/@last}}{{/scopes}}])
+					? configuration.accessToken("{{name}}", [{{#each scopes}}"{{@key}}"{{^@last}}, {{/@last}}{{/each}}])
 					: configuration.accessToken;
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
