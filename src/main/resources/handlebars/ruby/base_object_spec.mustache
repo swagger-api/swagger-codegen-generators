@@ -1,55 +1,57 @@
 require 'spec_helper'
 
-class ArrayMapObject < Petstore::Category
-  attr_accessor :int_arr, :pet_arr, :int_map, :pet_map, :int_arr_map, :pet_arr_map, :boolean_true_arr, :boolean_false_arr
+class ArrayMapObject
+  attr_accessor :name, :int_arr, :obj_arr, :int_map, :obj_map, :int_arr_map, :obj_arr_map, :boolean_true_arr, :boolean_false_arr
 
   def self.attribute_map
     {
+      :name => :name,
       :int_arr => :int_arr,
-      :pet_arr => :pet_arr,
+      :obj_arr => :obj_arr,
       :int_map => :int_map,
-      :pet_map => :pet_map,
+      :obj_map => :obj_map,
       :int_arr_map => :int_arr_map,
-      :pet_arr_map => :pet_arr_map,
+      :obj_arr_map => :obj_arr_map,
       :boolean_true_arr  => :boolean_true_arr,
       :boolean_false_arr => :boolean_false_arr,
     }
   end
 
-  def self.swagger_types
+  def self.openapi_types
     {
+      :name => :'String',
       :int_arr => :'Array<Integer>',
-      :pet_arr => :'Array<Pet>',
+      :obj_arr => :'Array<ArrayMapObject>',
       :int_map => :'Hash<String, Integer>',
-      :pet_map => :'Hash<String, Pet>',
+      :obj_map => :'Hash<String, ArrayMapObject>',
       :int_arr_map => :'Hash<String, Array<Integer>>',
-      :pet_arr_map => :'Hash<String, Array<Pet>>',
-      :boolean_true_arr  => :'Array<BOOLEAN>',
-      :boolean_false_arr => :'Array<BOOLEAN>',
+      :obj_arr_map => :'Hash<String, Array<ArrayMapObject>>',
+      :boolean_true_arr  => :'Array<Boolean>',
+      :boolean_false_arr => :'Array<Boolean>',
     }
   end
+
+  def self.openapi_nullable
+    Set.new([])
+  end
+
+{{> base_object}}
+
 end
 
 describe 'BaseObject' do
-  describe 'boolean values' do
-    let(:obj) { Petstore::Cat.new({declawed: false}) }
-
-    it 'should have values set' do
-      expect(obj.declawed).not_to be_nil
-      expect(obj.declawed).to eq(false)
-    end
-  end
 
   describe 'array and map properties' do
     let(:obj) { ArrayMapObject.new }
 
     let(:data) do
-      {int_arr: [123, 456],
-       pet_arr: [{name: 'Kitty'}],
+      {name: 'Test',
+       int_arr: [123, 456],
+       obj_arr: [{name: 'Test'}],
        int_map: {'int' => 123},
-       pet_map: {'pet' => {name: 'Kitty'}},
+       obj_map: {'obj' => {name: 'Test'}},
        int_arr_map: {'int_arr' => [123, 456]},
-       pet_arr_map: {'pet_arr' => [{name: 'Kitty'}]},
+       obj_arr_map: {'obj_arr' => [{name: 'Test'}]},
        boolean_true_arr:  [true, "true", "TruE", 1, "y", "yes", "1", "t", "T"],
        boolean_false_arr: [false, "", 0, "0", "f", nil, "null"],
       }
@@ -60,32 +62,32 @@ describe 'BaseObject' do
 
       expect(obj.int_arr).to match_array([123, 456])
 
-      expect(obj.pet_arr).to be_instance_of(Array)
-      expect(obj.pet_arr).to be_instance_of(1)
+      expect(obj.obj_arr).to be_instance_of(Array)
+      expect(obj.obj_arr.size).to eq(1)
 
-      pet = obj.pet_arr.first
-      expect(pet).to be_instance_of(Petstore::Pet)
-      expect(pet.name).to eq('Kitty')
+      value = obj.obj_arr.first
+      expect(value).to be_instance_of(ArrayMapObject)
+      expect(value.name).to eq('Test')
 
       expect(obj.int_map).to be_instance_of(Hash)
       expect(obj.int_map).to eq({'int' => 123})
 
-      expect(obj.pet_map).to be_instance_of(Hash)
-      pet = obj.pet_map['pet']
-      expect(pet).to be_instance_of(Petstore::Pet)
-      expect(pet.name).to eq('Kitty')
+      expect(obj.obj_map).to be_instance_of(Hash)
+      value = obj.obj_map['obj']
+      expect(value).to be_instance_of(ArrayMapObject)
+      expect(value.name).to eq('Test')
 
       expect(obj.int_arr_map).to be_instance_of(Hash)
       arr = obj.int_arr_map['int_arr']
       expect(arr).to match_array([123, 456])
 
-      expect(obj.pet_arr_map).to be_instance_of(Hash)
-      arr = obj.pet_arr_map['pet_arr']
+      expect(obj.obj_arr_map).to be_instance_of(Hash)
+      arr = obj.obj_arr_map['obj_arr']
       expect(arr).to be_instance_of(Array)
       expect(arr.size).to eq(1)
-      pet = arr.first
-      expect(pet).to be_instance_of(Petstore::Pet)
-      expect(pet.name).to eq('Kitty')
+      value = arr.first
+      expect(value).to be_instance_of(ArrayMapObject)
+      expect(value.name).to eq('Test')
 
       expect(obj.boolean_true_arr).to be_instance_of(Array)
       obj.boolean_true_arr.each do |b|
