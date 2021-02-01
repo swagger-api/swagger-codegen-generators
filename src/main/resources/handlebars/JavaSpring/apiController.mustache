@@ -123,6 +123,7 @@ public class {{classname}}Controller implements {{classname}} {
 {{#fullController}}
 {{#operation}}
 {{#contents}}
+{{#@first}}
     public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{^isDelegate}}
         {{^async}}
@@ -166,6 +167,7 @@ public class {{classname}}Controller implements {{classname}} {
         {{/isDelegate}}
     }
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 {{/fullController}}
