@@ -5,6 +5,7 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -113,7 +114,6 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PROPERTY_NAMING, CodegenConstants.MODEL_PROPERTY_NAMING_DESC).defaultValue("camelCase"));
         cliOptions.add(new CliOption(CodegenConstants.SUPPORTS_ES6, CodegenConstants.SUPPORTS_ES6_DESC).defaultValue("false"));
-
     }
 
     @Override
@@ -242,7 +242,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     }
 
     @Override
-    protected void addImport(CodegenModel codegenModel, String type) {
+    public void addImport(CodegenModel codegenModel, String type) {
         if (type == null) {
             return;
         }
@@ -286,9 +286,9 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     }
 
     @Override
-    public String getSchemaType(Schema schema) {
+    public String  getSchemaType(Schema schema) {
         String swaggerType = super.getSchemaType(schema);
-        if (swaggerType == null && schema instanceof ComposedSchema) {
+        if (schema instanceof ComposedSchema) {
             ComposedSchema composedSchema = (ComposedSchema)schema;
             if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
                 return String.join(" & ", getTypesFromInterfaces(composedSchema.getAllOf()));
@@ -466,5 +466,10 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public String escapeUnsafeCharacters(String input) {
         return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
+
+    @Override
+    public ISchemaHandler getSchemaHandler() {
+        return new TypeScriptSchemaHandler(this);
     }
 }

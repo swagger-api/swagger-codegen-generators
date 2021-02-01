@@ -14,7 +14,9 @@ import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -27,11 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -39,7 +37,7 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
+public class SpringCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures, NotNullAnnotationFeatures {
     static Logger LOGGER = LoggerFactory.getLogger(SpringCodegen.class);
     public static final String DEFAULT_LIBRARY = "spring-boot";
     public static final String TITLE = "title";
@@ -79,8 +77,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean useOptional = false;
     protected boolean openFeign = false;
     protected boolean defaultInterfaces = true;
-    protected String springBootVersion = "1.5.22.RELEASE";
+    protected String springBootVersion = "2.1.16.RELEASE";
     protected boolean throwsException = false;
+    private boolean notNullJacksonAnnotation = false;
 
     public SpringCodegen() {
         super();
@@ -135,6 +134,17 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
 
     @Override
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+        }
+    }
+
+    @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
     }
@@ -151,9 +161,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public void processOpts() {
-        setUseOas2(true);
-        additionalProperties.put(CodegenConstants.USE_OAS2, true);
-
         // Process java8 option before common java ones to change the default dateLibrary to java8.
         if (additionalProperties.containsKey(JAVA8_MODE)) {
             this.setJava8(Boolean.valueOf(additionalProperties.get(JAVA8_MODE).toString()));
@@ -182,10 +189,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         super.processOpts();
-
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         // clear model and api doc template as this codegen
         // does not support auto-generated markdown doc at the moment
@@ -273,6 +276,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         typeMapping.put("file", "Resource");
+        typeMapping.put("binary", "Resource");
         importMapping.put("Resource", "org.springframework.core.io.Resource");
 
         if (useOptional) {
@@ -295,7 +299,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (!this.interfaceOnly) {
 
-            if (library.equals(DEFAULT_LIBRARY)) {
+            if (isDefaultLibrary()) {
                 apiTestTemplateFiles.clear();
                 supportingFiles.add(new SupportingFile("homeController.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "HomeController.java"));
@@ -303,10 +307,13 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + basePackage).replace(".", java.io.File.separator), "Swagger2SpringBoot.java"));
                 supportingFiles.add(new SupportingFile("RFC3339DateFormat.mustache",
                         (sourceFolder + File.separator + basePackage).replace(".", java.io.File.separator), "RFC3339DateFormat.java"));
+                supportingFiles.add(new SupportingFile("swaggerUiConfiguration.mustache",
+                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerUiConfiguration.java"));
                 supportingFiles.add(new SupportingFile("application.mustache",
                         ("src.main.resources").replace(".", java.io.File.separator), "application.properties"));
             }
-            if (library.equals(SPRING_MVC_LIBRARY)) {
+            if (isSpringMvcLibrary()) {
+                forceOas2();
                 supportingFiles.add(new SupportingFile("webApplication.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "WebApplication.java"));
                 supportingFiles.add(new SupportingFile("webMvcConfiguration.mustache",
@@ -315,10 +322,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerUiConfiguration.java"));
                 supportingFiles.add(new SupportingFile("RFC3339DateFormat.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "RFC3339DateFormat.java"));
-                supportingFiles.add(new SupportingFile("application.properties",
+                supportingFiles.add(new SupportingFile("application.properties.mustache",
                         ("src.main.resources").replace(".", java.io.File.separator), "swagger.properties"));
             }
-            if (library.equals(SPRING_CLOUD_LIBRARY)) {
+            if (isSpringCloudLibrary()) {
+                forceOas2();
                 supportingFiles.add(new SupportingFile("apiKeyRequestInterceptor.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "ApiKeyRequestInterceptor.java"));
                 supportingFiles.add(new SupportingFile("clientConfiguration.mustache",
@@ -354,7 +362,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
             }
-        } else if ( this.swaggerDocketConfig && !library.equals(SPRING_CLOUD_LIBRARY)) {
+        } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary()) {
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
         }
@@ -365,7 +373,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if ("threetenbp".equals(dateLibrary)) {
             supportingFiles.add(new SupportingFile("customInstantDeserializer.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "CustomInstantDeserializer.java"));
-            if (library.equals(DEFAULT_LIBRARY) || library.equals(SPRING_CLOUD_LIBRARY)) {
+            if (isDefaultLibrary() || isSpringCloudLibrary()) {
                 supportingFiles.add(new SupportingFile("jacksonConfiguration.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "JacksonConfiguration.java"));
             }
@@ -440,7 +448,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations) {
-        if((library.equals(DEFAULT_LIBRARY) || library.equals(SPRING_MVC_LIBRARY)) && !useTags) {
+        if((isDefaultLibrary() || isSpringMvcLibrary()) && !useTags) {
             String basePath = resourcePath;
             if (basePath.startsWith("/")) {
                 basePath = basePath.substring(1);
@@ -469,7 +477,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public String getArgumentsLocation() {
-        return null;
+        return "/arguments/spring.yaml";
     }
 
     @Override
@@ -543,6 +551,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         if ("0".equals(resp.code)) {
                             resp.code = "200";
                         }
+                        if (resp.baseType == null) {
+                            // set vendorExtensions.x-java-is-response-void to true as baseType is set to "Void"
+                            resp.vendorExtensions.put("x-java-is-response-void", true);
+                        }
                         doDataTypeAssignment(resp.dataType, new DataTypeAssigner() {
                             @Override
                             public void setReturnType(final String returnType) {
@@ -591,6 +603,16 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         return objs;
+    }
+
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
     }
 
     private interface DataTypeAssigner {
@@ -670,9 +692,29 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
     }
 
+    /**
+     * Forces Oas2 specification, use it when Oas3 is not supported.
+     */
+    private void forceOas2() {
+        setUseOas2(true);
+        additionalProperties.put(CodegenConstants.USE_OAS2, true);
+    }
+
+    private boolean isSpringCloudLibrary() {
+        return library.equals(SPRING_CLOUD_LIBRARY);
+    }
+
+    private boolean isSpringMvcLibrary() {
+        return library.equals(SPRING_MVC_LIBRARY);
+    }
+
+    private boolean isDefaultLibrary() {
+        return library.equals(DEFAULT_LIBRARY);
+    }
+
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        if(library.equals(SPRING_CLOUD_LIBRARY)) {
+        if (isSpringCloudLibrary()) {
             List<CodegenSecurity> authMethods = (List<CodegenSecurity>) objs.get("authMethods");
             if (authMethods != null) {
                 for (CodegenSecurity authMethod : authMethods) {
@@ -694,10 +736,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     @Override
     public String toApiTestFilename(String name) {
-        if(library.equals(SPRING_MVC_LIBRARY)) {
+        if (isSpringMvcLibrary()) {
             return toApiName(name) + "ControllerIT";
         }
-        if(library.equals(SPRING_CLOUD_LIBRARY)) {
+        if (isSpringCloudLibrary()) {
             return toApiName(name) + "Test";
         }
         return toApiName(name) + "ControllerIntegrationTest";
@@ -789,6 +831,60 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 model.imports.add("JsonCreator");
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+        Map<String, Object> allProcessedModels = super.postProcessAllModels(objs);
+
+        List<Object> allModels = new ArrayList<Object>();
+        for (String name: allProcessedModels.keySet()) {
+            Map<String, Object> models = (Map<String, Object>)allProcessedModels.get(name);
+            try {
+                allModels.add(((List<Object>) models.get("models")).get(0));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        additionalProperties.put("parent", modelInheritanceSupport(allModels));
+
+        return allProcessedModels;
+    }
+
+    protected List<Map<String, Object>> modelInheritanceSupport(List<?> allModels) {
+        Map<CodegenModel, List<CodegenModel>> byParent = new LinkedHashMap<>();
+        for (Object model : allModels) {
+            Map entry = (Map) model;
+            CodegenModel parent = ((CodegenModel)entry.get("model")).parentModel;
+            if(null!= parent) {
+                byParent.computeIfAbsent(parent, k -> new LinkedList<>()).add((CodegenModel)entry.get("model"));
+            }
+        }
+
+        List<Map<String, Object>> parentsList = new ArrayList<>();
+        for (Map.Entry<CodegenModel, List<CodegenModel>> parentModelEntry : byParent.entrySet()) {
+            CodegenModel parentModel = parentModelEntry.getKey();
+            List<Map<String, Object>> childrenList = new ArrayList<>();
+            Map<String, Object> parent = new HashMap<>();
+            parent.put("classname", parentModel.classname);
+            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            for (CodegenModel model : childrenModels) {
+                Map<String, Object> child = new HashMap<>();
+                child.put("name", model.name);
+                child.put("classname", model.classname);
+                childrenList.add(child);
+            }
+            parent.put("children", childrenList);
+            parent.put("discriminator", parentModel.discriminator);
+            if(parentModel.discriminator != null && parentModel.discriminator.getMapping() != null)
+            {
+                parentModel.discriminator.getMapping().replaceAll((key, value) -> OpenAPIUtil.getSimpleRef(value));
+            }
+            parentsList.add(parent);
+        }
+
+        return parentsList;
     }
 
     @Override

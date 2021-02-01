@@ -4,6 +4,9 @@ import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.generators.AbstractCodegenTest;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
@@ -16,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -218,6 +223,7 @@ public class KotlinClientCodegenModelTest {
     public void complexPropertyTest() {
         final Schema schema = getComplexSchema();
         final CodegenConfig codegen = new KotlinClientCodegen();
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
         final CodegenModel cm = codegen.fromModel("sample", schema);
 
         Assert.assertEquals(cm.name, "sample");
@@ -252,6 +258,8 @@ public class KotlinClientCodegenModelTest {
     public void sanitizeModelNames(final String name, final ModelNameTest testCase) {
         final Schema schema = getComplexSchema();
         final CodegenConfig codegen = new KotlinClientCodegen();
+        codegen.preprocessOpenAPI(new OpenAPI().components(new Components()));
+
         final CodegenModel cm = codegen.fromModel(name, schema);
 
         Assert.assertEquals(cm.name, testCase.expectedName);

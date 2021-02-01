@@ -1,0 +1,164 @@
+openapi: 3.0.0
+servers: []
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Simple Inventory API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+paths:
+  /inventory:
+    get:
+      tags:
+        - developers
+      summary: searches inventory
+      operationId: searchInventory
+      description: |
+        By passing in the appropriate options, you can search for
+        available inventory in the system
+      parameters:
+        - in: query
+          name: searchString
+          description: pass an optional search string for looking up inventory
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 50
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartMaster'
+        '400':
+          description: bad input parameter
+
+components:
+  schemas:
+    PartOne:
+      properties:
+        name:
+          type: string
+          description: A test description
+    PartTwo:
+      properties:
+        id:
+          type: string
+    PartThree:
+      properties:
+        otherId:
+          type: string
+    PartFour:
+      properties:
+        otherIdPart:
+          type: string
+    PartMaster:
+      properties:
+        destination:
+          oneOf:
+            - $ref: '#/components/schemas/PartOne'
+            - $ref: '#/components/schemas/PartTwo'
+        origin:
+          oneOf:
+            - $ref: '#/components/schemas/PartThree'
+            - $ref: '#/components/schemas/PartFour'
+
+    Pet:
+      type: object
+      required:
+        - name
+        - photoUrls
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: doggie
+        status:
+          type: string
+          description: pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+        part:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Dog"
+              - $ref: "#/components/schemas/Cat"
+      xml:
+        name: Pet
+
+    Pup:
+      oneOf:
+        - $ref: "#/components/schemas/Dog"
+        - $ref: "#/components/schemas/Cat"
+      properties:
+        id:
+          type: integer
+          format: int64
+    AllPetsResponse:
+      type: array
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/Dog"
+          - $ref: "#/components/schemas/Cat"
+        discriminator:
+          propertyName: pet_type
+
+    Dog:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            bark:
+              type: boolean
+            breed:
+              type: string
+              enum: [Dingo, Husky, Retriever, Shepherd]
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            hunts:
+              type: boolean
+            age:
+              type: integer
+
+    House:
+      type: object
+      properties:
+        pets:
+          items:
+            oneOf:
+            - "$ref": "#/components/schemas/Dog"
+            - "$ref": "#/components/schemas/Cat"
+          type: array

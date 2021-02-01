@@ -85,8 +85,6 @@ public class OpenAPIGenerator extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
-
         if (additionalProperties.containsKey(OUTPUT_NAME) && !StringUtils.isBlank((String) additionalProperties.get(OUTPUT_NAME))) {
             setOutputFile((String) additionalProperties.get(OUTPUT_NAME));
         }

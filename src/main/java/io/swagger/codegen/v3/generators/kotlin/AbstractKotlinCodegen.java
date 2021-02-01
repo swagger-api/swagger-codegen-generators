@@ -51,7 +51,15 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
-                "kotlin.collections.Set"
+                "kotlin.collections.Set",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
@@ -136,7 +144,15 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
-                "kotlin.collections.Map"
+                "kotlin.collections.Map",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
         instantiationLibraryFunction = new HashSet<>(Arrays.asList(
@@ -153,14 +169,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         typeMapping.put("double", "kotlin.Double");
         typeMapping.put("number", "java.math.BigDecimal");
         typeMapping.put("date-time", "java.time.LocalDateTime");
-        typeMapping.put("date", "java.time.LocalDateTime");
+        typeMapping.put("date", "java.time.LocalDate");
         typeMapping.put("file", "java.io.File");
         typeMapping.put("array", "kotlin.Array");
         typeMapping.put("list", "kotlin.Array");
         typeMapping.put("map", "kotlin.collections.Map");
         typeMapping.put("object", "kotlin.Any");
         typeMapping.put("binary", "kotlin.Array<kotlin.Byte>");
-        typeMapping.put("Date", "java.time.LocalDateTime");
+        typeMapping.put("Date", "java.time.LocalDate");
         typeMapping.put("DateTime", "java.time.LocalDateTime");
 
         instantiationTypes.put("array", "arrayOf");
@@ -401,6 +417,25 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toEnumValue(String value, String datatype) {
+        if (isPrimivite(datatype)) {
+            return value;
+        }
+        return super.toEnumValue(value, datatype);
+    }
+
+    @Override
+    public boolean isPrimivite(String datatype) {
+        return "kotlin.Byte".equalsIgnoreCase(datatype)
+            || "kotlin.Short".equalsIgnoreCase(datatype)
+            || "kotlin.Int".equalsIgnoreCase(datatype)
+            || "kotlin.Long".equalsIgnoreCase(datatype)
+            || "kotlin.Float".equalsIgnoreCase(datatype)
+            || "kotlin.Double".equalsIgnoreCase(datatype)
+            || "kotlin.Boolean".equalsIgnoreCase(datatype);
+    }
+
+    @Override
     public String toInstantiationType(Schema p) {
         if (p instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) p);
@@ -449,7 +484,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
         modifiedName = titleCase(modifiedName);
 
-        if (modifiedName.equalsIgnoreCase("Companion")){
+        if (modifiedName.equalsIgnoreCase("Companion")) {
             modifiedName = "_" + modifiedName;
         }
 

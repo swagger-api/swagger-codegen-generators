@@ -3,6 +3,6 @@
 @ApiParam(value = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}
 {{/useOas2}}
 {{^useOas2}}
-@Parameter(description = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}
+@Parameter(in = ParameterIn.DEFAULT, description = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}}) {{{dataType}}} {{paramName}}
 {{/useOas2}}
 {{/is}}

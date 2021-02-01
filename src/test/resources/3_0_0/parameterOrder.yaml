@@ -1,0 +1,309 @@
+openapi: 3.0.3
+info:
+  title: Title
+  version: "2.0.0"
+  description: test
+  contact:
+    name: test contact
+    url: 'http://www.contact.com'
+security:
+  - OAuth2: []
+paths:
+  '/admin/texts/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: description
+        required: true
+        schema:
+          type: integer
+          format: int64
+    put:
+      summary: Update
+      description: description
+      operationId: updateTest
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalizedText'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocalizedText'
+        description: Localized Text object containing updated data.
+        required: true
+        x-ecc-validate:
+          validated: [Update]
+servers:
+  - url: 'http://localhost:8082/v1'
+  - url: 'https://localhost:8082/v1'
+components:
+  schemas:
+    Paging:
+      type: object
+      description: Paging data.
+      required:
+        - totalItems
+        - totalPages
+        - pageSize
+        - currentPage
+      properties:
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        pageSize:
+          type: integer
+        currentPage:
+          type: integer
+    ObjectAsMap:
+      type: object
+      additionalProperties:
+        type: object
+      description: >
+        Localized text data to be updated.
+
+        Tree is represented by `Map<String,Object>` where String is field name
+        and object is field value.
+    BaseAudit:
+      type: object
+      description: Base audit fields
+      properties:
+        created:
+          type: string
+          format: date-time
+          description: Indicates time of creation.
+        modified:
+          type: string
+          format: date-time
+          description: Indicates time of last modification.
+        createdBy:
+          type: string
+          description: Identification of creator.
+        modifiedBy:
+          type: string
+          description: Identification of modifier.
+    BaseRecordVersion:
+      type: object
+      description: BaseRecordVersion
+      properties:
+        recordVersion:
+          type: integer
+          x-ecc-validate:
+            check-null: [Create]
+            check-not-null: [Update]
+            check-required: [Patch, BulkPatch]
+          description: 'Timestamp from last update, not to be updated directly'
+          format: int64
+    PagedLocalizedTexts:
+      description: Paged LocalizedText.
+      allOf:
+        - $ref: '#/components/schemas/Paging'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocalizedText'
+    BulkDelete:
+      type: object
+      required:
+        - id
+      description: List of objects ids to be deleted with bulk operation
+      properties:
+        id:
+          type: string
+    BulkDeleteList:
+      type: object
+      description: List of Ids of object to be removed
+      properties:
+        bulkDeleteList:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkDelete'
+    LocalizedText:
+      type: object
+      required:
+        - module
+        - locale
+        - key
+        - defaultValue
+      allOf:
+        - $ref: '#/components/schemas/BaseRecordVersion'
+        - $ref: '#/components/schemas/BaseAudit'
+        - properties:
+            id:
+              type: integer
+              format: int64
+              x-ecc-validate:
+                check-null: [Create, Update]
+                check-not-valid: [Patch]
+              description: ID of the Localized text
+              example: 1
+            module:
+              type: string
+              x-ecc-validate:
+                check-not-empty: [Create, Update]
+                check-not-valid: [Patch]
+              description: Module name to be used for key value to be loaded
+              example: COMMONS
+            locale:
+              type: string
+              x-ecc-validate:
+                check-not-empty: [Create, Update]
+                check-not-valid: [Patch]
+              description: Localization to be retrieved
+              example: en
+            key:
+              type: string
+              x-ecc-validate:
+                check-not-empty: [Create, Update]
+                check-not-valid: [Patch]
+              description: Localized text key value normally used for retrieval
+              example: LocalizedTextToBeRetrieved
+            defaultValue:
+              type: string
+              x-ecc-validate:
+                check-not-empty: [Create, Update]
+                check-valid: [Patch]
+              description: Default Text to be used
+              example: Default Localized Text
+            customValue:
+              type: string
+              x-ecc-validate:
+                check-valid: [Create, Update, Patch]
+              description: Alternative Text to be used
+              example: Alternative Localized Text
+    Failures:
+      type: object
+      description: 'Contains list of failures, which had occured.'
+      properties:
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Failure'
+    Failure:
+      type: object
+      description: >-
+        Response object containing further information about reason, why request
+        had failed
+      required:
+        - code
+        - module
+        - happened
+        - detail
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Internal code of the error
+          example: 100
+          default: 0
+        key:
+          type: string
+        module:
+          type: string
+          description: 'Internal name of the module, when error happened'
+          example: localized-text
+        happened:
+          type: string
+          format: date-time
+          description: 'Timestamp, when the error happened'
+          example: '2018-06-05T12:58:44.953+0000'
+        detail:
+          type: string
+          description: Further text description about error occured.
+          example: 'LocalizedTextDto recordVersion: cannot be null or missing'
+        localizedDescription:
+          type: string
+          description: Localized description for the problem.
+        contextData:
+          type: object
+          description: >-
+            List of key-value pairs with additional info about the error (for
+            example input value which caused the error)
+          additionalProperties:
+            type: string
+        stackTrace:
+          type: array
+          description: Optional stack trace available for development purposes only.
+          items:
+            type: string
+    ResponseEntity:
+      type: object
+      properties:
+        body:
+          type: object
+        statusCode:
+          type: string
+          enum:
+            - '100'
+            - '101'
+            - '102'
+            - '103'
+            - '200'
+            - '201'
+            - '202'
+            - '203'
+            - '204'
+            - '205'
+            - '206'
+            - '207'
+            - '208'
+            - '226'
+            - '300'
+            - '301'
+            - '302'
+            - '303'
+            - '304'
+            - '305'
+            - '307'
+            - '308'
+            - '400'
+            - '401'
+            - '402'
+            - '403'
+            - '404'
+            - '405'
+            - '406'
+            - '407'
+            - '408'
+            - '409'
+            - '410'
+            - '411'
+            - '412'
+            - '413'
+            - '414'
+            - '415'
+            - '416'
+            - '417'
+            - '418'
+            - '419'
+            - '420'
+            - '421'
+            - '422'
+            - '423'
+            - '424'
+            - '426'
+            - '428'
+            - '429'
+            - '431'
+            - '451'
+            - '500'
+            - '501'
+            - '502'
+            - '503'
+            - '504'
+            - '505'
+            - '506'
+            - '507'
+            - '508'
+            - '509'
+            - '510'
+            - '511'
+        statusCodeValue:
+          type: integer
+          format: int32

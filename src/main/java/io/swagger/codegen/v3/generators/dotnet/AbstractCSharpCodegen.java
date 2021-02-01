@@ -4,6 +4,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
@@ -14,6 +15,7 @@ import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -30,6 +32,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,10 +222,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         // {{packageVersion}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_VERSION)) {
@@ -435,12 +434,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         // This is different in C# than most other generators, because enums in C# are compiled to integral types,
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
-                        var.allowableValues = refModel.allowableValues;
+                        var.allowableValues = new HashMap<>(refModel.allowableValues);
                         updateCodegenPropertyEnum(var);
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
                         var.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
-                        var.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
                     }
                 }
 
@@ -534,6 +532,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);
         if (objs != null) {
+            boolean hasAuthMethods = false;
             Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -582,8 +581,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                     }
 
                     processOperation(operation);
+                    if (getBooleanValue(operation, CodegenConstants.HAS_AUTH_METHODS_EXT_NAME)) {
+                        hasAuthMethods = true;
+                    }
                 }
             }
+            objs.put("hasAuthMethods", hasAuthMethods);
         }
 
         return objs;
@@ -746,6 +749,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public String getSchemaType(Schema propertySchema) {
         String swaggerType = super.getSchemaType(propertySchema);
+
+        if (propertySchema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(swaggerType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
+                swaggerType = super.getSchemaType(refSchema);
+            }
+        }
+
         String type;
 
         if (swaggerType == null) {
@@ -913,6 +924,9 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         // C# only supports enums as literals for int, int?, long, long?, byte, and byte?. All else must be treated as strings.
         // Per: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/enum
         // The approved types for an enum are byte, sbyte, short, ushort, int, uint, long, or ulong.
@@ -933,6 +947,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         // for symbol, e.g. $, #
         if (getSymbolName(name) != null) {
             return camelize(getSymbolName(name));
+         }
+
+        if (NumberUtils.isNumber(name)) {
+            return "NUMBER_" + name.replaceAll("-", "MINUS_")
+                    .replaceAll("\\+", "PLUS_")
+                    .replaceAll("\\.", "_DOT_");
         }
 
         String enumName = sanitizeName(name);
@@ -1067,6 +1087,20 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(new CsharpHelper());
     }
 
+    @Override
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+        }
+    }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
+    }
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override

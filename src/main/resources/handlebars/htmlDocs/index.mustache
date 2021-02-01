@@ -174,7 +174,50 @@
       {{#example}}
           <div class="param-desc"><span class="param-type">example: {{example}}</span></div>
       {{/example}}
+      {{#vendorExtensions.oneOf-model}}
+      <div class="param-desc"><span class="param-type">oneOf:</span>
+          {{#vendorExtensions.x-model-names}}
+              <a href="#{{this}}"><code>{{this}}</code></a>&nbsp;&nbsp;&nbsp;
+          {{/vendorExtensions.x-model-names}}
+      </div>
+      {{/vendorExtensions.oneOf-model}}
+      {{#vendorExtensions.anyOf-model}}
+      <div class="param-desc"><span class="param-type">anyOf:</span>
+          {{#vendorExtensions.x-model-names}}
+              <a href="#{{this}}"><code>{{this}}</code></a>&nbsp;&nbsp;&nbsp;
+          {{/vendorExtensions.x-model-names}}
+      </div>
+      {{/vendorExtensions.anyOf-model}}
+      {{#items}}
+          {{#vendorExtensions.oneOf-model}}
+              <div class="param-desc"><span class="param-type">items oneOf:</span>
+              {{#vendorExtensions.x-model-names}}
+                  <a href="#{{this}}"><code>{{this}}</code></a>&nbsp;&nbsp;&nbsp;
+              {{/vendorExtensions.x-model-names}}
+              </div>
+          {{/vendorExtensions.oneOf-model}}
+          {{#vendorExtensions.anyOf-model}}
+              <div class="param-desc"><span class="param-type">items anyOf:</span>
+              {{#vendorExtensions.x-model-names}}
+                  <a href="#{{this}}"><code>{{this}}</code></a>&nbsp;&nbsp;&nbsp;
+              {{/vendorExtensions.x-model-names}}
+              </div>
+          {{/vendorExtensions.anyOf-model}}
+      {{/items}}
       {{/vars}}
+      {{#docNoObjects}}
+      {{#isEnum}}
+        <div class="param-enum-header">Enum:</div>
+        {{#allowableValues}}
+        {{#values}}
+        <div class="param-enum">{{{this}}}</div>
+        {{/values}}
+        {{/allowableValues}}
+      {{/isEnum}}
+      {{#arrayModelType}}
+      <div class="param-desc"><span class="param-type"><a href="#{{arrayModelType}}">array[{{arrayModelType}}]</a></span></div>
+      {{/arrayModelType}}
+      {{/docNoObjects}}
     </div>  <!-- field-items -->
   </div>
   {{/model}}

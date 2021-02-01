@@ -9,7 +9,7 @@ import unittest
 {{#models}}
 {{#model}}
 import {{packageName}}
-from {{modelPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+from {{packageName}}.{{modelPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
 from {{packageName}}.rest import ApiException
 
 

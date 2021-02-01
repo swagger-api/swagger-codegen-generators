@@ -1,4 +1,4 @@
 {{#is this 'header-param'}}
 {{#useOas2}}@ApiParam(value = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@HeaderParam("{{baseName}}") {{{dataType}}} {{paramName}}{{/useOas2}}
-{{^useOas2}}@Parameter(description = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@HeaderParam("{{baseName}}") {{{dataType}}} {{paramName}}{{/useOas2}}
+{{^useOas2}}@Parameter(in = ParameterIn.HEADER, description = "{{{description}}}" {{#required}},required=true{{/required}}{{#allowableValues}}, {{> allowableValues }}{{/allowableValues}}{{#defaultValue}}, defaultValue="{{{defaultValue}}}"{{/defaultValue}})@HeaderParam("{{baseName}}") {{{dataType}}} {{paramName}}{{/useOas2}}
 {{/is}}

@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipFeatures;
+import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.features.PerformBeanValidationFeatures;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,13 +33,14 @@ import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.Collections.sort;
 
-public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures {
+public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, PerformBeanValidationFeatures, GzipFeatures, NotNullAnnotationFeatures {
     static final String MEDIA_TYPE = "mediaType";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaClientCodegen.class);
 
     public static final String USE_RX_JAVA = "useRxJava";
     public static final String USE_RX_JAVA2 = "useRxJava2";
+    public static final String USE_RX_JAVA3 = "useRxJava3";
     public static final String DO_NOT_USE_RX = "doNotUseRx";
     public static final String USE_PLAY_WS = "usePlayWS";
     public static final String PLAY_VERSION = "playVersion";
@@ -54,6 +56,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     protected String gradleWrapperPackage = "gradle.wrapper";
     protected boolean useRxJava = false;
     protected boolean useRxJava2 = false;
+    protected boolean useRxJava3 = false;
     protected boolean doNotUseRx = true; // backwards compatibility for swagger configs that specify neither rx1 nor rx2 (mustache does not allow for boolean operators so we need this extra field)
     protected boolean usePlayWS = false;
     protected String playVersion = PLAY_25;
@@ -62,6 +65,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     protected boolean performBeanValidation = false;
     protected boolean useGzipFeature = false;
     protected boolean useRuntimeException = false;
+    private boolean notNullJacksonAnnotation = false;
 
 
     public JavaClientCodegen() {
@@ -74,6 +78,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
         cliOptions.add(CliOption.newBoolean(USE_RX_JAVA, "Whether to use the RxJava adapter with the retrofit2 library."));
         cliOptions.add(CliOption.newBoolean(USE_RX_JAVA2, "Whether to use the RxJava2 adapter with the retrofit2 library."));
+        cliOptions.add(CliOption.newBoolean(USE_RX_JAVA3, "Whether to use the RxJava3 adapter with the retrofit2 library."));
         cliOptions.add(CliOption.newBoolean(PARCELABLE_MODEL, "Whether to generate models for Android that implement Parcelable with the okhttp-gson library."));
         cliOptions.add(CliOption.newBoolean(USE_PLAY_WS, "Use Play! Async HTTP client (Play WS API)"));
         cliOptions.add(CliOption.newString(PLAY_VERSION, "Version of Play! Framework (possible values \"play24\", \"play25\")"));
@@ -119,20 +124,18 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     @Override
     public void processOpts() {
         super.processOpts();
-        if (StringUtils.isBlank(templateDir)) {
-            String templateVersion = getTemplateVersion();
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
-        if (additionalProperties.containsKey(USE_RX_JAVA) && additionalProperties.containsKey(USE_RX_JAVA2)) {
-            LOGGER.warn("You specified both RxJava versions 1 and 2 but they are mutually exclusive. Defaulting to v2.");
-        } else if (additionalProperties.containsKey(USE_RX_JAVA)) {
+        if (additionalProperties.containsKey(USE_RX_JAVA)) {
             this.setUseRxJava(Boolean.valueOf(additionalProperties.get(USE_RX_JAVA).toString()));
         }
         if (additionalProperties.containsKey(USE_RX_JAVA2)) {
             this.setUseRxJava2(Boolean.valueOf(additionalProperties.get(USE_RX_JAVA2).toString()));
         }
-        if (!useRxJava && !useRxJava2) {
+        if (additionalProperties.containsKey(USE_RX_JAVA3)) {
+            this.setUseRxJava3(Boolean.valueOf(additionalProperties.get(USE_RX_JAVA3).toString()));
+        }
+
+        if (!useRxJava && !useRxJava2 && !useRxJava3) {
             additionalProperties.put(DO_NOT_USE_RX, true);
         }
         if (additionalProperties.containsKey(USE_PLAY_WS)) {
@@ -526,7 +529,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
             List<Map<String, Object>> childrenList = new ArrayList<>();
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
-            List<CodegenModel> childrenModels = byParent.get(parentModel);
+            List<CodegenModel> childrenModels = parentModelEntry.getValue();
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);
@@ -552,6 +555,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     public void setUseRxJava2(boolean useRxJava2) {
         this.useRxJava2 = useRxJava2;
+        doNotUseRx = false;
+    }
+
+    public void setUseRxJava3(boolean useRxJava3) {
+        this.useRxJava3 = useRxJava3;
         doNotUseRx = false;
     }
 
@@ -611,4 +619,13 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         return mime != null && JSON_VENDOR_MIME_PATTERN.matcher(mime).matches();
     }
 
+    @Override
+    public void setNotNullJacksonAnnotation(boolean notNullJacksonAnnotation) {
+        this.notNullJacksonAnnotation = notNullJacksonAnnotation;
+    }
+
+    @Override
+    public boolean isNotNullJacksonAnnotation() {
+        return notNullJacksonAnnotation;
+    }
 }
