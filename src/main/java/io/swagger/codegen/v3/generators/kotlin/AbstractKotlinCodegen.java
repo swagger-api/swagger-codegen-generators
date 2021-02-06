@@ -2,6 +2,8 @@ package io.swagger.codegen.v3.generators.kotlin;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
@@ -275,6 +277,13 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
                 sb.append("\n  ").append(t.name());
             }
             throw new RuntimeException(sb.toString());
+        }
+    }
+
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
