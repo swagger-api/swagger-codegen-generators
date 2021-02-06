@@ -27,7 +27,7 @@ data class ApiPrincipal(val apiKeyCredential: ApiKeyCredential?) : Principal
 * Represents a Api Key authentication provider
 * @param name is the name of the provider, or `null` for a default provider
 */
-class ApiKeyAuthenticationProvider(name: String?) : AuthenticationProvider(name) {
+class ApiKeyAuthenticationProvider(config: Configuration) : AuthenticationProvider(config) {
     internal var authenticationFunction: suspend ApplicationCall.(ApiKeyCredential) -> Principal? = { null }
 
     var apiKeyName: String = "";
@@ -43,8 +43,12 @@ class ApiKeyAuthenticationProvider(name: String?) : AuthenticationProvider(name)
     }
 }
 
+class ApiKeyConfiguration(name: String?) : AuthenticationProvider.Configuration(name) {
+    //todo
+}
+
 fun Authentication.Configuration.apiKeyAuth(name: String? = null, configure: ApiKeyAuthenticationProvider.() -> Unit) {
-    val provider = ApiKeyAuthenticationProvider(name).apply(configure)
+    val provider = ApiKeyAuthenticationProvider(ApiKeyConfiguration(name)).apply(configure)
     val apiKeyName = provider.apiKeyName
     val apiKeyLocation = provider.apiKeyLocation
     val authenticate = provider.authenticationFunction

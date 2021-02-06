@@ -5,7 +5,7 @@ if (principal == null) {
 } else {
     {{#examples}}
     {{#@first}}
-    {{#lambda.indented}}{{>_response}}{{/lambda.indented}}
+    {{>libraries/ktor/_response}}
     {{/@first}}
     {{/examples}}
     {{^examples}}
