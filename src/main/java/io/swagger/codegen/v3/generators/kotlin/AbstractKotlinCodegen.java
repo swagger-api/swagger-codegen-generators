@@ -199,6 +199,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         importMapping.put("LocalTime", "java.time.LocalTime");
 
         specialCharReplacements.put(";", "Semicolon");
+        specialCharReplacements.put(":", "Colon");
 
         cliOptions.clear();
         addOption(CodegenConstants.SOURCE_FOLDER, CodegenConstants.SOURCE_FOLDER_DESC, sourceFolder);
