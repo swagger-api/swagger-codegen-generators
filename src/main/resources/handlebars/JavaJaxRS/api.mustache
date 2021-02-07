@@ -76,6 +76,7 @@ public class {{classname}}  {
 
 {{#operation}}
 {{#contents}}
+{{#@first}}
     @{{httpMethod}}
     {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
     {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
@@ -106,8 +107,9 @@ public class {{classname}}  {
     {{/useOas2}}
     public Response {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}},{{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{paramName}}InputStream, {{paramName}}Detail{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{paramName}},{{/parameters}}securityContext);
     }
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }

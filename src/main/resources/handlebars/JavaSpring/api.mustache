@@ -99,6 +99,7 @@ public interface {{classname}} {
 {{/jdk8}}
 {{#operation}}
 {{#contents}}
+{{#@first}}
 
     {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
@@ -165,6 +166,7 @@ public interface {{classname}} {
         {{/isDelegate}}
     }{{/defaultInterfaces}}
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }

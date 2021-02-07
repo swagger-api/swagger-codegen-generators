@@ -6,14 +6,15 @@ import six
 from {{packageName}} import util
 {{#operations}}
 {{#operation}}
+{{#contents}}
 
 
-def {{operationId}}({{#allParams}}{{paramName}}{{^required}}=None{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}):  # noqa: E501
+def {{operationId}}({{#parameters}}{{paramName}}{{^required}}=None{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}):  # noqa: E501
     """{{#summary}}{{.}}{{/summary}}{{^summary}}{{operationId}}{{/summary}}
 
     {{#notes}}{{.}}{{/notes}} # noqa: E501
 
-    {{#allParams}}
+    {{#parameters}}
     :param {{paramName}}: {{description}}
         {{^isContainer}}
             {{#isPrimitiveType}}
@@ -53,11 +54,11 @@ def {{operationId}}({{#allParams}}{{paramName}}{{^required}}=None{{/required}}{{
                 {{/isPrimitiveType}}
             {{/items}}
         {{/isMapContainer}}
-    {{/allParams}}
+    {{/parameters}}
 
     :rtype: {{#returnType}}{{.}}{{/returnType}}{{^returnType}}None{{/returnType}}
     """
-    {{#allParams}}
+    {{#parameters}}
         {{^isContainer}}
             {{#isDate}}
     {{paramName}} = util.deserialize_date({{paramName}})
@@ -69,7 +70,7 @@ def {{operationId}}({{#allParams}}{{paramName}}{{^required}}=None{{/required}}{{
                 {{^isFile}}
                     {{^isUuid}}
     if connexion.request.is_json:
-        {{paramName}} = {{baseType}}.from_dict(connexion.request.get_json())  # noqa: E501
+        {{paramName}} = {{dataType}}.from_dict(connexion.request.get_json())  # noqa: E501
                     {{/isUuid}}
                 {{/isFile}}
             {{/isPrimitiveType}}
@@ -102,11 +103,12 @@ def {{operationId}}({{#allParams}}{{paramName}}{{^required}}=None{{/required}}{{
                 {{/isDateTime}}
                 {{#complexType}}
     if connexion.request.is_json:
-        {{paramName}} = {k: {{baseType}}.from_dict(v) for k, v in six.iteritems(connexion.request.get_json())}  # noqa: E501
+        {{paramName}} = {k: {{dataType}}.from_dict(v) for k, v in six.iteritems(connexion.request.get_json())}  # noqa: E501
                 {{/complexType}}
             {{/items}}
         {{/isMapContainer}}
-    {{/allParams}}
+    {{/parameters}}
     return 'do some magic!'
+{{/contents}}
 {{/operation}}
 {{/operations}}

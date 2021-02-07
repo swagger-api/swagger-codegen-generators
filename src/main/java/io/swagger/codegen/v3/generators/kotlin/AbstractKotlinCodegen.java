@@ -2,6 +2,8 @@ package io.swagger.codegen.v3.generators.kotlin;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
@@ -253,6 +255,13 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
+        }
+    }
+
     /**
      * Output the type declaration of the property
      *
@@ -406,8 +415,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         } else {
             modified = value;
             modified = sanitizeKotlinSpecificNames(modified);
-            modified = modified.toUpperCase();
         }
+
+        modified = modified.toUpperCase();
 
         if (isReservedWord(modified)) {
             return escapeReservedWord(modified);
