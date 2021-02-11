@@ -1,6 +1,11 @@
 class {{classname}} {
   {{#vars}}{{#description}}/* {{{description}}} */{{/description}}
+  {{^isEnum}}
   {{{datatype}}} {{name}} = {{{defaultValue}}};
+  {{/isEnum}}
+  {{#isEnum}}
+  {{{datatype}}} {{name}} = null;
+  {{/isEnum}}
   {{#allowableValues}}
   {{#min}} // range from {{min}} to {{max}}{{/min}}//{{^min}}enum {{name}}Enum { {{#values}} {{.}}, {{/values}} };{{/min}}
   {{/allowableValues}}

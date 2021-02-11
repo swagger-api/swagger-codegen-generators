@@ -1475,6 +1475,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     addImport(codegenModel, "BigDecimal");
                 }
             }
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
 
@@ -1580,9 +1582,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.defaultValue = toDefaultValue(propertySchema);
         codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, propertySchema);
         codegenProperty.jsonSchema = Json.pretty(propertySchema);
-        if (propertySchema.getNullable() != null) {
-            codegenProperty.nullable = propertySchema.getNullable();
-        }
+        codegenProperty.nullable = Boolean.TRUE.equals(propertySchema.getNullable());
+        codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(propertySchema.getNullable()));
         if (propertySchema.getReadOnly() != null) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
         }
@@ -2520,14 +2521,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 LOGGER.warn("warning!  Schema not found for parameter \"" + parameter.getName() + "\", using String");
                 parameterSchema = new StringSchema().description("//TODO automatically added by swagger-codegen.");
             }
-            if (Boolean.TRUE.equals(parameterSchema.getNullable())) {
-                codegenParameter.nullable = true;
-            }
             CodegenProperty codegenProperty = fromProperty(parameter.getName(), parameterSchema);
 
             // set boolean flag (e.g. isString)
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
-            setParameterNullable(codegenParameter, codegenProperty);
+            setParameterNullable(codegenParameter, codegenProperty); //todo: needs to be removed
+
+            codegenParameter.nullable = Boolean.TRUE.equals(parameterSchema.getNullable());
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(parameterSchema.getNullable()));
 
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
@@ -2899,6 +2900,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (String word : words) {
             reservedWords.add(word.toLowerCase());
         }
+    }
+
+    protected void setReservedWords(List<String> words) {
+        reservedWords = new HashSet<String>();
+        reservedWords.addAll(words);
     }
 
     protected boolean isReservedWord(String word) {

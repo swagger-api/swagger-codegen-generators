@@ -72,6 +72,7 @@ public interface {{classname}}Delegate {
 
 {{#operation}}
 {{#contents}}
+{{#@first}}
     /**
      * @see {{classname}}#{{operationId}}
      */
@@ -94,6 +95,7 @@ public interface {{classname}}Delegate {
         return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
     }{{/defaultInterfaces}}
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }
