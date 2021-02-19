@@ -62,7 +62,7 @@ class ObjectSerializer
                     throw new \InvalidArgumentException("Invalid value for enum '$swaggerType', must be one of: '$imploded'");
                 }
                 if ($value !== null) {
-                    $values[$data::attributeMap()[$property]] = self::sanitizeForSerialization($value, $swaggerType, $formats[$property]);
+                    $values[$data::attributeMap()[$property]] = self::sanitizeForSerialization($value, $formats[$property], $swaggerType);
                 }
             }
             return (object)$values;
