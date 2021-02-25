@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -493,6 +494,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
         modifiedName = titleCase(modifiedName);
+
+        if (!StringUtils.isEmpty(modelNamePrefix)) {
+            modifiedName = titleCase(modelNamePrefix) + modifiedName;
+        }
+
+        if (!StringUtils.isEmpty(modelNameSuffix)) {
+            modifiedName = modifiedName + modelNameSuffix;
+        }
 
         if (modifiedName.equalsIgnoreCase("Companion")) {
             modifiedName = "_" + modifiedName;
