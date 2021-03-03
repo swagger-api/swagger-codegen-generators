@@ -255,7 +255,7 @@
         <swagger-codegen-version>3.0.25-SNAPSHOT</swagger-codegen-version>
         <swagger-parser-version>2.0.23</swagger-parser-version>
         <swagger-core-version>2.1.4</swagger-core-version>
-        <jackson-version>2.10.3</jackson-version>
+        <jackson-version>2.11.4</jackson-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
         <commons-io-version>2.4</commons-io-version>
