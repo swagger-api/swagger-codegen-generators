@@ -196,11 +196,14 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         typeMapping.put("float", "Float");
         typeMapping.put("number", "Double");
         typeMapping.put("double", "Double");
-        typeMapping.put("object", "JSONValue");
+        typeMapping.put("object", "Any");
+        typeMapping.put("Object", "Any");
         typeMapping.put("file", "URL");
         typeMapping.put("binary", "Data");
         typeMapping.put("ByteArray", "Data");
         typeMapping.put("UUID", "UUID");
+        typeMapping.put("URI", "String");
+        typeMapping.put("BigDecimal", "Decimal");
 
         importMapping = new HashMap<>();
 
@@ -244,8 +247,14 @@ public class Swift5Codegen extends DefaultCodegenConfig {
     public void processOpts() {
         super.processOpts();
 
-        embeddedTemplateDir = templateDir = getTemplateDir();
-
+        /*
+         * Template Location.  This is the location which templates will be read from.  The generator
+         * will use the resource stream to attempt to read the templates.
+         */
+        if (StringUtils.isBlank(templateDir)) {
+            embeddedTemplateDir = templateDir = getTemplateDir();
+        }
+        
         // Setup project name
         if (additionalProperties.containsKey(PROJECT_NAME)) {
             setProjectName((String) additionalProperties.get(PROJECT_NAME));
@@ -339,6 +348,8 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         supportingFiles.add(new SupportingFile("gitignore.mustache",
             "",
             ".gitignore"));
+
+        copyFistAllOfProperties = true;
 
     }
 
@@ -589,6 +600,13 @@ public class Swift5Codegen extends DefaultCodegenConfig {
         }
 
         return codegenModel;
+    }
+
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
+        }
     }
 
     @Override

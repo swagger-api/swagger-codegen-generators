@@ -162,10 +162,6 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
         super.processOpts();
         Boolean excludeTests = false;
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if(additionalProperties.containsKey(CodegenConstants.EXCLUDE_TESTS)) {
             excludeTests = Boolean.valueOf(additionalProperties.get(CodegenConstants.EXCLUDE_TESTS).toString());
         }
@@ -307,8 +303,8 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
 
             //Must follow Perl /pattern/modifiers convention
             if(pattern.charAt(0) != '/' || i < 2) {
-                throw new IllegalArgumentException("Pattern must follow the Perl "
-                        + "/pattern/modifiers convention. "+pattern+" is not valid.");
+                pattern = String.format("/%s/", pattern);;
+                i = pattern.lastIndexOf('/');
             }
 
             String regex = pattern.substring(1, i).replace("'", "\\'");

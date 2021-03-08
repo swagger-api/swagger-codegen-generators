@@ -1,0 +1,4 @@
+arguments:
+  - option: "--use-oas2"
+    description: "use OpenAPI v2.0 (Swagger 1.5.x) annotations (by default, OpenAPI v3.0 is used)."
+    type: "boolean"

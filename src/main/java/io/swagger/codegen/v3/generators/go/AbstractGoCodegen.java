@@ -372,10 +372,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
                             imports.add(createMapping("import", "time"));
                             addedTimeImport = true;
                         }
-                    }
-
-                    // import "optionals" package if the parameter is primitive and optional
-                    if (!param.required && param.getIsPrimitiveType()) {
+                    } else {
                         if (!addedOptionalImport) {
                             imports.add(createMapping("import", "github.com/antihax/optional"));
                             addedOptionalImport = true;
@@ -582,5 +579,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     @Override
     public ISchemaHandler getSchemaHandler() {
         return new GoSchemaHandler(this);
+    }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
     }
 }

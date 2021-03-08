@@ -1,20 +1,19 @@
-{{#has this 'auth-methods'}}
-val principals = mutableListOf<Principal?>()
+{{#hasAuthMethods}}
 {{>libraries/ktor/_principal}}
-if (principals.any({ it != null })) {
+if (principal == null) {
     call.respond(HttpStatusCode.Unauthorized)
 } else {
     {{#examples}}
     {{#@first}}
-    {{>_response}}
+    {{>libraries/ktor/_response}}
     {{/@first}}
     {{/examples}}
     {{^examples}}
     call.respond(HttpStatusCode.NotImplemented)
     {{/examples}}
 }
-{{/has}}
-{{^notHas this 'auth-methods'}}
+{{/hasAuthMethods}}
+{{^hasAuthMethods}}
 {{#examples}}
 {{#@first}}
 {{>libraries/ktor/_response}}
@@ -23,4 +22,4 @@ if (principals.any({ it != null })) {
 {{^examples}}
 call.respond(HttpStatusCode.NotImplemented)
 {{/examples}}
-{{/notHas}}
+{{/hasAuthMethods}}

@@ -242,11 +242,6 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         super.processOpts();
 
-        embeddedTemplateDir = getTemplateDir();
-        if (StringUtils.isBlank(templateDir)) {
-            templateDir = embeddedTemplateDir;
-        }
-
         if (additionalProperties.containsKey(PACKAGE_PATH)) {
             this.setPackagePath((String) additionalProperties.get(PACKAGE_PATH));
         } else {

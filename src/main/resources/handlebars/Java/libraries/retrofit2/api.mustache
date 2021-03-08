@@ -1,4 +1,4 @@
-package {{package}};
+package {{package}};//retrofit2
 
 import {{invokerPackage}}.CollectionFormats.*;
 
@@ -8,6 +8,9 @@ import rx.Observable;
 {{#useRxJava2}}
 import io.reactivex.Observable;
 {{/useRxJava2}}
+{{#useRxJava3}}
+import io.reactivex.rxjava3.core.Observable;
+{{/useRxJava3}}
 {{#doNotUseRx}}
 import retrofit2.Call;
 {{/doNotUseRx}}

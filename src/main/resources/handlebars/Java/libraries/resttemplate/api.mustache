@@ -68,7 +68,7 @@ public class {{classname}} {
     {{/externalDocs}}
      */
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) throws RestClientException {
-        Object {{localVariablePrefix}}postBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
+        Object {{localVariablePrefix}}postBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
         {{#parameters}}
         {{#required}}
         // verify the required parameter '{{paramName}}' is set
@@ -101,10 +101,12 @@ public class {{classname}} {
         {{/headerParams}}
         {{/hasHeaderParams}}
         {{#hasFormParams}}
+        {{#isForm}}
         {{#formParams}}
         if ({{paramName}} != null)
             {{localVariablePrefix}}formParams.add("{{baseName}}", {{#is this 'binary'}}new FileSystemResource({{paramName}}){{/is}}{{#isNot this 'binary'}}{{paramName}}{{/isNot}});
         {{/formParams}}
+        {{/isForm}}
         {{/hasFormParams}}
 
         final String[] {{localVariablePrefix}}accepts = { {{#hasProduces}}

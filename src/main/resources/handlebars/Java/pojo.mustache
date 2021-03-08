@@ -251,7 +251,9 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
 
   {{classname}}(Parcel in) {
 {{#isArrayModel}}
+{{^vendorExtensions.x-array-model-type-is-interface}}
     in.readTypedList(this, {{arrayModelType}}.CREATOR);
+{{/vendorExtensions.x-array-model-type-is-interface}}
 {{/isArrayModel}}
 {{^isArrayModel}}
 {{#parent}}

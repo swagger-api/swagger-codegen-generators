@@ -45,4 +45,17 @@ public class CSharpClientCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(hasComposedModel);
     }
+
+    @Test
+    public void renameReservedWordModel() {
+        final OpenAPI openAPI = getOpenAPI("3_0_0/composed_schemas.yaml");
+        final CodegenConfig config = new CSharpClientCodegen();
+        final CodegenWrapper codegenWrapper = processSchemas(config, openAPI);
+
+        CodegenModel codegenModel = codegenWrapper.getAllModels().get("ModelClient");
+        Assert.assertNotNull(codegenModel);
+
+        codegenModel = codegenWrapper.getAllModels().get("ModelList");
+        Assert.assertNotNull(codegenModel);
+    }
 }

@@ -78,7 +78,8 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
                 gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.jar") );
 
         supportingFiles.add(new SupportingFile("build.sbt.mustache", "", "build.sbt"));
-
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+        
         importMapping.remove("List");
         importMapping.remove("Set");
         importMapping.remove("Map");
@@ -118,8 +119,6 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
