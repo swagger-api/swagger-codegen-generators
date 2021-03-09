@@ -1,7 +1,6 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenType;
