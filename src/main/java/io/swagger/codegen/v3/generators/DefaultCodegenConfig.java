@@ -2235,11 +2235,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
 
-        for (String i : imports) {
-            if (needToImport(i)) {
-                codegenOperation.imports.add(i);
-            }
-        }
+        addOperationImports(codegenOperation, imports);
 
         codegenOperation.bodyParam = bodyParam;
         codegenOperation.httpMethod = httpMethod.toUpperCase();
@@ -2291,6 +2287,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         configureDataForTestTemplate(codegenOperation);
 
         return codegenOperation;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (needToImport(operationImport)) {
+                codegenOperation.imports.add(operationImport);
+            }
+        }
     }
 
     /**
