@@ -457,7 +457,8 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
-        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+        Map<String, Object> result = super.postProcessAllModels(processedModels);
+        for (Map.Entry<String, Object> entry : result.entrySet()) {
             final Map<String, Object> inner = (Map<String, Object>) entry.getValue();
             final List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
             for (Map<String, Object> mo : models) {
@@ -467,7 +468,8 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                 }
             }
         }
-        return processedModels;
+
+        return result;
     }
 
     private List<Map<String, String>> toTsImports(CodegenModel cm, Set<String> imports) {

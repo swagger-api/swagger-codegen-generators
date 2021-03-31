@@ -32,9 +32,6 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
@@ -437,16 +434,41 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
             Map<String, Object> mo = (Map<String, Object>) _mo;
             CodegenModel cm = (CodegenModel) mo.get("model");
             cm.imports = new TreeSet(cm.imports);
+            // name enum with model name, e.g. StatusEnum => Pet.StatusEnum
             for (CodegenProperty var : cm.vars) {
-                // name enum with model name, e.g. StatuEnum => Pet.StatusEnum
-                boolean isEnum = getBooleanValue(var, IS_ENUM_EXT_NAME);
-                if (Boolean.TRUE.equals(isEnum)) {
+                if (Boolean.TRUE.equals(var.getIsEnum())) {
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
+                }
+            }
+            if (cm.parent != null) {
+                for (CodegenProperty var : cm.allVars) {
+                    if (Boolean.TRUE.equals(var.getIsEnum())) {
+                        var.datatypeWithEnum = var.datatypeWithEnum
+                            .replace(var.enumName, cm.classname + "." + var.enumName);
+                    }
                 }
             }
         }
 
         return objs;
+    }
+
+    @Override
+    protected void postProcessAllCodegenModels(Map<String, CodegenModel> allModels) {
+        super.postProcessAllCodegenModels(allModels);
+        for (CodegenModel cm : allModels.values()) {
+            if(cm.discriminator != null) {
+                cm.dataType = String.join(" | ", cm.discriminator.getMapping().keySet());
+                for (Map.Entry<String, String> discriminatorMapping : cm.discriminator.getMapping().entrySet()) {
+                    String simpleRef = OpenAPIUtil.getSimpleRef(discriminatorMapping.getValue());
+                    String discriminatorValue = toModelName(simpleRef);
+                    CodegenModel discriminatorModel = allModels.get(discriminatorValue);
+                    cm.imports.add(discriminatorMapping.getKey());
+                    cm.vendorExtensions.put(CodegenConstants.IS_ALIAS_EXT_NAME, Boolean.TRUE);
+                    this.setDiscriminatorValue(discriminatorModel, cm.discriminator.getPropertyName(), discriminatorMapping.getKey());
+                }
+            }
+        }
     }
 
     public void setSupportsES6(Boolean value) {
@@ -455,6 +477,15 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     public Boolean getSupportsES6() {
         return supportsES6;
+    }
+
+    private void setDiscriminatorValue(CodegenModel model, String propertyName, String value) {
+        // override the datatype with the value for the taggedUnion type
+        for (CodegenProperty prop : model.vars) {
+            if (prop.baseName.equals(propertyName)) {
+                prop.datatype = "'" + value + "'";
+            }
+        }
     }
 
     @Override

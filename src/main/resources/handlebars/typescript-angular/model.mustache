@@ -11,6 +11,6 @@ import { {{classname}} } from './{{filename}}';
  * {{{description}}}
  */
 {{/description}}
-{{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{#is this 'alias'}}{{>modelAlias}}{{/is}}{{#isNot this 'alias'}}{{#taggedUnions}}{{>modelTaggedUnion}}{{/taggedUnions}}{{^taggedUnions}}{{>modelGeneric}}{{/taggedUnions}}{{/isNot}}{{/isNot}}
+{{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{#is this 'alias'}}{{>modelAlias}}{{/is}}{{#isNot this 'alias'}}{{>modelGeneric}}{{/isNot}}{{/isNot}}
 {{/model}}
 {{/models}}
