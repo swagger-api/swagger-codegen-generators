@@ -12,18 +12,11 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
 
 {{/serializableModel}}
   {{#vars}}
+    {{#baseItems this}}
     {{#isEnum}}
-    {{^isContainer}}
 {{>enumClass}}
-    {{/isContainer}}
     {{/isEnum}}
-    {{#items.isEnum}}
-      {{#items}}
-      {{^isContainer}}
-{{>enumClass}}
-      {{/isContainer}}
-      {{/items}}
-    {{/items.isEnum}}
+    {{/baseItems}}
   {{#jackson}}
     {{#vendorExtensions.x-is-discriminator-property}}
   @JsonTypeId

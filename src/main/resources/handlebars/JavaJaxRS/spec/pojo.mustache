@@ -5,19 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable {{#interfaceModels}}, {{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}}{{^serializableModel}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/serializableModel}} {
   {{#vars}}
-  {{#isEnum}}
-  {{^isContainer}}
-{{>enumClass}}
-  {{/isContainer}}
-  {{/isEnum}}
-  {{#items.isEnum}}
-  {{#items}}
 
-  {{^isContainer}}
-  {{>enumClass}}
-  {{/isContainer}}
-  {{/items}}
-  {{/items.isEnum}}
+  {{#baseItems this}}
+  {{#isEnum}}
+{{>enumClass}}
+  {{/isEnum}}
+  {{/baseItems}}
   private {{#useBeanValidation}}@Valid{{/useBeanValidation}} {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
   {{/vars}}
 
