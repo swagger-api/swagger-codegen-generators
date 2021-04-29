@@ -1,21 +1,8 @@
 package io.swagger.codegen.v3.generators.java;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
-import io.swagger.codegen.v3.utils.ModelUtils;
-import io.swagger.codegen.v3.utils.URLPathUtil;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,10 +10,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenResponse;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
+import io.swagger.codegen.v3.utils.ModelUtils;
+import io.swagger.codegen.v3.utils.URLPathUtil;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 
 public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen implements BeanValidationFeatures {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaJAXRSServerCodegen.class);
+
+    /** Length of java extension file */
+    private static final int JAVA_EXTENSION_LENGTH = ".java".length();
 
     /**
      * Name of the sub-directory in "src/main/resource" where to find the
@@ -222,18 +226,18 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     @Override
     public String apiFilename(String templateName, String tag) {
         String result = super.apiFilename(templateName, tag);
-
+        final int ix;
         if ( templateName.endsWith("Impl.mustache") ) {
-            int ix = result.lastIndexOf('/');
-            result = result.substring(0, ix) + "/impl" + result.substring(ix, result.length() - 5) + "ServiceImpl.java";
-            result = result.replace(apiFileFolder(), implFileFolder(implFolder));
+           ix = result.lastIndexOf(File.separator);
+           result = result.substring(0, ix) + File.separator + "impl" + result.substring(ix, result.length() - JAVA_EXTENSION_LENGTH) + "ServiceImpl.java";
+           result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Factory.mustache") ) {
-            int ix = result.lastIndexOf('/');
-            result = result.substring(0, ix) + "/factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
-            result = result.replace(apiFileFolder(), implFileFolder(implFolder));
+           ix = result.lastIndexOf(File.separator);
+           result = result.substring(0, ix) + File.separator + "factories" + result.substring(ix, result.length() - JAVA_EXTENSION_LENGTH) + "ServiceFactory.java";
+           result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Service.mustache") ) {
-            int ix = result.lastIndexOf('.');
-            result = result.substring(0, ix) + "Service.java";
+           ix = result.lastIndexOf('.');
+           result = result.substring(0, ix) + "Service.java";
         }
         return result;
     }
