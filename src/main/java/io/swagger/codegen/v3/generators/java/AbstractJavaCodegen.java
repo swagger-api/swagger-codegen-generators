@@ -1233,15 +1233,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 schema.set$ref(schema.get$ref().replace(modelName, newModelName));
             });
     }
-/*
-    @Override
-    public String findCommonPrefixOfVars(List<String> vars) {
-        String prefix = StringUtils.getCommonPrefix(vars.toArray(new String[vars.size()]));
-        // exclude trailing characters that should be part of a valid variable
-        // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
-        return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
-    }
-*/
 
     @Override
     public String toEnumName(CodegenProperty property) {
