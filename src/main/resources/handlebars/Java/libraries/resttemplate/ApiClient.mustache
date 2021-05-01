@@ -663,13 +663,19 @@ public class ApiClient {
         
         private String bodyToString(InputStream body) throws IOException {
             StringBuilder builder = new StringBuilder();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(body, StandardCharsets.UTF_8));
-            String line = bufferedReader.readLine();
-            while (line != null) {
+            BufferedReader bufferedReader = null;
+            try {
+              bufferedReader = new BufferedReader(new InputStreamReader(body, StandardCharsets.UTF_8));
+              String line = bufferedReader.readLine();
+              while (line != null) {
                 builder.append(line).append(System.lineSeparator());
                 line = bufferedReader.readLine();
+              }
+            } finally {
+              if (bufferedReader != null) {
+                bufferedReader.close();
+              }
             }
-            bufferedReader.close();
             return builder.toString();
         }
     }
