@@ -68,7 +68,7 @@ export class RequiredError extends Error {
 }
 
 {{#models}}
-{{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>modelGeneric}}{{/isEnum}}{{/model}}
+{{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{#isObject}}{{>modelGeneric}}{{/isObject}}{{^isObject}}{{>modelAlias}}{{/isObject}}{{/isEnum}}{{/model}}
 {{/models}}
 {{#apiInfo}}{{#apis}}{{#operations}}
 /**
