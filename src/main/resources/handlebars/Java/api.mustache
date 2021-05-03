@@ -28,39 +28,8 @@ public class {{classname}} {
         return apiClient;
     }
 
-  public void setApiClient(ApiClient apiClient) {
-    this.{{localVariablePrefix}}apiClient = apiClient;
-  }
-
-  {{#operation}}
-  {{#contents}}
-  /**
-   * {{summary}}
-   * {{notes}}
-   {{#parameters}}
-   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-   {{/parameters}}
-   {{#returnType}}
-   * @return {{returnType}}
-   {{/returnType}}
-   * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
-   * @deprecated
-   {{/isDeprecated}}
-   {{#externalDocs}}
-   * {{description}}
-   * @see <a href="{{url}}">{{summary}} Documentation</a>
-   {{/externalDocs}}
-   */
-  {{#isDeprecated}}
-  @Deprecated
-  {{/isDeprecated}}
-  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
-    Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
-    {{#parameters}}{{#required}}
-    // verify the required parameter '{{paramName}}' is set
-    if ({{paramName}} == null) {
-      throw new ApiException(400, "Missing the required parameter '{{paramName}}' when calling {{operationId}}");
+    public void setApiClient(ApiClient apiClient) {
+        this.apiClient = apiClient;
     }
     {{#operation}}
 
@@ -85,14 +54,14 @@ public class {{classname}} {
         String localVarPath = "{{{path}}}"{{#pathParams}}
             .replaceAll("\\{" + "{{baseName}}" + "\\}", apiClient.escapeString({{{paramName}}}.toString())){{/pathParams}};
 
-    {{#headerParams}}if ({{paramName}} != null)
-      {{localVariablePrefix}}localVarHeaderParams.put("{{baseName}}", {{localVariablePrefix}}apiClient.parameterToString({{paramName}}));
-    {{/headerParams}}
-    {{#isForm}}
-    {{#formParams}}if ({{paramName}} != null)
-      {{localVariablePrefix}}localVarFormParams.put("{{baseName}}", {{paramName}});
-    {{/formParams}}
-    {{/isForm}}
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();{{#queryParams}}
+        if ({{paramName}} != null)
+        {{#collectionFormat}}localVarCollectionQueryParams.addAll(apiClient.parameterToPairs("{{{collectionFormat}}}", {{/collectionFormat}}{{^collectionFormat}}localVarQueryParams.addAll(apiClient.parameterToPair({{/collectionFormat}}"{{baseName}}", {{paramName}}));{{/queryParams}}
+
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();{{#headerParams}}
+        if ({{paramName}} != null)
+        localVarHeaderParams.put("{{baseName}}", apiClient.parameterToString({{paramName}}));{{/headerParams}}
 
         Map<String, Object> localVarFormParams = new HashMap<String, Object>();
         {{#isForm}}
