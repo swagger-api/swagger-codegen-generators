@@ -640,6 +640,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     return String.format("%sf", schema.getDefault().toString());
                 } else if (schema.getDefault() != null && SchemaTypeUtil.DOUBLE_FORMAT.equals(schema.getFormat())) {
                     return String.format("%sd", schema.getDefault().toString());
+                } else {
+                    return String.format("new BigDecimal(%s)", schema.getDefault().toString());
                 }
             }
         } else if (schema instanceof StringSchema) {
@@ -951,6 +953,103 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     protected boolean needToImport(String type) {
         return super.needToImport(type) && type.indexOf(".") < 0;
+    }
+
+    protected void checkDuplicatedModelNameIgnoringCase(OpenAPI openAPI) {
+        final Map<String, Schema> schemas = openAPI.getComponents().getSchemas();
+        final Map<String, Map<String, Schema>> schemasRepeated = new HashMap<>();
+
+        for (String schemaKey : schemas.keySet()) {
+            final Schema schema = schemas.get(schemaKey);
+            final String lowerKeyDefinition = schemaKey.toLowerCase();
+
+            if (schemasRepeated.containsKey(lowerKeyDefinition)) {
+                Map<String, Schema> modelMap = schemasRepeated.get(lowerKeyDefinition);
+                if (modelMap == null) {
+                    modelMap = new HashMap<>();
+                    schemasRepeated.put(lowerKeyDefinition, modelMap);
+                }
+                modelMap.put(schemaKey, schema);
+            } else {
+                schemasRepeated.put(lowerKeyDefinition, null);
+            }
+        }
+        for (String lowerKeyDefinition : schemasRepeated.keySet()) {
+            final Map<String, Schema> modelMap = schemasRepeated.get(lowerKeyDefinition);
+            if (modelMap == null) {
+                continue;
+            }
+            int index = 1;
+            for (String name : modelMap.keySet()) {
+                final Schema schema = modelMap.get(name);
+                final String newModelName = name + index;
+                schemas.put(newModelName, schema);
+                replaceDuplicatedInPaths(openAPI.getPaths(), name, newModelName);
+                replaceDuplicatedInModelProperties(schemas, name, newModelName);
+                schemas.remove(name);
+                index++;
+            }
+        }
+    }
+
+    protected void replaceDuplicatedInPaths(Paths paths, String modelName, String newModelName) {
+        if (paths == null || paths.isEmpty()) {
+            return;
+        }
+        paths.values().stream()
+            .flatMap(pathItem -> pathItem.readOperations().stream())
+            .filter(operation -> {
+                final RequestBody requestBody = operation.getRequestBody();
+                if (requestBody == null || requestBody.getContent() == null || requestBody.getContent().isEmpty()) {
+                    return false;
+                }
+                final Optional<MediaType> mediaTypeOptional = requestBody.getContent().values().stream().findAny();
+                if (!mediaTypeOptional.isPresent()) {
+                    return false;
+                }
+                final MediaType mediaType = mediaTypeOptional.get();
+                final Schema schema = mediaType.getSchema();
+                if (schema.get$ref() != null) {
+                    return true;
+                }
+                return false;
+            })
+            .forEach(operation -> {
+                Schema schema = this.getSchemaFromBody(operation.getRequestBody());
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
+        paths.values().stream()
+            .flatMap(path -> path.readOperations().stream())
+            .flatMap(operation -> operation.getResponses().values().stream())
+            .filter(response -> {
+                if (response.getContent() == null || response.getContent().isEmpty()) {
+                    return false;
+                }
+                final Optional<MediaType> mediaTypeOptional = response.getContent().values().stream().findFirst();
+                if (!mediaTypeOptional.isPresent()) {
+                    return false;
+                }
+                final MediaType mediaType = mediaTypeOptional.get();
+                final Schema schema = mediaType.getSchema();
+                if (schema.get$ref() != null) {
+                    return true;
+                }
+                return false;
+            }).forEach(response -> {
+                final Optional<MediaType> mediaTypeOptional = response.getContent().values().stream().findFirst();
+                final Schema schema = mediaTypeOptional.get().getSchema();
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
+    }
+
+    protected void replaceDuplicatedInModelProperties(Map<String, Schema> definitions, String modelName, String newModelName) {
+        definitions.values().stream()
+            .flatMap(model -> model.getProperties().values().stream())
+            .filter(property -> ((Schema) property).get$ref() != null)
+            .forEach(property -> {
+                final Schema schema = (Schema) property;
+                schema.set$ref(schema.get$ref().replace(modelName, newModelName));
+            });
     }
 
     @Override

@@ -4,18 +4,11 @@
  */
 public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{
   {{#vars}}
+    {{#baseItems this}}
     {{#isEnum}}
-    {{^isContainer}}
 {{>modelInnerEnum}}
-    {{/isContainer}}
     {{/isEnum}}
-    {{#items.isEnum}}
-      {{#items}}
-      {{^isContainer}}
-{{>modelInnerEnum}}
-      {{/isContainer}}
-      {{/items}}
-    {{/items.isEnum}}
+    {{/baseItems}}
   {{#jackson}}
     {{#vendorExtensions.x-is-discriminator-property}}
   @JsonTypeId
