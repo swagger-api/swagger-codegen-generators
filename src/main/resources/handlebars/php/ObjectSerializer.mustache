@@ -6,6 +6,7 @@ use Secuconnect\Client\Model\BankAccountDescriptor;
 use Secuconnect\Client\Model\CreditCardDescriptor;
 use Secuconnect\Client\Model\OneOfPaymentContainersDTOModelPrivate;
 use Secuconnect\Client\Model\OneOfSmartTransactionsDeliveryOptionsModel;
+use Secuconnect\Client\Model\PaymentInstructions;
 use Secuconnect\Client\Model\SmartTransactionsCollectionModel;
 use Secuconnect\Client\Model\SmartTransactionsShippingModel;
 
@@ -276,7 +277,9 @@ class ObjectSerializer
         } else {
             if (trim($class, '\\') === OneOfPaymentContainersDTOModelPrivate::class) {
                 $subclass = BankAccountDescriptor::class;
-                if (isset($data->pan)) {
+                if (isset($data->girocode_url)) {
+                    $subclass = PaymentInstructions::class;
+                } elseif (isset($data->pan)) {
                     $subclass = CreditCardDescriptor::class;
                 }
 
@@ -284,7 +287,7 @@ class ObjectSerializer
                     $class = $subclass;
                 }
             } elseif (trim($class, '\\') === OneOfSmartTransactionsDeliveryOptionsModel::class) {
-                $subclass = null;
+                $subclass = SmartTransactionsShippingModel::class;
                 if ($data->type === 'shipping') {
                     $subclass = SmartTransactionsShippingModel::class;
                 } elseif ($data->type === 'collection') {
