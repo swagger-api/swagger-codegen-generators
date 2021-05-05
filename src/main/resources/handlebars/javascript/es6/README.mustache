@@ -77,7 +77,7 @@ Please follow the [installation](#installation) instruction and execute the foll
 
 ```javascript
 var {{{moduleName}}} = require('{{{projectName}}}');
-{{#apiInfo}}{{#apis}}{{#-first}}{{#operations}}{{#operation}}{{#-first}}{{#hasAuthMethods}}
+{{#apiInfo}}{{#apis}}{{#@first}}{{#operations}}{{#operation}}{{#@first}}{{#hasAuthMethods}}
 var defaultClient = {{{moduleName}}}.ApiClient.instance;
 {{#authMethods}}{{#isBasic}}
 // Configure HTTP basic authorization: {{{name}}}
@@ -118,7 +118,7 @@ var callback = function(error, data, response) {
   }
 };
 api.{{{operationId}}}({{#allParams}}{{#required}}{{{paramName}}}{{#vendorExtensions.x-codegen-hasMoreRequired}}, {{/vendorExtensions.x-codegen-hasMoreRequired}}{{/required}}{{/allParams}}{{#hasOptionalParams}}{{#vendorExtensions.x-codegen-hasRequiredParams}}, {{/vendorExtensions.x-codegen-hasRequiredParams}}opts{{/hasOptionalParams}}{{#hasParams}}, {{/hasParams}}callback);
-{{/usePromises}}{{/-first}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
+{{/usePromises}}{{/@first}}{{/operation}}{{/operations}}{{/@first}}{{/apis}}{{/apiInfo}}
 ```
 
 ## Documentation for API Endpoints

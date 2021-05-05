@@ -30,13 +30,13 @@ export class ApiClient {
         this.authentications = {
 <#authMethods>
 <#isBasic>
-            '<name>': {type: 'basic'}<^-last>,</-last>
+            '<name>': {type: 'basic'}<^@last>,</@last>
 </isBasic>
 <#isApiKey>
-            '<name>': {type: 'apiKey', 'in': <#isKeyInHeader>'header'</isKeyInHeader><^isKeyInHeader>'query'</isKeyInHeader>, name: '<keyParamName>'}<^-last>,</-last>
+            '<name>': {type: 'apiKey', 'in': <#isKeyInHeader>'header'</isKeyInHeader><^isKeyInHeader>'query'</isKeyInHeader>, name: '<keyParamName>'}<^@last>,</@last>
 </isApiKey>
 <#isOAuth>
-            '<name>': {type: 'oauth2'}<^-last>,</-last>
+            '<name>': {type: 'oauth2'}<^@last>,</@last>
 </isOAuth>
 </authMethods>
         }

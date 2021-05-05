@@ -17,9 +17,9 @@ export class {{classname}} {{#parentModel}}extends {{classname}} {{/parentModel}
    * @param {{name}} {{=< >=}}{<&vendorExtensions.x-jsdoc-type>}<={{ }}=> {{#description}}{{{description}}}{{/description}}{{/vendorExtensions.x-all-required}}
    */
 {{/emitJSDoc}}
-  constructor({{#vendorExtensions.x-all-required}}{{name}}{{^-last}}, {{/-last}}{{/vendorExtensions.x-all-required}}) {
+  constructor({{#vendorExtensions.x-all-required}}{{name}}{{^@last}}, {{/@last}}{{/vendorExtensions.x-all-required}}) {
 {{#parentModel}}
-    super({{#vendorExtensions.x-all-required}}{{name}}{{^-last}}, {{/-last}}{{/vendorExtensions.x-all-required}});
+    super({{#vendorExtensions.x-all-required}}{{name}}{{^@last}}, {{/@last}}{{/vendorExtensions.x-all-required}});
 {{/parentModel}}
 {{#parent}}
   {{^parentModel}}

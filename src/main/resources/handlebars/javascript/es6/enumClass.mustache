@@ -12,8 +12,8 @@
      * @const
      */
     {{/emitJSDoc}}
-    "{{name}}": {{{value}}}{{^-last}},
-    {{/-last}}
+    "{{name}}": {{{value}}}{{^@last}},
+    {{/@last}}
   {{/enumVars}}
 {{/allowableValues}}
   };
