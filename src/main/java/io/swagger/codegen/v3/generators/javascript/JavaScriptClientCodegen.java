@@ -1349,6 +1349,13 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    protected void addImport(CodegenModel model, String type) {
+        if (type != null && !model.classname.equals(type) && needToImport(type)) {
+            model.imports.add(type);
+        }
+    }
+
+    @Override
     protected boolean needToImport(String type) {
         return !defaultIncludes.contains(type)
             && !languageSpecificPrimitives.contains(type);
