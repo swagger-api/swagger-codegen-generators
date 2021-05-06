@@ -106,6 +106,10 @@ module {{moduleName}}
     # Client private key file (for client certificate)
     attr_accessor :key_file
 
+    ### TLS/SSL setting
+    # Client private key passphrase (for client certificate)
+    attr_accessor :key_password
+
     # Set this to customize parameters encoding of array parameter with multi collectionFormat.
     # Default to nil.
     #
@@ -130,6 +134,7 @@ module {{moduleName}}
       @params_encoding = nil
       @cert_file = nil
       @key_file = nil
+      @key_password = nil
       @debugging = false
       @inject_format = false
       @force_ending_format = false
