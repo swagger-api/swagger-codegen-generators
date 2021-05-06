@@ -1,10 +1,8 @@
 {{>licenseInfo}}
-{{=< >=}}
 import {ApiClient} from './ApiClient';
-<#models>import {<#model><classFilename></model>} from './<#modelPackage><modelPackage>/</modelPackage><importPath>';
-</models><#apiInfo><#apis>import {<importPath>} from './<#apiPackage><apiPackage>/</apiPackage><importPath>';
-</apis></apiInfo>
-<={{ }}=>
+{{#models}}import {{braces "left"}}{{#model}}{{classFilename}}{{/model}}{{braces "right"}} from './{{#modelPackage}}{{modelPackage}}/{{/modelPackage}}{{importPath}}';
+{{/models}}{{#apiInfo}}{{#apis}}import {{braces "left"}}{{importPath}}{{braces "right"}} from './{{#apiPackage}}{{apiPackage}}/{{/apiPackage}}{{importPath}}';
+{{/apis}}{{/apiInfo}}
 
 {{#emitJSDoc}}/**{{#projectDescription}}
 * {{projectDescription}}.<br>{{/projectDescription}}
@@ -38,22 +36,21 @@ import {ApiClient} from './ApiClient';
 * @version {{projectVersion}}
 */{{/emitJSDoc}}
 export {
-    {{=< >=}}
-    <#emitJSDoc>/**
+    {{#emitJSDoc}}/**
      * The ApiClient constructor.
-     * @property {module:<#invokerPackage><invokerPackage>/</invokerPackage>ApiClient}
-     */</emitJSDoc>
-    ApiClient<#models>,
+     * @property {{braces "left"}}module:{{#invokerPackage}}{{invokerPackage}}/{{/invokerPackage}}ApiClient{{braces "right"}}
+     */{{/emitJSDoc}}
+    ApiClient{{#models}},
 
-    <#emitJSDoc>/**
-     * The <importPath> model constructor.
-     * @property {module:<#invokerPackage><invokerPackage>/</invokerPackage><#modelPackage><modelPackage>/</modelPackage><importPath>}
-     */</emitJSDoc>
-    <importPath></models><#apiInfo><#apis>,
+    {{#emitJSDoc}}/**
+     * The {{importPath}} model constructor.
+     * @property {{braces "left"}}module:{{#invokerPackage}}{{invokerPackage}}/{{/invokerPackage}}{{#modelPackage}}{{modelPackage}}/{{/modelPackage}}{{importPath}}{{braces "right"}}
+     */{{/emitJSDoc}}
+    {{importPath}}{{/models}}{{#apiInfo}}{{#apis}},
 
-    <#emitJSDoc>/**
-    * The <importPath> service constructor.
-    * @property {module:<#invokerPackage><invokerPackage>/</invokerPackage><#apiPackage><apiPackage>/</apiPackage><importPath>}
-    */</emitJSDoc>
-    <importPath></apis></apiInfo>
-};<={{ }}=>
+    {{#emitJSDoc}}/**
+    * The {{importPath}} service constructor.
+    * @property {{braces "left"}}module:{{#invokerPackage}}{{invokerPackage}}/{{/invokerPackage}}{{#apiPackage}}{{apiPackage}}/{{/apiPackage}}{{importPath}}{{braces "right"}}
+    */{{/emitJSDoc}}
+    {{importPath}}{{/apis}}{{/apiInfo}}
+};

@@ -43,7 +43,7 @@
         {{#enumVars}}
       it('should have the property {{name}}', function() {
         expect(instance).to.have.property('{{name}}');
-        expect(instance.{{name}}).to.be({{value}});
+        expect(instance.{{name}}).to.be({{&value}});
       });
 
         {{/enumVars}}

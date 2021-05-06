@@ -1,10 +1,8 @@
 {{>licenseInfo}}
-{{=< >=}}
-import {ApiClient} from '../ApiClient';
-<#imports>
-import {<import>} from './<import>';
-</imports>
-<={{ }}=>
+import {{braces "left"}}ApiClient{{braces "right"}} from '../ApiClient';
+{{#imports}}
+import {{braces "left"}}{{import}}{{braces "right"}} from './{{import}}';
+{{/imports}}
 
 {{#models}}
   {{#model}}

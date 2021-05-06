@@ -26,22 +26,22 @@ export class ApiClient {
         {{#emitJSDoc}}/**
          * The authentication methods to be included for all API calls.
          * @type {Array.<String>}
-         */{{/emitJSDoc}}{{=< >=}}
+         */{{/emitJSDoc}}
         this.authentications = {
-<#authMethods>
-<#isBasic>
-            '<name>': {type: 'basic'}<^@last>,</@last>
-</isBasic>
-<#isApiKey>
-            '<name>': {type: 'apiKey', 'in': <#isKeyInHeader>'header'</isKeyInHeader><^isKeyInHeader>'query'</isKeyInHeader>, name: '<keyParamName>'}<^@last>,</@last>
-</isApiKey>
-<#isOAuth>
-            '<name>': {type: 'oauth2'}<^@last>,</@last>
-</isOAuth>
-</authMethods>
+{{#authMethods}}
+{{#isBasic}}
+            '{{name}}': {{braces "left"}}type: 'basic'{{braces "right"}}{{^@last}},{{/@last}}
+{{/isBasic}}
+{{#isApiKey}}
+            '{{name}}': {{braces "left"}}type: 'apiKey', 'in': {{#isKeyInHeader}}'header'{{/isKeyInHeader}}{{^isKeyInHeader}}'query'{{/isKeyInHeader}}, name: '{{keyParamName}}'{{braces "right"}}{{^@last}},{{/@last}}
+{{/isApiKey}}
+{{#isOAuth}}
+            '{{name}}': {{braces "left"}}type: 'oauth2'{{braces "right"}}{{^@last}},{{/@last}}
+{{/isOAuth}}
+{{/authMethods}}
         }
 
-        <={{ }}=>{{#emitJSDoc}}/**
+        {{#emitJSDoc}}/**
          * The default HTTP headers to be included for all API calls.
          * @type {Array.<String>}
          * @default {}
