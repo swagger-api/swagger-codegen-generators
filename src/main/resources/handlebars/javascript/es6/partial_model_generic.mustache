@@ -28,11 +28,6 @@ export class {{classname}} {{#parentModel}}extends {{classname}} {{/parentModel}
     {{/vendorExtensions.x-isArray}}
   {{/parentModel}}
 {{/parent}}
-{{#useInheritance}}
-  {{#interfaceModels}}
-    {{classname}}.call(this{{#vendorExtensions.x-all-required}}, {{name}}{{/vendorExtensions.x-all-required}});
-  {{/interfaceModels}}
-{{/useInheritance}}
 {{#vars}}
   {{#required}}
     this.{{name}} = {{name}};
