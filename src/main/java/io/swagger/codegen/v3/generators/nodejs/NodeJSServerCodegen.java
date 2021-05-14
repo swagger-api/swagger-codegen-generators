@@ -438,9 +438,12 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
     protected void configuresParameterForMediaType(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         if (codegenContents.isEmpty()) {
             CodegenContent content = new CodegenContent();
-            content.getParameters().addAll(codegenOperation.allParams);
+            content.getParameters().addAll(codegenOperation.queryParams);
+            content.getParameters().addAll(codegenOperation.pathParams);
+            content.getParameters().addAll(codegenOperation.headerParams);
+            content.getParameters().addAll(codegenOperation.cookieParams);
             codegenContents.add(content);
-
+            addHasMore(content.getParameters());
             codegenOperation.getContents().add(content);
             return;
         }
