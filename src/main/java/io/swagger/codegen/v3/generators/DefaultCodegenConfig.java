@@ -396,21 +396,25 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
-     * Returns the common prefix of variables for enum naming
+     * Returns the common prefix of variables for enum naming if
+     * two or more variables are present.
      *
      * @param vars List of variable names
      * @return the common prefix for naming
      */
     public String findCommonPrefixOfVars(List<Object> vars) {
-        try {
-            String[] listStr = vars.toArray(new String[vars.size()]);
-            String prefix = StringUtils.getCommonPrefix(listStr);
-            // exclude trailing characters that should be part of a valid variable
-            // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
-            return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
-        } catch (ArrayStoreException e) {
-            return "";
+        if (vars.size() > 1) {
+            try {
+                String[] listStr = vars.toArray(new String[vars.size()]);
+                String prefix = StringUtils.getCommonPrefix(listStr);
+                // exclude trailing characters that should be part of a valid variable
+                // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
+                return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
+            } catch (ArrayStoreException e) {
+                // do nothing, just return default value
+            }
         }
+        return "";
     }
 
     /**
@@ -2238,11 +2242,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
 
-        for (String i : imports) {
-            if (needToImport(i)) {
-                codegenOperation.imports.add(i);
-            }
-        }
+        addOperationImports(codegenOperation, imports);
 
         codegenOperation.bodyParam = bodyParam;
         codegenOperation.httpMethod = httpMethod.toUpperCase();
@@ -2294,6 +2294,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         configureDataForTestTemplate(codegenOperation);
 
         return codegenOperation;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (needToImport(operationImport)) {
+                codegenOperation.imports.add(operationImport);
+            }
+        }
     }
 
     /**
