@@ -492,6 +492,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
     }
 
+    protected String escapeUnderscore(String name) {
+        // Java 8 discourages naming things _, but Java 9 does not allow it.
+        if("_".equals(name)) {
+            return "_u";
+        } else {
+            return name;
+        }
+    }
+
     @Override
     public String escapeReservedWord(String name) {
         if(this.reservedWordsMappings().containsKey(name)) {
@@ -562,11 +571,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return "propertyClass";
         }
 
-        if("_".equals(name)) {
-            name = "_u";
-        }
+        name = escapeUnderscore(name);
 
-        // if it's all uppper case, do nothing
+        // if it's all upper case, do nothing
         if (name.matches("^[A-Z_]*$")) {
             return name;
         }
@@ -1264,7 +1271,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (var.matches("\\d.*")) {
             return "_" + var;
         } else {
-            return var;
+            return escapeUnderscore(var).toUpperCase();
         }
     }
 
