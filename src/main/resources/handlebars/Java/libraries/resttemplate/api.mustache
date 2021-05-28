@@ -76,7 +76,7 @@ public class {{classname}} {
     {{#returnType}}
     * @return {{returnType}}
     {{/returnType}}
-    * @throws ApiException if fails to make API call
+    * @throws RestClientException if an error occurs while attempting to invoke the API
     {{#isDeprecated}}
     * @deprecated
     {{/isDeprecated}}
@@ -102,7 +102,7 @@ public class {{classname}} {
     {{#returnType}}
     * @return {{returnType}}
     {{/returnType}}
-    * @throws ApiException if fails to make API call
+    * @throws RestClientException if an error occurs while attempting to invoke the API
     {{#isDeprecated}}
     * @deprecated
     {{/isDeprecated}}
