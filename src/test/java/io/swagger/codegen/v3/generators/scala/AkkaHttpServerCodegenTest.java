@@ -259,7 +259,7 @@ public class AkkaHttpServerCodegenTest {
         Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/api/UserApi.scala").exists());
 
         Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/ApiResponse.scala").exists());
-        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Body.scala").exists());
+        Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Pet_petId_body.scala").exists());
         Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Category.scala").exists());
         Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Order.scala").exists());
         Assert.assertTrue(new File(output, "src/main/scala/io/swagger/server/model/Pet.scala").exists());
