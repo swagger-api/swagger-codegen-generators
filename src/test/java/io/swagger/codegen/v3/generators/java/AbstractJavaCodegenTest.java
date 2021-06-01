@@ -24,6 +24,11 @@ public class AbstractJavaCodegenTest {
     }
 
     @Test
+    public void toEnumVarNameShouldNotCreateSingleUnderscore() throws Exception {
+        Assert.assertEquals("_U", fakeJavaCodegen.toEnumVarName(",.", "String"));
+    }
+
+    @Test
     public void toVarNameShouldAvoidOverloadingGetClassMethod() throws Exception {
         Assert.assertEquals("propertyClass", fakeJavaCodegen.toVarName("class"));
         Assert.assertEquals("propertyClass", fakeJavaCodegen.toVarName("_class"));
@@ -96,6 +101,7 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(fakeJavaCodegen.toVarName("user_name"), "userName");
         Assert.assertEquals(fakeJavaCodegen.toVarName("_user_name"), "_userName");
         Assert.assertEquals(fakeJavaCodegen.toVarName(":user_name"), "userName");
+        Assert.assertEquals(fakeJavaCodegen.toVarName("_"), "u");
     }
 
     @Test
