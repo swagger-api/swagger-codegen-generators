@@ -78,7 +78,8 @@ public class ScalaClientCodegen extends AbstractScalaCodegen {
                 gradleWrapperPackage.replace( ".", File.separator ), "gradle-wrapper.jar") );
 
         supportingFiles.add(new SupportingFile("build.sbt.mustache", "", "build.sbt"));
-
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+        
         importMapping.remove("List");
         importMapping.remove("Set");
         importMapping.remove("Map");

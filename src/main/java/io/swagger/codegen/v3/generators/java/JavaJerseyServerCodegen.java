@@ -45,7 +45,6 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
         library.setDefault(DEFAULT_JERSEY_LIBRARY);
 
         cliOptions.add(library);
-        cliOptions.add(CliOption.newBoolean(SUPPORT_JAVA6, "Whether to support Java6 with the Jersey1/2 library."));
         cliOptions.add(CliOption.newBoolean(USE_TAGS, "use tags for creating interface and controller classnames"));
     }
 

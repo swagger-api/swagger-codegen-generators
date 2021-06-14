@@ -1,8 +1,13 @@
 package {{invokerPackage}}.auth;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collection;
+{{^java8}}
+import java.util.HashMap;
+import java.util.List;
+{{/java8}}
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -183,7 +188,7 @@ public class OAuth implements RequestInterceptor {
             if(contentTypeHeader != null) {
                 contentType = StringUtil.join(contentTypeHeader.toArray(new String[0]), ";");
             }
-
+            {{#java8}}
             return OAuthClientResponseFactory.createCustomResponse(
                     body,
                     contentType,
@@ -194,6 +199,22 @@ public class OAuth implements RequestInterceptor {
                     )),
                     responseClass
             );
+            {{/java8}}
+            {{^java8}}
+            Map<String, List<String>> responseHeaders = new HashMap<>();
+            for (String key : headers.keySet()) {
+                List values = new ArrayList();
+                values.addAll(headers.values());
+                responseHeaders.put(key, values);
+            }
+            return OAuthClientResponseFactory.createCustomResponse(
+                    body,
+                    contentType,
+                    feignResponse.status(),
+                    responseHeaders,
+                    responseClass
+            );
+            {{/java8}}
         }
 
         public void shutdown() {

@@ -1,0 +1,33 @@
+{{#emitJSDoc}}
+/**
+ * Enum class {{classname}}.
+ * @enum {{braces "left"}}{{dataType}}{{braces "right"}}
+ * @readonly
+ */
+{{/emitJSDoc}}
+const {{classname}} = {
+{{#allowableValues}}
+  {{#enumVars}}
+    {{#emitJSDoc}}
+  /**
+   * value: {{{value}}}
+   * @const
+   */
+    {{/emitJSDoc}}
+  {{name}}: {{{value}}},
+
+  {{/enumVars}}
+{{/allowableValues}}
+{{#emitJSDoc}}
+  /**
+   * Returns a <code>{{classname}}</code> enum value from a JavaScript object name.
+   * @param {Object} data The plain JavaScript object containing the name of the enum value.
+  * @return {{braces "left"}}module:{{#invokerPackage}}{{invokerPackage}}/{{/invokerPackage}}{{#modelPackage}}{{modelPackage}}/{{/modelPackage}}{{classname}}{{braces "right"}} The enum <code>{{classname}}</code> value.
+   */
+{{/emitJSDoc}}
+  constructFromObject: function(object) {
+    return object;
+  }
+};
+
+export {{braces "left"}}{{classname}}{{braces "right"}};

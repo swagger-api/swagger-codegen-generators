@@ -63,7 +63,7 @@ public class {{classname}} {
   @Deprecated
   {{/isDeprecated}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
-    Object {{localVariablePrefix}}localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
+    Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
     {{#parameters}}{{#required}}
     // verify the required parameter '{{paramName}}' is set
     if ({{paramName}} == null) {
@@ -87,10 +87,11 @@ public class {{classname}} {
     {{#headerParams}}if ({{paramName}} != null)
       {{localVariablePrefix}}localVarHeaderParams.put("{{baseName}}", {{localVariablePrefix}}apiClient.parameterToString({{paramName}}));
     {{/headerParams}}
-
+    {{#isForm}}
     {{#formParams}}if ({{paramName}} != null)
       {{localVariablePrefix}}localVarFormParams.put("{{baseName}}", {{paramName}});
     {{/formParams}}
+    {{/isForm}}
 
     final String[] {{localVariablePrefix}}localVarAccepts = {
       {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}}

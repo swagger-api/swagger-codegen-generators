@@ -1,0 +1,16 @@
+{{>licenseInfo}}
+import {{braces "left"}}ApiClient{{braces "right"}} from '../ApiClient';
+{{#imports}}
+import {{braces "left"}}{{import}}{{braces "right"}} from './{{import}}';
+{{/imports}}
+
+{{#models}}
+  {{#model}}
+    {{#isEnum}}
+{{>partial_model_enum_class}}
+    {{/isEnum}}
+    {{^isEnum}}
+{{>partial_model_generic}}
+    {{/isEnum}}
+  {{/model}}
+{{/models}}

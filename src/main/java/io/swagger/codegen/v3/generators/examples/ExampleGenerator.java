@@ -195,6 +195,10 @@ public class ExampleGenerator {
             Schema innerType = ((ArraySchema) schema).getItems();
             if (innerType != null) {
                 int arrayLength = schema.getMaxItems() != null ? schema.getMaxItems() : 2;
+                if (arrayLength > 10) {
+                    logger.warn("value of maxItems of property {} is {}; limiting to 10 examples", schema, arrayLength);
+                    arrayLength = 10;
+                }
                 Object[] objectProperties = new Object[arrayLength];
                 Object objProperty = resolveSchemaToExample(propertyName, mediaType, innerType, processedModels);
                 for(int i=0; i < arrayLength; i++) {
