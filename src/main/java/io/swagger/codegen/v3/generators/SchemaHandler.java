@@ -140,6 +140,7 @@ public class SchemaHandler implements ISchemaHandler {
                 return null;
             }
             this.updatePropertyDataType(codegenProperty, composedModel.name, arraySchema);
+            this.updatePropertyDataType(codegenProperty.items, composedModel);
             return composedModel;
         }
         return null;
@@ -208,6 +209,7 @@ public class SchemaHandler implements ISchemaHandler {
         arraySchema.setItems(refSchema);
         codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
         codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
 
         codegenProperty.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
         codegenProperty.defaultValueWithParam = this.codegenConfig.toDefaultValueWithParam(codegenProperty.baseName, arraySchema);
@@ -235,5 +237,6 @@ public class SchemaHandler implements ISchemaHandler {
         codegenProperty.datatypeWithEnum = composedModel.getClassname();
         codegenProperty.baseType = composedModel.getClassname();
         codegenProperty.complexType = composedModel.getClassname();
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
     }
 }

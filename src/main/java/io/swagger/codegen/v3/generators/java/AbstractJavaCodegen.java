@@ -187,16 +187,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
         } else if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             // guess from api package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from api package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from api package name: " + derivedInvokerPackage);
         } else if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             // guess from model package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from model package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from model package name: " + derivedInvokerPackage);
         } else if (StringUtils.isNotEmpty(invokerPackage)) {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
@@ -492,6 +492,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
     }
 
+    protected String escapeUnderscore(String name) {
+        // Java 8 discourages naming things _, but Java 9 does not allow it.
+        if("_".equals(name)) {
+            return "_u";
+        } else {
+            return name;
+        }
+    }
+
     @Override
     public String escapeReservedWord(String name) {
         if(this.reservedWordsMappings().containsKey(name)) {
@@ -562,11 +571,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             return "propertyClass";
         }
 
-        if("_".equals(name)) {
-            name = "_u";
-        }
+        name = escapeUnderscore(name);
 
-        // if it's all uppper case, do nothing
+        // if it's all upper case, do nothing
         if (name.matches("^[A-Z_]*$")) {
             return name;
         }
@@ -1233,15 +1240,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 schema.set$ref(schema.get$ref().replace(modelName, newModelName));
             });
     }
-/*
-    @Override
-    public String findCommonPrefixOfVars(List<String> vars) {
-        String prefix = StringUtils.getCommonPrefix(vars.toArray(new String[vars.size()]));
-        // exclude trailing characters that should be part of a valid variable
-        // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
-        return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
-    }
-*/
 
     @Override
     public String toEnumName(CodegenProperty property) {
@@ -1273,7 +1271,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (var.matches("\\d.*")) {
             return "_" + var;
         } else {
-            return var;
+            return escapeUnderscore(var).toUpperCase();
         }
     }
 
