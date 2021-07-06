@@ -469,6 +469,10 @@ public class PythonClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelName(String name) {
+        if (name == null) {
+            // sanitizeName will return "Object" for null, but this is called "object" in python
+            return "object";
+        }
         name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
         // remove dollar sign
         name = name.replaceAll("$", "");
