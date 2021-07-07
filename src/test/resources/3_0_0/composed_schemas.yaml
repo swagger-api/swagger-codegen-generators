@@ -162,3 +162,15 @@ components:
             - "$ref": "#/components/schemas/Dog"
             - "$ref": "#/components/schemas/Cat"
           type: array
+
+    Client:
+      type: object
+      properties:
+        name:
+          type: string
+
+    List:
+      type: object
+      properties:
+        name:
+          type: string

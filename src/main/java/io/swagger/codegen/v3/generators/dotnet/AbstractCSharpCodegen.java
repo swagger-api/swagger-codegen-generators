@@ -106,18 +106,18 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 Arrays.asList("IDictionary")
         );
 
-        setReservedWordsLowerCase(
+        setReservedWords(
                 Arrays.asList(
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter", "File",
+                        "Client", "client", "parameter", "File", "List", "list",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
                         "localVarPostBody", "localVarHttpHeaderAccepts", "localVarHttpHeaderAccept",
                         "localVarHttpContentTypes", "localVarHttpContentType",
-                        "localVarStatusCode",
+                        "localVarStatusCode", "ApiResponse", "apiresponse",
                         // C# reserved words
                         "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
                         "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
@@ -743,19 +743,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     protected boolean isReservedWord(String word) {
         // NOTE: This differs from super's implementation in that C# does _not_ want case insensitive matching.
-        return reservedWords.contains(word);
+        return reservedWords.contains(word.toLowerCase());
     }
 
     @Override
     public String getSchemaType(Schema propertySchema) {
         String swaggerType = super.getSchemaType(propertySchema);
 
-        if (propertySchema.get$ref() != null) {
-            final Schema refSchema = OpenAPIUtil.getSchemaFromName(swaggerType, this.openAPI);
-            if (refSchema != null && !isObjectSchema(refSchema) && refSchema.getEnum() == null) {
-                swaggerType = super.getSchemaType(refSchema);
-            }
-        }
+        swaggerType = getRefSchemaTargetType(propertySchema, swaggerType);
 
         String type;
 
@@ -773,6 +768,20 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             type = swaggerType;
         }
         return toModelName(type);
+    }
+
+    protected String getRefSchemaTargetType(Schema schema, String schemaType) {
+        if (schemaType == null) {
+            return null;
+        }
+        if (schema != null && schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+        return schemaType;
+
     }
 
     /**
@@ -1090,7 +1099,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParameters(content, codegenOperation.bodyParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);

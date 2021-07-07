@@ -54,6 +54,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public static final String DEFAULT_POD_AUTHORS = "Swagger Codegen";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
     public static final String LIBRARY_REACTIVE_API = "ReactiveAPI";
+    protected static final String MODEL_CLASSES = "modelClasses";
+    protected static final String USE_MODEL_CLASSES = "useModelClasses";
 
     private static final String LIBRARY_PROMISE_KIT = "PromiseKit";
     private static final String LIBRARY_RX_SWIFT = "RxSwift";
@@ -214,6 +216,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
         if (!additionalProperties.containsKey(POD_AUTHORS)) {
             additionalProperties.put(POD_AUTHORS, DEFAULT_POD_AUTHORS);
+        }
+
+        if (additionalProperties.containsKey(MODEL_CLASSES)) {
+            additionalProperties.put(USE_MODEL_CLASSES, true);
         }
 
         setLenientTypeCast(convertPropertyToBooleanAndWriteBack(LENIENT_TYPE_CAST));

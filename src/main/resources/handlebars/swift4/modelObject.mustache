@@ -1,5 +1,5 @@
 
-public struct {{classname}}: Codable, Hashable {
+public {{#useModelClasses}}class{{/useModelClasses}}{{^useModelClasses}}struct{{/useModelClasses}} {{classname}}: Codable, Hashable {
 
 {{#allVars}}{{#is this 'enum'}}{{> modelInlineEnumDeclaration}}{{/is}}{{/allVars}}{{#allVars}}{{#is this 'enum'}}    {{#description}}/** {{description}} */
     {{/description}}

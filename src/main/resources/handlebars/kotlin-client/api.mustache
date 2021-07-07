@@ -52,18 +52,18 @@ class {{classname}}(basePath: kotlin.String = "{{{basePath}}}") : ApiClient(base
     @Suppress("UNCHECKED_CAST"){{/returnType}}
     fun {{operationId}}({{#parameters}}{{paramName}}: {{{dataType}}}{{^required}}? = null{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}}): {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Unit{{/returnType}} {
         {{#or hasFormParams hasBodyParam}}
-        val localVariableBody: kotlin.Any? = {{#hasBodyParam}}{{#bodyParams}}{{paramName}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}null{{/hasFormParams}}{{#hasFormParams}}mapOf({{#formParams}}"{{{baseName}}}" to "${{paramName}}"{{#hasMore}}, {{/hasMore}}{{/formParams}}){{/hasFormParams}}{{/hasBodyParam}}
+        val localVariableBody: kotlin.Any? = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}{{#hasFormParams}}mapOf({{#formParams}}"{{{baseName}}}" to "${{paramName}}"{{#hasMore}}, {{/hasMore}}{{/formParams}}){{/hasFormParams}}{{^hasFormParams}}null{{/hasFormParams}}{{/isForm}}
         {{/or}}
-        {{#hasQueryParams}}val localVariableQuery: MultiValueMap = mapOf({{#queryParams}}"{{baseName}}" to {{#isContainer}}toMultiValue({{paramName}}.toList(), "{{collectionFormat}}"){{/isContainer}}{{^isContainer}}listOf("${{paramName}}"){{/isContainer}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}){{/hasQueryParams}}
+        {{#hasQueryParams}}val localVariableQuery: MultiValueMap = mapOf({{#queryParams}}"{{baseName}}" to {{#isContainer}}toMultiValue({{paramName}}{{^required}}!!{{/required}}.toList(), "{{collectionFormat}}"){{/isContainer}}{{^isContainer}}listOf("${{paramName}}"){{/isContainer}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}){{/hasQueryParams}}
         {{#or hasFormParams hasHeaderParams}}
-        val localVariableHeaders: kotlin.collections.Map<kotlin.String, kotlin.String> = mapOf({{#hasFormParams}}"Content-Type" to "multipart/form-data"{{/hasFormParams}}{{^hasHeaderParams}}){{/hasHeaderParams}}{{#hasHeaderParams}}{{#hasFormParams}}, {{/hasFormParams}}{{#headerParams}}"{{baseName}}" to {{#isContainer}}{{paramName}}.joinToString(separator = collectionDelimiter("{{collectionFormat}}"){{/isContainer}}{{^isContainer}}{{paramName}}{{/isContainer}}{{#hasMore}}, {{/hasMore}}{{/headerParams}}){{/hasHeaderParams}}
+        val localVariableHeaders: kotlin.collections.Map<kotlin.String, kotlin.String> = mapOf({{#hasFormParams}}"Content-Type" to "multipart/form-data"{{/hasFormParams}}{{^hasHeaderParams}}){{/hasHeaderParams}}{{#hasHeaderParams}}{{#hasFormParams}}, {{/hasFormParams}}{{#headerParams}}"{{baseName}}" to {{#isContainer}}{{paramName}}.joinToString(separator = collectionDelimiter("{{collectionFormat}}"){{/isContainer}}{{^isContainer}}{{paramName}}{{^required}}.toString(){{/required}}{{/isContainer}}{{#hasMore}}, {{/hasMore}}{{/headerParams}}){{/hasHeaderParams}}
         {{/or}}
         val localVariableConfig = RequestConfig(
                 RequestMethod.{{httpMethod}},
                 "{{{removeLeadingSlash path}}}"{{#pathParams}}.replace("{" + "{{baseName}}" + "}", "${{paramName}}"){{/pathParams}}{{#hasQueryParams}}, query = localVariableQuery{{/hasQueryParams}}{{#or hasFormParams hasHeaderParams}}, headers = localVariableHeaders{{/or}}
         )
         val response = request<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Any?{{/returnType}}>(
-                localVariableConfig{{#or hasFormParams hasHeaderParams}}, localVariableBody{{/or}}
+                localVariableConfig{{#or hasFormParams hasBodyParam}}, localVariableBody{{/or}}
         )
 
         return when (response.responseType) {
