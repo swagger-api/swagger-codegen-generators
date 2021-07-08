@@ -13,6 +13,7 @@ public class KotlinClientCodegenOptionsProvider implements OptionsProvider {
     public static final String GROUP_ID = "io.swagger.tests";
     public static final String SOURCE_FOLDER = "./generated/kotlin";
     public static final String DATE_LIBRARY = KotlinClientCodegen.DateLibrary.JAVA8.value;
+    public static final boolean RX_RETROFIT_2 = false;
 
     @Override
     public String getLanguage() {
@@ -29,6 +30,7 @@ public class KotlinClientCodegenOptionsProvider implements OptionsProvider {
                 .put(CodegenConstants.GROUP_ID, GROUP_ID)
                 .put(CodegenConstants.SOURCE_FOLDER, SOURCE_FOLDER)
                 .put(KotlinClientCodegen.DATE_LIBRARY, DATE_LIBRARY)
+                .put(KotlinClientCodegen.USE_RX_RETROFIT_2, String.valueOf(RX_RETROFIT_2))
                 .build();
     }
 

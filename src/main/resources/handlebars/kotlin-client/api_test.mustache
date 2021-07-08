@@ -1,0 +1,31 @@
+{{>licenseInfo}}
+package {{apiPackage}}
+
+{{#imports}}import {{import}}
+{{/imports}}
+
+import {{apiPackage}}.infrastructure.*
+
+{{#operations}}
+/**
+ * Returns [RESTMockEndpointData] for [{{classname}}]
+ */
+object {{classname}}Endpoints {
+{{#operation}}
+
+    /**
+     * Returns [RESTMockEndpointData] for [{{../classname}}.{{operationId}}]
+     */
+    fun {{operationId}}(
+        {{#contents}}{{#parameters}}
+        {{#isPathParam}}
+    {{>libraries/rxretrofit2/pathParams_test}}{{^required}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}{{/required}}{{#or hasMore ../hasQueryParams ../hasHeaderParams ../hasBodyParam}},{{/or}}
+        {{/isPathParam}}
+        {{#isQueryParam}}
+    {{>libraries/rxretrofit2/queryParams_test}}{{^required}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}{{/required}}{{#or hasMore ../hasHeaderParams ../hasBodyParam}},{{/or}}
+        {{/isQueryParam}}
+        {{/parameters}}{{/contents}}
+    ): String = "{{{pathToKotlinStringTemplate path}}}"
+{{/operation}}
+}
+{{/operations}}

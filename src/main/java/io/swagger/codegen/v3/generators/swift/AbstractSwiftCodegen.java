@@ -36,6 +36,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     public static final String PROJECT_NAME = "projectName";
     public static final String RESPONSE_AS = "responseAs";
+    public static final String PACKAGE_NAME = "packageName";
+
     public static final String UNWRAP_REQUIRED = "unwrapRequired";
     public static final String OBJC_COMPATIBLE = "objcCompatible";
     public static final String POD_SOURCE = "podSource";
@@ -51,19 +53,22 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public static final String SWIFT_USE_API_NAMESPACE = "swiftUseApiNamespace";
     public static final String DEFAULT_POD_AUTHORS = "Swagger Codegen";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
+    public static final String LIBRARY_REACTIVE_API = "ReactiveAPI";
     protected static final String MODEL_CLASSES = "modelClasses";
     protected static final String USE_MODEL_CLASSES = "useModelClasses";
 
     private static final String LIBRARY_PROMISE_KIT = "PromiseKit";
     private static final String LIBRARY_RX_SWIFT = "RxSwift";
-    protected static final String[] RESPONSE_LIBRARIES = {LIBRARY_PROMISE_KIT, LIBRARY_RX_SWIFT};
+    protected static final String[] RESPONSE_LIBRARIES = {LIBRARY_PROMISE_KIT, LIBRARY_RX_SWIFT, LIBRARY_REACTIVE_API};
     private String projectName = "SwaggerClient";
     private boolean unwrapRequired;
     private boolean objcCompatible = false;
     private boolean lenientTypeCast = false;
     private boolean swiftUseApiNamespace;
     private String[] responseAs = new String[0];
+    private String packageName = new String();
     protected String sourceFolder = "Classes" + File.separator + "Swaggers";
+    protected String sourceTestFolder = "Classes" + File.separator + "Tests";
 
 
     // new attributes
@@ -77,6 +82,8 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         apiTemplateFiles.put("api.mustache", ".swift");
         apiPackage = File.separator + "APIs";
         modelPackage = File.separator + "Models";
+        modelTestTemplateFiles.put("model_test.mustache", ".swift");
+        apiTestTemplateFiles.put("api_test.mustache", ".swift");
 
         // default HIDE_GENERATION_TIMESTAMP to true
         hideGenerationTimestamp = Boolean.TRUE;
@@ -99,6 +106,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
                 Arrays.asList(
                         "Data",
                         "Date",
+                        "YearMonthDay",
                         "URL", // for file
                         "UUID",
                         "Array",
@@ -142,6 +150,11 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String getPackageName() {
+        return packageName;
+    }
+
+    @Override
     public void processOpts() {
         super.processOpts();
 
@@ -152,6 +165,7 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
             additionalProperties.put(PROJECT_NAME, projectName);
         }
         sourceFolder = projectName + File.separator + sourceFolder;
+        sourceTestFolder = projectName + File.separator + sourceTestFolder;
 
         // Setup unwrapRequired option, which makes all the
         // properties with "required" non-optional
@@ -177,11 +191,21 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
             }
         }
         additionalProperties.put(RESPONSE_AS, responseAs);
+
+        // Package name
+        if (additionalProperties.containsKey(PACKAGE_NAME)) {
+            setPackageName((String) additionalProperties.get(PACKAGE_NAME));
+        } else {
+            additionalProperties.put(PACKAGE_NAME, packageName);
+        }
         if (ArrayUtils.contains(responseAs, LIBRARY_PROMISE_KIT)) {
             additionalProperties.put("usePromiseKit", true);
         }
         if (ArrayUtils.contains(responseAs, LIBRARY_RX_SWIFT)) {
             additionalProperties.put("useRxSwift", true);
+        }
+        if (ArrayUtils.contains(responseAs, LIBRARY_REACTIVE_API)) {
+            additionalProperties.put("useReactiveAPI", true);
         }
 
         // Setup swiftUseApiNamespace option, which makes all the API
@@ -200,36 +224,38 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
         setLenientTypeCast(convertPropertyToBooleanAndWriteBack(LENIENT_TYPE_CAST));
 
-        supportingFiles.add(new SupportingFile("Podspec.mustache",
-                "",
-                projectName + ".podspec"));
-        supportingFiles.add(new SupportingFile("Cartfile.mustache",
-                "",
-                "Cartfile"));
-        supportingFiles.add(new SupportingFile("APIHelper.mustache",
-                sourceFolder,
-                "APIHelper.swift"));
-        supportingFiles.add(new SupportingFile("AlamofireImplementations.mustache",
-                sourceFolder,
-                "AlamofireImplementations.swift"));
-        supportingFiles.add(new SupportingFile("Configuration.mustache",
-                sourceFolder,
-                "Configuration.swift"));
-        supportingFiles.add(new SupportingFile("Extensions.mustache",
-                sourceFolder,
-                "Extensions.swift"));
-        supportingFiles.add(new SupportingFile("Models.mustache",
-                sourceFolder,
-                "Models.swift"));
-        supportingFiles.add(new SupportingFile("APIs.mustache",
-                sourceFolder,
-                "APIs.swift"));
-        supportingFiles.add(new SupportingFile("git_push.sh.mustache",
-                "",
-                "git_push.sh"));
-        supportingFiles.add(new SupportingFile("gitignore.mustache",
-                "",
-                ".gitignore"));
+        if (!ArrayUtils.contains(responseAs, LIBRARY_REACTIVE_API)) {
+            supportingFiles.add(new SupportingFile("Podspec.mustache",
+                    "",
+                    projectName + ".podspec"));
+            supportingFiles.add(new SupportingFile("Cartfile.mustache",
+                    "",
+                    "Cartfile"));
+            supportingFiles.add(new SupportingFile("APIHelper.mustache",
+                    sourceFolder,
+                    "APIHelper.swift"));
+            supportingFiles.add(new SupportingFile("AlamofireImplementations.mustache",
+                    sourceFolder,
+                    "AlamofireImplementations.swift"));
+            supportingFiles.add(new SupportingFile("Configuration.mustache",
+                    sourceFolder,
+                    "Configuration.swift"));
+            supportingFiles.add(new SupportingFile("Extensions.mustache",
+                    sourceFolder,
+                    "Extensions.swift"));
+            supportingFiles.add(new SupportingFile("Models.mustache",
+                    sourceFolder,
+                    "Models.swift"));
+            supportingFiles.add(new SupportingFile("APIs.mustache",
+                    sourceFolder,
+                    "APIs.swift"));
+            supportingFiles.add(new SupportingFile("git_push.sh.mustache",
+                    "",
+                    "git_push.sh"));
+            supportingFiles.add(new SupportingFile("gitignore.mustache",
+                    "",
+                    ".gitignore"));
+        }
     }
 
     @Override
@@ -255,6 +281,16 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
     public String apiFileFolder() {
         return outputFolder + File.separator + sourceFolder
                 + apiPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
+    public String apiTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + apiPackage().replace('.', File.separatorChar);
+    }
+
+    @Override
+    public String modelTestFileFolder() {
+        return outputFolder + File.separator + sourceTestFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
 
     @Override
@@ -385,7 +421,16 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         if (name.length() == 0) {
             return "DefaultAPI";
         }
-        return initialCaps(name) + "API";
+
+        if (!StringUtils.isEmpty(modelNameSuffix)) { // set api suffix
+            name = name + "_" + modelNameSuffix;
+        }
+
+        if (!StringUtils.isEmpty(modelNamePrefix)) { // set api prefix
+            name = modelNamePrefix + "_" + name;
+        }
+
+        return camelize(name) + "API";
     }
 
     @Override
@@ -507,6 +552,10 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
 
     public void setResponseAs(String[] responseAs) {
         this.responseAs = responseAs;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
     public void setSwiftUseApiNamespace(boolean swiftUseApiNamespace) {

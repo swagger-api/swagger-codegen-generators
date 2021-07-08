@@ -9,10 +9,17 @@ import Foundation
 
 {{#description}}
 /** {{description}} */{{/description~}}
+{{#is this 'alias'}}
+
+public typealias {{classname}} = {{dataType}}
+{{/is}}
+{{#isNot this 'alias'}}
 {{#is this 'array-model'}}
 {{> modelArray}}
 {{/is}}{{#isNot this 'array-model'}}{{#is this 'enum'}}
 {{> modelEnum}}
 {{/is~}}{{#isNot this 'enum'}}
 {{> modelObject}}
-{{/isNot}}{{/isNot}}{{/model}}{{/models~}}
+{{/isNot}}{{/isNot}}
+{{/isNot}}
+{{/model}}{{/models~}}

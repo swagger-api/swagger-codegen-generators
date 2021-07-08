@@ -99,8 +99,8 @@ public class Swift4CodegenTest {
         final Operation p = openAPI.getPaths().get(path).getPost();
         final CodegenOperation op = codegen.fromOperation(path, "post", p, openAPI.getComponents().getSchemas());
 
-        Assert.assertEquals(op.returnType, "Date");
-        Assert.assertEquals(op.bodyParam.dataType, "Date");
+        Assert.assertEquals(op.returnType, "YearMonthDay");
+        Assert.assertEquals(op.bodyParam.dataType, "YearMonthDay");
     }
 
     @Test

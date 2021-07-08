@@ -34,10 +34,10 @@ public class Swift4ModelTest {
 
         final CodegenProperty property1 = cm.vars.get(0);
         Assert.assertEquals(property1.baseName, "id");
-        Assert.assertEquals(property1.datatype, "Int64");
+        Assert.assertEquals(property1.datatype, "Int");
         Assert.assertEquals(property1.name, "_id");
         Assert.assertNull(property1.defaultValue);
-        Assert.assertEquals(property1.baseType, "Int64");
+        Assert.assertEquals(property1.baseType, "Int");
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertTrue(property1.required);
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME));
@@ -96,10 +96,10 @@ public class Swift4ModelTest {
 
         final CodegenProperty property7 = cm.vars.get(6);
         Assert.assertEquals(property7.baseName, "dateOfBirth");
-        Assert.assertEquals(property7.datatype, "Date");
+        Assert.assertEquals(property7.datatype, "YearMonthDay");
         Assert.assertEquals(property7.name, "dateOfBirth");
         Assert.assertNull(property7.defaultValue);
-        Assert.assertEquals(property7.baseType, "Date");
+        Assert.assertEquals(property7.baseType, "YearMonthDay");
         Assert.assertFalse(getBooleanValue(property7, CodegenConstants.HAS_MORE_EXT_NAME));
         Assert.assertFalse(property7.required);
         Assert.assertTrue(getBooleanValue(property7, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
