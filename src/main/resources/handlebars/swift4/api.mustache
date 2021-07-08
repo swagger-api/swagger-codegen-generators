@@ -17,7 +17,7 @@ extension {{projectName}}API {
 {{/swiftUseApiNamespace}}
 {{#description}}
 /** {{description}} */{{/description~}}
-{{#if useReactiveAPI}}open{{else}}final{{/if}} class {{classname}}{{#useReactiveAPI}}: JSONReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
+{{#if useReactiveAPI}}open{{else}}final{{/if}} class {{classname}}{{#useReactiveAPI}}: ReactiveAPI {{/useReactiveAPI}}{ {{#operation}}{{#allParams}}{{#is this 'enum'}}
     /**
      * enum for parameter {{paramName}}
      */
