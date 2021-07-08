@@ -4,30 +4,19 @@ package {{apiPackage}}
 {{#imports}}import {{import}}
 {{/imports}}
 
-import io.appflate.restmock.RESTMockServer
-import io.appflate.restmock.RequestsVerifier
-import io.appflate.restmock.utils.RequestMatchers
-import it.sky.testfoundation.core.restmockutils.QueryParameter
-import it.sky.testfoundation.core.restmockutils.RESTMockEndpointData
-import it.sky.testfoundation.core.restmockutils.URLBuilder
-import it.sky.testfoundation.core.restmockutils.matchers.MultipleRequestMatcher
-import it.sky.testfoundation.core.restmockutils.matchers.body.AlwaysMatchBodyRequestMatcher
-import it.sky.testfoundation.core.restmockutils.matchers.body.BodyRequestMatcher
-import it.sky.testfoundation.core.restmockutils.matchers.headers.AlwaysMatchHeadersRequestMatcher
-import it.sky.testfoundation.core.restmockutils.matchers.headers.HeadersRequestMatcher
 import {{apiPackage}}.infrastructure.*
 
 {{#operations}}
 /**
  * Returns [RESTMockEndpointData] for [{{classname}}]
  */
-class {{classname}}URLs(private val urlBuilder: URLBuilder) {
+object {{classname}}Endpoints {
 {{#operation}}
 
     /**
      * Returns [RESTMockEndpointData] for [{{../classname}}.{{operationId}}]
      */
-    fun {{operationId}}EndpointData(
+    fun {{operationId}}(
         {{#contents}}{{#parameters}}
         {{#isPathParam}}
     {{>libraries/rxretrofit2/pathParams_test}}{{^required}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}{{/required}}{{#or hasMore ../hasQueryParams ../hasHeaderParams ../hasBodyParam}},{{/or}}
@@ -36,37 +25,7 @@ class {{classname}}URLs(private val urlBuilder: URLBuilder) {
     {{>libraries/rxretrofit2/queryParams_test}}{{^required}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}{{/required}}{{#or hasMore ../hasHeaderParams ../hasBodyParam}},{{/or}}
         {{/isQueryParam}}
         {{/parameters}}{{/contents}}
-        {{#hasHeaderParams}}
-        headersRequestMatcher: HeadersRequestMatcher = AlwaysMatchHeadersRequestMatcher(){{#hasBodyParam}},{{/hasBodyParam}}
-        {{/hasHeaderParams}}
-        {{#hasBodyParam}}
-        bodyRequestMatcher: BodyRequestMatcher<{{{bodyParam.dataType}}}> = AlwaysMatchBodyRequestMatcher()
-        {{/hasBodyParam}}
-    ) = MultipleRequestMatcher.Builder()
-        .withMatcher(
-            RequestMatchers.pathEndsWith(
-                urlBuilder.buildUrl(
-                    "{{{pathToKotlinStringTemplate path}}}"{{#hasQueryParams}},{{/hasQueryParams}}
-                    {{#contents}}{{#parameters}}
-                    {{#isQueryParam}}
-                    QueryParameter("{{baseName}}", {{paramName}}){{#hasMore}},{{/hasMore}}
-                    {{/isQueryParam}}
-                    {{/parameters}}{{/contents}}
-                )
-            )
-        )
-        {{#hasHeaderParams}}
-        .withMatcher(headersRequestMatcher)
-        {{/hasHeaderParams}}
-        {{#hasBodyParam}}
-        .withMatcher(bodyRequestMatcher)
-        {{/hasBodyParam}}
-        .build().run {
-            RESTMockEndpointData(
-                RESTMockServer.when{{httpMethod}}(this),
-                RequestsVerifier.verify{{httpMethod}}(this)
-            )
-        }
+    ): String = "{{{pathToKotlinStringTemplate path}}}"
 {{/operation}}
 }
 {{/operations}}
