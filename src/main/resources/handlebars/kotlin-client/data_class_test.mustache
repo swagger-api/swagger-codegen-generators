@@ -1,0 +1,29 @@
+/**
+* {{{description}}}
+{{#vars}}
+    * @param {{name}} {{{description}}}
+{{/vars}}
+*/
+@GenerateMocker
+@JsonClass(generateAdapter = true)
+data class {{classname}} (
+{{#allVars}}
+{{>data_class_val}}{{^@last}},
+{{/@last}}
+{{/allVars}}
+)
+
+
+{{#has this 'enums'}}{{#vars}}{{#is this 'enum'}}
+/**
+* {{{description}}}
+* Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
+*/
+@GenerateMocker
+enum class {{classname}}{{nameInCamelCase}}(val value: {{datatype}}){
+{{#allowableValues}}{{#enumVars}}
+    @Json(name = {{{value}}})
+    {{&name}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+{{/enumVars}}{{/allowableValues}}
+}
+{{/is}}{{/vars}}{{/has}}

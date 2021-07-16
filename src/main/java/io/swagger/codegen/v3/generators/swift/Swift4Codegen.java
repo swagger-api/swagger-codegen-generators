@@ -5,7 +5,7 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.swift.AbstractSwiftCodegen;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -76,7 +76,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         typeMapping.put("array", "Array");
         typeMapping.put("List", "Array");
         typeMapping.put("map", "Dictionary");
-        typeMapping.put("date", "Date");
+        typeMapping.put("date", "YearMonthDay");
         typeMapping.put("Date", "Date");
         typeMapping.put("DateTime", "Date");
         typeMapping.put("boolean", "Bool");
@@ -84,7 +84,7 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         typeMapping.put("char", "Character");
         typeMapping.put("short", "Int");
         typeMapping.put("int", "Int");
-        typeMapping.put("long", "Int64");
+        typeMapping.put("long", "Int");
         typeMapping.put("integer", "Int");
         typeMapping.put("Integer", "Int");
         typeMapping.put("float", "Float");
@@ -95,12 +95,14 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
         typeMapping.put("binary", "Data");
         typeMapping.put("ByteArray", "Data");
         typeMapping.put("UUID", "UUID");
+        typeMapping.put("BigDecimal", "Int");
 
         cliOptions.add(new CliOption(PROJECT_NAME, "Project name in Xcode"));
         cliOptions.add(new CliOption(RESPONSE_AS,
                 "Optionally use libraries to manage response.  Currently "
                         + StringUtils.join(RESPONSE_LIBRARIES, ", ")
                         + " are available."));
+        cliOptions.add(new CliOption(PACKAGE_NAME, "Package/Framework name (to be used in import ...)"));
         cliOptions.add(new CliOption(UNWRAP_REQUIRED,
                 "Treat 'required' properties in response as non-optional "
                         + "(which would crash the app if api returns null as opposed "
@@ -133,6 +135,19 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
     }
 
     @Override
+    public String transformPath(String path) {
+        return path
+                .replace("{", "\\(")
+                .replace("}", ")")
+                .replace("(id)", "(_id)");
+    }
+
+    @Override
+    public String transformHttpMethod(String httpMethod) {
+        return httpMethod.toLowerCase();
+    }
+
+    @Override
     public String getName() {
         return "swift4";
     }
@@ -141,15 +156,21 @@ public class Swift4Codegen extends AbstractSwiftCodegen {
     public void processOpts() {
         super.processOpts();
 
-        supportingFiles.add(new SupportingFile("CodableHelper.mustache",
-                sourceFolder,
-                "CodableHelper.swift"));
-        supportingFiles.add(new SupportingFile("JSONEncodableEncoding.mustache",
-                sourceFolder,
-                "JSONEncodableEncoding.swift"));
-        supportingFiles.add(new SupportingFile("JSONEncodingHelper.mustache",
-                sourceFolder,
-                "JSONEncodingHelper.swift"));
+        if (!additionalProperties.containsKey("useReactiveAPI")) {
+            supportingFiles.add(new SupportingFile("CodableHelper.mustache",
+                    sourceFolder,
+                    "CodableHelper.swift"));
+            supportingFiles.add(new SupportingFile("JSONEncodableEncoding.mustache",
+                    sourceFolder,
+                    "JSONEncodableEncoding.swift"));
+            supportingFiles.add(new SupportingFile("JSONEncodingHelper.mustache",
+                    sourceFolder,
+                    "JSONEncodingHelper.swift"));
+        }
+
+        supportingFiles.add(new SupportingFile("YearMonthDay.mustache",
+                    sourceFolder,
+                    "YearMonthDate.swift"));
     }
 
     @Override
