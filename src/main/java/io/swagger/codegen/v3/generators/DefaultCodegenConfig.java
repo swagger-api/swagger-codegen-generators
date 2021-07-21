@@ -396,21 +396,25 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
-     * Returns the common prefix of variables for enum naming
+     * Returns the common prefix of variables for enum naming if
+     * two or more variables are present.
      *
      * @param vars List of variable names
      * @return the common prefix for naming
      */
     public String findCommonPrefixOfVars(List<Object> vars) {
-        try {
-            String[] listStr = vars.toArray(new String[vars.size()]);
-            String prefix = StringUtils.getCommonPrefix(listStr);
-            // exclude trailing characters that should be part of a valid variable
-            // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
-            return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
-        } catch (ArrayStoreException e) {
-            return "";
+        if (vars.size() > 1) {
+            try {
+                String[] listStr = vars.toArray(new String[vars.size()]);
+                String prefix = StringUtils.getCommonPrefix(listStr);
+                // exclude trailing characters that should be part of a valid variable
+                // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
+                return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
+            } catch (ArrayStoreException e) {
+                // do nothing, just return default value
+            }
         }
+        return "";
     }
 
     /**
@@ -1475,6 +1479,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     addImport(codegenModel, "BigDecimal");
                 }
             }
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
 
@@ -1580,9 +1586,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.defaultValue = toDefaultValue(propertySchema);
         codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, propertySchema);
         codegenProperty.jsonSchema = Json.pretty(propertySchema);
-        if (propertySchema.getNullable() != null) {
-            codegenProperty.nullable = propertySchema.getNullable();
-        }
+        codegenProperty.nullable = Boolean.TRUE.equals(propertySchema.getNullable());
+        codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(propertySchema.getNullable()));
         if (propertySchema.getReadOnly() != null) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
         }
@@ -2150,8 +2155,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
                     codegenParameter.description = body.getDescription();
                     codegenParameter.unescapedDescription = body.getDescription();
-                    codegenParameter.baseName = REQUEST_BODY_NAME;
-                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    String bodyName = REQUEST_BODY_NAME;
+                    if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+                        bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+                    }
+                    codegenParameter.baseName = bodyName;
+                    codegenParameter.paramName = bodyName;
                     codegenParameter.dataType = "Object";
                     codegenParameter.baseType = "Object";
 
@@ -2230,11 +2239,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
 
-        for (String i : imports) {
-            if (needToImport(i)) {
-                codegenOperation.imports.add(i);
-            }
-        }
+        addOperationImports(codegenOperation, imports);
 
         codegenOperation.bodyParam = bodyParam;
         codegenOperation.httpMethod = httpMethod.toUpperCase();
@@ -2286,6 +2291,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         configureDataForTestTemplate(codegenOperation);
 
         return codegenOperation;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (needToImport(operationImport)) {
+                codegenOperation.imports.add(operationImport);
+            }
+        }
     }
 
     /**
@@ -2516,14 +2529,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 LOGGER.warn("warning!  Schema not found for parameter \"" + parameter.getName() + "\", using String");
                 parameterSchema = new StringSchema().description("//TODO automatically added by swagger-codegen.");
             }
-            if (Boolean.TRUE.equals(parameterSchema.getNullable())) {
-                codegenParameter.nullable = true;
-            }
             CodegenProperty codegenProperty = fromProperty(parameter.getName(), parameterSchema);
 
             // set boolean flag (e.g. isString)
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
-            setParameterNullable(codegenParameter, codegenProperty);
+            setParameterNullable(codegenParameter, codegenProperty); //todo: needs to be removed
+
+            codegenParameter.nullable = Boolean.TRUE.equals(parameterSchema.getNullable());
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(parameterSchema.getNullable()));
 
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
@@ -2653,8 +2666,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
         CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        codegenParameter.baseName = REQUEST_BODY_NAME;
-        codegenParameter.paramName = REQUEST_BODY_NAME;
+
+        String bodyName = REQUEST_BODY_NAME;
+        if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+            bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+        }
+        codegenParameter.baseName = bodyName;
+        codegenParameter.paramName = bodyName;
         codegenParameter.description = body.getDescription();
         codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
@@ -2765,7 +2783,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
         }
         else {
-            CodegenProperty codegenProperty = fromProperty(REQUEST_BODY_NAME, schema);
+            CodegenProperty codegenProperty = fromProperty(bodyName, schema);
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.baseType = codegenProperty.baseType;
             if (codegenProperty.complexType != null) {
@@ -2890,6 +2908,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         for (String word : words) {
             reservedWords.add(word.toLowerCase());
         }
+    }
+
+    protected void setReservedWords(List<String> words) {
+        reservedWords = new HashSet<String>();
+        reservedWords.addAll(words);
     }
 
     protected boolean isReservedWord(String word) {
@@ -4368,8 +4391,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParameters(content, codegenOperation.bodyParams);
-            addParameters(content, codegenOperation.formParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);

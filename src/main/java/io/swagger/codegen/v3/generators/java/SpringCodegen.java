@@ -140,7 +140,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);
             addParameters(content, codegenOperation.cookieParams);
-            addParameters(content, codegenOperation.bodyParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
         }
     }
 
@@ -698,6 +702,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     private void forceOas2() {
         setUseOas2(true);
         additionalProperties.put(CodegenConstants.USE_OAS2, true);
+        importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
+        importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
+        importMapping.remove("Schema");
     }
 
     private boolean isSpringCloudLibrary() {
@@ -869,6 +876,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
             List<CodegenModel> childrenModels = byParent.get(parentModel);
+
+            if (childrenModels == null || childrenModels.isEmpty()) {
+                continue;
+            }
+
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);

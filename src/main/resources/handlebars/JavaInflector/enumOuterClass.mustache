@@ -9,7 +9,7 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
   {{#if gson}}
   {{#if allowableValues}}{{#if allowableValues.enumVars}}
   @SerializedName({{#is this 'integer'}}"{{/is}}{{#is this 'double'}}"{{/is}}{{#is this 'long'}}"{{/is}}{{#is this 'float'}}"{{/is}}{{{value}}}{{#is this 'integer'}}"{{/is}}{{#is this 'double'}}"{{/is}}{{#is this 'long'}}"{{/is}}{{#is this 'float'}}"{{/is}})
-  {{{name}}}({{{value}}}){{^@last}},
+  {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
   {{/@last}}{{#@last}};{{/@last}}
   {{/if}}
   {{/if}}

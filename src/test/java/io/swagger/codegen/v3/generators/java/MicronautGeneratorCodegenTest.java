@@ -59,8 +59,8 @@ public class MicronautGeneratorCodegenTest extends AbstractCodegenTest {
 
     @Test(description = "verify that parameters are listed as follows: header, path, query, cookie, body")
     public void testApiParameters() throws IOException {
-        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@Parameter(description = \"Localized Text object.\" ) @Valid @Body LocalizedText body" + System.lineSeparator()
-                                 + ",@NotNull @Pattern(regexp=\"[0-9]+\") @Parameter(description = \"header description\" ) @Valid @Header(value = \"x-header\") String xHeader" + System.lineSeparator()
+        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@Parameter(description = \"Localized Text object.\") @Valid @Body LocalizedText body" + System.lineSeparator()
+                                 + ",@NotNull @Pattern(regexp=\"[0-9]+\") @Parameter(description = \"header description\") @Valid @Header(value = \"x-header\") String xHeader" + System.lineSeparator()
                                  + ",@Parameter(description = \"path description\") @PathVariable(\"id\") Long id" + System.lineSeparator()
                                  + ",@Nullable @Parameter(description = \"query description\") @Valid @QueryValue(value = \"name\") String name";
         final File controllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");

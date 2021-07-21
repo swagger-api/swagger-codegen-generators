@@ -16,12 +16,12 @@ ktor {
 auth {
   oauth {
 {{#authMethods}}
-{{#is this 'oauth'}}
+{{#isOAuth}}
     {{name}} {
         clientId = ""
         clientSecret = ""
     }
-{{/is}}
+{{/isOAuth}}
 {{/authMethods}}
   }
 }

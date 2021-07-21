@@ -2,6 +2,8 @@ package io.swagger.codegen.v3.generators.kotlin;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
@@ -9,6 +11,8 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.jknack.handlebars.helper.StringHelpers;
+import com.github.jknack.handlebars.Handlebars;
 
 import java.io.File;
 import java.util.Arrays;
@@ -32,8 +36,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
-
-    protected CodegenConstants.ENUM_PROPERTY_NAMING_TYPE enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.camelCase;
 
     public AbstractKotlinCodegen() {
         super();
@@ -197,6 +199,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         importMapping.put("LocalTime", "java.time.LocalTime");
 
         specialCharReplacements.put(";", "Semicolon");
+        specialCharReplacements.put(":", "Colon");
 
         cliOptions.clear();
         addOption(CodegenConstants.SOURCE_FOLDER, CodegenConstants.SOURCE_FOLDER_DESC, sourceFolder);
@@ -204,9 +207,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         addOption(CodegenConstants.GROUP_ID, "Generated artifact package's organization (i.e. maven groupId).", groupId);
         addOption(CodegenConstants.ARTIFACT_ID, "Generated artifact id (name of jar).", artifactId);
         addOption(CodegenConstants.ARTIFACT_VERSION, "Generated artifact's package version.", artifactVersion);
-
-        CliOption enumPropertyNamingOpt = new CliOption(CodegenConstants.ENUM_PROPERTY_NAMING, CodegenConstants.ENUM_PROPERTY_NAMING_DESC);
-        cliOptions.add(enumPropertyNamingOpt.defaultValue(enumPropertyNaming.name()));
     }
 
     protected void addOption(String key, String description) {
@@ -257,24 +257,10 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
-    public CodegenConstants.ENUM_PROPERTY_NAMING_TYPE getEnumPropertyNaming() {
-        return this.enumPropertyNaming;
-    }
-
-    /**
-     * Sets the naming convention for Kotlin enum properties
-     *
-     * @param enumPropertyNamingType The string representation of the naming convention, as defined by {@link CodegenConstants.ENUM_PROPERTY_NAMING_TYPE}
-     */
-    public void setEnumPropertyNaming(final String enumPropertyNamingType) {
-        try {
-            this.enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.valueOf(enumPropertyNamingType);
-        } catch (IllegalArgumentException ex) {
-            StringBuilder sb = new StringBuilder(enumPropertyNamingType + " is an invalid enum property naming option. Please choose from:");
-            for (CodegenConstants.ENUM_PROPERTY_NAMING_TYPE t : CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.values()) {
-                sb.append("\n  ").append(t.name());
-            }
-            throw new RuntimeException(sb.toString());
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -350,10 +336,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        if (additionalProperties.containsKey(CodegenConstants.ENUM_PROPERTY_NAMING)) {
-            setEnumPropertyNaming((String) additionalProperties.get(CodegenConstants.ENUM_PROPERTY_NAMING));
-        }
 
         if (additionalProperties.containsKey(CodegenConstants.SOURCE_FOLDER)) {
             this.setSourceFolder((String) additionalProperties.get(CodegenConstants.SOURCE_FOLDER));
@@ -437,28 +419,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
             modified = sanitizeKotlinSpecificNames(modified);
         }
 
-        switch (getEnumPropertyNaming()) {
-            case original:
-                // NOTE: This is provided as a last-case allowance, but will still result in reserved words being escaped.
-                modified = value;
-                break;
-            case camelCase:
-                // NOTE: Removes hyphens and underscores
-                modified = camelize(modified, true);
-                break;
-            case PascalCase:
-                // NOTE: Removes hyphens and underscores
-                String result = camelize(modified);
-                modified = titleCase(result);
-                break;
-            case snake_case:
-                // NOTE: Removes hyphens
-                modified = underscore(modified);
-                break;
-            case UPPERCASE:
-                modified = modified.toUpperCase();
-                break;
-        }
+        modified = modified.toUpperCase();
 
         if (isReservedWord(modified)) {
             return escapeReservedWord(modified);
@@ -545,6 +506,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         return super.toVarName(sanitizeKotlinSpecificNames(name));
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(StringHelpers.class);
     }
 
     /**

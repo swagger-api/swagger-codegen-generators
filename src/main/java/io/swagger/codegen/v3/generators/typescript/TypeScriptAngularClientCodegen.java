@@ -45,10 +45,12 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String NG_VERSION = "ngVersion";
     public static final String NG_PACKAGR = "useNgPackagr";
     public static final String PROVIDED_IN_ROOT ="providedInRoot";
+    public static final String KEBAB_FILE_NAME ="kebab-file-name";
 
     protected String npmName = null;
     protected String npmVersion = "1.0.0";
     protected String npmRepository = null;
+    protected boolean kebabFileNaming;
 
     public TypeScriptAngularClientCodegen() {
         super();
@@ -233,6 +235,8 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                 apiTemplateFiles.put("apiInterface.mustache", "Interface.ts");
             }
         }
+
+        kebabFileNaming = Boolean.parseBoolean(String.valueOf(additionalProperties.get(KEBAB_FILE_NAME)));
 
     }
 
@@ -501,6 +505,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if (name.length() == 0) {
             return "default.service";
         }
+        if (kebabFileNaming) {
+            return dashize(name);
+        }
         return camelize(name, true) + ".service";
     }
 
@@ -511,6 +518,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelFilename(String name) {
+        if (kebabFileNaming) {
+            return dashize(name);
+        }
         return camelize(toModelName(name), true);
     }
 

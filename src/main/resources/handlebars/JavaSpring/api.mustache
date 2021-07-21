@@ -68,6 +68,9 @@ import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture
 {{/async}}
 
 {{>generatedAnnotation}}
+{{#useBeanValidation}}
+@Validated
+{{/useBeanValidation}}
 {{#useOas2}}
 @Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
 {{/useOas2}}
@@ -96,6 +99,7 @@ public interface {{classname}} {
 {{/jdk8}}
 {{#operation}}
 {{#contents}}
+{{#@first}}
 
     {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
@@ -117,13 +121,13 @@ public interface {{classname}} {
     {{^useOas2}}
     @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
         {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}"{{scope}}"{{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}"{{@key}}"{{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}{{#baseType}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/baseType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}{{#baseType}}, content = @Content({{#schema.extensions.x-content-type}}mediaType = "{{schema.extensions.x-content-type}}", {{/schema.extensions.x-content-type}}{{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/baseType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
         {{/hasMore}}{{/responses}} })
     {{/useOas2}}
     @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
@@ -162,6 +166,7 @@ public interface {{classname}} {
         {{/isDelegate}}
     }{{/defaultInterfaces}}
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }
