@@ -154,6 +154,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if (!ngVersion.atLeast("4.3.0")) {
             supportingFiles.add(new SupportingFile("rxjs-operators.mustache", getIndexDirectory(), "rxjs-operators.ts"));
         }
+        
+        // Version after Angular 10 require ModuleWithProviders to be generic. Compatible from version 7.
+        if (ngVersion.atLeast("7.0.0")) {
+            additionalProperties.put("genericModuleWithProviders", true);
+        }
 
         // for Angular 2 AOT support we will use good-old ngc,
         // Angular Package format wasn't invented at this time and building was much more easier
