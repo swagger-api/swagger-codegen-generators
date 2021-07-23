@@ -11,6 +11,8 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.jknack.handlebars.helper.StringHelpers;
+import com.github.jknack.handlebars.Handlebars;
 
 import java.io.File;
 import java.util.Arrays;
@@ -504,6 +506,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         return super.toVarName(sanitizeKotlinSpecificNames(name));
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(StringHelpers.class);
     }
 
     /**
