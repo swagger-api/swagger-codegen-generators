@@ -1358,12 +1358,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             addParentContainer(codegenModel, name, schema);
         }
         else if (schema instanceof MapSchema) {
-            codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
-            codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
-            addParentContainer(codegenModel, name, schema);
-            if (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema)) {
-                addAdditionPropertiesToCodeGenModel(codegenModel, schema);
-            }
+            processMapSchema(codegenModel, name, schema);
 
         }
         else if (schema instanceof ComposedSchema) {
@@ -1491,6 +1486,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         return codegenModel;
+    }
+
+    protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
+        codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
+        codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+        addParentContainer(codegenModel, name, schema);
+        if (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema)) {
+            addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+        }
     }
 
     /**
