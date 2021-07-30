@@ -876,6 +876,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
             List<CodegenModel> childrenModels = byParent.get(parentModel);
+
+            if (childrenModels == null || childrenModels.isEmpty()) {
+                continue;
+            }
+
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);
