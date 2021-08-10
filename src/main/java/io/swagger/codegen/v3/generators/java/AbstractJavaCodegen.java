@@ -1033,7 +1033,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
                     codegenProperty.getter = toGetter(codegenProperty.name);
-                    codegenProperty.setter = toGetter(codegenProperty.name);
+                    codegenProperty.setter = toSetter(codegenProperty.name);
                     break;
                 }
                 parentModel = parentModel.parentModel;
