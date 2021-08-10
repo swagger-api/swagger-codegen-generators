@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,9 +41,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
