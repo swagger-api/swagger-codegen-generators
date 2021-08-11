@@ -1022,11 +1022,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     continue;
                 }
                 boolean hasConflict = parentModel.vars.stream()
-                    .anyMatch(parentProperty -> parentProperty.name.equals(codegenProperty.name) && !parentProperty.datatype.equals(codegenProperty.datatype));
+                    .anyMatch(parentProperty ->
+                        (parentProperty.name.equals(codegenProperty.name) ||
+                            parentProperty.getGetter().equals(codegenProperty.getGetter()) ||
+                            parentProperty.getSetter().equals(codegenProperty.getSetter()) &&
+                        !parentProperty.datatype.equals(codegenProperty.datatype)));
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
                     codegenProperty.getter = toGetter(codegenProperty.name);
-                    codegenProperty.setter = toGetter(codegenProperty.name);
+                    codegenProperty.setter = toSetter(codegenProperty.name);
                     break;
                 }
                 parentModel = parentModel.parentModel;
