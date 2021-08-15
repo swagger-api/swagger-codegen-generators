@@ -54,6 +54,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String JAVA8_MODE = "java8";
+    public static final String JAVA11_MODE = "java11";
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
@@ -61,6 +62,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
+    protected boolean java11Mode = false;
     protected boolean withXml = false;
     protected String invokerPackage = "io.swagger";
     protected String groupId = "io.swagger";
@@ -165,6 +167,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
         dateOptions.put("java8", "Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets \"" + JAVA8_MODE + "\" to true");
+        dateOptions.put("java11", "Java 11 native JSR384 (preferred for jdk 11+) - note: this also sets \"" + JAVA11_MODE + "\" to true");
         dateOptions.put("threetenbp", "Backport of JSR310 (preferred for jdk < 1.8)");
         dateOptions.put("java8-localdatetime", "Java 8 using LocalDateTime (for legacy app only)");
         dateOptions.put("joda", "Joda (for legacy app only)");
@@ -424,12 +427,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         // used later in recursive import in postProcessingModels
         importMapping.put("com.fasterxml.jackson.annotation.JsonProperty", "com.fasterxml.jackson.annotation.JsonCreator");
 
-        if(additionalProperties.containsKey(JAVA8_MODE)) {
-            setJava8Mode(Boolean.parseBoolean(additionalProperties.get(JAVA8_MODE).toString()));
-            if ( java8Mode ) {
-                additionalProperties.put("java8", true);
-            }
-        }
+        setJava8Mode(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAVA8_MODE))));
+        additionalProperties.put(JAVA8_MODE, java8Mode);
+        setJava11Mode(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAVA11_MODE))));
+        additionalProperties.put(JAVA11_MODE, java11Mode);
 
         if(additionalProperties.containsKey(WITH_XML)) {
             setWithXml(Boolean.parseBoolean(additionalProperties.get(WITH_XML).toString()));
@@ -1536,6 +1537,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava8Mode(boolean enabled) {
         this.java8Mode = enabled;
+    }
+
+    public void setJava11Mode(boolean java11Mode) {
+        this.java11Mode = java11Mode;
     }
 
     @Override
