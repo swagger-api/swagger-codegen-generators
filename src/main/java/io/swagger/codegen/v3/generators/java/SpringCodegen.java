@@ -68,6 +68,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean delegateMethod = false;
     protected boolean singleContentTypes = false;
     protected boolean java8 = false;
+    protected boolean java11 = false;
     protected boolean async = false;
     protected String responseWrapper = "";
     protected boolean useTags = false;
@@ -181,9 +182,18 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (!additionalProperties.containsKey(DATE_LIBRARY)) {
                 setDateLibrary("java8");
             }
-        } else {
-            this.defaultInterfaces = false;
         }
+
+        if (additionalProperties.containsKey(JAVA11_MODE)) {
+            this.setJava11(Boolean.valueOf(additionalProperties.get(JAVA11_MODE).toString()));
+        }
+        if (this.java11) {
+            additionalProperties.put("javaVersion", "11");
+            additionalProperties.put("jdk11", "true");
+        }
+
+        additionalProperties.put("isJava8or11", this.java8 || this.java11);
+        this.defaultInterfaces = !(this.java8 || this.java11);
 
         // set invokerPackage as basePackage
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
@@ -383,7 +393,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             }
         }
 
-        if ((!this.delegatePattern && this.java8) || this.delegateMethod) {
+        if ((!this.delegatePattern && (this.java8 || this.java11)) || this.delegateMethod) {
             additionalProperties.put("jdk8-no-delegate", true);
         }
 
@@ -799,6 +809,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
 
     public void setJava8(boolean java8) { this.java8 = java8; }
+
+    public void setJava11(boolean java11) { this.java11 = java11; }
 
     public void setAsync(boolean async) { this.async = async; }
 
