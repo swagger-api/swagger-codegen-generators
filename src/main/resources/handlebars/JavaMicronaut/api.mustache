@@ -10,11 +10,18 @@ package {{package}};
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.*;
+{{#useRxJava2}}
 import io.reactivex.Single;
+{{/useRxJava2}}
+{{#useRxJava3}}
+import io.reactivex.rxjava3.core.Single;
+{{/useRxJava3}}
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.responses.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+{{#useReactor}}
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
+{{/useReactor}}
 
 {{#useBeanValidation}}
 import javax.annotation.Nullable;
@@ -24,11 +31,12 @@ import javax.validation.constraints.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+{{#useOptional}}
 import java.util.Optional;
+{{/useOptional}}
 
 {{>generatedAnnotation}}
 {{#operations}}
-@Controller
 public interface {{classname}} {
 
 {{#operation}}
@@ -46,8 +54,8 @@ public interface {{classname}} {
     })
     {{/implicitHeaders}}
     @{{#lambda.capitalise}}{{httpMethod}}{{/lambda.capitalise}}(value = "{{{path}}}"{{#hasProduces}}, produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}}, consumes = {{braces "left"}}{{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}}{{braces "right"}}{{/hasConsumes}})
-    default Single<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
-        return Single.fromCallable(() -> {
+    default {{>publisher}}<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+        return {{#useRxJava}}Single{{/useRxJava}}{{#useReactor}}Mono{{/useReactor}}.fromCallable(() -> {
             throw new UnsupportedOperationException();
         });
     }
