@@ -2,6 +2,13 @@
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
  */{{#description}}
 @Schema(description = "{{{description}}}"){{/description}}
+{{#useLombokModel}}
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@Getter
+@Builder
+{{/useLombokModel}}
 {{#useBeanValidation}}@Validated{{/useBeanValidation}}
 {{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#serializableModel}}implements Serializable{{/serializableModel}} {
@@ -22,6 +29,21 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
   {{#gson}}
   @SerializedName("{{baseName}}")
   {{/gson}}
+  {{#useLombokModel}}
+  {{#required}}@NonNull{{/required}}
+  {{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}
+
+  {{#isContainer}}
+  {{#useBeanValidation}}@Valid{{/useBeanValidation}}
+  private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}};
+
+  {{/isContainer}}
+  {{^isContainer}}
+  private {{{datatypeWithEnum}}} {{name}};
+
+  {{/isContainer}}
+  {{/useLombokModel}}
+  {{^useLombokModel}}
   {{#isContainer}}
   {{#useBeanValidation}}@Valid{{/useBeanValidation}}
   private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
@@ -29,8 +51,9 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
   {{^isContainer}}
   private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
   {{/isContainer}}
-
+  {{/useLombokModel}}
   {{/vars}}
+  {{^useLombokModel}}
   {{#vars}}
   public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
@@ -130,4 +153,5 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     }
     return o.toString().replace("\n", "\n    ");
   }
+{{/useLombokModel}}
 }
