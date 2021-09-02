@@ -8,17 +8,7 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.DateSchema;
-import io.swagger.v3.oas.models.media.DateTimeSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,17 +228,24 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
 
     @Override
     public String getTypeDeclaration(Schema propertySchema) {
-        if (propertySchema instanceof ArraySchema) {
-            Schema inner = ((ArraySchema) propertySchema).getItems();
-            return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
-        } else if (propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
-            Schema inner = (Schema) propertySchema.getAdditionalProperties();
-            return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
+        Schema inner;
+        if(propertySchema instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema)propertySchema;
+            inner = arraySchema.getItems();
+            return this.getSchemaType(propertySchema) + "<" + this.getTypeDeclaration(inner) + ">";
+        } else if(propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
+            inner = (Schema) propertySchema.getAdditionalProperties();
+            return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
         } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
-            Schema inner = new ObjectSchema();
-            return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
+            inner = new ObjectSchema();
+            return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
+        } else if(propertySchema instanceof FileSchema || propertySchema instanceof BinarySchema) {
+            return "Blob";
+        } else if(propertySchema instanceof ObjectSchema) {
+            return "any";
+        } else {
+            return super.getTypeDeclaration(propertySchema);
         }
-        return super.getTypeDeclaration(propertySchema);
     }
 
     @Override
