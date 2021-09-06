@@ -57,6 +57,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String DEFAULT_INTERFACES = "defaultInterfaces";
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
+    public static final String DATE_PATTERN = "datePattern";
+    public static final String DATE_TIME_PATTERN = "dateTimePattern";
 
     public static final String THROWS_EXCEPTION = "throwsException";
 
@@ -113,6 +115,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
         cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
         cliOptions.add(CliOption.newBoolean(THROWS_EXCEPTION, "Throws Exception in operation methods").defaultValue("false"));
+        cliOptions.add(CliOption.newBoolean(DATE_PATTERN, "use pattern for date parameters").defaultValue("true"));
+        cliOptions.add(CliOption.newBoolean(DATE_TIME_PATTERN, "use pattern for date time parameters").defaultValue("true"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -193,7 +197,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         additionalProperties.put("isJava8or11", this.java8 || this.java11);
-        this.defaultInterfaces = !(this.java8 || this.java11);
+        this.defaultInterfaces = this.java8 || this.java11;
 
         // set invokerPackage as basePackage
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
@@ -375,6 +379,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "ApiOriginFilter.java"));
                 supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
+                supportingFiles.add(new SupportingFile("LocalDateConverter.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateConverter.java"));
+                supportingFiles.add(new SupportingFile("LocalDateTimeConverter.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateTimeConverter.java"));
             }
         } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary()) {
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
