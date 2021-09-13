@@ -187,7 +187,7 @@ export const {{classname}}AxiosParamCreator = function (configuration?: Configur
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
                 query.set(key, localVarQueryParameter[key]);
-
+            }
             for (const key in options.params) {
                 query.set(key, options.params[key]);
             }
