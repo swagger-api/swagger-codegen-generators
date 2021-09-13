@@ -1,0 +1,31 @@
+package {{package}};
+
+{{^x-is-composed-model}}
+import java.util.Objects;
+{{#imports}}import {{import}};
+{{/imports}}
+{{#serializableModel}}
+import java.io.Serializable;
+{{/serializableModel}}
+{{#useBeanValidation}}
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+{{/useBeanValidation}}
+{{/x-is-composed-model}}
+import io.vertx.core.json.JsonObject;
+import io.vertx.codegen.annotations.DataObject;
+{{#models}}
+{{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
+{{#isEnum}}
+{{>enumOuterClass}}
+{{/isEnum}}
+{{^isEnum}}
+{{>pojo}}
+{{/isEnum}}
+{{/isComposedModel}}
+{{/model}}
+{{/models}}
