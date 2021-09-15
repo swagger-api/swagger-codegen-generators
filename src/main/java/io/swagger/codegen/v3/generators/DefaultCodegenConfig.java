@@ -160,7 +160,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Boolean sortParamsByRequiredFlag = true;
     protected Boolean ensureUniqueParams = true;
     protected Boolean allowUnicodeIdentifiers = false;
-    protected String gitUserId, gitRepoId, releaseNote;
+    protected String gitUserId, gitRepoId, releaseNote, gitRepoBaseURL;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
     protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);
@@ -3561,6 +3561,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String getGitRepoId() {
         return gitRepoId;
     }
+
+
+    /**
+     * Git repo Base URL
+     *
+     * @return Git repo Base URL
+     */
+    public String getGitRepoBaseURL() {
+        return gitRepoBaseURL;
+    }
+
+    /**
+     * Set Git repo Base URL.
+     *
+     * @param gitRepoBaseURL Git repo Base URL
+     */
+    public void setGitRepoBaseURL(String gitRepoBaseURL) {
+        this.gitRepoBaseURL = gitRepoBaseURL;
+    }
+
 
     /**
      * Set release note.
