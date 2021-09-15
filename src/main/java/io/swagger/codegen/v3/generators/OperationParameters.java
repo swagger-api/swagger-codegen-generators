@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class OpenAPIParameters {
+public class OperationParameters {
 
     private CodegenParameter bodyParam = null;
     private List<CodegenParameter> allParams = new ArrayList<>();

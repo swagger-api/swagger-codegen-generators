@@ -2117,7 +2117,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         List<Parameter> parameters = operation.getParameters();
-        final OpenAPIParameters openAPIParameters = new OpenAPIParameters();
+        final OperationParameters operationParameters = new OperationParameters();
 
         RequestBody body = operation.getRequestBody();
         if (body != null) {
@@ -2178,20 +2178,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            openAPIParameters.addFormParam(formParameter.copy());
+                            operationParameters.addFormParam(formParameter.copy());
                             if (body.getRequired() != null && body.getRequired()) {
-                                openAPIParameters.addRequiredParam(formParameter.copy());
+                                operationParameters.addRequiredParam(formParameter.copy());
                             }
-                            openAPIParameters.addAllParams(formParameter);
+                            operationParameters.addAllParams(formParameter);
                         }
-                        openAPIParameters.addCodegenContents(codegenContent);
+                        operationParameters.addCodegenContents(codegenContent);
                     }
                 } else {
                     CodegenParameter bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
-                    openAPIParameters.setBodyParam(bodyParam);
+                    operationParameters.setBodyParam(bodyParam);
                     if (foundSchemas.isEmpty()) {
-                        openAPIParameters.addBodyParams(bodyParam.copy());
-                        openAPIParameters.addAllParams(bodyParam);
+                        operationParameters.addBodyParams(bodyParam.copy());
+                        operationParameters.addAllParams(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
                         for (Schema usedSchema : foundSchemas) {
@@ -2204,7 +2204,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    openAPIParameters.addCodegenContents(codegenContent);
+                    operationParameters.addCodegenContents(codegenContent);
                 }
             }
         }
@@ -2215,24 +2215,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
                 CodegenParameter codegenParameter = fromParameter(param, imports);
-                openAPIParameters.addParameters(param, codegenParameter);
+                operationParameters.addParameters(param, codegenParameter);
             }
         }
 
         addOperationImports(codegenOperation, imports);
 
-        codegenOperation.bodyParam = openAPIParameters.getBodyParam();
+        codegenOperation.bodyParam = operationParameters.getBodyParam();
         codegenOperation.httpMethod = httpMethod.toUpperCase();
 
         // move "required" parameters in front of "optional" parameters
         if (sortParamsByRequiredFlag) {
-            openAPIParameters.sortRequiredAllParams();
+            operationParameters.sortRequiredAllParams();
         }
 
-        openAPIParameters.addHasMore(codegenOperation);
+        operationParameters.addHasMore(codegenOperation);
         codegenOperation.externalDocs = operation.getExternalDocs();
 
-        configuresParameterForMediaType(codegenOperation, openAPIParameters.getCodegenContents());
+        configuresParameterForMediaType(codegenOperation, operationParameters.getCodegenContents());
         // legacy support
         codegenOperation.nickname = codegenOperation.operationId;
 
@@ -4331,7 +4331,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             );
-            OpenAPIParameters.addHasMore(content.getParameters());
+            OperationParameters.addHasMore(content.getParameters());
         }
         codegenOperation.getContents().addAll(codegenContents);
     }
