@@ -19,11 +19,15 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodegen {
 
     public static final String NPM_NAME = "npmName";
+    public static final String NPM_VERSION = "npmVersion";
     public static final String NPM_REPOSITORY = "npmRepository";
     public static final String DEFAULT_API_PACKAGE = "apis";
     public static final String DEFAULT_MODEL_PACKAGE = "models";
 
     protected String npmRepository = null;
+    protected String npmName = null;
+    protected String npmVersion = "1.0.0";
+
 
     private String tsModelPackage = "";
 
@@ -34,6 +38,12 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
         LOGGER.info("Template folder: " + this.templateDir());
         LOGGER.info("Template engine: " + this.getTemplateEngine());
         reservedWords.add("query");
+
+        // Custom CLI options
+        this.cliOptions.add(new CliOption(NPM_NAME, "The name under which you want to publish generated npm package"));
+        this.cliOptions.add(new CliOption(NPM_VERSION, "The version of your npm package. Defaults to 1.0.0"));
+        this.cliOptions.add(new CliOption(NPM_REPOSITORY,
+                "Use this property to set an url your private npm registry in the package.json"));
     }
 
     @Override
@@ -46,14 +56,14 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
         return "Generates a TypeScript Axios client library.";
     }
 
-    public String getNpmRepository() {
-        return npmRepository;
-    }
-
-    public void setNpmRepository(String npmRepository) {
-        this.npmRepository = npmRepository;
-    }
-
+    /**
+     * Creates a relative path to a file or folder. The resulting path is
+     * relative to the root directory of the final client library.
+     *
+     * @param path The path to the file or folder.
+     * @return A path to the file or folder which is relative to the client
+     * library root directory.
+     */
     private static String getRelativeToRoot(String path) {
         StringBuilder sb = new StringBuilder();
         int slashCount = path.split("/").length;
@@ -102,6 +112,8 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("package.mustache", "", "package.json"));
         supportingFiles.add(new SupportingFile("tsconfig.mustache", "", "tsconfig.json"));
+
+        addNpmPackageGeneration();
     }
 
     @Override
@@ -195,6 +207,31 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
     }
 
     /**
+     * Extracts npm package fields from `additionalProperties`. These fields
+     * are provided as custom CLI options.
+     */
+    private void addNpmPackageGeneration() {
+        // Name of the NPM package
+        if (additionalProperties.containsKey(NPM_NAME)) {
+            this.setNpmName(additionalProperties.get(NPM_NAME).toString());
+        }
+
+        // NPM package version (SemVer)
+        if (additionalProperties.containsKey(NPM_VERSION)) {
+            this.setNpmVersion(additionalProperties.get(NPM_VERSION).toString());
+        }
+        /* Package version has default value. Make internal version and
+         * additionalProperties version consistent.
+         */
+        additionalProperties.put(NPM_VERSION, npmVersion);
+
+        // NPM registry the package is pushed to
+        if (additionalProperties.containsKey(NPM_REPOSITORY)) {
+            this.setNpmRepository(additionalProperties.get(NPM_REPOSITORY).toString());
+        }
+    }
+
+    /**
      * Overriding toRegularExpression() to avoid escapeText() being called,
      * as it would return a broken regular expression if any escaped character / metacharacter were present.
      */
@@ -217,4 +254,44 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
     public String getDefaultTemplateDir() {
         return "typescript-axios";
     }
+
+    /**
+     * Gets the name of the generated NPM package.
+     *
+     * @return The NPM package name.
+     */
+    public String getNpmName() {
+        return this.npmName;
+    }
+
+    public void setNpmName(String npmName) {
+       this.npmName = npmName;
+    }
+
+    /**
+     * Gets the generated NPM package SemVer string.
+     *
+     * @return The package version.
+     */
+    public String getNpmVersion() {
+        return this.npmVersion;
+    }
+
+    public void setNpmVersion(String npmVersion) {
+        this.npmVersion = npmVersion;
+    }
+
+    /**
+     * Gets the name of the NPM registry the package is published to.
+     *
+     * @return The NPM registry name.
+     */
+    public String getNpmRepository() {
+        return this.npmRepository;
+    }
+
+    public void setNpmRepository(String npmRepository) {
+        this.npmRepository = npmRepository;
+    }
+
 }

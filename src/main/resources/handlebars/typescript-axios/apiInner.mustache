@@ -11,6 +11,7 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 import { {{import}} } from '{{apiRelativeToRoot}}{{tsModelPackage}}';
 {{/imports}}
 {{#operations}}
+
 /**
  * {{classname}} - axios parameter creator{{#description}}
  * {{&description}}{{/description}}
@@ -22,13 +23,16 @@ export const {{classname}}AxiosParamCreator = (configuration?: Configuration) =>
 
     /**
      * {{&notes}}
+     *
     {{#summary}}
      * @summary {{&summary}}
+     *
     {{/summary}}
     {{#parameters}}
      * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
     {{/parameters}}
      * @param {*} [options] Override http request option.
+     *
      * @throws {RequiredError}
      */
     {{nickname}}: async ({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options: any = {}): Promise<RequestArgs> => {
