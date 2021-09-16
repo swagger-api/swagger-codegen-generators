@@ -31,6 +31,9 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
         super();
         importMapping.clear();
         outputFolder = "generated-code/typescript-axios";
+        LOGGER.info("Template folder: " + this.templateDir());
+        LOGGER.info("Template engine: " + this.getTemplateEngine());
+        reservedWords.add("query");
     }
 
     @Override
@@ -162,7 +165,7 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
             cm.classFilename = cm.classname.replaceAll("([a-z0-9])([A-Z])", "$1-$2").toLowerCase(Locale.ROOT);
 
             //processed enum names
-            cm.imports = new TreeSet(cm.imports);
+            cm.imports = new TreeSet<String>(cm.imports);
             // name enum with model name, e.g. StatusEnum => PetStatusEnum
             for (CodegenProperty var : cm.vars) {
                 if (getBooleanValue(var, CodegenConstants.IS_ENUM_EXT_NAME)) {
