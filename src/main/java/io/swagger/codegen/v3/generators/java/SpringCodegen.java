@@ -57,6 +57,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String DEFAULT_INTERFACES = "defaultInterfaces";
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
+    public static final String DATE_PATTERN = "datePattern";
+    public static final String DATE_TIME_PATTERN = "dateTimePattern";
 
     public static final String THROWS_EXCEPTION = "throwsException";
 
@@ -68,6 +70,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean delegateMethod = false;
     protected boolean singleContentTypes = false;
     protected boolean java8 = false;
+    protected boolean java11 = false;
     protected boolean async = false;
     protected String responseWrapper = "";
     protected boolean useTags = false;
@@ -112,6 +115,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(TARGET_OPENFEIGN,"Generate for usage with OpenFeign (instead of feign)"));
         cliOptions.add(CliOption.newBoolean(DEFAULT_INTERFACES, "Generate default implementations for interfaces").defaultValue("true"));
         cliOptions.add(CliOption.newBoolean(THROWS_EXCEPTION, "Throws Exception in operation methods").defaultValue("false"));
+        cliOptions.add(CliOption.newBoolean(DATE_PATTERN, "use pattern for date parameters").defaultValue("true"));
+        cliOptions.add(CliOption.newBoolean(DATE_TIME_PATTERN, "use pattern for date time parameters").defaultValue("true"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
@@ -181,9 +186,18 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (!additionalProperties.containsKey(DATE_LIBRARY)) {
                 setDateLibrary("java8");
             }
-        } else {
-            this.defaultInterfaces = false;
         }
+
+        if (additionalProperties.containsKey(JAVA11_MODE)) {
+            this.setJava11(Boolean.valueOf(additionalProperties.get(JAVA11_MODE).toString()));
+        }
+        if (this.java11) {
+            additionalProperties.put("javaVersion", "11");
+            additionalProperties.put("jdk11", "true");
+        }
+
+        additionalProperties.put("isJava8or11", this.java8 || this.java11);
+        this.defaultInterfaces = this.java8 || this.java11;
 
         // set invokerPackage as basePackage
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
@@ -365,6 +379,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "ApiOriginFilter.java"));
                 supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
+                supportingFiles.add(new SupportingFile("LocalDateConverter.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateConverter.java"));
+                supportingFiles.add(new SupportingFile("LocalDateTimeConverter.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateTimeConverter.java"));
             }
         } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary()) {
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
@@ -383,7 +401,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             }
         }
 
-        if ((!this.delegatePattern && this.java8) || this.delegateMethod) {
+        if ((!this.delegatePattern && (this.java8 || this.java11)) || this.delegateMethod) {
             additionalProperties.put("jdk8-no-delegate", true);
         }
 
@@ -800,6 +818,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setJava8(boolean java8) { this.java8 = java8; }
 
+    public void setJava11(boolean java11) { this.java11 = java11; }
+
     public void setAsync(boolean async) { this.async = async; }
 
     public void setResponseWrapper(String responseWrapper) { this.responseWrapper = responseWrapper; }
@@ -876,6 +896,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             Map<String, Object> parent = new HashMap<>();
             parent.put("classname", parentModel.classname);
             List<CodegenModel> childrenModels = byParent.get(parentModel);
+
+            if (childrenModels == null || childrenModels.isEmpty()) {
+                continue;
+            }
+
             for (CodegenModel model : childrenModels) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("name", model.name);

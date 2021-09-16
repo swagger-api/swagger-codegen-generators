@@ -33,6 +33,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.IS_OBJECT_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
@@ -224,6 +225,15 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     public String toModelFilename(String name) {
         // should be the same as the model name
         return toModelName(name);
+    }
+
+    @Override
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (isObjectSchema(schema) || schema instanceof MapSchema) {
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
+        }
+        return codegenModel;
     }
 
     @Override

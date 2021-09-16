@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -67,9 +68,7 @@ public abstract class GeneratorRunner {
 
     public static File getTmpFolder() {
         try {
-            File outputFolder = File.createTempFile("codegentest-", "-tmp");
-            outputFolder.delete();
-            outputFolder.mkdir();
+            File outputFolder = Files.createTempDirectory("codegentest-").toFile();
             outputFolder.deleteOnExit();
             return outputFolder;
         } catch (Exception e) {

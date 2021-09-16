@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -191,6 +192,7 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
         supportingFiles.add(new SupportingFile("__main__.mustache", packageName, "__main__.py"));
         supportingFiles.add(new SupportingFile("encoder.mustache", packageName, "encoder.py"));
         supportingFiles.add(new SupportingFile("util.mustache", packageName, "util.py"));
+        supportingFiles.add(new SupportingFile("type_util.mustache", packageName, "type_util.py"));
         supportingFiles.add(new SupportingFile("__init__.mustache", packageName + File.separatorChar + controllerPackage, "__init__.py"));
         supportingFiles.add(new SupportingFile("__init__model.mustache", packageName + File.separatorChar + modelPackage, "__init__.py"));
         supportingFiles.add(new SupportingFile("base_model_.mustache", packageName + File.separatorChar + modelPackage, "base_model_.py"));
@@ -338,6 +340,17 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
             result.add((Map<String, Object>) api.get("operations"));
         }
         return result;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if ("object".equalsIgnoreCase(operationImport)) {
+                continue;
+            }
+            if (needToImport(operationImport)) {
+                codegenOperation.imports.add(operationImport);
+            }
+        }
     }
 
     private static List<Map<String, Object>> sortOperationsByPath(List<CodegenOperation> ops) {
@@ -759,5 +772,42 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
                 LOGGER.warn("Security type " + securityScheme.getType().toString() + " is not supported.");
             }
         }
+    }
+
+    public Map<String, Object> postProcessAllModels(Map<String, Object> processedModels) {
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            String modelName = toModelName(entry.getKey());
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            List<Map<String, String>> imports = (List<Map<String, String>>) inner.get("imports");
+            for (Map<String, Object> mo : models) {
+                CodegenModel codegenModel = (CodegenModel) mo.get("model");
+
+                for (CodegenProperty codegenProperty : codegenModel.vars) {
+                    if (Boolean.parseBoolean(String.valueOf(codegenProperty.vendorExtensions.get("x-is-composed")))) {
+                        Map<String, String> item = new HashMap<>();
+                        if (codegenProperty.getIsContainer()) {
+                            item.put("import", toModelImport(codegenProperty.items.datatype));
+                        } else {
+                            item.put("import", toModelImport(codegenProperty.datatype));
+                        }
+                        imports.add(item);
+                    }
+                }
+
+                allModels.put(modelName, codegenModel);
+            }
+        }
+        postProcessAllCodegenModels(allModels);
+        return processedModels;
+    }
+
+    @Override
+    protected void addImport(CodegenModel codegenModel, String type) {
+        if ("object".equalsIgnoreCase(type)) {
+            return;
+        }
+        super.addImport(codegenModel, type);
     }
 }
