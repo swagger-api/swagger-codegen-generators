@@ -4,6 +4,10 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.CookieParameter;
 import io.swagger.v3.oas.models.parameters.HeaderParameter;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -13,6 +17,8 @@ import io.swagger.v3.oas.models.parameters.QueryParameter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class OperationParameters {
 
@@ -147,6 +153,40 @@ public class OperationParameters {
         });
     }
 
+    public void parseNestedObjects(String name, Schema schema, Set<String> imports, DefaultCodegenConfig codegenConfig, OpenAPI openAPI) {
+        schema = OpenAPIUtil.getRefSchemaIfExists(schema, openAPI);
+        if (schema == null || !isObjectWithProperties(schema)) {
+            return;
+        }
+        final Map<String, Schema> properties = schema.getProperties();
+        for (String key : properties.keySet()) {
+            Schema property = properties.get(key);
+            property = OpenAPIUtil.getRefSchemaIfExists(property, openAPI);
+            boolean required;
+            if (schema.getRequired() == null || schema.getRequired().isEmpty()) {
+                required = false;
+            } else {
+                required = schema.getRequired().stream().anyMatch(propertyName -> key.equalsIgnoreCase(propertyName.toString()));
+            }
+            final String parameterName;
+            if (property instanceof ArraySchema) {
+                parameterName = String.format("%s[%s][]", name, key);
+            } else {
+                parameterName = String.format("%s[%s]", name, key);
+            }
+            if (isObjectWithProperties(property)) {
+                parseNestedObjects(parameterName, property, imports, codegenConfig, openAPI);
+                continue;
+            }
+            final Parameter queryParameter = new QueryParameter()
+                .name(parameterName)
+                .required(required)
+                .schema(property);
+            final CodegenParameter codegenParameter = codegenConfig.fromParameter(queryParameter, imports);
+            addParameters(queryParameter, codegenParameter);
+        }
+    }
+
     public static List<CodegenParameter> addHasMore(List<CodegenParameter> codegenParameters) {
         if (codegenParameters == null || codegenParameters.isEmpty()) {
             return codegenParameters;
@@ -156,5 +196,11 @@ public class OperationParameters {
             codegenParameters.get(i).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, i < codegenParameters.size() - 1);
         }
         return codegenParameters;
+    }
+
+    private boolean isObjectWithProperties(Schema schema) {
+        return ("object".equalsIgnoreCase(schema.getType()) || schema.getType() == null)
+                && schema.getProperties() != null
+                && !schema.getProperties().isEmpty();
     }
 }
