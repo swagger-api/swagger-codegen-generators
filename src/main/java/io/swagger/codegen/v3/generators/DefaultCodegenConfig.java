@@ -2215,7 +2215,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
                 if ((param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn()))
-                        && param.getStyle().equals(Parameter.StyleEnum.DEEPOBJECT)) {
+                        && param.getStyle() != null && param.getStyle().equals(Parameter.StyleEnum.DEEPOBJECT)) {
                     operationParameters.parseNestedObjects(param.getName(), param.getSchema(), imports, this, openAPI);
                     continue;
                 }
