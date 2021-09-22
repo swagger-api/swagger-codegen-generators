@@ -57,7 +57,7 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
   public static class Adapter extends TypeAdapter<{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}> {
     @Override
     public void write(final JsonWriter jsonWriter, final {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} enumeration) throws IOException {
-      jsonWriter.value(enumeration.getValue());
+      jsonWriter.value(String.valueOf(enumeration.getValue()));
     }
 
     @Override
