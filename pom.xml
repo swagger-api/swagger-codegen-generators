@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.28-SNAPSHOT</version>
+    <version>1.0.29-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <build>
@@ -252,9 +252,9 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.28-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.0.27</swagger-parser-version>
-        <swagger-core-version>2.1.10</swagger-core-version>
+        <swagger-codegen-version>3.0.29-SNAPSHOT</swagger-codegen-version>
+        <swagger-parser-version>2.0.28</swagger-parser-version>
+        <swagger-core-version>2.1.11</swagger-core-version>
         <jackson-version>2.12.1</jackson-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
