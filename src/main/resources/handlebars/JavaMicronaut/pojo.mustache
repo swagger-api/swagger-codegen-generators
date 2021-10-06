@@ -10,18 +10,11 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
 
 {{/serializableModel}}
   {{#vars}}
+    {{#baseItems this}}
     {{#isEnum}}
-    {{^isContainer}}
 {{>enumClass}}
-    {{/isContainer}}
     {{/isEnum}}
-    {{#items.isEnum}}
-      {{#items}}
-      {{^isContainer}}
-{{>enumClass}}
-      {{/isContainer}}
-      {{/items}}
-    {{/items.isEnum}}
+    {{/baseItems}}
   {{#jackson}}
   @JsonProperty("{{baseName}}"){{#withXml}}
   @JacksonXmlProperty({{#isXmlAttribute}}isAttribute = true, {{/isXmlAttribute}}{{#xmlNamespace}}namespace="{{xmlNamespace}}", {{/xmlNamespace}}localName = "{{#xmlName}}{{xmlName}}{{/xmlName}}{{^xmlName}}{{baseName}}{{/xmlName}}"){{/withXml}}

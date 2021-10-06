@@ -57,7 +57,7 @@ public class {{classname}}Test {
         {{{dataType}}} {{paramName}} = null;
             {{/isNot}}
           {{/parameters}}
-        {{classname}}.{{operationIdCamelCase}}QueryParams queryParams = new {{classname}}.{{operationIdCamelCase}}QueryParams()
+        {{classname}}.{{operationIdCamelCase}}QueryParams queryParams = new {{classname}}.{{operationIdCamelCase}}QueryParams(){{^queryParams}};{{/queryParams}}
           {{#queryParams}}
             .{{paramName}}(null){{#hasNot this 'more'}};{{/hasNot}}
           {{/queryParams}}

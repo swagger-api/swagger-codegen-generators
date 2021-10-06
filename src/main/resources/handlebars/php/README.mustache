@@ -31,7 +31,7 @@ To install the bindings via [Composer](http://getcomposer.org/), add the followi
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/{{#composerVendorName}}{{.}}{{/composerVendorName}}{{^composerVendorName}}{{gitUserId}}{{/composerVendorName}}/{{#composerProjectName}}{{.}}{{/composerProjectName}}{{^composerProjectName}}{{gitRepoId}}{{/composerProjectName}}.git"
+      "url": "http://{{gitRepoBaseURL}}.com/{{#composerVendorName}}{{.}}{{/composerVendorName}}{{^composerVendorName}}{{gitUserId}}{{/composerVendorName}}/{{#composerProjectName}}{{.}}{{/composerProjectName}}{{^composerProjectName}}{{gitRepoId}}{{/composerProjectName}}.git"
     }
   ],
   "require": {
@@ -130,8 +130,8 @@ Class | Method | HTTP request | Description
 - **Flow**: {{{flow}}}
 - **Authorization URL**: {{{authorizationUrl}}}
 - **Scopes**: {{^scopes}}N/A{{/scopes}}
-{{#scopes}} - **{{{scope}}}**: {{{description}}}
-{{/scopes}}
+{{#each scopes}} - **{{@key}}**: {{this}}
+{{/each}}
 {{/isOAuth}}
 
 {{/authMethods}}

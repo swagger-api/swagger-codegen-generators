@@ -191,11 +191,6 @@ public class JavaCXFServerCodegen extends AbstractJavaJAXRSServerCodegen impleme
     }
 
     @Override
-    public String getArgumentsLocation() {
-        return "";
-    }
-
-    @Override
     public String getName() {
         return "jaxrs-cxf";
     }

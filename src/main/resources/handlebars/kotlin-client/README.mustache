@@ -2,8 +2,8 @@
 
 ## Requires
 
-* Kotlin 1.1.2
-* Gradle 3.3
+* Kotlin 1.4.30
+* Gradle 5.3
 
 ## Build
 
@@ -78,8 +78,8 @@ Authentication schemes defined for the API:
 - **Flow**: {{flow}}
 - **Authorization URL**: {{authorizationUrl}}
 - **Scopes**: {{^scopes}}N/A{{/scopes}}
-{{#scopes}}  - {{scope}}: {{description}}
-{{/scopes}}
+{{#each scopes}}  - {{@key}}: {{this}}
+{{/each}}
 {{/is}}
 
 {{/authMethods}}

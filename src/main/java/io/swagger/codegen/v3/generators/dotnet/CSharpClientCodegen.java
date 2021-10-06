@@ -10,7 +10,6 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -493,19 +492,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     }
 
     @Override
-    public String getSchemaType(Schema schema) {
-        String schemaType = super.getSchemaType(schema);
-
-        if (schema.get$ref() != null) {
-            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
-            if (refSchema != null && !isObjectSchema(refSchema) && (refSchema.getEnum() == null || refSchema.getEnum().isEmpty())) {
-                schemaType = super.getSchemaType(refSchema);
-            }
-        }
-        return schemaType;
-    }
-
-    @Override
     public CodegenType getTag() {
         return CodegenType.CLIENT;
     }
@@ -614,8 +600,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
             //Must follow Perl /pattern/modifiers convention
             if (pattern.charAt(0) != '/' || i < 2) {
-                throw new IllegalArgumentException("Pattern must follow the Perl "
-                        + "/pattern/modifiers convention. " + pattern + " is not valid.");
+                pattern = String.format("/%s/", pattern);;
+                i = pattern.lastIndexOf('/');
             }
 
             String regex = pattern.substring(1, i).replace("'", "\'");

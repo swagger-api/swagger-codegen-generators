@@ -11,7 +11,6 @@ import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
-import io.swagger.codegen.v3.generators.SchemaHandler;
 import io.swagger.codegen.v3.utils.Markdown;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StaticHtmlCodegen extends DefaultCodegenConfig {
+
+    public static final String DOCUMENT_NO_OBJECTS = "docNoObjects";
+
     protected String invokerPackage = "io.swagger.client";
     protected String groupId = "io.swagger";
     protected String artifactId = "swagger-client";
@@ -65,6 +66,17 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
 
         languageSpecificPrimitives = new HashSet<String>();
         importMapping = new HashMap<String, String>();
+    }
+
+    @Override
+    public void processOpts() {
+        super.processOpts();
+        if (additionalProperties.get(DOCUMENT_NO_OBJECTS) != null) {
+            final String value = additionalProperties.get(DOCUMENT_NO_OBJECTS).toString();
+            additionalProperties.put(DOCUMENT_NO_OBJECTS, Boolean.parseBoolean(value));
+        } else {
+            additionalProperties.put(DOCUMENT_NO_OBJECTS, Boolean.FALSE);
+        }
     }
 
     /**

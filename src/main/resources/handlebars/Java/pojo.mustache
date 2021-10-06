@@ -12,18 +12,11 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   private static final long serialVersionUID = 1L;
 {{/serializableModel}}
   {{#vars}}
+    {{#baseItems this}}
     {{#isEnum}}
-    {{^isContainer}}
 {{>modelInnerEnum}}
-    {{/isContainer}}
     {{/isEnum}}
-    {{#items.isEnum}}
-      {{#items}}
-      {{^isContainer}}
-{{>modelInnerEnum}}
-      {{/isContainer}}
-      {{/items}}
-    {{/items.isEnum}}
+    {{/baseItems}}
   {{#jackson}}
     {{#vendorExtensions.x-is-discriminator-property}}
   @JsonTypeId
@@ -251,7 +244,9 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
 
   {{classname}}(Parcel in) {
 {{#isArrayModel}}
+{{^vendorExtensions.x-array-model-type-is-interface}}
     in.readTypedList(this, {{arrayModelType}}.CREATOR);
+{{/vendorExtensions.x-array-model-type-is-interface}}
 {{/isArrayModel}}
 {{^isArrayModel}}
 {{#parent}}

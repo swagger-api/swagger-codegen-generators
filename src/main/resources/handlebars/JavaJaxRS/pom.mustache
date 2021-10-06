@@ -223,7 +223,7 @@
     </repository>
   </repositories>
   <properties>
-    <java.version>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</java.version>
+    <java.version>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     {{#useOas2}}
@@ -239,7 +239,7 @@
     <commons_io_version>2.5</commons_io_version>
     <commons_lang3_version>3.5</commons_lang3_version>
   {{/supportJava6}}
-    <junit-version>4.12</junit-version>
+    <junit-version>4.13.1</junit-version>
     <logback-version>1.1.7</logback-version>
     <servlet-api-version>2.5</servlet-api-version>
 {{#useBeanValidation}}

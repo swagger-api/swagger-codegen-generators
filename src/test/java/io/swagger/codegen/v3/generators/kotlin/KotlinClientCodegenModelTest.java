@@ -31,12 +31,12 @@ public class KotlinClientCodegenModelTest {
 
     private Schema getArrayTestSchema() {
         final Schema propertySchema = new ArraySchema()
-            .items(new StringSchema())
-            .description("an array property");
+                .items(new StringSchema())
+                .description("an array property");
         return new Schema()
-            .type("object")
-            .description("a sample model")
-            .addProperties("examples", propertySchema);
+                .type("object")
+                .description("a sample model")
+                .addProperties("examples", propertySchema);
     }
 
     private Schema getSimpleSchema() {
@@ -44,9 +44,9 @@ public class KotlinClientCodegenModelTest {
                 .type("object")
                 .description("a sample model")
                 .addProperties("id", new IntegerSchema()
-                    .format(SchemaTypeUtil.INTEGER64_FORMAT))
+                        .format(SchemaTypeUtil.INTEGER64_FORMAT))
                 .addProperties("first-name", new StringSchema()
-                    .example("Tony"))
+                        .example("Tony"))
                 .addProperties("createdAt", new DateTimeSchema())
                 .addRequiredItem("id")
                 .addRequiredItem("first-name");
@@ -54,11 +54,11 @@ public class KotlinClientCodegenModelTest {
 
     private Schema getMapSchema() {
         return new Schema()
-            .type("object")
-            .description("a sample model")
-            .addProperties("mapping", new MapSchema()
-                    .additionalProperties(new StringSchema()))
-            .addRequiredItem("id");
+                .type("object")
+                .description("a sample model")
+                .addProperties("mapping", new MapSchema()
+                        .additionalProperties(new StringSchema()))
+                .addRequiredItem("id");
     }
 
     private Schema getComplexSchema() {
@@ -266,6 +266,23 @@ public class KotlinClientCodegenModelTest {
         Assert.assertEquals(cm.classname, testCase.expectedClassName);
     }
 
+    @DataProvider
+    public static Object[][] enumNames() {
+        return new Object[][]{
+                {"VALUE1", "VALUE1"},
+                {"1", "_1"},
+                {"1X2", "_1X2"},
+                {"1x2", "_1X2"}
+        };
+    }
+
+    @Test(dataProvider = "enumNames", description = "sanitize Enum var names")
+    public void sanitizeEnumVarNames(final String name, final String expectedName) {
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+        Assert.assertEquals(codegen.toEnumVarName(name, "String"), expectedName);
+
+    }
+
     private static class ModelNameTest {
         private String expectedName;
         private String expectedClassName;
@@ -281,4 +298,3 @@ public class KotlinClientCodegenModelTest {
         }
     }
 }
-

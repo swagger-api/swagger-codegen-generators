@@ -33,7 +33,6 @@ public class SchemaHandler implements ISchemaHandler {
     public void processComposedSchemas(CodegenModel codegenModel, Schema schema, Map<String, CodegenModel> allModels) {
         if (schema instanceof ComposedSchema) {
             this.addComposedModel(this.processComposedSchema(codegenModel, (ComposedSchema) schema, allModels));
-            return;
         }
         if (schema instanceof ArraySchema) {
             this.addComposedModel(this.processArrayItemSchema(codegenModel, (ArraySchema) schema, allModels));
@@ -141,6 +140,7 @@ public class SchemaHandler implements ISchemaHandler {
                 return null;
             }
             this.updatePropertyDataType(codegenProperty, composedModel.name, arraySchema);
+            this.updatePropertyDataType(codegenProperty.items, composedModel);
             return composedModel;
         }
         return null;
@@ -209,6 +209,7 @@ public class SchemaHandler implements ISchemaHandler {
         arraySchema.setItems(refSchema);
         codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
         codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
 
         codegenProperty.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
         codegenProperty.defaultValueWithParam = this.codegenConfig.toDefaultValueWithParam(codegenProperty.baseName, arraySchema);
@@ -225,6 +226,8 @@ public class SchemaHandler implements ISchemaHandler {
         this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
         codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
         codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
+        boolean isInterface = codegenModel.arrayModelType.startsWith(ALL_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ONE_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ANY_OF_PREFFIX);
+        codegenModel.getVendorExtensions().put("x-array-model-type-is-interface", isInterface);
 
         arraySchema.setItems(items);
     }
@@ -234,5 +237,6 @@ public class SchemaHandler implements ISchemaHandler {
         codegenProperty.datatypeWithEnum = composedModel.getClassname();
         codegenProperty.baseType = composedModel.getClassname();
         codegenProperty.complexType = composedModel.getClassname();
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
     }
 }
