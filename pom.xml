@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.29</version>
+    <version>1.0.30-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <build>
