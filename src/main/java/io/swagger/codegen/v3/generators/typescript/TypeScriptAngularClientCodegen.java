@@ -160,6 +160,15 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         // Libraries generated with v2.x of ng-packagr will ship with AoT metadata in v4, which is intended for Angular v5 (and Angular v6).
         additionalProperties.put("useOldNgPackagr", !ngVersion.atLeast("5.0.0"));
 
+        // set http client usage
+        if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("useHttpClient", true);
+        } else if (ngVersion.atLeast("4.3.0")) {
+            additionalProperties.put("useHttpClient", true);
+        } else {
+            additionalProperties.put("useHttpClient", false);
+        }
+
         if (additionalProperties.containsKey(PROVIDED_IN_ROOT) && !ngVersion.atLeast("6.0.0")) {
             additionalProperties.put(PROVIDED_IN_ROOT,false);
         }
@@ -213,8 +222,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             this.setNpmRepository(additionalProperties.get(NPM_REPOSITORY).toString());
         }
 
-        additionalProperties.put("useRxJS6", true);
-        additionalProperties.put("useHttpClient", true);
         additionalProperties.put("useHttpClientPackage", false);
         if (ngVersion.atLeast("11.0.0")) {
             additionalProperties.put("tsVersion", ">=4.0.0 <4.1.0");
@@ -263,7 +270,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             additionalProperties.put("tsickleVersion", "0.32.1");
             additionalProperties.put("zonejsVersion", "0.8.26");
 
-            additionalProperties.put("useRxJS6", false);
             additionalProperties.put("useHttpClientPackage", true);
         }
 

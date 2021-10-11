@@ -121,13 +121,13 @@
         </dependency>
 
         {{/withXml}}
-        {{#java8}}
+        {{#isJava8or11}}
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
-        {{/java8}}
+        {{/isJava8or11}}
         {{#joda}}
 
         <dependency>

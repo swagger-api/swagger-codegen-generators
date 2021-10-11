@@ -160,7 +160,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Boolean sortParamsByRequiredFlag = true;
     protected Boolean ensureUniqueParams = true;
     protected Boolean allowUnicodeIdentifiers = false;
-    protected String gitUserId, gitRepoId, releaseNote;
+    protected String gitUserId, gitRepoId, releaseNote, gitRepoBaseURL;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
     protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);
@@ -2117,17 +2117,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         List<Parameter> parameters = operation.getParameters();
-        CodegenParameter bodyParam = null;
-        List<CodegenParameter> allParams = new ArrayList<>();
-        List<CodegenParameter> bodyParams = new ArrayList<>();
-        List<CodegenParameter> pathParams = new ArrayList<>();
-        List<CodegenParameter> queryParams = new ArrayList<>();
-        List<CodegenParameter> headerParams = new ArrayList<>();
-        List<CodegenParameter> cookieParams = new ArrayList<>();
-        List<CodegenParameter> formParams = new ArrayList<>();
-        List<CodegenParameter> requiredParams = new ArrayList<>();
-
-        List<CodegenContent> codegenContents = new ArrayList<>();
+        final OperationParameters operationParameters = new OperationParameters();
 
         RequestBody body = operation.getRequestBody();
         if (body != null) {
@@ -2188,20 +2178,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            formParams.add(formParameter.copy());
+                            operationParameters.addFormParam(formParameter.copy());
                             if (body.getRequired() != null && body.getRequired()) {
-                                requiredParams.add(formParameter.copy());
+                                operationParameters.addRequiredParam(formParameter.copy());
                             }
-                            allParams.add(formParameter);
+                            operationParameters.addAllParams(formParameter);
                         }
-                        codegenContents.add(codegenContent);
+                        operationParameters.addCodegenContents(codegenContent);
                     }
                 } else {
-                    bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
+                    CodegenParameter bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
+                    operationParameters.setBodyParam(bodyParam);
                     if (foundSchemas.isEmpty()) {
-                        // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
-                        bodyParams.add(bodyParam.copy());
-                        allParams.add(bodyParam);
+                        operationParameters.addBodyParams(bodyParam.copy());
+                        operationParameters.addAllParams(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
                         for (Schema usedSchema : foundSchemas) {
@@ -2214,7 +2204,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    codegenContents.add(codegenContent);
+                    operationParameters.addCodegenContents(codegenContent);
                 }
             }
         }
@@ -2224,53 +2214,30 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if (StringUtils.isNotBlank(param.get$ref())) {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
+                if ((param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn()))
+                        && param.getStyle() != null && param.getStyle().equals(Parameter.StyleEnum.DEEPOBJECT)) {
+                    operationParameters.parseNestedObjects(param.getName(), param.getSchema(), imports, this, openAPI);
+                    continue;
+                }
                 CodegenParameter codegenParameter = fromParameter(param, imports);
-                allParams.add(codegenParameter);
-                // Issue #2561 (neilotoole) : Moved setting of is<Type>Param flags
-                // from here to fromParameter().
-                if (param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn())) {
-                    queryParams.add(codegenParameter.copy());
-                } else if (param instanceof PathParameter || "path".equalsIgnoreCase(param.getIn())) {
-                    pathParams.add(codegenParameter.copy());
-                } else if (param instanceof HeaderParameter || "header".equalsIgnoreCase(param.getIn())) {
-                    headerParams.add(codegenParameter.copy());
-                } else if (param instanceof CookieParameter || "cookie".equalsIgnoreCase(param.getIn())) {
-                    cookieParams.add(codegenParameter.copy());
-                }
-                if (codegenParameter.required) {
-                    requiredParams.add(codegenParameter.copy());
-                }
+                operationParameters.addParameters(param, codegenParameter);
             }
         }
 
         addOperationImports(codegenOperation, imports);
 
-        codegenOperation.bodyParam = bodyParam;
+        codegenOperation.bodyParam = operationParameters.getBodyParam();
         codegenOperation.httpMethod = httpMethod.toUpperCase();
 
         // move "required" parameters in front of "optional" parameters
         if (sortParamsByRequiredFlag) {
-            Collections.sort(allParams, new Comparator<CodegenParameter>() {
-                @Override
-                public int compare(CodegenParameter one, CodegenParameter another) {
-                    if (one.required == another.required) return 0;
-                    else if (one.required) return -1;
-                    else return 1;
-                }
-            });
+            operationParameters.sortRequiredAllParams();
         }
 
-        codegenOperation.allParams = addHasMore(allParams);
-        codegenOperation.bodyParams = addHasMore(bodyParams);
-        codegenOperation.pathParams = addHasMore(pathParams);
-        codegenOperation.queryParams = addHasMore(queryParams);
-        codegenOperation.headerParams = addHasMore(headerParams);
-        codegenOperation.cookieParams = addHasMore(cookieParams);
-        codegenOperation.formParams = addHasMore(formParams);
-        codegenOperation.requiredParams = addHasMore(requiredParams);
+        operationParameters.addHasMore(codegenOperation);
         codegenOperation.externalDocs = operation.getExternalDocs();
 
-        configuresParameterForMediaType(codegenOperation, codegenContents);
+        configuresParameterForMediaType(codegenOperation, operationParameters.getCodegenContents());
         // legacy support
         codegenOperation.nickname = codegenOperation.operationId;
 
@@ -3002,16 +2969,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
-    protected static List<CodegenParameter> addHasMore(List<CodegenParameter> objs) {
-        if (objs != null) {
-            for (int i = 0; i < objs.size(); i++) {
-                objs.get(i).secondaryParam = i > 0;
-                objs.get(i).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, i < objs.size() - 1);
-            }
-        }
-        return objs;
-    }
-
     private static Map<String, Object> addHasMore(Map<String, Object> objs) {
         if (objs != null) {
             for (int i = 0; i < objs.size() - 1; i++) {
@@ -3561,6 +3518,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String getGitRepoId() {
         return gitRepoId;
     }
+
+
+    /**
+     * Git repo Base URL
+     *
+     * @return Git repo Base URL
+     */
+    public String getGitRepoBaseURL() {
+        return gitRepoBaseURL;
+    }
+
+    /**
+     * Set Git repo Base URL.
+     *
+     * @param gitRepoBaseURL Git repo Base URL
+     */
+    public void setGitRepoBaseURL(String gitRepoBaseURL) {
+        this.gitRepoBaseURL = gitRepoBaseURL;
+    }
+
 
     /**
      * Set release note.
@@ -4379,7 +4356,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             );
-            addHasMore(content.getParameters());
+            OperationParameters.addHasMore(content.getParameters());
         }
         codegenOperation.getContents().addAll(codegenContents);
     }
