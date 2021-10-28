@@ -126,6 +126,10 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     @Override
     public void processOpts() {
+        if (RETROFIT_1.equalsIgnoreCase(library)) {
+            dateLibrary = "joda";
+        }
+
         super.processOpts();
 
         if (additionalProperties.containsKey(USE_RX_JAVA)) {
