@@ -181,6 +181,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
+
+        CliOption java11Mode = new CliOption(JAVA11_MODE, "Option. Use Java11 classes instead of third party equivalents");
+        Map<String, String> java11ModeOptions = new HashMap<String, String>();
+        java11ModeOptions.put("true", "Use Java 11 classes");
+        java11ModeOptions.put("false", "Various third party libraries as needed");
+        java11Mode.setEnum(java11ModeOptions);
+        cliOptions.add(java11Mode);
+
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
     }
 
