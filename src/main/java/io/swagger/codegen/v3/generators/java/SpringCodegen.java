@@ -21,6 +21,7 @@ import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -474,7 +475,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         CodegenProperty codegenProperty = super.fromProperty(name, propertySchema);
         if (propertySchema != null && propertySchema.get$ref() != null) {
             Schema refSchema = OpenAPIUtil.getSchemaFromRefSchema(propertySchema, this.openAPI);
-            if (refSchema != null  && !isObjectSchema(refSchema) && refSchema.getEnum() == null) {
+            if (refSchema != null  && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema) && refSchema.getEnum() == null) {
                 setSchemaProperties(name, codegenProperty, refSchema);
                 processPropertySchemaTypes(name, codegenProperty, refSchema);
             }
