@@ -54,6 +54,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String JAVA8_MODE = "java8";
+    public static final String JAVA11_MODE = "java11";
     public static final String WITH_XML = "withXml";
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
@@ -61,6 +62,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
+    protected boolean java11Mode = false;
     protected boolean withXml = false;
     protected String invokerPackage = "io.swagger";
     protected String groupId = "io.swagger";
@@ -165,6 +167,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
         dateOptions.put("java8", "Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets \"" + JAVA8_MODE + "\" to true");
+        dateOptions.put("java11", "Java 11 native JSR384 (preferred for jdk 11+) - note: this also sets \"" + JAVA11_MODE + "\" to true");
         dateOptions.put("threetenbp", "Backport of JSR310 (preferred for jdk < 1.8)");
         dateOptions.put("java8-localdatetime", "Java 8 using LocalDateTime (for legacy app only)");
         dateOptions.put("joda", "Joda (for legacy app only)");
@@ -178,6 +181,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
+
+        CliOption java11Mode = new CliOption(JAVA11_MODE, "Option. Use Java11 classes instead of third party equivalents");
+        Map<String, String> java11ModeOptions = new HashMap<String, String>();
+        java11ModeOptions.put("true", "Use Java 11 classes");
+        java11ModeOptions.put("false", "Various third party libraries as needed");
+        java11Mode.setEnum(java11ModeOptions);
+        cliOptions.add(java11Mode);
+
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
     }
 
@@ -187,16 +198,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
         } else if (additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
             // guess from api package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.API_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from api package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from api package name: " + derivedInvokerPackage);
         } else if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
             // guess from model package
-            String derviedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
-            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derviedInvokerPackage);
+            String derivedInvokerPackage = deriveInvokerPackageName((String)additionalProperties.get(CodegenConstants.MODEL_PACKAGE));
+            this.additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, derivedInvokerPackage);
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
-            LOGGER.info("Invoker Package Name, originally not set, is now dervied from model package name: " + derviedInvokerPackage);
+            LOGGER.info("Invoker Package Name, originally not set, is now derived from model package name: " + derivedInvokerPackage);
         } else if (StringUtils.isNotEmpty(invokerPackage)) {
             // not set in additionalProperties, add value from CodegenConfig in order to use it in templates
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
@@ -424,12 +435,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         // used later in recursive import in postProcessingModels
         importMapping.put("com.fasterxml.jackson.annotation.JsonProperty", "com.fasterxml.jackson.annotation.JsonCreator");
 
-        if(additionalProperties.containsKey(JAVA8_MODE)) {
-            setJava8Mode(Boolean.parseBoolean(additionalProperties.get(JAVA8_MODE).toString()));
-            if ( java8Mode ) {
-                additionalProperties.put("java8", true);
-            }
-        }
+        setJava8Mode(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAVA8_MODE))));
+        additionalProperties.put(JAVA8_MODE, java8Mode);
+        setJava11Mode(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAVA11_MODE))));
+        additionalProperties.put(JAVA11_MODE, java11Mode);
 
         if(additionalProperties.containsKey(WITH_XML)) {
             setWithXml(Boolean.parseBoolean(additionalProperties.get(WITH_XML).toString()));
@@ -440,6 +449,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             setDateLibrary(additionalProperties.get("dateLibrary").toString());
+        } else if (java8Mode) {
+            setDateLibrary("java8");
         }
 
         if ("threetenbp".equals(dateLibrary)) {
@@ -1022,11 +1033,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     continue;
                 }
                 boolean hasConflict = parentModel.vars.stream()
-                    .anyMatch(parentProperty -> parentProperty.name.equals(codegenProperty.name) && !parentProperty.datatype.equals(codegenProperty.datatype));
+                    .anyMatch(parentProperty ->
+                        (parentProperty.name.equals(codegenProperty.name) ||
+                            parentProperty.getGetter().equals(codegenProperty.getGetter()) ||
+                            parentProperty.getSetter().equals(codegenProperty.getSetter()) &&
+                        !parentProperty.datatype.equals(codegenProperty.datatype)));
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
                     codegenProperty.getter = toGetter(codegenProperty.name);
-                    codegenProperty.setter = toGetter(codegenProperty.name);
+                    codegenProperty.setter = toSetter(codegenProperty.name);
                     break;
                 }
                 parentModel = parentModel.parentModel;
@@ -1532,6 +1547,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava8Mode(boolean enabled) {
         this.java8Mode = enabled;
+    }
+
+    public void setJava11Mode(boolean java11Mode) {
+        this.java11Mode = java11Mode;
     }
 
     @Override

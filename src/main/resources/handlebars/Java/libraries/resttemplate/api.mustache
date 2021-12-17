@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 {{>generatedAnnotation}}
 @Component("{{package}}.{{classname}}")
@@ -129,7 +130,7 @@ public class {{classname}} {
      * <p><b>{{code}}</b>{{#message}} - {{message}}{{/message}}
     {{/responses}}
     {{#parameters}}
-     * @param {{paramName}} {{description}}{{^description}}The {{paramName}} parameter{{/description}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
     {{/parameters}}
     {{#returnType}}
      * @return {{returnType}}
@@ -140,7 +141,38 @@ public class {{classname}} {
      * @see <a href="{{url}}">{{summary}} Documentation</a>
     {{/externalDocs}}
      */
+    {{#isDeprecated}}
+    @Deprecated
+    {{/isDeprecated}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) throws RestClientException {
+        {{#returnType}}
+        return {{operationId}}WithHttpInfo({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}).getBody();
+        {{/returnType}}
+        {{^returnType}}
+        {{operationId}}WithHttpInfo({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+        {{/returnType}}
+    }
+
+    /**
+     * {{summary}}
+     * {{notes}}
+     {{#responses}}
+     * <p><b>{{code}}</b>{{#message}} - {{message}}{{/message}}
+     {{/responses}}
+     {{#parameters}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+     {{/parameters}}
+     * @return ResponseEntity&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+     {{/externalDocs}}
+     */
+    {{#isDeprecated}}
+    @Deprecated
+    {{/isDeprecated}}
+    public ResponseEntity<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) throws RestClientException {
         Object {{localVariablePrefix}}postBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
         {{#parameters}}
         {{#required}}
@@ -194,7 +226,7 @@ public class {{classname}} {
         String[] {{localVariablePrefix}}authNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
         {{#returnType}}ParameterizedTypeReference<{{{returnType}}}> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<{{{returnType}}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> {{localVariablePrefix}}returnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-        {{#returnType}}return {{/returnType}}{{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}path, HttpMethod.{{httpMethod}}, {{localVariablePrefix}}queryParams, {{localVariablePrefix}}postBody, {{localVariablePrefix}}headerParams, {{localVariablePrefix}}formParams, {{localVariablePrefix}}accept, {{localVariablePrefix}}contentType, {{localVariablePrefix}}authNames, {{localVariablePrefix}}returnType);
+        return {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}path, HttpMethod.{{httpMethod}}, {{localVariablePrefix}}queryParams, {{localVariablePrefix}}postBody, {{localVariablePrefix}}headerParams, {{localVariablePrefix}}formParams, {{localVariablePrefix}}accept, {{localVariablePrefix}}contentType, {{localVariablePrefix}}authNames, {{localVariablePrefix}}returnType);
     }
     {{/contents}}
     {{/operation}}

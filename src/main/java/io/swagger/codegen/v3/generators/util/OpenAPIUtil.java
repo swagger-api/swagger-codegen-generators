@@ -51,6 +51,17 @@ public class OpenAPIUtil {
         return mapSchema.get(name);
     }
 
+    public static Schema getRefSchemaIfExists(Schema schema, OpenAPI openAPI) {
+        if (schema == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(schema.get$ref()) || openAPI == null || openAPI.getComponents() == null) {
+            return schema;
+        }
+        final String name = getSimpleRef(schema.get$ref());
+        return getSchemaFromName(name, openAPI);
+    }
+
     public static Schema getSchemaFromRefSchema(Schema refSchema, OpenAPI openAPI) {
         if (StringUtils.isBlank(refSchema.get$ref())) {
             return null;
