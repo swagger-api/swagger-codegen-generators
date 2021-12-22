@@ -52,7 +52,7 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
     }
     {{^errorOnUnknownEnum}}return null;{{/errorOnUnknownEnum}}{{#errorOnUnknownEnum}}throw new IllegalArgumentException("Unexpected value '" + text + "' for '{{{classname}}}' enum.");{{/errorOnUnknownEnum}}
   }
-{{#if gson}}
+{{#gson}}
 
   public static class Adapter extends TypeAdapter<{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}> {
     @Override
@@ -63,8 +63,8 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
     @Override
     public {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} read(final JsonReader jsonReader) throws IOException {
       Object value = {{#isNumber}}new BigDecimal(jsonReader.nextDouble()){{/isNumber}}{{^isNumber}}jsonReader.{{#isInteger}}nextInt(){{/isInteger}}{{^isInteger}}nextString(){{/isInteger}}{{/isNumber}};
-      return {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.fromValue(({{{datatype}}})(value));
+      return {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.fromValue(({{{dataType}}})(value));
     }
   }
-{{/if}}
+{{/gson}}
 }
