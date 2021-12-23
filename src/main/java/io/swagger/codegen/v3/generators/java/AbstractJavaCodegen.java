@@ -59,6 +59,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
+    public static final String USE_FQN = "useFqn";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -91,6 +92,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    protected boolean useFqn = false;
     private NotNullAnnotationFeatures notNullOption;
 
     public AbstractJavaCodegen() {
@@ -190,6 +192,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(java11Mode);
 
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
+        cliOptions.add(CliOption.newBoolean(USE_FQN, "Use fully-qualified model class names"));
     }
 
     @Override
@@ -354,6 +357,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (additionalProperties.containsKey(ERROR_ON_UNKNOWN_ENUM)) {
             boolean errorOnUnknownEnum = Boolean.parseBoolean(additionalProperties.get(ERROR_ON_UNKNOWN_ENUM).toString());
             additionalProperties.put(ERROR_ON_UNKNOWN_ENUM, errorOnUnknownEnum);
+        }
+
+        if (additionalProperties.containsKey(USE_FQN)) {
+            this.setUseFqn(Boolean.parseBoolean(additionalProperties.get(USE_FQN).toString()));
+        } else {
+            additionalProperties.put(USE_FQN, Boolean.toString(useFqn));
         }
 
         if (this instanceof NotNullAnnotationFeatures) {
@@ -532,7 +541,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String modelFileFolder() {
-        return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.', '/');
+        if (useFqn) {
+            return outputFolder + "/" + sourceFolder;
+        } else {
+            return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.', '/');
+        }
     }
 
     @Override
@@ -552,7 +565,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelDocFilename(String name) {
-        return toModelName(name);
+        return toModelFilename(name);
     }
 
     @Override
@@ -575,6 +588,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toVarName(String name) {
+        int lastPartIdx = name.lastIndexOf('.');
+        if (useFqn && lastPartIdx > 0) {
+            String lastPart = name.substring(lastPartIdx + 1);
+            return varName(lastPart);
+        } else {
+            return varName(name);
+        }
+    }
+
+    private String varName(String name) {
         // sanitize name
         name = sanitizeVarName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
 
@@ -643,6 +666,38 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toModelImport(String name) {
+        if(useFqn) {
+            String namespace = namespace(name);
+            if (namespace != null) {
+                int lastPartIdx = useFqn ? name.lastIndexOf('.') : -1;
+                String namePart = name.substring(lastPartIdx + 1);
+                return namespace + '.' + toModelName(namePart);
+            } else {
+                return null; // no import
+            }
+        } else {
+            if ("".equals(modelPackage())) {
+                return name;
+            } else {
+                return modelPackage() + "." + name;
+            }
+        }
+    }
+
+    private String namespace(String name) {
+        if (useFqn) {
+            int lastPartIdx = name.lastIndexOf('.');
+            if (lastPartIdx > 0) {
+                String namespacePart = name.substring(0, lastPartIdx);
+                String modelPackage = modelPackage();
+                return (StringUtils.isEmpty(modelPackage)? "" : modelPackage + ".") + namespacePart;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String toModelName(final String name) {
         // We need to check if import-mapping has a different model for this class, so we use it
         // instead of the auto-generated one.
@@ -650,6 +705,18 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
+
+        int lastPartIdx = useFqn ? name.lastIndexOf('.') : -1;
+        if (lastPartIdx > 0) {
+            String namePart = name.substring(lastPartIdx + 1);
+            return modelNamePart(namePart);
+        } else {
+            return modelNamePart(name);
+        }
+
+    }
+
+    private String modelNamePart(String name) {
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
@@ -686,6 +753,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelFilename(String name) {
+        if (useFqn) {
+            int lastPartIdx = name.lastIndexOf('.');
+            if (lastPartIdx > 0) {
+                String firstPart = name.substring(0, lastPartIdx);
+                String namePart = name.substring(lastPartIdx + 1);
+                String modelPackage = modelPackage();
+                return  ((StringUtils.isEmpty(modelPackage)? "" : modelPackage + "/") + firstPart + '.' + toModelName(namePart)).replace('.', '/');
+            }
+        }
         // should be the same as the model name
         return toModelName(name);
     }
@@ -969,6 +1045,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                     }
                 }
             }
+        }
+        if (useFqn) {
+            // TODO: refactor swagger-codegen, introduce namespace?
+            codegenModel.setXmlNamespace(namespace(name));
         }
         return codegenModel;
     }
@@ -1439,11 +1519,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
         return true;
     }
-    private static String sanitizePackageName(String packageName) {
+    private String sanitizePackageName(String packageName) {
         packageName = packageName.trim(); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
         packageName = packageName.replaceAll("[^a-zA-Z0-9_\\.]", "_");
         if(packageName == null || packageName.isEmpty()) {
-            return "invalidPackageName";
+            if(!useFqn) {
+                return "invalidPackageName";
+            }
         }
         return packageName;
     }
@@ -1526,6 +1608,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setSerializableModel(Boolean serializableModel) {
         this.serializableModel = serializableModel;
+    }
+
+    public void setUseFqn(boolean useFqn) {
+        this.useFqn = useFqn;
     }
 
     private String sanitizePath(String p) {

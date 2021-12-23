@@ -1,6 +1,11 @@
 {{>licenseInfo}}
-
+{{#useFqn}}
+{{! TODO: DefaultGenerator#processModels only processes one model at time, so seems unnecessary to have multiple models in template, to fix need refactor swagger-codegen }} 
+package {{models.0.model.xmlNamespace}};
+{{/useFqn}}
+{{^useFqn}}
 package {{package}};
+{{/useFqn}}
 
 {{^x-is-composed-model}}
 {{^supportJava6}}
