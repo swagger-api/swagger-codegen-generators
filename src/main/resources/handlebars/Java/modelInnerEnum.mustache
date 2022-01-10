@@ -5,7 +5,7 @@
   public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} {
     {{#allowableValues}}
     {{#enumVars}}
-    {{{name}}}({{{value}}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
+    {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
     {{/enumVars}}
     {{/allowableValues}}
 
@@ -28,25 +28,25 @@
     {{#jackson}}
     @JsonCreator
     {{/jackson}}
-    public static {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} fromValue(String text) {
+    public static {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} fromValue({{{datatype}}} input) {
       for ({{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} b : {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.values()) {
-        if (String.valueOf(b.value).equals(text)) {
+        if (b.value.equals(input)) {
           return b;
         }
       }
-      return null;
+      {{^errorOnUnknownEnum}}return null;{{/errorOnUnknownEnum}}{{#errorOnUnknownEnum}}throw new IllegalArgumentException("Unexpected value '" + text + "' for '{{{classname}}}' enum.");{{/errorOnUnknownEnum}}
     }
     {{#gson}}
     public static class Adapter extends TypeAdapter<{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}> {
       @Override
       public void write(final JsonWriter jsonWriter, final {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} enumeration) throws IOException {
-        jsonWriter.value(enumeration.getValue());
+        jsonWriter.value(String.valueOf(enumeration.getValue()));
       }
 
       @Override
       public {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} read(final JsonReader jsonReader) throws IOException {
-        {{{datatype}}} value = jsonReader.{{#is ../this 'integer'}}nextInt(){{/is}}{{#isNot ../this 'integer'}}next{{{datatype}}}(){{/isNot}};
-        return {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}.fromValue(String.valueOf(value));
+        Object value = {{#isNumber}}new BigDecimal(jsonReader.nextDouble()){{/isNumber}}{{^isNumber}}jsonReader.{{#isInteger}}nextInt(){{/isInteger}}{{^isInteger}}nextString(){{/isInteger}}{{/isNumber}};
+        return {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}.fromValue(({{{datatype}}})(value));
       }
     }{{/gson}}
   }

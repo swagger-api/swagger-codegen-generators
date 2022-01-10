@@ -18,8 +18,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import com.github.jknack.handlebars.helper.StringHelpers;
-import com.github.jknack.handlebars.Handlebars;
 import org.apache.commons.lang3.StringUtils;
 
 import static java.util.Collections.singletonMap;
@@ -162,10 +160,6 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if (!additionalProperties.containsKey(GENERATE_APIS)) {
             additionalProperties.put(GENERATE_APIS, true);
         }
@@ -230,12 +224,6 @@ public class KotlinServerCodegen extends AbstractKotlinCodegen {
         final String infrastructureFolder = (sourceFolder + File.separator + packageName + File.separator + "infrastructure").replace(".", File.separator);
 
         supportingFiles.add(new SupportingFile("ApiKeyAuth.kt.mustache", infrastructureFolder, "ApiKeyAuth.kt"));
-    }
-
-    @Override
-    public void addHandlebarHelpers(Handlebars handlebars) {
-        super.addHandlebarHelpers(handlebars);
-        handlebars.registerHelpers(StringHelpers.class);
     }
 
     @Override

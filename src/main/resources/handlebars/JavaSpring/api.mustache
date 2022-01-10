@@ -10,7 +10,20 @@ package {{package}};
 {{#jdk8-no-delegate}}
 import com.fasterxml.jackson.databind.ObjectMapper;
 {{/jdk8-no-delegate}}
+{{#useOas2}}
 import io.swagger.annotations.*;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+{{/useOas2}}
 {{#jdk8-no-delegate}}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +64,19 @@ import java.util.Optional;
     {{/useOptional}}
 {{/jdk8-no-delegate}}
 {{#async}}
-import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture{{/jdk8}};
+import java.util.concurrent.{{^isJava8or11}}Callable{{/isJava8or11}}{{#isJava8or11}}CompletableFuture{{/isJava8or11}};
 {{/async}}
+
 {{>generatedAnnotation}}
+{{#useBeanValidation}}
+@Validated
+{{/useBeanValidation}}
+{{#useOas2}}
 @Api(value = "{{{baseName}}}", description = "the {{{baseName}}} API")
+{{/useOas2}}
 {{#operations}}
 public interface {{classname}} {
-{{#jdk8}}
+{{#isJava8or11}}
 
     {{^isDelegate}}
     Logger log = LoggerFactory.getLogger({{classname}}.class);
@@ -77,10 +96,12 @@ public interface {{classname}} {
     {{#isDelegate}}
     {{classname}}Delegate getDelegate();
     {{/isDelegate}}
-{{/jdk8}}
+{{/isJava8or11}}
 {{#operation}}
 {{#contents}}
+{{#@first}}
 
+    {{#useOas2}}
     @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = { {{#each scopes}}
             @AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},{{/@last}}{{/each}}
@@ -96,13 +117,26 @@ public interface {{classname}} {
     {{/headerParams}}
     })
     {{/implicitHeaders}}
+    {{/useOas2}}
+    {{^useOas2}}
+    @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
+        {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
+            {{#each scopes}}"{{@key}}"{{^@last}},
+            {{/@last}}{{/each}}
+        }{{/isOAuth}}){{#hasMore}},
+        {{/hasMore}}{{/authMethods}}
+    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+    @ApiResponses(value = { {{#responses}}
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}{{#baseType}}, content = @Content({{#schema.extensions.x-content-type}}mediaType = "{{schema.extensions.x-content-type}}", {{/schema.extensions.x-content-type}}{{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/baseType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
+        {{/hasMore}}{{/responses}} })
+    {{/useOas2}}
     @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
         produces = "{{{vendorExtensions.x-accepts}}}", {{/hasProduces}}{{#hasConsumes}}
         consumes = "{{{vendorExtensions.x-contentType}}}",{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}}
         produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
-        consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
+        consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }, {{/hasConsumes}}{{/singleContentTypes}}
         method = RequestMethod.{{httpMethod}})
-    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}){{^defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}};{{/defaultInterfaces}}{{#defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}} {
+    {{#defaultInterfaces}}default {{/defaultInterfaces}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{^defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}};{{/defaultInterfaces}}{{#defaultInterfaces}}{{#throwsException}} throws Exception{{/throwsException}} {
         {{#delegate-method}}
         return {{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
     }
@@ -132,7 +166,9 @@ public interface {{classname}} {
         {{/isDelegate}}
     }{{/defaultInterfaces}}
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }
 {{/operations}}
+

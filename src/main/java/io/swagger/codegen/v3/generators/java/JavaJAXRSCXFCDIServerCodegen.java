@@ -45,13 +45,10 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
 
     @Override
     public void processOpts() {
-        // Set the template dir first, before super.processOpts(), otherwise it is going to
-        // be set to /spec location.
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         super.processOpts();
+
+        importMapping.put("Valid", "javax.validation.Valid");
 
         // Three API templates to support CDI injection
         apiTemplateFiles.put("apiService.mustache", ".java");
@@ -84,6 +81,13 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
+        if (useBeanValidation) {
+            final boolean importValidAnnotation = property.getIsContainer() && !property.getIsPrimitiveType() && !property.getIsEnum()
+                || !property.getIsContainer() && !property.getIsPrimitiveType();
+            if (importValidAnnotation) {
+                model.imports.add("Valid");
+            }
+        }
 
         // Reinstate JsonProperty
         model.imports.add("JsonProperty");
@@ -92,7 +96,7 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
     @Override
     public String getHelp() {
         return "[WORK IN PROGRESS: generated code depends from Swagger v2 libraries] "
-                + "Generates a Java JAXRS Server according to JAXRS 2.0 specification, assuming an " 
+                + "Generates a Java JAXRS Server according to JAXRS 2.0 specification, assuming an "
                 + "Apache CXF runtime and a Java EE runtime with CDI enabled.";
     }
 

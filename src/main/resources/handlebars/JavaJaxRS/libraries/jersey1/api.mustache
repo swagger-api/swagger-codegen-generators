@@ -47,8 +47,8 @@ public class {{classname}}  {
     {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })

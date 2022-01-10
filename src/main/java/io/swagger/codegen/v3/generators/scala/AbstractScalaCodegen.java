@@ -254,10 +254,4 @@ public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
         int lastIndexOfDot = input.lastIndexOf(".");
         return input.substring(lastIndexOfDot + 1);
     }
-
-    // todo: remove this once handlebar templates for this generator are implemented
-    @Override
-    protected void setTemplateEngine() {
-        templateEngine = new MustacheTemplateEngine(this);
-    }
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import io.swagger.codegen.v3.generators.OperationParameters;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -284,11 +285,6 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        embeddedTemplateDir = templateDir = getTemplateDir();
 
         if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
             setGoogleCloudFunctions(
@@ -325,6 +321,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        this.openAPI = openAPI;
         URL url = URLPathUtil.getServerURL(openAPI);
         String host = URLPathUtil.LOCAL_HOST;
         String port = "8080";
@@ -449,13 +446,14 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
             return;
         }
         for (CodegenContent content : codegenContents) {
-            addParemeters(content, codegenOperation.queryParams);
-            addParemeters(content, codegenOperation.pathParams);
-            addParemeters(content, codegenOperation.headerParams);
-            addParemeters(content, codegenOperation.cookieParams);
+            addParameters(content, codegenOperation.bodyParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.cookieParams);
         }
         for (CodegenContent content : codegenContents) {
-            addHasMore(content.getParameters());
+            OperationParameters.addHasMore(content.getParameters());
         }
         codegenOperation.getContents().addAll(codegenContents);
     }

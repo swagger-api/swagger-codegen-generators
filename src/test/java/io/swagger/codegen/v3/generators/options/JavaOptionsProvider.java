@@ -31,6 +31,7 @@ public class JavaOptionsProvider implements OptionsProvider {
     public static final String FULL_JAVA_UTIL_VALUE = "true";
     public static final String WITH_XML_VALUE = "false";
     public static final String JAVA8_MODE_VALUE = "true";
+    public static final String JAVA11_MODE_VALUE = "false";
     public static final String ENSURE_UNIQUE_PARAMS_VALUE = "true";
     //public static final String SUPPORT_JAVA6 = "true";
     public static final String USE_BEANVALIDATION = "false";
@@ -69,11 +70,13 @@ public class JavaOptionsProvider implements OptionsProvider {
                 .put(JavaClientCodegen.FULL_JAVA_UTIL, FULL_JAVA_UTIL_VALUE)
                 .put(JavaClientCodegen.WITH_XML, WITH_XML_VALUE)
                 .put(JavaClientCodegen.JAVA8_MODE, JAVA8_MODE_VALUE)
+                .put(JavaClientCodegen.JAVA11_MODE, JAVA11_MODE_VALUE)
                 .put(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING, "true")
                 .put(JavaClientCodegen.DATE_LIBRARY, "joda")
                 .put("hideGenerationTimestamp", "true")
                 .put(CodegenConstants.ALLOW_UNICODE_IDENTIFIERS, ALLOW_UNICODE_IDENTIFIERS_VALUE)
                 .put(CodegenConstants.USE_OAS2, "true")
+                .put(JavaClientCodegen.CHECK_DUPLICATED_MODEL_NAME, "false")
                 //.put("supportJava6", "true")
                 .build();
     }

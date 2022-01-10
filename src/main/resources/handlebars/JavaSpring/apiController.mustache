@@ -8,19 +8,36 @@ package {{package}};
 import com.fasterxml.jackson.databind.ObjectMapper;
 {{/isDelegate}}
 {{#fullController}}
+{{#useOas2}}
 import io.swagger.annotations.*;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+{{/useOas2}}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 {{/fullController}}
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 {{#fullController}}
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+{{^useOas2}}
+import org.springframework.web.bind.annotation.RestController;
+{{/useOas2}}
 import org.springframework.web.multipart.MultipartFile;
 
     {{#useBeanValidation}}
@@ -30,9 +47,9 @@ import javax.validation.Valid;
 {{/fullController}}
 {{^isDelegate}}
 import javax.servlet.http.HttpServletRequest;
-    {{#jdk8}}
+    {{#isJava8or11}}
 import java.util.Optional;
-    {{/jdk8}}
+    {{/isJava8or11}}
 {{/isDelegate}}
 {{^jdk8-no-delegate}}
     {{#useOptional}}
@@ -49,8 +66,14 @@ import java.util.Map;
 import java.util.concurrent.Callable;
     {{/async}}
 {{/fullController}}
+
 {{>generatedAnnotation}}
-@Controller
+{{#useOas2}}
+@RestController
+{{/useOas2}}
+{{^useOas2}}
+@RestController
+{{/useOas2}}
 {{#operations}}
 public class {{classname}}Controller implements {{classname}} {
 
@@ -61,13 +84,13 @@ public class {{classname}}Controller implements {{classname}} {
     public {{classname}}Controller({{classname}}Delegate delegate) {
         this.delegate = delegate;
     }
-    {{#jdk8}}
+    {{#isJava8or11}}
 
     @Override
     public {{classname}}Delegate getDelegate() {
         return delegate;
     }
-    {{/jdk8}}
+    {{/isJava8or11}}
 {{/isDelegate}}
 {{^isDelegate}}
     {{#fullController}}
@@ -83,7 +106,7 @@ public class {{classname}}Controller implements {{classname}} {
         this.objectMapper = objectMapper;
         this.request = request;
     }
-    {{#jdk8}}
+    {{#isJava8or11}}
 
     @Override
     public Optional<ObjectMapper> getObjectMapper() {
@@ -94,13 +117,14 @@ public class {{classname}}Controller implements {{classname}} {
     public Optional<HttpServletRequest> getRequest() {
         return Optional.ofNullable(request);
     }
-    {{/jdk8}}
+    {{/isJava8or11}}
 
 {{/isDelegate}}
 {{#fullController}}
 {{#operation}}
 {{#contents}}
-    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
+{{#@first}}
+    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{^isDelegate}}
         {{^async}}
         String accept = request.getHeader("Accept");
@@ -143,6 +167,7 @@ public class {{classname}}Controller implements {{classname}} {
         {{/isDelegate}}
     }
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 {{/fullController}}

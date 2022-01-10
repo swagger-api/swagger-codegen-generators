@@ -147,7 +147,7 @@ class RESTClientObject(object):
                 if query_params:
                     url += '?' + urlencode(query_params)
                 if re.search('json', headers['Content-Type'], re.IGNORECASE):
-                    request_body = None
+                    request_body = '{}'
                     if body is not None:
                         request_body = json.dumps(body)
                     r = self.pool_manager.request(
@@ -206,11 +206,6 @@ class RESTClientObject(object):
 
         if _preload_content:
             r = RESTResponse(r)
-
-            # In the python 3, the response.data is bytes.
-            # we need to decode it to string.
-            if six.PY3:
-                r.data = r.data.decode('utf8')
 
             # log response body
             logger.debug("response body: %s", r.data)

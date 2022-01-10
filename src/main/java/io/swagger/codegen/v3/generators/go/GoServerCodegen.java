@@ -73,10 +73,6 @@ public class GoServerCodegen extends AbstractGoCodegen {
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
         }
@@ -102,6 +98,7 @@ public class GoServerCodegen extends AbstractGoCodegen {
          * it will be processed by the template engine.  Otherwise, it will be copied
          */
         supportingFiles.add(new SupportingFile("swagger.mustache", "api", "swagger.yaml"));
+        supportingFiles.add(new SupportingFile("Dockerfile", "", "Dockerfile"));
         supportingFiles.add(new SupportingFile("main.mustache", "", "main.go"));
         supportingFiles.add(new SupportingFile("routers.mustache", apiPath, "routers.go"));
         supportingFiles.add(new SupportingFile("logger.mustache", apiPath, "logger.go"));

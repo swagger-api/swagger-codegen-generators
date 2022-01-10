@@ -1037,7 +1037,7 @@ public class JavaModelTest extends AbstractCodegenTest {
         Assert.assertTrue(co.imports.contains("Pet"));
     }
 
-    @Test(description = "disabled since templates have been moved.")
+    @Test
     public void generateModel() throws Exception {
         folder.create();
         final File output = folder.getRoot();
@@ -1053,6 +1053,26 @@ public class JavaModelTest extends AbstractCodegenTest {
         File orderFile = new File(output, "src/main/java/io/swagger/client/model/Order.java");
         Assert.assertTrue(orderFile.exists());
         folder.delete();
+    }
+
+    @Test
+    public void generateModelDiscriminatorOrderSchemas() throws Exception {
+        TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        temporaryFolder.create();
+        final File output = temporaryFolder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+            .setLang("java")
+            .setInputSpecURL("src/test/resources/3_0_0/discriminator_order_schemas.yaml")
+            .setOutputDir(output.getAbsolutePath());
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        File child = new File(output, "src/main/java/io/swagger/client/model/DSubSubSubBase.java");
+        Assert.assertTrue(child.exists());
+        temporaryFolder.delete();
     }
 
 }

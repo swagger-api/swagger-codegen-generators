@@ -6,10 +6,15 @@
     <name>{{artifactId}}</name>
     <version>{{artifactVersion}}</version>
     <properties>
-        <java.version>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</java.version>
+        <java.version>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        {{#useOas2}}
         <swagger-core-version>1.5.18</swagger-core-version>
+        {{/useOas2}}
+        {{^useOas2}}
+        <swagger-core-version>2.0.10</swagger-core-version>
+        {{/useOas2}}
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -33,11 +38,20 @@
     </dependencyManagement>
 
     <dependencies>
+        {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger-core-version}</version>
         </dependency>
+        {{/useOas2}}
+        {{^useOas2}}
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-core-version}</version>
+        </dependency>
+        {{/useOas2}}
         {{^springBootV2}}<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
@@ -110,6 +124,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        {{#notNullJacksonAnnotation}}
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+        {{/notNullJacksonAnnotation}}
+        
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

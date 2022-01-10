@@ -4,6 +4,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
@@ -14,6 +15,7 @@ import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.utils.ModelUtils;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -30,6 +32,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,18 +106,18 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 Arrays.asList("IDictionary")
         );
 
-        setReservedWordsLowerCase(
+        setReservedWords(
                 Arrays.asList(
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "Client", "client", "parameter", "File",
+                        "Client", "client", "parameter", "File", "List", "list",
                         // local variable names in API methods (endpoints)
                         "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
                         "localVarPostBody", "localVarHttpHeaderAccepts", "localVarHttpHeaderAccept",
                         "localVarHttpContentTypes", "localVarHttpContentType",
-                        "localVarStatusCode",
+                        "localVarStatusCode", "ApiResponse", "apiresponse",
                         // C# reserved words
                         "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
                         "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
@@ -219,10 +222,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
 
         // {{packageVersion}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_VERSION)) {
@@ -440,7 +439,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
                         // We do these after updateCodegenPropertyEnum to avoid generalities that don't mesh with C#.
                         var.getVendorExtensions().put(CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME, Boolean.TRUE);
-                        var.getVendorExtensions().put(IS_ENUM_EXT_NAME, Boolean.TRUE);
                     }
                 }
 
@@ -534,6 +532,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);
         if (objs != null) {
+            boolean hasAuthMethods = false;
             Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -582,8 +581,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                     }
 
                     processOperation(operation);
+                    if (getBooleanValue(operation, CodegenConstants.HAS_AUTH_METHODS_EXT_NAME)) {
+                        hasAuthMethods = true;
+                    }
                 }
             }
+            objs.put("hasAuthMethods", hasAuthMethods);
         }
 
         return objs;
@@ -740,12 +743,15 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     @Override
     protected boolean isReservedWord(String word) {
         // NOTE: This differs from super's implementation in that C# does _not_ want case insensitive matching.
-        return reservedWords.contains(word);
+        return reservedWords.contains(word.toLowerCase());
     }
 
     @Override
     public String getSchemaType(Schema propertySchema) {
         String swaggerType = super.getSchemaType(propertySchema);
+
+        swaggerType = getRefSchemaTargetType(propertySchema, swaggerType);
+
         String type;
 
         if (swaggerType == null) {
@@ -762,6 +768,20 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
             type = swaggerType;
         }
         return toModelName(type);
+    }
+
+    protected String getRefSchemaTargetType(Schema schema, String schemaType) {
+        if (schemaType == null) {
+            return null;
+        }
+        if (schema != null && schema.get$ref() != null) {
+            final Schema refSchema = OpenAPIUtil.getSchemaFromName(schemaType, this.openAPI);
+            if (refSchema != null && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema || refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
+                schemaType = super.getSchemaType(refSchema);
+            }
+        }
+        return schemaType;
+
     }
 
     /**
@@ -913,6 +933,9 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumValue(String value, String datatype) {
+        if (value == null) {
+            return null;
+        }
         // C# only supports enums as literals for int, int?, long, long?, byte, and byte?. All else must be treated as strings.
         // Per: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/enum
         // The approved types for an enum are byte, sbyte, short, ushort, int, uint, long, or ulong.
@@ -933,6 +956,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         // for symbol, e.g. $, #
         if (getSymbolName(name) != null) {
             return camelize(getSymbolName(name));
+         }
+
+        if (NumberUtils.isNumber(name)) {
+            return "NUMBER_" + name.replaceAll("-", "MINUS_")
+                    .replaceAll("\\+", "PLUS_")
+                    .replaceAll("\\.", "_DOT_");
         }
 
         String enumName = sanitizeName(name);
@@ -1067,6 +1096,24 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(new CsharpHelper());
     }
 
+    @Override
+    protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
+        for (CodegenContent content : codegenContents) {
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
+            addParameters(content, codegenOperation.headerParams);
+            addParameters(content, codegenOperation.queryParams);
+            addParameters(content, codegenOperation.pathParams);
+        }
+    }
+
+    @Override
+    public boolean checkAliasModel() {
+        return true;
+    }
 /*
     TODO: uncomment if/when switching to stream for file upload
     @Override
