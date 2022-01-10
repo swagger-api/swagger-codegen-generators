@@ -1476,7 +1476,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             codegenModel.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
 
-            addAnyValueVars(name, schema);
+            if (name.equalsIgnoreCase("anyValue"))
+                addAnyValueVars(name, schema);
+
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
 
@@ -1490,13 +1492,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     private void addAnyValueVars(String name, Schema schema) {
-        if (name.equalsIgnoreCase("anyValue")) {
             ArraySchema arraySchema = new ArraySchema();
             ObjectSchema objectSchema = new ObjectSchema();
             objectSchema.setType("object");
             arraySchema.setItems(objectSchema);
             schema.setProperties(Collections.singletonMap("value", arraySchema));
-        }
     }
 
     protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
