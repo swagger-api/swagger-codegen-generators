@@ -32,12 +32,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
@@ -55,17 +60,37 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     public static final String USE_INHERITANCE = "useInheritance";
     public static final String EMIT_MODEL_METHODS = "emitModelMethods";
     public static final String EMIT_JS_DOC = "emitJSDoc";
+    public static final String USE_ES6 = "useES6";
+    public static final String LOAD_TEST_DATA_FROM_FILE = "loadTestDataFromFile";
+    public static final String TEST_DATA_FILE = "testDataFile";
+    public static final String PRESERVE_LEADING_PARAM_CHAR = "preserveLeadingParamChar";
 
     final String[][] JAVASCRIPT_ES6_SUPPORTING_FILES = new String[][] {
             new String[] {"package.mustache", "package.json"},
-            new String[] {"index.mustache", "src/index.js"},
-            new String[] {"ApiClient.mustache", "src/ApiClient.js"},
+            new String[] {"index.mustache", "index.js"},
+            new String[] {"ApiClient.mustache", "ApiClient.js"},
             new String[] {"git_push.sh.mustache", "git_push.sh"},
             new String[] {"README.mustache", "README.md"},
             new String[] {"mocha.opts", "mocha.opts"},
             new String[] {"travis.yml", ".travis.yml"},
+            new String[] {"assert-equals.js", "assert-equals.js"},
             new String[] {".babelrc.mustache", ".babelrc"}
     };
+
+    static final String[][] JAVASCRIPT_SUPPORTING_FILES = new String[][] {
+            new String[] {"package.mustache", "package.json"},
+            new String[] {"index.mustache", "index.js"},
+            new String[] {"ApiClient.mustache", "ApiClient.js"},
+            new String[] {"git_push.sh.mustache", "git_push.sh"},
+            new String[] {"README.mustache", "README.md"},
+            new String[] {"mocha.opts", "mocha.opts"},
+            new String[] {"travis.yml", ".travis.yml"},
+            new String[] {"assert-equals.js", "assert-equals.js"},
+
+    };
+
+    static final Collection<String> INVOKER_PKG_SUPPORTING_FILES = Arrays.asList("ApiClient.mustache", "index.mustache");
+    static final Collection<String> TEST_SUPPORTING_FILES = Arrays.asList("assert-equals.js");
 
     protected String projectName;
     protected String moduleName;
@@ -83,7 +108,12 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     protected String modelDocPath = "docs/";
     protected String apiTestPath = "api/";
     protected String modelTestPath = "model/";
+    protected boolean useES6 = true;
     private String modelPropertyNaming = "camelCase";
+
+    protected boolean loadTestDataFromFile = false;
+    protected File testDataFile = null;
+    protected boolean preserveLeadingParamChar = false;
 
     public JavaScriptClientCodegen() {
         super();
@@ -151,6 +181,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         // binary not supported in JavaScript client right now, using String as a workaround
         typeMapping.put("ByteArray", "Blob"); // I don't see ByteArray defined in the Swagger docs.
         typeMapping.put("binary", "File");
+        typeMapping.put("binary", "Blob");
         typeMapping.put("file", "File");
         typeMapping.put("URI", "String");
         typeMapping.put("UUID", "String");
@@ -186,7 +217,13 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
                 .defaultValue(Boolean.TRUE.toString()));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
                 .defaultValue(Boolean.TRUE.toString()));
+        cliOptions.add(new CliOption(USE_ES6,
+                "use JavaScript ES6 (ECMAScript 6) (beta). Default is ES5.")
+                .defaultValue(Boolean.FALSE.toString()));
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PROPERTY_NAMING, CodegenConstants.MODEL_PROPERTY_NAMING_DESC).defaultValue("camelCase"));
+        cliOptions.add(CliOption.newBoolean(LOAD_TEST_DATA_FROM_FILE, "Load test data from a JSON file"));
+        cliOptions.add(CliOption.newString(TEST_DATA_FILE, "JSON file to contain test data"));
+        cliOptions.add(CliOption.newString(PRESERVE_LEADING_PARAM_CHAR, "Preserves leading $ and _ characters in parameter names."));
     }
 
     @Override
@@ -206,6 +243,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public void processOpts() {
+        if (additionalProperties.containsKey(USE_ES6)) {
+            setUseES6(convertPropertyToBooleanAndWriteBack(USE_ES6));
+        }
         super.processOpts();
 
         if (additionalProperties.containsKey(PROJECT_NAME)) {
@@ -250,6 +290,26 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
         }
+        boolean loadTestDataFromFile = convertPropertyToBooleanAndWriteBack(LOAD_TEST_DATA_FROM_FILE);
+        this.setLoadTestDataFromFile(loadTestDataFromFile);
+        if (loadTestDataFromFile) {
+            String testDataFileStr;
+            if (additionalProperties.containsKey(TEST_DATA_FILE))
+                testDataFileStr = (String) additionalProperties.get(TEST_DATA_FILE);
+            else
+                testDataFileStr = outputFolder() + "/test/test-data.json";
+            testDataFileStr = testDataFileStr.replace('/', File.separatorChar);
+            try {
+                File testDataFile = new File(testDataFileStr).getCanonicalFile();
+                testDataFileStr = testDataFile.getPath();
+                additionalProperties.put(TEST_DATA_FILE, testDataFileStr.replaceAll("\\\\", "\\\\\\\\"));
+                setTestDataFile(testDataFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to canonicalize file " + testDataFileStr, e);
+            }
+        }
+        boolean preserveLeadingParamChar = convertPropertyToBooleanAndWriteBack(PRESERVE_LEADING_PARAM_CHAR);
+        this.setPreserveLeadingParamChar(preserveLeadingParamChar);
     }
 
     @Override
@@ -309,15 +369,24 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         additionalProperties.put(USE_INHERITANCE, supportsInheritance);
         additionalProperties.put(EMIT_MODEL_METHODS, emitModelMethods);
         additionalProperties.put(EMIT_JS_DOC, emitJSDoc);
+        additionalProperties.put(USE_ES6, useES6);
 
         // make api and model doc path available in mustache template
         additionalProperties.put("apiDocPath", apiDocPath);
         additionalProperties.put("modelDocPath", modelDocPath);
 
-        String[][] supportingTemplateFiles = JAVASCRIPT_ES6_SUPPORTING_FILES;
-
-        for (String[] supportingTemplateFile :supportingTemplateFiles) {
-            supportingFiles.add(new SupportingFile(supportingTemplateFile[0], "", supportingTemplateFile[1]));
+        String[][] supportingTemplateFiles = useES6 ? JAVASCRIPT_ES6_SUPPORTING_FILES : JAVASCRIPT_SUPPORTING_FILES;
+        for (String[] supportingTemplateFile : supportingTemplateFiles) {
+            String templateFile = supportingTemplateFile[0];
+            String folder;
+            if (INVOKER_PKG_SUPPORTING_FILES.contains(templateFile))
+                // #1150: index.js & ApiClient.js must be generated to invokerPackage, otherwise nothing works!
+                folder = createPath(sourceFolder, invokerPackage);
+            else if (TEST_SUPPORTING_FILES.contains(templateFile))
+                folder = createPath("test");
+            else
+                folder = "";
+            supportingFiles.add(new SupportingFile(templateFile, folder, supportingTemplateFile[1]));
         }
     }
 
@@ -412,6 +481,17 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         this.usePromises = usePromises;
     }
 
+    public void setUseES6(boolean useES6) {
+        this.useES6 = useES6;
+        if (useES6) {
+            embeddedTemplateDir = templateDir = "Javascript/es6";
+            LOGGER.info("Using JS ES6 templates");
+        } else {
+            embeddedTemplateDir = templateDir = "Javascript";
+            LOGGER.info("Using JS ES5 templates");
+        }
+    }
+
     public void setUseInheritance(boolean useInheritance) {
         this.supportsInheritance = useInheritance;
         this.supportsMixins = useInheritance;
@@ -473,6 +553,8 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toVarName(String name) {
+        char first = name.charAt(0);
+
         // sanitize name
         name = sanitizeName(name);  // FIXME parameter should not be assigned. Also declare it as "final"
 
@@ -480,7 +562,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
           name = "_u";
         }
 
-        // if it's all uppper case, do nothing
+        // if it's all upper case, do nothing
         if (name.matches("^[A-Z_]*$")) {
             return name;
         }
@@ -494,6 +576,10 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             name = escapeReservedWord(name);
         }
 
+        // $ and _ characters are legal in JavaScript identifiers, so no need to strip them.
+        if (preserveLeadingParamChar && (first == '$' || first == '_'))
+            name = first + name;
+
         return name;
     }
 
@@ -505,6 +591,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelName(String name) {
+        if (name == null) {
+            return "Object";
+        }
         name = sanitizeName(name);  // FIXME parameter should not be assigned. Also declare it as "final"
 
         if (!StringUtils.isEmpty(modelNamePrefix)) {
@@ -615,7 +704,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     public String toDefaultValueWithParam(String name, Schema schema) {
         String typeDeclaration = getTypeDeclaration(schema);
         String type = normalizeType(typeDeclaration);
-        if (!StringUtils.isEmpty(schema.get$ref())) {
+        if (!StringUtils.isEmpty(schema.get$ref()) && !isPrimitiveType(typeDeclaration.toLowerCase())) {
             return " = " + type + ".constructFromObject(data['" + name + "']);";
         }
         return " = ApiClient.convertToType(data['" + name + "'], " + type + ");";
@@ -653,6 +742,11 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             if (example == null) {
                 example = "true";
             }
+        } else if ("Blob".equals(type)) {
+            if (example == null || example.equals("B")) {
+                example = "QmFzZTY0IGV4YW1wbGU=";
+            }
+            example = "\"" + escapeText(example) + "\"";
         } else if ("File".equals(type)) {
             if (example == null) {
                 example = "/path/to/file";
@@ -792,7 +886,16 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
                 }
             }
         }
+
         return codegenModel;
+    }
+
+    @Override
+    protected void addAdditionPropertiesToCodeGenModel(CodegenModel codegenModel, Schema schema) {
+        super.addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+        if (schema.getAdditionalProperties() != null && schema.getAdditionalProperties() instanceof Schema) {
+            codegenModel.additionalPropertiesType = getSchemaType((Schema) schema.getAdditionalProperties());
+        }
     }
 
     private String sanitizePath(String p) {
@@ -818,6 +921,9 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getDefaultTemplateDir() {
+        if (useES6) {
+            return "javascript/es6";
+        }
         return "javascript";
     }
 
@@ -891,7 +997,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         // Generate and store argument list string of each operation into
-        // vendor-extension: x-codegen-argList.
+        // vendor-extension: x-codegen-arg-list.
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         if (operations != null) {
             List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -908,10 +1014,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
                 if (hasOptionalParams) {
                     argList.add("opts");
                 }
-                if (!usePromises) {
-                    argList.add("callback");
-                }
-                operation.vendorExtensions.put("x-codegen-argList", StringUtils.join(argList, ", "));
+                operation.vendorExtensions.put("x-codegen-arg-list", StringUtils.join(argList, ", "));
 
                 // Store JSDoc type specification into vendor-extension: x-jsdoc-type.
                 for (CodegenParameter cp : operation.allParams) {
@@ -923,6 +1026,252 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             }
         }
         return objs;
+    }
+
+    @Override
+    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+        objs = super.postProcessOperationsWithModels(objs, allModels);
+
+        // Map the models so we can look them up by name.
+        Map<String, CodegenModel> cgModels = new HashMap<>();
+        for (Object model : allModels) {
+            @SuppressWarnings("unchecked")
+            CodegenModel cgModel = ((Map<String, CodegenModel>) model).get("model");
+            /** todo: let's handle this with handlebar helpers
+            cgModel.vendorExtensions.put("x-indent", indent);
+            */
+            cgModels.put(cgModel.classname, cgModel);
+        }
+
+        // Provide access to all parameter models.
+        @SuppressWarnings("unchecked")
+        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+        if (operations != null) {
+            @SuppressWarnings("unchecked")
+            List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+            for (CodegenOperation op : ops) {
+                CodegenModel cgModel = cgModels.get(op.returnBaseType);
+                if (cgModel != null)
+                    op.vendorExtensions.put("x-codegen-model", cgModel);
+                op.vendorExtensions.put("x-expect-js-type", getExpectJsItemType(op.returnBaseType));
+                op.vendorExtensions.put("x-is-container", op.getIsListContainer() || op.getIsMapContainer());
+                /** todo: let's handle this with handlebar helpers
+                op.vendorExtensions.put("x-indent", indent);
+                */
+                postProcessParameters(op.allParams, cgModels);
+                postProcessParameters(op.requiredParams, cgModels);
+            }
+        }
+
+        // Provide access to all property models.
+        for (CodegenModel cgModel : cgModels.values()) {
+            detectRecursiveModel(cgModel.allVars, cgModel.classname, cgModels);
+            postProcessProperties(cgModel.vars, cgModels);
+            if (cgModel.allVars != cgModel.vars) {
+                postProcessProperties(cgModel.allVars, cgModels);
+            }
+        }
+
+        return objs;
+    }
+
+    private void postProcessParameters(Collection<CodegenParameter> cgParams, Map<String, CodegenModel> cgModels) {
+        for (CodegenParameter cgParam : cgParams) {
+            if (cgParam.items != null)
+                cgParam.items.vendorExtensions.put("x-is-param-item", true);
+            if (!cgParam.getIsPrimitiveType() && !cgParam.vendorExtensions.containsKey("x-codegen-model")) {
+                CodegenModel paramType = cgModels.get(cgParam.baseType);
+                if (paramType != null)
+                    cgParam.vendorExtensions.put("x-codegen-model", paramType);
+            }
+            if (cgParam.getIsEnum()) {
+                cgParam.vendorExtensions.put("x-first-enum-value",
+                        ((List<Map<String, String>>) cgParam.allowableValues.get("enumVars")).get(0).get("value"));
+            }
+            /** todo: let's handle this with handlebar helpers
+            cgParam.vendorExtensions.put("x-cache-current-param", cacheCurrentParam);
+            cgParam.vendorExtensions.put("x-indent", indent);
+            */
+        }
+    }
+
+    private void postProcessProperties(Collection<CodegenProperty> cgProps, Map<String, CodegenModel> cgModels) {
+        for (CodegenProperty cgProp : cgProps) {
+            if (!cgProp.getIsPrimitiveType() && !cgProp.vendorExtensions.containsKey("x-codegen-model")) {
+                CodegenModel propType = cgModels.get(cgProp.complexType);
+                if (propType != null)
+                    cgProp.vendorExtensions.put("x-codegen-model", propType);
+            }
+            if (cgProp.getIsEnum() && cgProp.allowableValues != null && !cgProp.allowableValues.isEmpty()) {
+                cgProp.vendorExtensions.put("x-first-enum-value", cgProp.allowableValues.values().stream().findFirst().get());
+            }
+            cgProp.vendorExtensions.put("x-expect-js-type", getExpectJsItemType(cgProp.baseType));
+            /** todo: let's handle this with handlebar helpers
+            cgProp.vendorExtensions.put("x-is-param-required", isParamRequired);
+            cgProp.vendorExtensions.put("x-is-param-list-container", isParamListContainer);
+            cgProp.vendorExtensions.put("x-is-param-map-container", isParamMapContainer);
+            cgProp.vendorExtensions.put("x-cache-current-context", cacheCurrentContext);
+            cgProp.vendorExtensions.put("x-stash-cached-contexts", stashCachedContexts);
+            cgProp.vendorExtensions.put("x-execute-for-cached-contexts", executeForCachedContexts);
+            cgProp.vendorExtensions.put("x-execute-for-cached-parent-context", executeForCachedParentContext);
+             */
+            //cgProp.vendorExtensions.put("x-indent", indent);
+            boolean isContainer = cgProp.getIsListContainer() || cgProp.getIsMapContainer();
+            if (isContainer) {
+                cgProp.vendorExtensions.put("x-is-container", true);
+                cgProp.items.vendorExtensions.put("x-is-prop-item", true);
+                postProcessProperties(Collections.singleton(cgProp.items), cgModels);
+            }
+            // Ensure string examples are quoted.
+            if (cgProp.getIsString() && cgProp.example != null // split
+                    && !cgProp.example.startsWith("\"") && !cgProp.example.endsWith("\"")) {
+
+                cgProp.example = '"' + cgProp.example + '"';
+            }
+        }
+    }
+
+    private String getExpectJsItemType(String baseType) {
+        String type = baseType;
+        if (baseType != null) {
+            switch (baseType) {
+            case "Boolean":
+                type = "'boolean'";
+                break;
+            case "Number":
+                type = "'number'";
+                break;
+            case "String":
+                type = "'string'";
+                break;
+            }
+        }
+        return type;
+    }
+
+    /** todo: let's handle this with handlebar helpers
+    // The api-test-param-complex and api-test-property-complex templates need to know whether a parameter is required,
+    // but they cannot use normal inheritance to determine this, because CodegenProperty.required in the current context
+    // shadows CodegenParameter.required in the ancestor context. Also, they can't use a vendor extension property on
+    // the CodegenParameter, as compound tags are not resolved recursively. So the only way is to use Lambdas.
+
+    private CodegenParameter cgParam;
+
+    private Lambda cacheCurrentParam = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            cgParam = (CodegenParameter) frag.context();
+            frag.execute(out);
+            cgParam = null;
+        }
+    };
+
+    private Lambda isParamRequired = new InvertibleLambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            if (cgParam != null && cgParam.required)
+                frag.execute(out);
+        }
+
+        @Override
+        public void executeInverse(Fragment frag, Writer out) throws IOException {
+            if (cgParam == null || !cgParam.required)
+                frag.execute(out);
+        }
+    };
+
+    private Lambda isParamListContainer = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            if (cgParam != null && cgParam.isListContainer)
+                frag.execute(out);
+        }
+    };
+
+    private Lambda isParamMapContainer = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            if (cgParam.isMapContainer)
+                frag.execute(out);
+        }
+    };
+
+    private Deque<List<Object>> contexts = new ArrayDeque<>();
+
+    {
+        contexts.push(new ArrayList<>());
+    }
+
+    private Lambda cacheCurrentContext = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            List<Object> list = contexts.peek();
+            list.add(frag.context());
+            frag.execute(out);
+            list.remove(list.size() - 1);
+        }
+    };
+
+    private Lambda stashCachedContexts = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            contexts.push(new ArrayList<>());
+            frag.execute(out);
+            contexts.pop();
+        }
+    };
+
+    private Lambda executeForCachedContexts = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            frag.execute(contexts.peek(), out);
+        }
+    };
+
+    private Lambda executeForCachedParentContext = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            List<Object> list = contexts.peek();
+            int index = list.indexOf(frag.context());
+            if (index > 0)
+                frag.execute(list.get(index - 1), out);
+        }
+    };
+
+    private static final String INDENT = "  ";
+    private static final String NL = System.getProperty("line.separator");
+
+    private Lambda indent = new Lambda() {
+        @Override
+        public void execute(Fragment frag, Writer out) throws IOException {
+            StringWriter sw = new StringWriter();
+            frag.execute(sw);
+            BufferedReader br = new BufferedReader(new StringReader(sw.toString()));
+            String line;
+            while ((line = br.readLine()) != null) {
+                out.write(INDENT);
+                out.write(line);
+                out.write(NL);
+            }
+        }
+    };
+
+     @Override
+     public Compiler processCompiler(Compiler compiler) {
+     return super.processCompiler(compiler).escapeHTML(false);
+     }
+     */
+
+    public void setLoadTestDataFromFile(boolean loadTestDataFromFile) {
+        this.loadTestDataFromFile = loadTestDataFromFile;
+    }
+
+    public void setTestDataFile(File testDataFile) {
+        this.testDataFile = testDataFile;
+    }
+
+    public void setPreserveLeadingParamChar(boolean preserveLeadingParamChar) {
+        this.preserveLeadingParamChar = preserveLeadingParamChar;
     }
 
     @SuppressWarnings("unchecked")
@@ -976,6 +1325,34 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             }
         }
         return objs;
+    }
+
+    public void detectRecursiveModel(List<CodegenProperty> allVars, String className, Map<String, CodegenModel> allModels) {
+        if (allVars == null || allVars.isEmpty()) {
+            return;
+        }
+        for (CodegenProperty codegenProperty : allVars) {
+            if (codegenProperty.getIsPrimitiveType()) {
+                continue;
+            }
+            if (codegenProperty.getIsListContainer() || codegenProperty.getIsMapContainer()) {
+                if (className.equalsIgnoreCase(codegenProperty.items.datatype)) {
+                    codegenProperty.items.vendorExtensions.put("x-is-recursive-model", Boolean.TRUE);
+                    continue;
+                }
+            }
+            if (className.equalsIgnoreCase(codegenProperty.datatype)) {
+                codegenProperty.vendorExtensions.put("x-is-recursive-model", Boolean.TRUE);
+                continue;
+            }
+        }
+    }
+
+    @Override
+    protected void addImport(CodegenModel model, String type) {
+        if (type != null && !model.classname.equals(type) && needToImport(type)) {
+            model.imports.add(type);
+        }
     }
 
     @Override
@@ -1059,7 +1436,7 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
             return (getSymbolName(value)).toUpperCase();
         }
 
-        return value;
+        return toVarName(value);
     }
 
     @Override

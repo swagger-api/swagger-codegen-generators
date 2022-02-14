@@ -47,9 +47,9 @@ import javax.validation.Valid;
 {{/fullController}}
 {{^isDelegate}}
 import javax.servlet.http.HttpServletRequest;
-    {{#jdk8}}
+    {{#isJava8or11}}
 import java.util.Optional;
-    {{/jdk8}}
+    {{/isJava8or11}}
 {{/isDelegate}}
 {{^jdk8-no-delegate}}
     {{#useOptional}}
@@ -84,13 +84,13 @@ public class {{classname}}Controller implements {{classname}} {
     public {{classname}}Controller({{classname}}Delegate delegate) {
         this.delegate = delegate;
     }
-    {{#jdk8}}
+    {{#isJava8or11}}
 
     @Override
     public {{classname}}Delegate getDelegate() {
         return delegate;
     }
-    {{/jdk8}}
+    {{/isJava8or11}}
 {{/isDelegate}}
 {{^isDelegate}}
     {{#fullController}}
@@ -106,7 +106,7 @@ public class {{classname}}Controller implements {{classname}} {
         this.objectMapper = objectMapper;
         this.request = request;
     }
-    {{#jdk8}}
+    {{#isJava8or11}}
 
     @Override
     public Optional<ObjectMapper> getObjectMapper() {
@@ -117,12 +117,13 @@ public class {{classname}}Controller implements {{classname}} {
     public Optional<HttpServletRequest> getRequest() {
         return Optional.ofNullable(request);
     }
-    {{/jdk8}}
+    {{/isJava8or11}}
 
 {{/isDelegate}}
 {{#fullController}}
 {{#operation}}
 {{#contents}}
+{{#@first}}
     public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{#hasMore}},{{/hasMore}}{{/parameters}}) {
         {{^isDelegate}}
         {{^async}}
@@ -166,6 +167,7 @@ public class {{classname}}Controller implements {{classname}} {
         {{/isDelegate}}
     }
 
+{{/@first}}
 {{/contents}}
 {{/operation}}
 {{/fullController}}

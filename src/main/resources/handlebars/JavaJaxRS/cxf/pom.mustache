@@ -141,7 +141,7 @@
         <version>${cxf-version}</version>
         <scope>test</scope>
     </dependency>
-    
+
      <!-- CXF server -->
     <dependency>
         <groupId>org.apache.cxf</groupId>
@@ -187,7 +187,7 @@
         <version>${jackson-jaxrs-version}</version>
     </dependency>
 {{/java8}}
-{{#useBeanValidationFeature}}    
+{{#useBeanValidationFeature}}
     <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
@@ -215,7 +215,7 @@
     </repository>
   </repositories>
   <properties>
-    <java.version>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</java.version>
+    <java.version>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     {{#useOas2}}
@@ -226,7 +226,7 @@
     {{/useOas2}}
     <jetty-version>9.2.9.v20150224</jetty-version>
     <junit-version>4.13.1</junit-version>
-    <logback-version>1.1.7</logback-version>
+    <logback-version>1.2.9</logback-version>
     <servlet-api-version>2.5</servlet-api-version>
 {{#useBeanValidation}}
     <beanvalidation-version>1.1.0.Final</beanvalidation-version>
