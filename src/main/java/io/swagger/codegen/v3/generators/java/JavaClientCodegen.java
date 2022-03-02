@@ -53,8 +53,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
     public static final String RETROFIT_1 = "retrofit";
     public static final String RETROFIT_2 = "retrofit2";
 
-    public static final String WIREMOCK_OPTION = "wiremock";
-
     protected String gradleWrapperPackage = "gradle.wrapper";
     protected boolean useRxJava = false;
     protected boolean useRxJava2 = false;
@@ -88,8 +86,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         cliOptions.add(CliOption.newBoolean(PERFORM_BEANVALIDATION, "Perform BeanValidation"));
         cliOptions.add(CliOption.newBoolean(USE_GZIP_FEATURE, "Send gzip-encoded requests"));
         cliOptions.add(CliOption.newBoolean(USE_RUNTIME_EXCEPTION, "Use RuntimeException instead of Exception"));
-
-        cliOptions.add(CliOption.newBoolean(WIREMOCK_OPTION, "Use wiremock to generate endpoint calls to mock on generated tests."));
 
         supportedLibraries.put("jersey1", "HTTP client: Jersey client 1.19.4. JSON processing: Jackson 2.10.1. Enable gzip request encoding using '-DuseGzipFeature=true'.");
         supportedLibraries.put("feign", "HTTP client: OpenFeign 9.4.0. JSON processing: Jackson 2.10.1");
@@ -175,11 +171,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
         if (additionalProperties.containsKey(USE_RUNTIME_EXCEPTION)) {
             this.setUseRuntimeException(convertPropertyToBooleanAndWriteBack(USE_RUNTIME_EXCEPTION));
-        }
-
-        if (additionalProperties.containsKey(WIREMOCK_OPTION)) {
-            final boolean useWireMock = additionalProperties.get(WIREMOCK_OPTION) != null && Boolean.parseBoolean(additionalProperties.get(WIREMOCK_OPTION).toString());
-            additionalProperties.put(WIREMOCK_OPTION, useWireMock);
         }
 
         final String invokerFolder = (sourceFolder + File.separator + invokerPackage).replace(".", File.separator);
