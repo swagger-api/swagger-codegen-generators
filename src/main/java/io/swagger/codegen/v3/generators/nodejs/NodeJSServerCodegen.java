@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import io.swagger.codegen.v3.generators.OperationParameters;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -452,7 +453,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
             addParameters(content, codegenOperation.cookieParams);
         }
         for (CodegenContent content : codegenContents) {
-            addHasMore(content.getParameters());
+            OperationParameters.addHasMore(content.getParameters());
         }
         codegenOperation.getContents().addAll(codegenContents);
     }

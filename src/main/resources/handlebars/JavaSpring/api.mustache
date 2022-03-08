@@ -64,7 +64,7 @@ import java.util.Optional;
     {{/useOptional}}
 {{/jdk8-no-delegate}}
 {{#async}}
-import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture{{/jdk8}};
+import java.util.concurrent.{{^isJava8or11}}Callable{{/isJava8or11}}{{#isJava8or11}}CompletableFuture{{/isJava8or11}};
 {{/async}}
 
 {{>generatedAnnotation}}
@@ -76,7 +76,7 @@ import java.util.concurrent.{{^jdk8}}Callable{{/jdk8}}{{#jdk8}}CompletableFuture
 {{/useOas2}}
 {{#operations}}
 public interface {{classname}} {
-{{#jdk8}}
+{{#isJava8or11}}
 
     {{^isDelegate}}
     Logger log = LoggerFactory.getLogger({{classname}}.class);
@@ -96,7 +96,7 @@ public interface {{classname}} {
     {{#isDelegate}}
     {{classname}}Delegate getDelegate();
     {{/isDelegate}}
-{{/jdk8}}
+{{/isJava8or11}}
 {{#operation}}
 {{#contents}}
 {{#@first}}

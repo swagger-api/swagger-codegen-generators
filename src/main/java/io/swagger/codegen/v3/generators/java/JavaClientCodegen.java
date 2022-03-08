@@ -122,6 +122,10 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
 
     @Override
     public void processOpts() {
+        if (RETROFIT_1.equalsIgnoreCase(library)) {
+            dateLibrary = "joda";
+        }
+
         super.processOpts();
 
         if (additionalProperties.containsKey(USE_RX_JAVA)) {
@@ -176,7 +180,11 @@ public class JavaClientCodegen extends AbstractJavaCodegen implements BeanValida
         //Common files
         writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
-        writeOptional(outputFolder, new SupportingFile("build.gradle.mustache", "", "build.gradle"));
+        if (java11Mode) {
+            writeOptional(outputFolder, new SupportingFile("build.gradle.java11.mustache", "", "build.gradle"));
+        } else {
+            writeOptional(outputFolder, new SupportingFile("build.gradle.mustache", "", "build.gradle"));
+        }
         writeOptional(outputFolder, new SupportingFile("build.sbt.mustache", "", "build.sbt"));
         writeOptional(outputFolder, new SupportingFile("settings.gradle.mustache", "", "settings.gradle"));
         writeOptional(outputFolder, new SupportingFile("gradle.properties.mustache", "", "gradle.properties"));
