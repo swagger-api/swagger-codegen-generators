@@ -175,7 +175,17 @@ public class SchemaHandler implements ISchemaHandler {
                 continue;
             }
             final String schemaName = ref.substring(ref.lastIndexOf("/") + 1);
-            this.addInterfaceModel(allModels.get(codegenConfig.toModelName(schemaName)), codegenModel);
+
+            final CodegenModel model = allModels.get(codegenConfig.toModelName(schemaName));
+            this.addInterfaceModel(model, codegenModel);
+
+            boolean subTypeAdded = false;
+            if (codegenModel.getSubTypes() != null) {
+                subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
+            }
+            if (!subTypeAdded) {
+                codegenModel.addSubType(model);
+            }
         }
     }
 

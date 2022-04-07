@@ -60,6 +60,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
 
+    public static final String WIREMOCK_OPTION = "wiremock";
+
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
     protected boolean java11Mode = false;
@@ -181,7 +183,17 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         java8ModeOptions.put("false", "Various third party libraries as needed");
         java8Mode.setEnum(java8ModeOptions);
         cliOptions.add(java8Mode);
+
+        CliOption java11Mode = new CliOption(JAVA11_MODE, "Option. Use Java11 classes instead of third party equivalents");
+        Map<String, String> java11ModeOptions = new HashMap<String, String>();
+        java11ModeOptions.put("true", "Use Java 11 classes");
+        java11ModeOptions.put("false", "Various third party libraries as needed");
+        java11Mode.setEnum(java11ModeOptions);
+        cliOptions.add(java11Mode);
+
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
+
+        cliOptions.add(CliOption.newBoolean(WIREMOCK_OPTION, "Use wiremock to generate endpoint calls to mock on generated tests."));
     }
 
     @Override
@@ -348,6 +360,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             additionalProperties.put(ERROR_ON_UNKNOWN_ENUM, errorOnUnknownEnum);
         }
 
+        if (additionalProperties.containsKey(WIREMOCK_OPTION)) {
+            final boolean useWireMock = additionalProperties.get(WIREMOCK_OPTION) != null && Boolean.parseBoolean(additionalProperties.get(WIREMOCK_OPTION).toString());
+            additionalProperties.put(WIREMOCK_OPTION, useWireMock);
+        }
+
         if (this instanceof NotNullAnnotationFeatures) {
             notNullOption = (NotNullAnnotationFeatures)this;
             if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
@@ -441,6 +458,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(DATE_LIBRARY)) {
             setDateLibrary(additionalProperties.get("dateLibrary").toString());
+        } else if (java8Mode) {
+            setDateLibrary("java8");
         }
 
         if ("threetenbp".equals(dateLibrary)) {

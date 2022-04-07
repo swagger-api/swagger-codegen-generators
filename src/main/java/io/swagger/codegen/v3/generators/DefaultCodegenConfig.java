@@ -1578,36 +1578,62 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.name = toVarName(name);
         codegenProperty.baseName = name;
         codegenProperty.nameInCamelCase = camelize(codegenProperty.name, false);
-        codegenProperty.description = escapeText(propertySchema.getDescription());
-        codegenProperty.unescapedDescription = propertySchema.getDescription();
-        codegenProperty.title = propertySchema.getTitle();
         codegenProperty.getter = toGetter(name);
         codegenProperty.setter = toSetter(name);
-        String example = toExampleValue(propertySchema);
+        setSchemaProperties(name, codegenProperty, propertySchema);
+
+        final String type = getSchemaType(propertySchema);
+
+        processPropertySchemaTypes(name, codegenProperty, propertySchema);
+
+        codegenProperty.datatype = getTypeDeclaration(propertySchema);
+        codegenProperty.dataFormat = propertySchema.getFormat();
+
+        // this can cause issues for clients which don't support enums
+        boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
+        if (isEnum) {
+            codegenProperty.datatypeWithEnum = toEnumName(codegenProperty);
+            codegenProperty.enumName = toEnumName(codegenProperty);
+        } else {
+            codegenProperty.datatypeWithEnum = codegenProperty.datatype;
+        }
+
+        codegenProperty.baseType = getSchemaType(propertySchema);
+
+        processPropertySchemaContainerTypes(codegenProperty, propertySchema, type);
+        return codegenProperty;
+    }
+
+    protected void setSchemaProperties(String name, CodegenProperty codegenProperty, Schema schema) {
+        codegenProperty.description = escapeText(schema.getDescription());
+        codegenProperty.unescapedDescription = schema.getDescription();
+        codegenProperty.title = schema.getTitle();
+        String example = toExampleValue(schema);
         if(!"null".equals(example)) {
             codegenProperty.example = example;
         }
-        codegenProperty.defaultValue = toDefaultValue(propertySchema);
-        codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, propertySchema);
-        codegenProperty.jsonSchema = Json.pretty(propertySchema);
-        codegenProperty.nullable = Boolean.TRUE.equals(propertySchema.getNullable());
-        codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(propertySchema.getNullable()));
-        if (propertySchema.getReadOnly() != null) {
-            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
+        codegenProperty.defaultValue = toDefaultValue(schema);
+        codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, schema);
+        codegenProperty.jsonSchema = Json.pretty(schema);
+        codegenProperty.nullable = Boolean.TRUE.equals(schema.getNullable());
+        codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+        if (schema.getReadOnly() != null) {
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, schema.getReadOnly());
         }
-        if (propertySchema.getXml() != null) {
-            if (propertySchema.getXml().getAttribute() != null) {
-                codegenProperty.getVendorExtensions().put(CodegenConstants.IS_XML_ATTRIBUTE_EXT_NAME, propertySchema.getXml().getAttribute());
+        if (schema.getXml() != null) {
+            if (schema.getXml().getAttribute() != null) {
+                codegenProperty.getVendorExtensions().put(CodegenConstants.IS_XML_ATTRIBUTE_EXT_NAME, schema.getXml().getAttribute());
             }
-            codegenProperty.xmlPrefix = propertySchema.getXml().getPrefix();
-            codegenProperty.xmlName = propertySchema.getXml().getName();
-            codegenProperty.xmlNamespace = propertySchema.getXml().getNamespace();
+            codegenProperty.xmlPrefix = schema.getXml().getPrefix();
+            codegenProperty.xmlName = schema.getXml().getName();
+            codegenProperty.xmlNamespace = schema.getXml().getNamespace();
         }
-        if (propertySchema.getExtensions() != null && !propertySchema.getExtensions().isEmpty()) {
-            codegenProperty.getVendorExtensions().putAll(propertySchema.getExtensions());
+        if (schema.getExtensions() != null && !schema.getExtensions().isEmpty()) {
+            codegenProperty.getVendorExtensions().putAll(schema.getExtensions());
         }
+    }
 
-        final String type = getSchemaType(propertySchema);
+    protected void processPropertySchemaTypes(String name, CodegenProperty codegenProperty, Schema propertySchema) {
         if (propertySchema instanceof IntegerSchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NUMERIC_EXT_NAME, Boolean.TRUE);
             if(SchemaTypeUtil.INTEGER64_FORMAT.equals(propertySchema.getFormat())) {
@@ -1644,7 +1670,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenProperty.allowableValues = allowableValues;
             }
         }
-
         if (propertySchema instanceof StringSchema) {
             codegenProperty.maxLength = propertySchema.getMaxLength();
             codegenProperty.minLength = propertySchema.getMinLength();
@@ -1715,20 +1740,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DATE_TIME_EXT_NAME, Boolean.TRUE);
             handlePropertySchema(propertySchema, codegenProperty);
         }
-        codegenProperty.datatype = getTypeDeclaration(propertySchema);
-        codegenProperty.dataFormat = propertySchema.getFormat();
+    }
 
-        // this can cause issues for clients which don't support enums
-        boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
-        if (isEnum) {
-            codegenProperty.datatypeWithEnum = toEnumName(codegenProperty);
-            codegenProperty.enumName = toEnumName(codegenProperty);
-        } else {
-            codegenProperty.datatypeWithEnum = codegenProperty.datatype;
-        }
-
-        codegenProperty.baseType = getSchemaType(propertySchema);
-
+    protected void processPropertySchemaContainerTypes(CodegenProperty codegenProperty, Schema propertySchema, String type) {
         if (propertySchema instanceof ArraySchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_LIST_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -1784,7 +1798,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             setNonArrayMapProperty(codegenProperty, type);
         }
-        return codegenProperty;
     }
 
     private void handleMinMaxValues(Schema propertySchema, CodegenProperty codegenProperty) {

@@ -21,7 +21,9 @@ import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -466,6 +474,19 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if ((this.java8 && !this.defaultInterfaces) || !this.java8) {
             additionalProperties.put("fullController", true);
         }
+    }
+
+    @Override
+    public CodegenProperty fromProperty(String name, Schema propertySchema) {
+        CodegenProperty codegenProperty = super.fromProperty(name, propertySchema);
+        if (propertySchema != null && propertySchema.get$ref() != null) {
+            Schema refSchema = OpenAPIUtil.getSchemaFromRefSchema(propertySchema, this.openAPI);
+            if (refSchema != null  && !isObjectSchema(refSchema) && !(refSchema instanceof ArraySchema) && !(refSchema instanceof MapSchema) && refSchema.getEnum() == null) {
+                setSchemaProperties(name, codegenProperty, refSchema);
+                processPropertySchemaTypes(name, codegenProperty, refSchema);
+            }
+        }
+        return codegenProperty;
     }
 
     @Override
