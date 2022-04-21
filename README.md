@@ -7,7 +7,7 @@
 ## Overview
 **Swagger Codegen Generators** project is a set of classes and templates ([Handlebars](https://jknack.github.io/handlebars.java)) used by [Swagger Codegen 3.0.0 project](https://github.com/swagger-api/swagger-codegen/tree/3.0.0) in its code generation process for a specific language or language framework. The main differents with **Swagger Codegen 2.x.x** are:
 
-- **Handlebars as template engine:** with Handelbars feature is possible to create more logic-less templates.
+- **Handlebars as template engine:** with Handlebars feature is possible to create more logic-less templates.
 - **OAS 3 support:** generator classes work with OpenAPI Specification V3.
 
 More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0)
