@@ -78,4 +78,20 @@ public class PhpClientCodegenTest {
         Assert.assertEquals(codegen.customTemplateDir(), "/absolute/path");
         Assert.assertEquals(codegen.embeddedTemplateDir(), "handlebars" + File.separator + "php");
     }
+
+    @Test(description = "test variable names for reserved characters and word")
+    public void testVarName() throws Exception {
+        final PhpClientCodegen codegen = new PhpClientCodegen();
+        Assert.assertEquals(codegen.toVarName("@id"), "_at_id");
+        Assert.assertEquals(codegen.toVarName("@type"), "_at_type");
+        Assert.assertEquals(codegen.toVarName("@context"), "_at_context");
+        Assert.assertEquals(codegen.toVarName("$someDollar"), "__some_dollar");
+        Assert.assertEquals(codegen.toVarName("!notThis"), "not_this");
+
+        // allow starting with underscore
+        Assert.assertEquals(codegen.toVarName("_allowUnderscore"), "_allow_underscore");
+
+        // should not escape non-reserved
+        Assert.assertEquals(codegen.toVarName("hello"), "hello");
+    }
 }

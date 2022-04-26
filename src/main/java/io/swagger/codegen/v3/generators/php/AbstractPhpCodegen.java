@@ -383,7 +383,7 @@ public abstract class AbstractPhpCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         // sanitize name
-        name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+        name = sanitizeVarName(name);
 
         if ("camelCase".equals(variableNamingConvention)) {
           // return the name in camelCase style

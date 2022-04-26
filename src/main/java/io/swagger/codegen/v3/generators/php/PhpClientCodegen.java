@@ -110,7 +110,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         instantiationTypes.put("array", "array");
         instantiationTypes.put("map", "map");
-        
+
         // provide primitives to mustache template
         List<String> sortedLanguageSpecificPrimitives= new ArrayList<String>(languageSpecificPrimitives);
         Collections.sort(sortedLanguageSpecificPrimitives);
@@ -467,7 +467,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         // sanitize name
-        name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+        name = sanitizeVarName(name);
 
         if ("camelCase".equals(variableNamingConvention)) {
           // return the name in camelCase style

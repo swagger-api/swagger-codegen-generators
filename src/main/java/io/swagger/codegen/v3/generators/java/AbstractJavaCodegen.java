@@ -1326,35 +1326,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         return op;
     }
 
-    public String sanitizeVarName(String name) {
-        if (name == null) {
-            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
-            return Object.class.getSimpleName();
-        }
-        if ("$".equals(name)) {
-            return "value";
-        }
-        name = name.replaceAll("\\[\\]", StringUtils.EMPTY);
-        name = name.replaceAll("\\[", "_")
-                .replaceAll("\\]", "")
-                .replaceAll("\\(", "_")
-                .replaceAll("\\)", StringUtils.EMPTY)
-                .replaceAll("\\.", "_")
-                .replaceAll("@", "_at_")
-                .replaceAll("-", "_")
-                .replaceAll(" ", "_");
-
-        // remove everything else other than word, number and _
-        // $php_variable => php_variable
-        if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
-            name = Pattern.compile("[\\W&&[^$]]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
-        }
-        else {
-            name = name.replaceAll("[\\W&&[^$]]", StringUtils.EMPTY);
-        }
-        return name;
-    }
-
     private static CodegenModel reconcileInlineEnums(CodegenModel codegenModel, CodegenModel parentCodegenModel) {
         // This generator uses inline classes to define enums, which breaks when
         // dealing with models that have subTypes. To clean this up, we will analyze
