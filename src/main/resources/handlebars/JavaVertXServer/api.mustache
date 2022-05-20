@@ -3,7 +3,13 @@ package {{package}};
 {{#imports}}import {{import}};
 {{/imports}}
 
+{{#useFuture}}
 import io.vertx.core.Future;
+{{/useFuture}}
+{{^useFuture}}
+import io.vertx.core.Handler;
+import io.vertx.core.AsyncResult;
+{{/useFuture}}
 import io.vertx.ext.web.validation.RequestParameter;
 import io.vertx.ext.web.api.service.ServiceRequest;
 import io.vertx.ext.web.api.service.ServiceResponse;
@@ -24,7 +30,7 @@ public interface {{classname}}  {
 {{#operations}}
 {{#operation}}
 {{#contents}}
-    Future<ServiceResponse> {{#vendorExtensions}}{{x-serviceid}}{{/vendorExtensions}}({{#useDataObject}}{{#parameters}}{{^isBodyParam}}{{^isEnum}}{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{dataType}}}{{/datatypeWithEnum}}{{/isEnum}}{{#isEnum}}{{{dataType}}}{{/isEnum}} {{paramName}}{{/isBodyParam}}{{#isBodyParam}}{{^isBinary}}{{^parent}}{{^children}}{{{dataType}}} body{{/children}}{{/parent}}{{/isBinary}}{{/isBodyParam}}{{#hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{^hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{/parameters}}{{/useDataObject}}{{^useDataObject}}RequestParameter body, {{/useDataObject}}ServiceRequest request);
+    {{#useFuture}}Future<ServiceResponse>{{/useFuture}}{{^useFuture}}void{{/useFuture}} {{#vendorExtensions}}{{x-serviceid}}{{/vendorExtensions}}({{#useDataObject}}{{#parameters}}{{^isBodyParam}}{{^isEnum}}{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{dataType}}}{{/datatypeWithEnum}}{{/isEnum}}{{#isEnum}}{{{dataType}}}{{/isEnum}} {{paramName}}{{/isBodyParam}}{{#isBodyParam}}{{^isBinary}}{{^parent}}{{^children}}{{{dataType}}} body{{/children}}{{/parent}}{{/isBinary}}{{/isBodyParam}}{{#hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{^hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{/parameters}}{{/useDataObject}}{{^useDataObject}}RequestParameter body, {{/useDataObject}}ServiceRequest request{{^useFuture}}, Handler<AsyncResult<ServiceResponse>> resultHandler{{/useFuture}});
 {{/contents}}
 {{/operation}}
 {{/operations}}

@@ -16,7 +16,6 @@ import io.vertx.reactivex.ext.web.openapi.RouterBuilder;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.openapi.RouterBuilder;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 public class {{title}}Verticle extends AbstractVerticle {
     static final Logger LOGGER = LoggerFactory.getLogger({{title}}Verticle.class);
 
-    MessageConsumer<JsonObject> consumer;
     HttpServer server;
 
     @Override
@@ -75,8 +73,7 @@ public class {{title}}Verticle extends AbstractVerticle {
 
   @Override
   public Completable rxStop() {
-    return this.consumer.rxUnregister()
-      .andThen(this.server.rxClose());
+    return this.server.rxClose();
   }{{/rxInterface}}
       {{^rxInterface}}return server.listen()
           .onSuccess(server -> LOGGER.info("{{title}}Verticle started on port " + server.actualPort()));
@@ -86,9 +83,10 @@ public class {{title}}Verticle extends AbstractVerticle {
     }
 
   @Override
-  public void stop() {
-    this.server.close();
-    this.consumer.unregister();
+  public void stop(Promise<Void> stopPromise) throws Exception {
+    this.server.close()
+      .onSuccess(server -> stopPromise.complete())
+      .onFailure(stopPromise::fail);
   }{{/rxInterface}}
 
 }

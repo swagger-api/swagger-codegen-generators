@@ -5,6 +5,7 @@ import static io.swagger.codegen.v3.generators.java.JavaVertXServerCodegen.MOUNT
 import static io.swagger.codegen.v3.generators.java.JavaVertXServerCodegen.MOUNT_OPERATION_FROM_OPTION;
 import static io.swagger.codegen.v3.generators.java.JavaVertXServerCodegen.RX_INTERFACE_OPTION;
 import static io.swagger.codegen.v3.generators.java.JavaVertXServerCodegen.USE_DATAOBJECT_OPTION;
+import static io.swagger.codegen.v3.generators.java.JavaVertXServerCodegen.USE_FUTURE_OPTION;
 
 import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.CodegenArgument;
@@ -55,11 +56,11 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
     @AfterMethod
     public void tearDown() {
-        folder.delete();
+        //folder.delete();
     }
 
-    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 2.x & web-api-service)")
-    public void testUseOas2AndWebApiService() throws Exception {
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 2.x & web-api-service & Future)")
+    public void testUseOas2AndWebApiServiceAndFuture() throws Exception {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -67,7 +68,8 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
           .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
           .setOutputDir(output.getAbsolutePath())
           .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
-          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS);
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS)
+          .addAdditionalProperty(USE_FUTURE_OPTION, true);
 
         configurator.setCodegenArguments(Collections.singletonList(
           new CodegenArgument()
@@ -119,12 +121,13 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
                 Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
                 Assert.assertTrue(content.contains("Future<ServiceResponse>"));
                 Assert.assertTrue(content.contains("ServiceRequest request);"));
+                Assert.assertFalse(content.contains("Handler<AsyncResult<ServiceResponse>>"));
             }
         }
     }
 
-    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service)")
-    public void testUseOas3AndWebApiService() throws Exception {
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 2.x & web-api-service and not future)")
+    public void testUseOas2AndWebApiServiceAndNotFuture() throws Exception {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -133,6 +136,73 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
           .setOutputDir(output.getAbsolutePath())
           .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
           .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS);
+
+        configurator.setCodegenArguments(Collections.singletonList(
+          new CodegenArgument()
+            .option(CodegenConstants.USE_OAS2_OPTION)
+            .type("boolean")
+            .value(Boolean.TRUE.toString())));
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File petControllerFile = new File(output,
+          "/src/main/java/io/swagger/server/api/MainApiVerticle.java");
+        String content = FileUtils.readFileToString(petControllerFile);
+
+        Assert.assertTrue(content.contains(
+          "vertx.deployVerticle(\"io.swagger.server.api.verticle.SwaggerPetstoreVerticle\")"));
+        Assert.assertTrue(content.contains("startPromise.fail(error);"));
+        Assert.assertTrue(content.contains("startPromise.complete();"));
+
+        final File petVerticleFile = new File(output,
+          "/src/main/java/io/swagger/server/api/verticle/SwaggerPetstoreVerticle.java");
+        content = FileUtils.readFileToString(petVerticleFile);
+
+        Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
+        Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
+        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
+        Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
+
+        final File packageInfoModelFile = new File(output,
+          "/src/main/java/io/swagger/server/api/model/" + PACKAGE_INFO);
+        content = FileUtils.readFileToString(packageInfoModelFile);
+        Assert.assertTrue(content.contains("@ModuleGen(name = \"model\", groupPackage = \"io.swagger.server.api.model\")"));
+        Assert.assertTrue(content.contains("package io.swagger.server.api.model;"));
+        Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+
+        final File petServiceFiles = new File(output,
+          "/src/main/java/io/swagger/server/api/service");
+        for (File file : petServiceFiles.listFiles()) {
+            Assert.assertTrue(SERVICE_AS_EXTENSION_FILENAMES.contains(file.getName()) || PACKAGE_INFO.equals(file.getName()));
+            content = FileUtils.readFileToString(file);
+
+            if (PACKAGE_INFO.equals(file.getName())) {
+                Assert.assertTrue(content.contains("@ModuleGen(name = \"service\", groupPackage = \"io.swagger.server.api.service\", useFutures = false)"));
+                Assert.assertTrue(content.contains("package io.swagger.server.api.service;"));
+                Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+            } else {
+                Assert.assertTrue(content.contains("@WebApiServiceGen"));
+                Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
+                Assert.assertFalse(content.contains("Future<ServiceResponse>"));
+                Assert.assertTrue(content.contains("ServiceRequest request,"));
+                Assert.assertTrue(content.contains("Handler<AsyncResult<ServiceResponse>> resultHandler);"));
+            }
+        }
+    }
+
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & Future)")
+    public void testUseOas3AndWebApiServiceAndFuture() throws Exception {
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+          .setLang("java-vertx")
+          .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
+          .setOutputDir(output.getAbsolutePath())
+          .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS)
+          .addAdditionalProperty(USE_FUTURE_OPTION, true);
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -179,12 +249,74 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
                 Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
                 Assert.assertTrue(content.contains("Future<ServiceResponse>"));
                 Assert.assertTrue(content.contains("ServiceRequest request);"));
+                Assert.assertFalse(content.contains("Handler<AsyncResult<ServiceResponse>>"));
             }
         }
     }
 
-    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service)")
-    public void testRxUseOas3AndWebApiService() throws Exception {
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service and not future)")
+    public void testUseOas3AndWebApiServiceAndNotFuture() throws Exception {
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+          .setLang("java-vertx")
+          .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
+          .setOutputDir(output.getAbsolutePath())
+          .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File petControllerFile = new File(output,
+          "/src/main/java/io/swagger/server/api/MainApiVerticle.java");
+        String content = FileUtils.readFileToString(petControllerFile);
+
+        Assert.assertTrue(content.contains(
+          "vertx.deployVerticle(\"io.swagger.server.api.verticle.SwaggerPetstoreVerticle\")"));
+        Assert.assertTrue(content.contains("startPromise.fail(error);"));
+        Assert.assertTrue(content.contains("startPromise.complete();"));
+
+        final File petVerticleFile = new File(output,
+          "/src/main/java/io/swagger/server/api/verticle/SwaggerPetstoreVerticle.java");
+        content = FileUtils.readFileToString(petVerticleFile);
+
+        Assert.assertTrue(
+          content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
+        Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
+        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
+        Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
+
+        final File packageInfoModelFile = new File(output,
+          "/src/main/java/io/swagger/server/api/model/" + PACKAGE_INFO);
+        content = FileUtils.readFileToString(packageInfoModelFile);
+        Assert.assertTrue(content.contains("@ModuleGen(name = \"model\", groupPackage = \"io.swagger.server.api.model\")"));
+        Assert.assertTrue(content.contains("package io.swagger.server.api.model;"));
+        Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+
+        final File petServiceFiles = new File(output,
+          "/src/main/java/io/swagger/server/api/service");
+        for (File file : petServiceFiles.listFiles()) {
+            Assert.assertTrue(SERVICE_AS_EXTENSION_FILENAMES.contains(file.getName()) || PACKAGE_INFO.equals(file.getName()));
+            content = FileUtils.readFileToString(file);
+
+            if (PACKAGE_INFO.equals(file.getName())) {
+                Assert.assertTrue(content.contains("@ModuleGen(name = \"service\", groupPackage = \"io.swagger.server.api.service\", useFutures = false)"));
+                Assert.assertTrue(content.contains("package io.swagger.server.api.service;"));
+                Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+            } else {
+                Assert.assertTrue(content.contains("@WebApiServiceGen"));
+                Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
+                Assert.assertTrue(content.contains("ServiceRequest request,"));
+                Assert.assertFalse(content.contains("Future<ServiceResponse>"));
+                Assert.assertTrue(content.contains("Handler<AsyncResult<ServiceResponse>> resultHandler);"));
+            }
+        }
+    }
+
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & Future)")
+    public void testRxUseOas3AndWebApiServiceAndFuture() throws Exception {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -193,7 +325,8 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
           .setOutputDir(output.getAbsolutePath())
           .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
           .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS)
-          .addAdditionalProperty(RX_INTERFACE_OPTION, true);
+          .addAdditionalProperty(RX_INTERFACE_OPTION, true)
+          .addAdditionalProperty(USE_FUTURE_OPTION, true);
 
         final List<CodegenArgument> arguments = new ArrayList<>();
         arguments.add(new CodegenArgument()
@@ -257,8 +390,8 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
     }
 
-    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & mount from interface)")
-    public void testUseOas3AndMountFromInterface() throws Exception {
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & not Future)")
+    public void testRxUseOas3AndWebApiServiceAndNotFuture() throws Exception {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -266,7 +399,83 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
           .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
           .setOutputDir(output.getAbsolutePath())
           .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
-          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_INTERFACE);
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS)
+          .addAdditionalProperty(RX_INTERFACE_OPTION, true);
+
+        final List<CodegenArgument> arguments = new ArrayList<>();
+        arguments.add(new CodegenArgument()
+          .option(RX_INTERFACE_OPTION)
+          .type("boolean")
+          .value(Boolean.TRUE.toString()));
+        configurator.setCodegenArguments(arguments);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File petControllerFile = new File(output,
+          "/src/main/java/io/swagger/server/api/MainApiVerticle.java");
+        String content = FileUtils.readFileToString(petControllerFile);
+
+        Assert.assertTrue(content.contains(
+          "vertx.rxDeployVerticle(\"io.swagger.server.api.verticle.SwaggerPetstoreVerticle\")"));
+        Assert.assertFalse(content.contains("startPromise.fail(error);"));
+        Assert.assertFalse(content.contains("startPromise.complete();"));
+        Assert.assertTrue(content.contains("ignoreElement();"));
+
+        final File petVerticleFile = new File(output,
+          "/src/main/java/io/swagger/server/api/verticle/SwaggerPetstoreVerticle.java");
+        content = FileUtils.readFileToString(petVerticleFile);
+
+        Assert.assertTrue(content.contains("return RouterBuilder.rxCreate(this.vertx, \"openapi.yaml\")"));
+        Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
+        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertFalse(content.contains("onSuccess(server -> startPromise.complete())"));
+        Assert.assertFalse(content.contains("onFailure(startPromise::fail);"));
+        Assert.assertTrue(content.contains("rxStart()"));
+        Assert.assertTrue(content.contains("rxStop()"));
+        Assert.assertTrue(content.contains("rxListen()"));
+        Assert.assertTrue(content.contains("ignoreElement();"));
+
+        final File packageInfoModelFile = new File(output,
+          "/src/main/java/io/swagger/server/api/model/" + PACKAGE_INFO);
+        content = FileUtils.readFileToString(packageInfoModelFile);
+        Assert.assertTrue(content.contains("@ModuleGen(name = \"model\", groupPackage = \"io.swagger.server.api.model\")"));
+        Assert.assertTrue(content.contains("package io.swagger.server.api.model;"));
+        Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+
+        final File petServiceFiles = new File(output,
+          "/src/main/java/io/swagger/server/api/service");
+        for (File file : petServiceFiles.listFiles()) {
+            Assert.assertTrue(SERVICE_AS_EXTENSION_FILENAMES.contains(file.getName()) || PACKAGE_INFO.equals(file.getName()));
+            content = FileUtils.readFileToString(file);
+
+            if (PACKAGE_INFO.equals(file.getName())) {
+                Assert.assertTrue(content.contains("@ModuleGen(name = \"service\", groupPackage = \"io.swagger.server.api.service\", useFutures = false)"));
+                Assert.assertTrue(content.contains("package io.swagger.server.api.service;"));
+                Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+            } else {
+                Assert.assertTrue(content.contains("@WebApiServiceGen"));
+                Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
+                Assert.assertTrue(content.contains("ServiceRequest request,"));
+                Assert.assertFalse(content.contains("Future<ServiceResponse>"));
+                Assert.assertTrue(content.contains("Handler<AsyncResult<ServiceResponse>> resultHandler);"));
+            }
+
+        }
+
+    }
+
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & mount from interface & future)")
+    public void testUseOas3AndMountFromInterfaceAndFuture() throws Exception {
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+          .setLang("java-vertx")
+          .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
+          .setOutputDir(output.getAbsolutePath())
+          .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_INTERFACE)
+          .addAdditionalProperty(USE_FUTURE_OPTION, true);
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -317,8 +526,69 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         }
     }
 
-    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & not dataobject)")
-    public void testUseOas3AndWebApiServiceAndNoDataobject() throws Exception {
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & mount from interface & not future)")
+    public void testUseOas3AndMountFromInterfaceAndNotFuture() throws Exception {
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+          .setLang("java-vertx")
+          .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
+          .setOutputDir(output.getAbsolutePath())
+          .addAdditionalProperty(USE_DATAOBJECT_OPTION, true)
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_INTERFACE);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File petControllerFile = new File(output,
+          "/src/main/java/io/swagger/server/api/MainApiVerticle.java");
+        String content = FileUtils.readFileToString(petControllerFile);
+
+        Assert.assertTrue(content.contains("vertx.deployVerticle(\"io.swagger.server.api.verticle.SwaggerPetstoreVerticle\")"));
+        Assert.assertTrue(content.contains("startPromise.fail(error);"));
+        Assert.assertTrue(content.contains("startPromise.complete();"));
+
+        final File petVerticleFile = new File(output,
+          "/src/main/java/io/swagger/server/api/verticle/SwaggerPetstoreVerticle.java");
+        content = FileUtils.readFileToString(petVerticleFile);
+
+        Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
+        Assert.assertFalse(content.contains("routerBuilder.mountServicesFromExtensions();"));
+        Assert.assertTrue(content.contains("routerBuilder.mountServiceInterface"));
+        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
+        Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
+
+        final File packageInfoModelFile = new File(output,
+          "/src/main/java/io/swagger/server/api/model/" + PACKAGE_INFO);
+        content = FileUtils.readFileToString(packageInfoModelFile);
+        Assert.assertTrue(content.contains("@ModuleGen(name = \"model\", groupPackage = \"io.swagger.server.api.model\")"));
+        Assert.assertTrue(content.contains("package io.swagger.server.api.model;"));
+        Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+
+        final File petServiceFiles = new File(output,
+          "/src/main/java/io/swagger/server/api/service");
+        for (File file : petServiceFiles.listFiles()) {
+            Assert.assertTrue(SERVICE_AS_INTERFACE.containsKey(file.getName()) || PACKAGE_INFO.equals(file.getName()));
+            content = FileUtils.readFileToString(file);
+
+            if (PACKAGE_INFO.equals(file.getName())) {
+                Assert.assertTrue(content.contains("@ModuleGen(name = \"service\", groupPackage = \"io.swagger.server.api.service\", useFutures = false)"));
+                Assert.assertTrue(content.contains("package io.swagger.server.api.service;"));
+                Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+            } else {
+                String api = SERVICE_AS_INTERFACE.getOrDefault(file.getName(), PACKAGE_INFO);
+                Assert.assertFalse(content.contains("@WebApiServiceGen"));
+                Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_" + api.toUpperCase()));
+                Assert.assertTrue(content.contains("ServiceRequest request,"));
+                Assert.assertFalse(content.contains("Future<ServiceResponse>"));
+                Assert.assertTrue(content.contains("Handler<AsyncResult<ServiceResponse>> resultHandler);"));
+            }
+        }
+    }
+
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & not dataobject & Future)")
+    public void testUseOas3AndWebApiServiceAndNoDataobjectAndFuture() throws Exception {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
@@ -326,7 +596,8 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
           .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
           .setOutputDir(output.getAbsolutePath())
           .addAdditionalProperty(USE_DATAOBJECT_OPTION, false)
-          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS);
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS)
+          .addAdditionalProperty(USE_FUTURE_OPTION, true);
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -370,6 +641,64 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
                 Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
                 Assert.assertTrue(content.contains("Future<ServiceResponse>"));
                 Assert.assertTrue(content.contains("RequestParameter body, ServiceRequest request);"));
+            }
+        }
+    }
+
+    @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 3.x & web-api-service & not dataobject & not Future)")
+    public void testUseOas3AndWebApiServiceAndNoDataobjectAndNotFuture() throws Exception {
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+          .setLang("java-vertx")
+          .setInputSpecURL("src/test/resources/3_0_0/petstore-vertx.yaml")
+          .setOutputDir(output.getAbsolutePath())
+          .addAdditionalProperty(USE_DATAOBJECT_OPTION, false)
+          .addAdditionalProperty(MOUNT_OPERATION_FROM_OPTION, MOUNT_OPERATION_FROM_EXTENSIONS);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File petControllerFile = new File(output,
+          "/src/main/java/io/swagger/server/api/MainApiVerticle.java");
+        String content = FileUtils.readFileToString(petControllerFile);
+
+        Assert.assertTrue(content.contains(
+          "vertx.deployVerticle(\"io.swagger.server.api.verticle.SwaggerPetstoreVerticle\")"));
+        Assert.assertTrue(content.contains("startPromise.fail(error);"));
+        Assert.assertTrue(content.contains("startPromise.complete();"));
+
+        final File petVerticleFile = new File(output,
+          "/src/main/java/io/swagger/server/api/verticle/SwaggerPetstoreVerticle.java");
+        content = FileUtils.readFileToString(petVerticleFile);
+
+        Assert.assertTrue(
+          content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
+        Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
+        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
+        Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
+
+        final File packageInfoModelFile = new File(output,
+          "/src/main/java/io/swagger/server/api/model/" + PACKAGE_INFO);
+        Assert.assertFalse(packageInfoModelFile.exists());
+
+        final File petServiceFiles = new File(output,
+          "/src/main/java/io/swagger/server/api/service");
+        for (File file : petServiceFiles.listFiles()) {
+            Assert.assertTrue(SERVICE_AS_EXTENSION_FILENAMES.contains(file.getName()) || PACKAGE_INFO.equals(file.getName()));
+            content = FileUtils.readFileToString(file);
+
+            if (PACKAGE_INFO.equals(file.getName())) {
+                Assert.assertTrue(content.contains("@ModuleGen(name = \"service\", groupPackage = \"io.swagger.server.api.service\", useFutures = false)"));
+                Assert.assertTrue(content.contains("package io.swagger.server.api.service;"));
+                Assert.assertTrue(content.contains("import io.vertx.codegen.annotations.ModuleGen;"));
+            } else {
+                Assert.assertTrue(content.contains("@WebApiServiceGen"));
+                Assert.assertTrue(content.contains("String WEBSERVICE_ADDRESS_"));
+                Assert.assertTrue(content.contains("RequestParameter body, ServiceRequest request,"));
+                Assert.assertFalse(content.contains("Future<ServiceResponse>"));
+                Assert.assertTrue(content.contains("Handler<AsyncResult<ServiceResponse>> resultHandler);"));
             }
         }
     }

@@ -50,6 +50,8 @@ public class JavaVertXServerCodegen extends AbstractJavaCodegen implements BeanV
   public static final String MOUNT_OPERATION_FROM_INTERFACE = "mountFromInterface";
   public static final String SPEC_LOCATION_OPTION = "specLocation";
 
+  public static final String USE_FUTURE_OPTION = "useFuture";
+
   protected String rootPackage = "io.swagger.server.api";
   protected String apiVerticle;
   protected String apiVersion = "1.0.0-SNAPSHOT";
@@ -72,6 +74,8 @@ public class JavaVertXServerCodegen extends AbstractJavaCodegen implements BeanV
    * <li>mountOperationFrom : type String, define how routes are mounted.</li>
    *
    * <li>specLocation : define spec location, default as {@link JavaVertXServerCodegen#SPEC_LOCATION}.</li>
+   *
+   * <li>useFuture : define use services as future, default false.</li>
    * </ul>
    */
   public JavaVertXServerCodegen() {
@@ -110,6 +114,11 @@ public class JavaVertXServerCodegen extends AbstractJavaCodegen implements BeanV
       "When specified, define spec location. Default as " + SPEC_LOCATION);
     specLocation.setDefault(SPEC_LOCATION);
     cliOptions.add(specLocation);
+
+    CliOption useFutureOption = CliOption.newBoolean(USE_FUTURE_OPTION,
+      "When specified, describe service as future or not. Default as false");
+    useFutureOption.setDefault(Boolean.FALSE.toString());
+    cliOptions.add(useFutureOption);
 
     cliOptions.add(CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations"));
   }
@@ -185,7 +194,6 @@ public class JavaVertXServerCodegen extends AbstractJavaCodegen implements BeanV
       this.mountFromExtensions = true;
       additionalProperties.put(MOUNT_OPERATION_FROM_EXTENSIONS, true);
     }
-
 
     if (!additionalProperties.containsKey(SPEC_LOCATION_OPTION)) {
       additionalProperties.put(SPEC_LOCATION_OPTION, SPEC_LOCATION);
@@ -323,8 +331,7 @@ public class JavaVertXServerCodegen extends AbstractJavaCodegen implements BeanV
             if (operationExtension instanceof String) {
               address = (String) operationExtension;
             } else if (operationExtension instanceof Map) {
-              address = (String) ((Map<String, Object>) operationExtension).get(
-                OPENAPI_EXTENSION_ADDRESS);
+              address = (String) ((Map<String, Object>) operationExtension).get(OPENAPI_EXTENSION_ADDRESS);
               serviceId = (String) ((Map<String, Object>) operationExtension).get(OPENAPI_EXTENSION_METHOD_NAME);
             }
           } else if (operationExtension instanceof String && pathExtension instanceof Map) {
