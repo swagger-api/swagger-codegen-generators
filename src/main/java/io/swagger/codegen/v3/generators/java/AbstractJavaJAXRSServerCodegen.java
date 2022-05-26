@@ -90,7 +90,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
         }
         if (additionalProperties.containsKey(RETURN_RESPONSE_OVER_VOID)) {
-        	returnResponseOverVoid = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE_OVER_VOID).toString());
+            returnResponseOverVoid = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE_OVER_VOID).toString());
         } 
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
 
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
-    	objs.put(RETURN_RESPONSE_OVER_VOID, returnResponseOverVoid);
+        objs.put(RETURN_RESPONSE_OVER_VOID, returnResponseOverVoid);
         return jaxrsPostProcessOperations(objs);
     }
 
@@ -179,7 +179,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
                 String defaultDataType = "void";
                 
                 if(objs.get(RETURN_RESPONSE_OVER_VOID)!=null && Boolean.parseBoolean(objs.get(RETURN_RESPONSE_OVER_VOID).toString())) {
-                	defaultDataType = "Response";
+                    defaultDataType = "Response";
                 }
                 
                 List<CodegenResponse> responses = operation.responses;

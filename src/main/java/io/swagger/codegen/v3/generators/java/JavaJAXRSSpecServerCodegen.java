@@ -72,7 +72,7 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
             interfaceOnly = Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY).toString());
         }
         if (additionalProperties.containsKey(RETURN_RESPONSE)) {
-        	returnResponse = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE).toString());
+            returnResponse = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE).toString());
         }
         
         if (interfaceOnly) {
