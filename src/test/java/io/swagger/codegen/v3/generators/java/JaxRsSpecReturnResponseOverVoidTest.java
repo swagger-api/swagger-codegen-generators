@@ -14,29 +14,29 @@ import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
 
 public class JaxRsSpecReturnResponseOverVoidTest {
-	 private TemporaryFolder folder = new TemporaryFolder();
-	 
-	    @Test
-	    public void returnResponseOverVoid() throws Exception {
-	        folder.create();
-	        final File output = folder.getRoot();
+     private TemporaryFolder folder = new TemporaryFolder();
+     
+        @Test
+        public void returnResponseOverVoid() throws Exception {
+            folder.create();
+            final File output = folder.getRoot();
 
-	        Map<String, Object> additionalProperties = new HashMap<String, Object>();
-	        additionalProperties.put(AbstractJavaJAXRSServerCodegen.RETURN_RESPONSE_OVER_VOID, true);
-	        additionalProperties.put(JavaJAXRSSpecServerCodegen.INTERFACE_ONLY, true);
-	        final CodegenConfigurator configurator = new CodegenConfigurator()
-	                .setLang("jaxrs-spec").setAdditionalProperties(additionalProperties)
-	                .setInputSpecURL("src/test/resources/3_0_0/petstore.yaml")
-	                .setOutputDir(output.getAbsolutePath());
+            Map<String, Object> additionalProperties = new HashMap<String, Object>();
+            additionalProperties.put(AbstractJavaJAXRSServerCodegen.RETURN_RESPONSE_OVER_VOID, true);
+            additionalProperties.put(JavaJAXRSSpecServerCodegen.INTERFACE_ONLY, true);
+            final CodegenConfigurator configurator = new CodegenConfigurator()
+                    .setLang("jaxrs-spec").setAdditionalProperties(additionalProperties)
+                    .setInputSpecURL("src/test/resources/3_0_0/petstore.yaml")
+                    .setOutputDir(output.getAbsolutePath());
 
-	        final ClientOptInput clientOptInput = configurator.toClientOptInput();
-	        new DefaultGenerator().opts(clientOptInput).generate();
+            final ClientOptInput clientOptInput = configurator.toClientOptInput();
+            new DefaultGenerator().opts(clientOptInput).generate();
 
-	        File petFile = new File(output, "src/gen/java/io/swagger/api/PetApi.java");
-	        final String content = FileUtils.readFileToString(petFile);
-	        
-	        Assert.assertTrue(content.contains("Response addPet"));
-	        Assert.assertTrue(content.contains("Pet getPetById"));
-	        folder.delete();
-	    }
+            File petFile = new File(output, "src/gen/java/io/swagger/api/PetApi.java");
+            final String content = FileUtils.readFileToString(petFile);
+            
+            Assert.assertTrue(content.contains("Response addPet"));
+            Assert.assertTrue(content.contains("Pet getPetById"));
+            folder.delete();
+        }
 }
