@@ -111,7 +111,7 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCha
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
@@ -160,7 +160,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Boolean sortParamsByRequiredFlag = true;
     protected Boolean ensureUniqueParams = true;
     protected Boolean allowUnicodeIdentifiers = false;
-    protected String gitUserId, gitRepoId, releaseNote;
+    protected String gitUserId, gitRepoId, releaseNote, gitRepoBaseURL;
     protected String httpUserAgent;
     protected Boolean hideGenerationTimestamp = true;
     protected TemplateEngine templateEngine = new HandlebarTemplateEngine(this);
@@ -358,12 +358,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 cm.allowableValues.put("enumVars", enumVars);
             }
+            updateCodegenModelEnumVars(cm);
+        }
+    }
 
-            // update codegen property enum with proper naming convention
-            // and handling of numbers, special characters
-            for (CodegenProperty var : cm.vars) {
-                updateCodegenPropertyEnum(var);
-            }
+    public boolean isPrimivite(String datatype) {
+        return "number".equalsIgnoreCase(datatype)
+            || "integer".equalsIgnoreCase(datatype)
+            || "boolean".equalsIgnoreCase(datatype);
+    }
+
+    /**
+     * update codegen property enum with proper naming convention
+     * and handling of numbers, special characters
+     * @param codegenModel
+     */
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        for (CodegenProperty var : codegenModel.vars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -384,21 +396,25 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
-     * Returns the common prefix of variables for enum naming
+     * Returns the common prefix of variables for enum naming if
+     * two or more variables are present.
      *
      * @param vars List of variable names
      * @return the common prefix for naming
      */
     public String findCommonPrefixOfVars(List<Object> vars) {
-        try {
-            String[] listStr = vars.toArray(new String[vars.size()]);
-            String prefix = StringUtils.getCommonPrefix(listStr);
-            // exclude trailing characters that should be part of a valid variable
-            // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
-            return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
-        } catch (ArrayStoreException e) {
-            return "";
+        if (vars.size() > 1) {
+            try {
+                String[] listStr = vars.toArray(new String[vars.size()]);
+                String prefix = StringUtils.getCommonPrefix(listStr);
+                // exclude trailing characters that should be part of a valid variable
+                // e.g. ["status-on", "status-off"] => "status-" (not "status-o")
+                return prefix.replaceAll("[a-zA-Z0-9]+\\z", "");
+            } catch (ArrayStoreException e) {
+                // do nothing, just return default value
+            }
         }
+        return "";
     }
 
     /**
@@ -1327,6 +1343,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
+        codegenModel.discriminator = schema.getDiscriminator();
+
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
             codegenModel.xmlNamespace = schema.getXml().getNamespace();
@@ -1340,12 +1358,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             addParentContainer(codegenModel, name, schema);
         }
         else if (schema instanceof MapSchema) {
-            codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
-            codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
-            addParentContainer(codegenModel, name, schema);
-            if (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema)) {
-                addAdditionPropertiesToCodeGenModel(codegenModel, schema);
-            }
+            processMapSchema(codegenModel, name, schema);
 
         }
         else if (schema instanceof ComposedSchema) {
@@ -1392,11 +1405,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
 
-                if (schema.getDiscriminator() != null) {
-                    codegenModel.discriminator = schema.getDiscriminator();
-                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
-                    }
+                if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
                 }
 
                 for (int i = 0; i < allOf.size(); i++) {
@@ -1460,7 +1470,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 // comment out below as allowableValues is not set in post processing model enum
                 codegenModel.allowableValues = new HashMap<String, Object>();
                 codegenModel.allowableValues.put("values", schema.getEnum());
+                if (codegenModel.dataType.equals("BigDecimal")) {
+                    addImport(codegenModel, "BigDecimal");
+                }
             }
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
 
@@ -1469,7 +1484,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 postProcessModelProperty(codegenModel, prop);
             }
         }
+
         return codegenModel;
+    }
+
+    protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
+        codegenModel.getVendorExtensions().put(CodegenConstants.IS_MAP_CONTAINER_EXT_NAME, Boolean.TRUE);
+        codegenModel.getVendorExtensions().put(IS_CONTAINER_EXT_NAME, Boolean.TRUE);
+        addParentContainer(codegenModel, name, schema);
+        if (hasSchemaProperties(schema) || hasTrueAdditionalProperties(schema)) {
+            addAdditionPropertiesToCodeGenModel(codegenModel, schema);
+        }
     }
 
     /**
@@ -1553,37 +1578,62 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.name = toVarName(name);
         codegenProperty.baseName = name;
         codegenProperty.nameInCamelCase = camelize(codegenProperty.name, false);
-        codegenProperty.description = escapeText(propertySchema.getDescription());
-        codegenProperty.unescapedDescription = propertySchema.getDescription();
-        codegenProperty.title = propertySchema.getTitle();
         codegenProperty.getter = toGetter(name);
         codegenProperty.setter = toSetter(name);
-        String example = toExampleValue(propertySchema);
+        setSchemaProperties(name, codegenProperty, propertySchema);
+
+        final String type = getSchemaType(propertySchema);
+
+        processPropertySchemaTypes(name, codegenProperty, propertySchema);
+
+        codegenProperty.datatype = getTypeDeclaration(propertySchema);
+        codegenProperty.dataFormat = propertySchema.getFormat();
+
+        // this can cause issues for clients which don't support enums
+        boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
+        if (isEnum) {
+            codegenProperty.datatypeWithEnum = toEnumName(codegenProperty);
+            codegenProperty.enumName = toEnumName(codegenProperty);
+        } else {
+            codegenProperty.datatypeWithEnum = codegenProperty.datatype;
+        }
+
+        codegenProperty.baseType = getSchemaType(propertySchema);
+
+        processPropertySchemaContainerTypes(codegenProperty, propertySchema, type);
+        return codegenProperty;
+    }
+
+    protected void setSchemaProperties(String name, CodegenProperty codegenProperty, Schema schema) {
+        codegenProperty.description = escapeText(schema.getDescription());
+        codegenProperty.unescapedDescription = schema.getDescription();
+        codegenProperty.title = schema.getTitle();
+        String example = toExampleValue(schema);
         if(!"null".equals(example)) {
             codegenProperty.example = example;
         }
-        codegenProperty.defaultValue = toDefaultValue(propertySchema);
-        codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, propertySchema);
-        codegenProperty.jsonSchema = Json.pretty(propertySchema);
-        if (propertySchema.getNullable() != null) {
-            codegenProperty.nullable = propertySchema.getNullable();
+        codegenProperty.defaultValue = toDefaultValue(schema);
+        codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, schema);
+        codegenProperty.jsonSchema = Json.pretty(schema);
+        codegenProperty.nullable = Boolean.TRUE.equals(schema.getNullable());
+        codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+        if (schema.getReadOnly() != null) {
+            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, schema.getReadOnly());
         }
-        if (propertySchema.getReadOnly() != null) {
-            codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, propertySchema.getReadOnly());
-        }
-        if (propertySchema.getXml() != null) {
-            if (propertySchema.getXml().getAttribute() != null) {
-                codegenProperty.getVendorExtensions().put(CodegenConstants.IS_XML_ATTRIBUTE_EXT_NAME, propertySchema.getXml().getAttribute());
+        if (schema.getXml() != null) {
+            if (schema.getXml().getAttribute() != null) {
+                codegenProperty.getVendorExtensions().put(CodegenConstants.IS_XML_ATTRIBUTE_EXT_NAME, schema.getXml().getAttribute());
             }
-            codegenProperty.xmlPrefix = propertySchema.getXml().getPrefix();
-            codegenProperty.xmlName = propertySchema.getXml().getName();
-            codegenProperty.xmlNamespace = propertySchema.getXml().getNamespace();
+            codegenProperty.xmlPrefix = schema.getXml().getPrefix();
+            codegenProperty.xmlName = schema.getXml().getName();
+            codegenProperty.xmlNamespace = schema.getXml().getNamespace();
         }
-        if (propertySchema.getExtensions() != null && !propertySchema.getExtensions().isEmpty()) {
-            codegenProperty.getVendorExtensions().putAll(propertySchema.getExtensions());
+        if (schema.getExtensions() != null && !schema.getExtensions().isEmpty()) {
+            codegenProperty.getVendorExtensions().putAll(schema.getExtensions());
         }
+    }
 
-        final String type = getSchemaType(propertySchema);
+    protected void processPropertySchemaTypes(String name, CodegenProperty codegenProperty, Schema propertySchema) {
         if (propertySchema instanceof IntegerSchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NUMERIC_EXT_NAME, Boolean.TRUE);
             if(SchemaTypeUtil.INTEGER64_FORMAT.equals(propertySchema.getFormat())) {
@@ -1620,7 +1670,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenProperty.allowableValues = allowableValues;
             }
         }
-
         if (propertySchema instanceof StringSchema) {
             codegenProperty.maxLength = propertySchema.getMaxLength();
             codegenProperty.minLength = propertySchema.getMinLength();
@@ -1691,20 +1740,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_DATE_TIME_EXT_NAME, Boolean.TRUE);
             handlePropertySchema(propertySchema, codegenProperty);
         }
-        codegenProperty.datatype = getTypeDeclaration(propertySchema);
-        codegenProperty.dataFormat = propertySchema.getFormat();
+    }
 
-        // this can cause issues for clients which don't support enums
-        boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
-        if (isEnum) {
-            codegenProperty.datatypeWithEnum = toEnumName(codegenProperty);
-            codegenProperty.enumName = toEnumName(codegenProperty);
-        } else {
-            codegenProperty.datatypeWithEnum = codegenProperty.datatype;
-        }
-
-        codegenProperty.baseType = getSchemaType(propertySchema);
-
+    protected void processPropertySchemaContainerTypes(CodegenProperty codegenProperty, Schema propertySchema, String type) {
         if (propertySchema instanceof ArraySchema) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_CONTAINER_EXT_NAME, Boolean.TRUE);
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_LIST_CONTAINER_EXT_NAME, Boolean.TRUE);
@@ -1760,7 +1798,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
             setNonArrayMapProperty(codegenProperty, type);
         }
-        return codegenProperty;
     }
 
     private void handleMinMaxValues(Schema propertySchema, CodegenProperty codegenProperty) {
@@ -2093,17 +2130,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         List<Parameter> parameters = operation.getParameters();
-        CodegenParameter bodyParam = null;
-        List<CodegenParameter> allParams = new ArrayList<>();
-        List<CodegenParameter> bodyParams = new ArrayList<>();
-        List<CodegenParameter> pathParams = new ArrayList<>();
-        List<CodegenParameter> queryParams = new ArrayList<>();
-        List<CodegenParameter> headerParams = new ArrayList<>();
-        List<CodegenParameter> cookieParams = new ArrayList<>();
-        List<CodegenParameter> formParams = new ArrayList<>();
-        List<CodegenParameter> requiredParams = new ArrayList<>();
-
-        List<CodegenContent> codegenContents = new ArrayList<>();
+        final OperationParameters operationParameters = new OperationParameters();
 
         RequestBody body = operation.getRequestBody();
         if (body != null) {
@@ -2135,8 +2162,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
                     codegenParameter.description = body.getDescription();
                     codegenParameter.unescapedDescription = body.getDescription();
-                    codegenParameter.baseName = REQUEST_BODY_NAME;
-                    codegenParameter.paramName = REQUEST_BODY_NAME;
+                    String bodyName = REQUEST_BODY_NAME;
+                    if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+                        bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+                    }
+                    codegenParameter.baseName = bodyName;
+                    codegenParameter.paramName = bodyName;
                     codegenParameter.dataType = "Object";
                     codegenParameter.baseType = "Object";
 
@@ -2160,20 +2191,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             }
                             // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
                             formParameter.getVendorExtensions().put(CodegenConstants.IS_FORM_PARAM_EXT_NAME, Boolean.TRUE);
-                            formParams.add(formParameter.copy());
+                            operationParameters.addFormParam(formParameter.copy());
                             if (body.getRequired() != null && body.getRequired()) {
-                                requiredParams.add(formParameter.copy());
+                                operationParameters.addRequiredParam(formParameter.copy());
                             }
-                            allParams.add(formParameter);
+                            operationParameters.addAllParams(formParameter);
                         }
-                        codegenContents.add(codegenContent);
+                        operationParameters.addCodegenContents(codegenContent);
                     }
                 } else {
-                    bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
+                    CodegenParameter bodyParam = fromRequestBody(body, schemaName, schema, schemas, imports);
+                    operationParameters.setBodyParam(bodyParam);
                     if (foundSchemas.isEmpty()) {
-                        // todo: this segment is only to support the "older" template design. it should be removed once all templates are updated with the new {{#contents}} tag.
-                        bodyParams.add(bodyParam.copy());
-                        allParams.add(bodyParam);
+                        operationParameters.addBodyParams(bodyParam.copy());
+                        operationParameters.addAllParams(bodyParam);
                     } else {
                         boolean alreadyAdded = false;
                         for (Schema usedSchema : foundSchemas) {
@@ -2186,7 +2217,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                     foundSchemas.add(schema);
-                    codegenContents.add(codegenContent);
+                    operationParameters.addCodegenContents(codegenContent);
                 }
             }
         }
@@ -2196,57 +2227,30 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if (StringUtils.isNotBlank(param.get$ref())) {
                     param = getParameterFromRef(param.get$ref(), openAPI);
                 }
+                if ((param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn()))
+                        && param.getStyle() != null && param.getStyle().equals(Parameter.StyleEnum.DEEPOBJECT)) {
+                    operationParameters.parseNestedObjects(param.getName(), param.getSchema(), imports, this, openAPI);
+                    continue;
+                }
                 CodegenParameter codegenParameter = fromParameter(param, imports);
-                allParams.add(codegenParameter);
-                // Issue #2561 (neilotoole) : Moved setting of is<Type>Param flags
-                // from here to fromParameter().
-                if (param instanceof QueryParameter || "query".equalsIgnoreCase(param.getIn())) {
-                    queryParams.add(codegenParameter.copy());
-                } else if (param instanceof PathParameter || "path".equalsIgnoreCase(param.getIn())) {
-                    pathParams.add(codegenParameter.copy());
-                } else if (param instanceof HeaderParameter || "header".equalsIgnoreCase(param.getIn())) {
-                    headerParams.add(codegenParameter.copy());
-                } else if (param instanceof CookieParameter || "cookie".equalsIgnoreCase(param.getIn())) {
-                    cookieParams.add(codegenParameter.copy());
-                }
-                if (codegenParameter.required) {
-                    requiredParams.add(codegenParameter.copy());
-                }
+                operationParameters.addParameters(param, codegenParameter);
             }
         }
 
-        for (String i : imports) {
-            if (needToImport(i)) {
-                codegenOperation.imports.add(i);
-            }
-        }
+        addOperationImports(codegenOperation, imports);
 
-        codegenOperation.bodyParam = bodyParam;
+        codegenOperation.bodyParam = operationParameters.getBodyParam();
         codegenOperation.httpMethod = httpMethod.toUpperCase();
 
         // move "required" parameters in front of "optional" parameters
         if (sortParamsByRequiredFlag) {
-            Collections.sort(allParams, new Comparator<CodegenParameter>() {
-                @Override
-                public int compare(CodegenParameter one, CodegenParameter another) {
-                    if (one.required == another.required) return 0;
-                    else if (one.required) return -1;
-                    else return 1;
-                }
-            });
+            operationParameters.sortRequiredAllParams();
         }
 
-        codegenOperation.allParams = addHasMore(allParams);
-        codegenOperation.bodyParams = addHasMore(bodyParams);
-        codegenOperation.pathParams = addHasMore(pathParams);
-        codegenOperation.queryParams = addHasMore(queryParams);
-        codegenOperation.headerParams = addHasMore(headerParams);
-        codegenOperation.cookieParams = addHasMore(cookieParams);
-        codegenOperation.formParams = addHasMore(formParams);
-        codegenOperation.requiredParams = addHasMore(requiredParams);
+        operationParameters.addHasMore(codegenOperation);
         codegenOperation.externalDocs = operation.getExternalDocs();
 
-        configuresParameterForMediaType(codegenOperation, codegenContents);
+        configuresParameterForMediaType(codegenOperation, operationParameters.getCodegenContents());
         // legacy support
         codegenOperation.nickname = codegenOperation.operationId;
 
@@ -2273,6 +2277,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return codegenOperation;
     }
 
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (needToImport(operationImport)) {
+                codegenOperation.imports.add(operationImport);
+            }
+        }
+    }
+
     /**
      * Convert Swagger Response object to Codegen Response object
      *
@@ -2290,7 +2302,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         final Schema responseSchema = getSchemaFromResponse(response);
         codegenResponse.schema = responseSchema;
         codegenResponse.message = escapeText(response.getDescription());
-        // TODO: codegenResponse.examples = toExamples(response.getExamples());
+
+        if (response.getContent()!= null) {
+            Map<String, Object> examples = new HashMap<>();
+            for (String name : response.getContent().keySet()) {
+                if (response.getContent().get(name) != null) {
+
+                    if (response.getContent().get(name).getExample() != null) {
+                        examples.put(name, response.getContent().get(name).getExample());
+                    }
+                    if (response.getContent().get(name).getExamples() != null) {
+
+                        for (String exampleName : response.getContent().get(name).getExamples().keySet()) {
+                            examples.put(exampleName, response.getContent().get(name).getExamples().get(exampleName).getValue());
+                        }
+                    }
+                }
+            }
+            codegenResponse.examples = toExamples(examples);
+        }
+
         codegenResponse.jsonSchema = Json.pretty(response);
         if (response.getExtensions() != null && !response.getExtensions().isEmpty()) {
             codegenResponse.vendorExtensions.putAll(response.getExtensions());
@@ -2482,14 +2513,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 LOGGER.warn("warning!  Schema not found for parameter \"" + parameter.getName() + "\", using String");
                 parameterSchema = new StringSchema().description("//TODO automatically added by swagger-codegen.");
             }
-            if (Boolean.TRUE.equals(parameterSchema.getNullable())) {
-                codegenParameter.nullable = true;
-            }
             CodegenProperty codegenProperty = fromProperty(parameter.getName(), parameterSchema);
 
             // set boolean flag (e.g. isString)
             setParameterBooleanFlagWithCodegenProperty(codegenParameter, codegenProperty);
-            setParameterNullable(codegenParameter, codegenProperty);
+            setParameterNullable(codegenParameter, codegenProperty); //todo: needs to be removed
+
+            codegenParameter.nullable = Boolean.TRUE.equals(parameterSchema.getNullable());
+            codegenParameter.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(parameterSchema.getNullable()));
 
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
@@ -2619,8 +2650,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
         CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-        codegenParameter.baseName = REQUEST_BODY_NAME;
-        codegenParameter.paramName = REQUEST_BODY_NAME;
+
+        String bodyName = REQUEST_BODY_NAME;
+        if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
+            bodyName = body.getExtensions().get("x-codegen-request-body-name").toString();
+        }
+        codegenParameter.baseName = bodyName;
+        codegenParameter.paramName = bodyName;
         codegenParameter.description = body.getDescription();
         codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
@@ -2697,7 +2733,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (codegenProperty.complexType != null) {
                 imports.add(codegenProperty.complexType);
             }
-            imports.add(codegenProperty.baseType);
+            if (codegenParameter.baseType != null) {
+                imports.add(codegenProperty.baseType);
+            }
             CodegenProperty innerCp = codegenProperty;
             while(innerCp != null) {
                 if(innerCp.complexType != null) {
@@ -2717,7 +2755,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             setParameterNullable(codegenParameter, codegenProperty);
 
             while (codegenProperty != null) {
-                imports.add(codegenProperty.baseType);
+                if (codegenProperty.baseType != null) {
+                    imports.add(codegenProperty.baseType);
+                }
                 codegenProperty = codegenProperty.items;
             }
         }
@@ -2727,7 +2767,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
         }
         else {
-            CodegenProperty codegenProperty = fromProperty(REQUEST_BODY_NAME, schema);
+            CodegenProperty codegenProperty = fromProperty(bodyName, schema);
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.baseType = codegenProperty.baseType;
             if (codegenProperty.complexType != null) {
@@ -2854,6 +2894,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
+    protected void setReservedWords(List<String> words) {
+        reservedWords = new HashSet<String>();
+        reservedWords.addAll(words);
+    }
+
     protected boolean isReservedWord(String word) {
         return word != null && reservedWords.contains(word.toLowerCase());
     }
@@ -2935,16 +2980,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 target.add(fromProperty(headers.getKey(), schema));
             }
         }
-    }
-
-    protected static List<CodegenParameter> addHasMore(List<CodegenParameter> objs) {
-        if (objs != null) {
-            for (int i = 0; i < objs.size(); i++) {
-                objs.get(i).secondaryParam = i > 0;
-                objs.get(i).getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, i < objs.size() - 1);
-            }
-        }
-        return objs;
     }
 
     private static Map<String, Object> addHasMore(Map<String, Object> objs) {
@@ -3497,6 +3532,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return gitRepoId;
     }
 
+
+    /**
+     * Git repo Base URL
+     *
+     * @return Git repo Base URL
+     */
+    public String getGitRepoBaseURL() {
+        return gitRepoBaseURL;
+    }
+
+    /**
+     * Set Git repo Base URL.
+     *
+     * @param gitRepoBaseURL Git repo Base URL
+     */
+    public void setGitRepoBaseURL(String gitRepoBaseURL) {
+        this.gitRepoBaseURL = gitRepoBaseURL;
+    }
+
+
     /**
      * Set release note.
      *
@@ -3837,7 +3892,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         // put "enumVars" map into `allowableValues", including `name` and `value`
-        List<Map<String, String>> enumVars = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> enumVars = new ArrayList<>();
         String commonPrefix = findCommonPrefixOfVars(values);
         int truncateIdx = commonPrefix.length();
         for (Object value : values) {
@@ -3852,6 +3907,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             enumVars.add(enumVar);
         }
         allowableValues.put("enumVars", enumVars);
+
+        // check repeated enum var names
+        if (enumVars != null & !enumVars.isEmpty()) {
+            for (int i = 0; i < enumVars.size(); i++) {
+                final Map<String, String> enumVarList = enumVars.get(i);
+                final String enumVarName = enumVarList.get("name");
+                for (int j = 0; j < enumVars.size(); j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    final Map<String, String> enumVarToCheckList = enumVars.get(j);
+                    final String enumVarNameToCheck = enumVarToCheckList.get("name");
+                    if (enumVarName.equals(enumVarNameToCheck)) {
+                        enumVarToCheckList.put("name", enumVarName + "_" + j);
+                    }
+                }
+            }
+        }
 
         // handle default value for enum, e.g. available => StatusEnum.AVAILABLE
         if (var.defaultValue != null) {
@@ -4296,7 +4369,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
             );
-            addHasMore(content.getParameters());
+            OperationParameters.addHasMore(content.getParameters());
         }
         codegenOperation.getContents().addAll(codegenContents);
     }
@@ -4312,8 +4385,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected void addCodegenContentParameters(CodegenOperation codegenOperation, List<CodegenContent> codegenContents) {
         for (CodegenContent content : codegenContents) {
-            addParameters(content, codegenOperation.bodyParams);
-            addParameters(content, codegenOperation.formParams);
+            if (content.getIsForm()) {
+                addParameters(content, codegenOperation.formParams);
+            } else {
+                addParameters(content, codegenOperation.bodyParams);
+            }
             addParameters(content, codegenOperation.headerParams);
             addParameters(content, codegenOperation.queryParams);
             addParameters(content, codegenOperation.pathParams);

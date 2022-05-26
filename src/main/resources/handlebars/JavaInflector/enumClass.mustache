@@ -14,7 +14,7 @@
     {{#unless gson}}
         {{#allowableValues}}
             {{#enumVars}}
-    {{{name}}}({{{value}}}){{^@last}},
+    {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
     {{/@last}}{{#@last}};{{/@last}}
             {{/enumVars}}
         {{/allowableValues}}

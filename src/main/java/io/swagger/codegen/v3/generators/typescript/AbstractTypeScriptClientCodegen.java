@@ -10,9 +10,11 @@ import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
@@ -33,6 +35,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.IS_OBJECT_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
@@ -227,18 +230,34 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     }
 
     @Override
-    public String getTypeDeclaration(Schema propertySchema) {
-        if (propertySchema instanceof ArraySchema) {
-            Schema inner = ((ArraySchema) propertySchema).getItems();
-            return String.format("%s<%s>", getSchemaType(propertySchema), getTypeDeclaration(inner));
-        } else if (propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
-            Schema inner = (Schema) propertySchema.getAdditionalProperties();
-            return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
-        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
-            Schema inner = new ObjectSchema();
-            return String.format("{ [key, string]: %s;}", getTypeDeclaration(inner));
+    public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, schema, allDefinitions);
+        if (isObjectSchema(schema) || schema instanceof MapSchema) {
+            codegenModel.getVendorExtensions().put(CodegenConstants.IS_OBJECT_EXT_NAME, Boolean.TRUE);
         }
-        return super.getTypeDeclaration(propertySchema);
+        return codegenModel;
+    }
+
+    @Override
+    public String getTypeDeclaration(Schema propertySchema) {
+        Schema inner;
+        if(propertySchema instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema)propertySchema;
+            inner = arraySchema.getItems();
+            return this.getSchemaType(propertySchema) + "<" + this.getTypeDeclaration(inner) + ">";
+        } else if(propertySchema instanceof MapSchema   && hasSchemaProperties(propertySchema)) {
+            inner = (Schema) propertySchema.getAdditionalProperties();
+            return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
+        } else if (propertySchema instanceof MapSchema && hasTrueAdditionalProperties(propertySchema)) {
+            inner = new ObjectSchema();
+            return "{ [key: string]: " + this.getTypeDeclaration(inner) + "; }";
+        } else if(propertySchema instanceof FileSchema || propertySchema instanceof BinarySchema) {
+            return "Blob";
+        } else if(propertySchema instanceof ObjectSchema) {
+            return "any";
+        } else {
+            return super.getTypeDeclaration(propertySchema);
+        }
     }
 
     @Override

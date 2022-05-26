@@ -24,7 +24,7 @@ class {{classname}}ControllerTest {
     {{#operation}}
     {{#contents}}
     @Test
-    void {{operationId}}Test() {
+    void {{operationId}}{{#isForm}}WithForm{{/isForm}}Test() {
         {{#parameters}}
         {{{dataType}}} {{paramName}} = {{{example}}};
         {{/parameters}}

@@ -52,9 +52,9 @@
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="{{httpMethod}}"><code class="huge"><span class="http-method">{{httpMethod}}</span> {{path}}</code></pre></div>
-    <div class="method-summary">{{summary}} (<span class="nickname">{{nickname}}</span>)</div>
+    <div class="method-summary">{{{summary}}} (<span class="nickname">{{nickname}}</span>)</div>
     {{! notes is operation.description. So why rename it and make it super confusing???? }}
-    <div class="method-notes">{{notes}}</div>
+    <div class="method-notes">{{{notes}}}</div>
 
     {{#hasPathParams}}
     <h3 class="field-label">Path parameters</h3>
@@ -205,6 +205,19 @@
           {{/vendorExtensions.anyOf-model}}
       {{/items}}
       {{/vars}}
+      {{#docNoObjects}}
+      {{#isEnum}}
+        <div class="param-enum-header">Enum:</div>
+        {{#allowableValues}}
+        {{#values}}
+        <div class="param-enum">{{{this}}}</div>
+        {{/values}}
+        {{/allowableValues}}
+      {{/isEnum}}
+      {{#arrayModelType}}
+      <div class="param-desc"><span class="param-type"><a href="#{{arrayModelType}}">array[{{arrayModelType}}]</a></span></div>
+      {{/arrayModelType}}
+      {{/docNoObjects}}
     </div>  <!-- field-items -->
   </div>
   {{/model}}
