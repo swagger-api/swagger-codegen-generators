@@ -193,4 +193,20 @@ public class TypeScriptFetchModelTest /** extends AbstractCodegenTest */
         Assert.assertEquals(cm.additionalPropertiesType, "Children");
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Children")).size(), 1);
     }
+
+    @Test(description = "test variable names for reserved characters and word")
+    public void testVarName() throws Exception {
+        final TypeScriptFetchClientCodegen codegen = new TypeScriptFetchClientCodegen();
+        Assert.assertEquals(codegen.toVarName("$someDollar"), "someDollar");
+        Assert.assertEquals(codegen.toVarName("!notThis"), "notThis");
+        Assert.assertEquals(codegen.toVarName("@id"), "atId");
+        Assert.assertEquals(codegen.toVarName("@type"), "atType");
+        Assert.assertEquals(codegen.toVarName("@context"), "atContext");
+
+        // Do allow starting with underscore
+        Assert.assertEquals(codegen.toVarName("_allowUnderscore"), "allowUnderscore");
+
+        // should not escape non-reserved
+        Assert.assertEquals(codegen.toVarName("hello"), "hello");
+    }
 }
