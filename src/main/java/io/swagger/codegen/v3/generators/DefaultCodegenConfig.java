@@ -2087,6 +2087,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             codegenOperation.returnBaseType = codegenProperty.baseType;
                         }
                     }
+                    if (responseSchema instanceof BinarySchema || responseSchema instanceof FileSchema) {
+                        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESPONSE_FILE_EXT_NAME, Boolean.TRUE);
+                    }
                     if (!additionalProperties.containsKey(CodegenConstants.DISABLE_EXAMPLES_OPTION)) {
                         codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
                     }
