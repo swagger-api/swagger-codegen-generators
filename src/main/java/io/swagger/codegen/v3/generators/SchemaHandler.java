@@ -70,6 +70,18 @@ public class SchemaHandler implements ISchemaHandler {
     }
 
     protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+
+        final boolean schemaWithNoProperties = codegenModel.vars == null || codegenModel.vars.isEmpty();
+        if (schemaWithNoProperties) {
+            if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
+                this.addInterfaces(composedSchema.getOneOf(), codegenModel, allModels);
+            } else if (composedSchema.getAnyOf() != null && !composedSchema.getAnyOf().isEmpty()) {
+                this.addInterfaces(composedSchema.getAnyOf(), codegenModel, allModels);
+            }
+            codegenModel.setIsComposedModel(true);
+            return codegenModel;
+        }
+
         List<Schema> schemas = composedSchema.getOneOf();
         CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModel.getName(), schemas);
         if (composedModel == null) {
@@ -185,6 +197,19 @@ public class SchemaHandler implements ISchemaHandler {
             }
             if (!subTypeAdded) {
                 codegenModel.addSubType(model);
+            }
+
+            if (codegenModel.getVendorExtensions() == null || codegenModel.getVendorExtensions().containsKey("x-discriminator-type")) {
+                continue;
+            }
+            if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
+                Optional<CodegenProperty> optionalProperty = model.vars.stream()
+                    .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
+
+                optionalProperty.ifPresent(codegenProperty -> {
+                    codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
+                    codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
+                });
             }
         }
     }
