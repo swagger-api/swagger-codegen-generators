@@ -90,6 +90,16 @@ public class JavaClientCodegen extends AbstractJavaCodegen {
         return super.apiFilename(templateName, tag);
     }
 
+    @Override
+    public void setGitRepoBaseURL(String s) {
+
+    }
+
+    @Override
+    public String getGitRepoBaseURL() {
+        return null;
+    }
+
     /**
      *  Prioritizes consumes mime-type list by moving json-vendor and json mime-types up front, but
      *  otherwise preserves original consumes definition order.

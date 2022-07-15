@@ -281,6 +281,12 @@ class ObjectSerializer
                     $subclass = PaymentInstructions::class;
                 } elseif (isset($data->pan)) {
                     $subclass = CreditCardDescriptor::class;
+                } elseif (isset($data->header)) {
+                    $subclass = ApplePayDescriptor::class;
+                } elseif (isset($data->signedMessage)) {
+                    $subclass = GooglePayDescriptor::class;
+                } elseif (isset($data->payer_id)) {
+                    $subclass = PayPalDescriptor::class;
                 }
 
                 if (is_subclass_of($subclass, $class)) {

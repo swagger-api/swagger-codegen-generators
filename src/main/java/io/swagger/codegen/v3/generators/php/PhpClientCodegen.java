@@ -148,7 +148,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
     }
 
     public String toPackagePath(String packageName, String basePath) {
-        return (getPackagePath() + File.separatorChar + toSrcPath(packageName, basePath));
+        if (getPackagePath().length() > 0) {
+            return (getPackagePath() + File.separatorChar + toSrcPath(packageName, basePath));
+        }
+        return toSrcPath(packageName, basePath);
     }
 
     public String toSrcPath(String packageName, String basePath) {
@@ -513,6 +516,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         // camelize the model name
         // phone_number => PhoneNumber
+        if (name.matches("^([A-Z]{3}_).*")) {
+            // MRC_ID shouldn't be renamed to MRCID
+            return name.substring(0, 4) + camelize(name.substring(4));
+        }
         return camelize(name);
     }
 
@@ -738,6 +745,16 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
             op.vendorExtensions.put("x-testOperationId", camelize(op.operationId));
         }
         return objs;
+    }
+
+    @Override
+    public void setGitRepoBaseURL(String s) {
+
+    }
+
+    @Override
+    public String getGitRepoBaseURL() {
+        return null;
     }
 
     @Override

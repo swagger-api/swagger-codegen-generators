@@ -1384,8 +1384,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                     .getName();
                         }
                         if (modelImplCnt++ > 1) {
-                            LOGGER.warn(
-                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
+//                            LOGGER.warn(
+//                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
                             break; // only one ModelImpl with discriminator
                                    // allowed in allOf
                         }

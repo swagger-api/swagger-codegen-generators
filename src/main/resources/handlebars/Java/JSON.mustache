@@ -98,6 +98,12 @@ public class JSON {
                     return PaymentInstructions.class;
                 } else if (readElement.getAsJsonObject().has("pan")) {
                     return CreditCardDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("header")) {
+                    return ApplePayDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("signedMessage")) {
+                    return GooglePayDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("payer_id")) {
+                    return PayPalDescriptor.class;
                 }
                 return BankAccountDescriptor.class;
             }

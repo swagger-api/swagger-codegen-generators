@@ -516,6 +516,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         // camelize the model name
         // phone_number => PhoneNumber
+        if (name.matches("^([A-Z]{3}_).*")) {
+            // MRC_ID shouldn't be renamed to MRCID
+            return name.substring(0, 4) + camelize(name.substring(4));
+        }
         final String camelizedName = camelize(nameWithPrefixSuffix);
 
         // model name cannot use reserved keyword, e.g. return

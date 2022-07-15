@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>secuconnect-codegen-generators</artifactId>
-    <version>1.0.26.1</version>
+    <version>1.0.26.2</version>
     <packaging>jar</packaging>
 
     <build>
@@ -205,7 +205,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.26-SNAPSHOT</swagger-codegen-version>
+        <swagger-codegen-version>3.0.34</swagger-codegen-version>
         <swagger-parser-version>2.0.23</swagger-parser-version>
         <swagger-core-version>2.1.4</swagger-core-version>
         <jackson-version>2.11.4</jackson-version>

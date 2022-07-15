@@ -115,7 +115,7 @@ class Configuration
     protected $debugFile = 'php://output';
 
     /**
-     * Debug file location (log to STDOUT by default)
+     * Temp folder path
      *
      * @var string
      */
