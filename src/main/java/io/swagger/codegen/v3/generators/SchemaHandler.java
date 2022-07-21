@@ -72,7 +72,7 @@ public class SchemaHandler implements ISchemaHandler {
     protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
 
         final boolean schemaWithNoProperties = codegenModel.vars == null || codegenModel.vars.isEmpty();
-        if (schemaWithNoProperties) {
+        if (schemaWithNoProperties && (composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty())) {
             if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
                 this.addInterfaces(composedSchema.getOneOf(), codegenModel, allModels);
             } else if (composedSchema.getAnyOf() != null && !composedSchema.getAnyOf().isEmpty()) {
