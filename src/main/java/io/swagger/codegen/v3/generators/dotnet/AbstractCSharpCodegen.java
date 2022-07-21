@@ -755,7 +755,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         String type;
 
         if (swaggerType == null) {
-            swaggerType = StringUtils.EMPTY; // set swagger type to empty string if null
+            swaggerType = "object";
         }
 
         // TODO avoid using toLowerCase as typeMapping should be case-sensitive
