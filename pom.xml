@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.35-SNAPSHOT</version>
+    <version>1.0.35</version>
     <packaging>jar</packaging>
 
     <build>
@@ -254,9 +254,9 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.35-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.0.30</swagger-parser-version>
-        <swagger-core-version>2.1.13</swagger-core-version>
+        <swagger-codegen-version>3.0.35</swagger-codegen-version>
+        <swagger-parser-version>2.1.2</swagger-parser-version>
+        <swagger-core-version>2.2.2</swagger-core-version>
         <jackson-version>2.13.2</jackson-version>
         <!--
           jackson-databind 2.13.2 is still affected by CVE-2020-36518.
