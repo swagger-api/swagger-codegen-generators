@@ -50,6 +50,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String DEFAULT_LIBRARY = "spring-boot";
     public static final String TITLE = "title";
     public static final String CONFIG_PACKAGE = "configPackage";
+    public static final String CONFIG_PREFIX = "configPrefix";
     public static final String BASE_PACKAGE = "basePackage";
     public static final String INTERFACE_ONLY = "interfaceOnly";
     public static final String DELEGATE_PATTERN = "delegatePattern";
@@ -72,6 +73,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
+    protected String configPrefix = "";
     protected String basePackage = "io.swagger";
     protected boolean interfaceOnly = false;
     protected boolean delegatePattern = false;
@@ -101,6 +103,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         artifactId = "swagger-spring";
 
         additionalProperties.put(CONFIG_PACKAGE, configPackage);
+        additionalProperties.put(CONFIG_PREFIX, configPrefix);
         additionalProperties.put(BASE_PACKAGE, basePackage);
 
         // spring uses the jackson lib
@@ -108,6 +111,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         cliOptions.add(new CliOption(TITLE, "server title name or client service name"));
         cliOptions.add(new CliOption(CONFIG_PACKAGE, "configuration package for generated code"));
+        cliOptions.add(new CliOption(CONFIG_PREFIX, "configuration classes prefix for generated code"));
         cliOptions.add(new CliOption(BASE_PACKAGE, "base package (invokerPackage) for generated code"));
         cliOptions.add(CliOption.newBoolean(INTERFACE_ONLY, "Whether to generate only API interface stubs without the server files."));
         cliOptions.add(CliOption.newBoolean(DELEGATE_PATTERN, "Whether to generate the server files using the delegate pattern"));
@@ -228,6 +232,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(CONFIG_PACKAGE)) {
             this.setConfigPackage((String) additionalProperties.get(CONFIG_PACKAGE));
+        }
+
+        if (additionalProperties.containsKey(CONFIG_PREFIX)) {
+            this.setConfigPrefix((String) additionalProperties.get(CONFIG_PREFIX));
         }
 
         if (additionalProperties.containsKey(BASE_PACKAGE)) {
@@ -354,9 +362,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             if (isSpringCloudLibrary()) {
                 forceOas2();
                 supportingFiles.add(new SupportingFile("apiKeyRequestInterceptor.mustache",
-                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "ApiKeyRequestInterceptor.java"));
+                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), configPrefix + "ApiKeyRequestInterceptor.java"));
                 supportingFiles.add(new SupportingFile("clientConfiguration.mustache",
-                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "ClientConfiguration.java"));
+                        (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), configPrefix + "ClientConfiguration.java"));
                 apiTemplateFiles.put("apiClient.mustache", "Client.java");
                 if (!additionalProperties.containsKey(SINGLE_CONTENT_TYPES)) {
                     additionalProperties.put(SINGLE_CONTENT_TYPES, "true");
@@ -823,6 +831,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setConfigPackage(String configPackage) {
         this.configPackage = configPackage;
+    }
+
+    public void setConfigPrefix(String configPrefix) {
+        this.configPrefix = configPrefix;
     }
 
     public void setBasePackage(String configPackage) {
