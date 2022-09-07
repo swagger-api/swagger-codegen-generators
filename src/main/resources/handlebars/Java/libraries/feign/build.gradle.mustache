@@ -110,8 +110,8 @@ ext {
     {{#threetenbp}}
     threepane_version = "2.6.4"
     {{/threetenbp}}
-    feign_version = "9.4.0"
-    feign_form_version = "2.1.0"
+    feign_version = "11.6"
+    feign_form_version = "3.8.0"
     junit_version = "4.12"
     oltu_version = "1.0.2"
 }
@@ -123,9 +123,9 @@ dependencies {
     {{^useOas2}}
     compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/useOas2}}
-    compile "com.netflix.feign:feign-core:$feign_version"
-    compile "com.netflix.feign:feign-jackson:$feign_version"
-    compile "com.netflix.feign:feign-slf4j:$feign_version"
+    compile "io.github.openfeign:feign-core:$feign_version"
+    compile "io.github.openfeign:feign-jackson:$feign_version"
+    compile "io.github.openfeign:feign-slf4j:$feign_version"
     compile "io.github.openfeign.form:feign-form:$feign_form_version"
     compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
     compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
