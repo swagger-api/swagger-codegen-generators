@@ -122,7 +122,10 @@ dependencies {
     {{^useOas2}}
     compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/useOas2}}
-    compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: "org.json", module: "json"
+    }
+    compile "org.json:json:20180130"
     compile "joda-time:joda-time:$jodatime_version"
     testCompile "junit:junit:$junit_version"
 }

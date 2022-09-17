@@ -45,7 +45,10 @@ dependencies {
     {{#threetenbp}}
     implementation "com.github.joschi.jackson:jackson-datatype-threetenbp:$threepane_version"
     {{/threetenbp}}
-    implementation "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: 'org.json', module: 'json'
+    }
+    implementation "org.json:json:20180130"
     implementation "com.brsanthu:migbase64:2.2"
     implementation "com.sun.xml.ws:jaxws-rt:2.3.3"
     testImplementation "junit:junit:$junit_version"
