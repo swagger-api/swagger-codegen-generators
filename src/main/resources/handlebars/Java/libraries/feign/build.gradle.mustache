@@ -139,7 +139,10 @@ dependencies {
     {{#threetenbp}}
     compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$threepane_version"
     {{/threetenbp}}
-    compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: "org.json", module: "json"
+    }
+    compile "org.json:json:20180130"
     compile "com.brsanthu:migbase64:2.2"
     testCompile "junit:junit:$junit_version"
 }
