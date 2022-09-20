@@ -119,7 +119,7 @@ public class JavaModelEnumTest {
         parentModel.setProperties(parentProperties);
         parentModel.name("parentModel");
 
-        final ComposedSchema composedSchema = new ComposedSchema()
+        final ComposedSchema composedSchema = (ComposedSchema)new ComposedSchema()
                 .addAllOfItem(new Schema().$ref(parentModel.getName()));
 
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
