@@ -56,7 +56,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
     @AfterMethod
     public void tearDown() {
-        //folder.delete();
+        folder.delete();
     }
 
     @Test(description = "verify that main verticle, openapi verticle and service are written as expected (OAS 2.x & web-api-service & Future)")
@@ -95,7 +95,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -161,7 +161,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -223,7 +223,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(
           content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -284,7 +284,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(
           content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -354,7 +354,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(content.contains("return RouterBuilder.rxCreate(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertFalse(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertFalse(content.contains("onFailure(startPromise::fail);"));
         Assert.assertTrue(content.contains("rxStart()"));
@@ -428,7 +428,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(content.contains("return RouterBuilder.rxCreate(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertFalse(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertFalse(content.contains("onFailure(startPromise::fail);"));
         Assert.assertTrue(content.contains("rxStart()"));
@@ -495,7 +495,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertFalse(content.contains("routerBuilder.mountServicesFromExtensions();"));
         Assert.assertTrue(content.contains("routerBuilder.mountServiceInterface"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -555,7 +555,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertFalse(content.contains("routerBuilder.mountServicesFromExtensions();"));
         Assert.assertTrue(content.contains("routerBuilder.mountServiceInterface"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -618,7 +618,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(
           content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 
@@ -675,7 +675,7 @@ public class JavaVertxServerGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(
           content.contains("RouterBuilder.create(this.vertx, \"openapi.yaml\")"));
         Assert.assertTrue(content.contains("routerBuilder.mountServicesFromExtensions();"));
-        Assert.assertTrue(content.contains("router.mountSubRouter(\"/\", openapiRouter);"));
+        Assert.assertTrue(content.contains("router.route(\"/*\").subRouter(openapiRouter);"));
         Assert.assertTrue(content.contains("onSuccess(server -> startPromise.complete())"));
         Assert.assertTrue(content.contains("onFailure(startPromise::fail);"));
 

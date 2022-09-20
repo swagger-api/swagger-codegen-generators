@@ -55,7 +55,7 @@ public class {{title}}Verticle extends AbstractVerticle {
         server = vertx.createHttpServer(new HttpServerOptions().setPort({{serverPort}}).setHost("localhost"))
           .requestHandler(router);
 
-        router.mountSubRouter("/", openapiRouter);
+        router.route("/*").subRouter(openapiRouter);
 
         router.route().last().handler(context ->
           context.response()
