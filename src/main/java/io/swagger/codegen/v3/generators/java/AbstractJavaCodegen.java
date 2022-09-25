@@ -1033,10 +1033,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (codegenModel.vars == null || codegenModel.vars.isEmpty() || codegenModel.parentModel == null) {
             return;
         }
-        CodegenModel parentModel = codegenModel.parentModel;
 
         for (CodegenProperty codegenProperty : codegenModel.vars) {
-            while (parentModel != null) {
+            CodegenModel parentModel = codegenModel.parentModel;
+            
+			while (parentModel != null) {
                 if (parentModel.vars == null || parentModel.vars.isEmpty()) {
                     parentModel = parentModel.parentModel;
                     continue;
@@ -1049,6 +1050,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         !parentProperty.datatype.equals(codegenProperty.datatype)));
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
+					codegenProperty.nameInCamelCase = camelize(codegenProperty.name, false);
                     codegenProperty.getter = toGetter(codegenProperty.name);
                     codegenProperty.setter = toSetter(codegenProperty.name);
                     break;
