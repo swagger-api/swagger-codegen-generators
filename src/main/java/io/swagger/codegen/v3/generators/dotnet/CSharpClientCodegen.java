@@ -587,6 +587,26 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         super.postProcessModelProperty(model, property);
     }
 
+    @Override
+    protected void fixUpParentAndInterfaces(CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
+        super.fixUpParentAndInterfaces(codegenModel, allModels);
+        final CodegenModel parentModel = codegenModel.getParentModel();
+        if (parentModel == null || (codegenModel.getReadWriteVars() == null || codegenModel.getReadWriteVars().isEmpty()) || (parentModel.getVars() == null || parentModel.getVars().isEmpty())) {
+            return;
+        }
+        codegenModel.setParentVars(parentModel.getVars());
+        parentModel.getVars().forEach(parentProperty -> {
+            codegenModel.getReadWriteVars().stream()
+                    .filter(codegenProperty -> parentProperty.getName().equalsIgnoreCase(codegenProperty.getName()))
+                    .findFirst()
+                    .ifPresent(codegenProperty -> {
+                        codegenProperty.setDatatype(parentProperty.getDatatype());
+                        codegenProperty.setDatatypeWithEnum(parentProperty.getDatatypeWithEnum());
+                    });
+        });
+
+    }
+
     /*
      * The swagger pattern spec follows the Perl convention and style of modifiers. .NET
      * does not support this syntax directly so we need to convert the pattern to a .NET compatible
