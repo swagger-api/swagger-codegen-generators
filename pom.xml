@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.36-SNAPSHOT</version>
+    <version>1.0.36</version>
     <packaging>jar</packaging>
 
     <build>
@@ -254,15 +254,11 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-codegen-version>3.0.36-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.1.2</swagger-parser-version>
-        <swagger-core-version>2.2.2</swagger-core-version>
-        <jackson-version>2.13.2</jackson-version>
-        <!--
-          jackson-databind 2.13.2 is still affected by CVE-2020-36518.
-          This version pin for jackson-databind can be removed when bumping jackson to 2.14
-          -->
-        <jackson-databind-version>2.13.2.2</jackson-databind-version>
+        <swagger-codegen-version>3.0.36</swagger-codegen-version>
+        <swagger-parser-version>2.1.8</swagger-parser-version>
+        <swagger-core-version>2.2.6</swagger-core-version>
+        <jackson-version>2.14.0</jackson-version>
+        <jackson-databind-version>2.14.0</jackson-databind-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
         <commons-io-version>2.11.0</commons-io-version>
@@ -270,10 +266,10 @@
         <junit-version>4.13.1</junit-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
         <commons-lang-version>3.12.0</commons-lang-version>
-        <slf4j-version>1.7.35</slf4j-version>
+        <slf4j-version>1.7.36</slf4j-version>
         <scala-maven-plugin-version>3.2.1</scala-maven-plugin-version>
         <testng-version>6.9.6</testng-version>
-        <surefire-version>2.19.1</surefire-version>
+        <surefire-version>2.21.0</surefire-version>
         <jmockit-version>1.42</jmockit-version>
         <reflections-version>0.9.11</reflections-version>
 
