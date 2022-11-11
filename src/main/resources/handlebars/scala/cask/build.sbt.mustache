@@ -1,0 +1,11 @@
+name := "{{artifactId}}"
+version := "0.0.1-SNAPSHOT"
+scalaVersion := "3.2.1"
+scalafmtOnCompile := true
+libraryDependencies ++= Seq(
+  "com.lihaoyi" %% "cask" % "0.8.3" ,
+  "com.lihaoyi" %% "upickle" % "2.0.0",
+  "com.softwaremill.sttp.client3" %% "core" % "3.8.3"
+)
+// this corresponds to setting e.g. --additional-properties sourceFolder=src_openapi in swagger-cli
+Compile / unmanagedSourceDirectories += baseDirectory.value / "src_openapi"

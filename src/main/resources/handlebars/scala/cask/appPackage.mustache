@@ -1,0 +1,24 @@
+{{>licenseInfo}}
+package {{packageName}}
+
+def startupLog(main : cask.main.MainRoutes) = {
+    import main.*
+    println(box(
+        s""" 🚀 browse to localhost:$port 🚀
+        |      host : $host
+        |      port : $port
+        |   verbose : $verbose
+        | debugMode : $debugMode
+        |""".stripMargin))
+        if java.awt.Desktop.isDesktopSupported then java.awt.Desktop.getDesktop.browse(new java.net.URI(s"http://localhost:${port}"))
+}
+
+def box(str: String): String = {
+  val lines = str.linesIterator.toList
+  val maxLen = (0 +: lines.map(_.length)).max
+  val boxed = lines.map { line =>
+    s" | ${line.padTo(maxLen, ' ')} |"
+  }
+  val bar = " +-" + ("-" * maxLen) + "-+"
+  (bar +: boxed :+ bar).mkString("\n")
+}

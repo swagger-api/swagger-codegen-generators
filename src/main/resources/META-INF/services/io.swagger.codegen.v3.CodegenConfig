@@ -30,6 +30,7 @@ io.swagger.codegen.v3.generators.python.PythonFlaskConnexionCodegen
 io.swagger.codegen.v3.generators.r.RClientCodegen
 io.swagger.codegen.v3.generators.ruby.RubyClientCodegen
 io.swagger.codegen.v3.generators.scala.ScalaClientCodegen
+io.swagger.codegen.v3.generators.scala.ScalaCaskCodegen
 io.swagger.codegen.v3.generators.scala.AkkaHttpServerCodegen
 io.swagger.codegen.v3.generators.swift.Swift3Codegen
 io.swagger.codegen.v3.generators.swift.Swift4Codegen
