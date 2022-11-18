@@ -3057,7 +3057,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @return The underscored version of the word
      */
     public static String underscore(String word) {
-        String firstPattern = "([A-Z]+)([A-Z][a-z])";
+        String firstPattern = "([A-Z]+)([A-Z][a-z][a-z]+)";
         String secondPattern = "([a-z\\d])([A-Z])";
         String replacementPattern = "$1_$2";
         // Replace package separator with slash.
