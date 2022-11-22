@@ -1,0 +1,45 @@
+{{>partial_header}}
+package swagger
+
+import (
+	"net/http" 
+    "encoding/json"
+)
+
+//Notice: HttpAllowCROS should be call before w.Write()
+func HttpAllowCROS(w http.ResponseWriter, origin string) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}
+
+
+func HttpRendJson(w http.ResponseWriter, code int, obj interface{}) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+    dat,err:= json.Marshal(obj)
+    if err != nil{
+        dat = []byte(err.Error())
+    }
+
+    w.Write(dat)
+}
+
+
+
+func HttpRendHtml(w http.ResponseWriter, code int, dat string) {
+    w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+	w.WriteHeader(code)
+ 
+    w.Write([]byte(dat))
+}
+
+func Http404(w http.ResponseWriter){
+    HttpRendHtml(w, 404, "Page not found")
+}
+
+
+func HttpError(w http.ResponseWriter, code int, dat string){
+    HttpRendHtml(w, code,dat)
+}
