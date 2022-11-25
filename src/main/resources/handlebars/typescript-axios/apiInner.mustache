@@ -301,7 +301,7 @@ export interface {{classname}}Interface {
      * @throws {RequiredError}
      * @memberof {{classname}}Interface
      */
-    async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>;
+     {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>;
 
 {{/contents}}
 {{/operation}}
