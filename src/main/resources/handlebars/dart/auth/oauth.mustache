@@ -1,9 +1,10 @@
 part of {{pubName}}.api;
 
 class OAuth implements Authentication {
-  String accessToken;
+  String accessToken="";
 
-  OAuth({this.accessToken}) {
+  OAuth(String tk ) {
+    this.accessToken = tk;
   }
 
   @override

@@ -4,9 +4,8 @@ part of {{pubName}}.api;
 
 
 class {{classname}} {
-  final ApiClient apiClient;
-
-  {{classname}}([ApiClient apiClient]) : apiClient = apiClient ?? defaultApiClient;
+  ApiClient? apiClient = null; 
+  {{classname}}([ApiClient? apiClient]) : this.apiClient = apiClient ??defaultApiClient ;
 
   {{#operation}}
   {{#contents}}
@@ -17,8 +16,8 @@ class {{classname}} {
   {{#isDeprecated}}
   @deprecated
   {{/isDeprecated}}
-  {{#returnType}}Future<{{{returnType}}}> {{/returnType}}{{^returnType}}Future {{/returnType}}{{nickname}}({{#parameters}}{{#required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{ {{#parameters}}{{^required}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}} }{{/hasOptionalParams}}) async {
-    Object postBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
+  {{#returnType}}Future<{{{returnType}}}?> {{/returnType}}{{^returnType}}Future {{/returnType}}{{nickname}}({{#parameters}}{{#required}}{{{dataType}}}? {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}}{{#hasOptionalParams}}{ {{#parameters}}{{^required}}{{{dataType}}}? {{paramName}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}} }{{/hasOptionalParams}}) async {
+    Object? postBody {{#bodyParam}}={{paramName}}{{/bodyParam}}{{^bodyParam}}{{/bodyParam}};
 
     // verify required params are set
     {{#parameters}}
@@ -50,12 +49,12 @@ class {{classname}} {
 
     List<String> contentTypes = [{{#consumes}}"{{{mediaType}}}"{{#hasMore}},{{/hasMore}}{{/consumes}}];
 
-    String contentType = contentTypes.length > 0 ? contentTypes[0] : "application/json";
+    String contentType = contentTypes.isNotEmpty ?  contentTypes[0] : "application/json";
     List<String> authNames = [{{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}}];
 
     if(contentType.startsWith("multipart/form-data")) {
       bool hasFields = false;
-      MultipartRequest mp = new MultipartRequest(null, null);
+      MultipartRequest mp = MultipartRequest('{{httpMethod}}', Uri());
       {{#formParams}}{{#notFile}}
       if ({{paramName}} != null) {
         hasFields = true;
