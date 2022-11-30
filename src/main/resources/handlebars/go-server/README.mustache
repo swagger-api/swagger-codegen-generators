@@ -25,6 +25,16 @@ For more information, please visit [{{{infoUrl}}}]({{{infoUrl}}})
 To run the server, follow these simple steps:
 
 ```
-go run main.go
+cd go
+#Rename the *.example file to *.go. then run :
+go mod tidy
+
+# build the application
+cd ..
+go mod tidy
+go build
+
+# run the application
+./{binname}
 ```
 

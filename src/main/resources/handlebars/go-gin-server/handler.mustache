@@ -1,0 +1,33 @@
+{{>partial_header}}
+package handlers
+
+{{#operations}}
+import (
+	"net/http"
+
+	"dummy.swagger.io/models"
+	"github.com/gin-gonic/gin"
+)
+
+{{#operation}}
+func handler_{{classname}}{{nickname}}(c *gin.Context) {
+	var user models.UserReq
+	var resp *models.UserResp
+	var err error
+	err = c.ShouldBind(&user)
+	if err == nil {
+
+		resp, err = handler_{{classname}}{{nickname}}_impl(&user)
+		if err != nil {
+
+			c.AbortWithStatusJSON(http.StatusExpectationFailed, models.CommonResp{http.StatusExpectationFailed, err.Error()})
+		}
+	} else {
+		c.AbortWithStatusJSON(http.StatusExpectationFailed, models.CommonResp{http.StatusExpectationFailed, err.Error()})
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+{{/operation}}
+{{/operations}}

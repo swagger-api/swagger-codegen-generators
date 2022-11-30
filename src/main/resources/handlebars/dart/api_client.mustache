@@ -97,7 +97,7 @@ class ApiClient {
   Future<Response> invokeAPI(String path,
                              String method,
                              Iterable<QueryParam> queryParams,
-                             Object body,
+                             Object? body,
                              Map<String, String> headerParams,
                              Map<String, String> formParams,
                              String contentType,
@@ -115,7 +115,7 @@ class ApiClient {
     headerParams.addAll(_defaultHeaderMap);
     headerParams['Content-Type'] = contentType;
 
-    if(body is MultipartRequest) {
+    if(body!=null && body is MultipartRequest) {
       var request = new MultipartRequest(method, Uri.parse(url));
       request.fields.addAll(body.fields);
       request.files.addAll(body.files);

@@ -3,22 +3,30 @@ package main
 
 import (
 	"log"
+    "os"
+	"time"
 	"net/http"
 
-	// WARNING!
-	// Change this to a fully-qualified import path
-	// once you place this file into your project.
-	// For example,
-	//
-	//    sw "github.com/myname/myrepo/{{apiPath}}"
-	//
-	sw "./{{apiPath}}"
+	sw "dummy.swagger.io/{{packageName}}"
 )
 
 func main() {
-	log.Printf("Server started")
+    addr := "127.0.0.1:{{serverPort}}"
+	
+	if len(os.Args)>=2 {
+		addr = os.Args[1] // example: ":8080"
+	}
 
 	router := sw.NewRouter()
+	log.Printf("Server started at %s", addr)
 
-	log.Fatal(http.ListenAndServe(":{{serverPort}}", router))
+	srv := &http.Server{
+		Handler: router,
+		Addr:    addr,
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 90 * time.Second,
+		ReadTimeout:  90 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }

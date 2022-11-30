@@ -1,0 +1,8 @@
+module {{packageName}}
+
+go 1.19
+
+require dummy.swagger.io/{{packageName}} v0.0.0
+ 
+
+replace dummy.swagger.io/{{packageName}} => ./{{apiPath}}

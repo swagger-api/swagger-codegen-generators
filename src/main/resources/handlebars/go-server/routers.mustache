@@ -3,6 +3,7 @@ package {{packageName}}
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -30,6 +31,7 @@ func NewRouter() *mux.Router {
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)
+		log.Println("Register router: ", route.Pattern, "\t", route.Method, route.Name)
 	}
 
 	return router
@@ -47,10 +49,11 @@ var routes = Routes{
 		Index,
 	},{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
 
+	//{{operationId}}
 	Route{
 		"{{operationId}}",
 		strings.ToUpper("{{httpMethod}}"),
 		"{{{basePathWithoutHost}}}{{{path}}}",
-		{{operationId}},
+		{{classname}}{{operationId}},
 	},{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 }

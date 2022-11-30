@@ -1,0 +1,18 @@
+{{>partial_header}}
+package handlers
+
+{{#operations}}
+import (
+	"fmt"
+
+	"dummy.swagger.io/models"
+)
+
+{{#operation}}
+func handler_{{classname}}{{nickname}}_impl(u *models.UserReq) (*models.UserResp, error) {
+	// business code here.
+	return &models.UserResp{Msg: fmt.Sprintf("Hello, %s", u.Name)}, nil
+}
+
+{{/operation}}
+{{/operations}}

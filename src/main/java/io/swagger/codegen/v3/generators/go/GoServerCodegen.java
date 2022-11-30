@@ -1,17 +1,11 @@
 package io.swagger.codegen.v3.generators.go;
 
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.Schema;
-
 import java.io.File;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
 
 public class GoServerCodegen extends AbstractGoCodegen {
 
@@ -27,9 +21,10 @@ public class GoServerCodegen extends AbstractGoCodegen {
         outputFolder = "generated-code/go";
 
         /*
-         * Models.  You can write model files using the modelTemplateFiles map.
+         * Models. You can write model files using the modelTemplateFiles map.
          * if you want to create one template for file, you can do so here.
-         * for multiple files for model, just put another entry in the `modelTemplateFiles` with
+         * for multiple files for model, just put another entry in the
+         * `modelTemplateFiles` with
          * a different extension
          */
         modelTemplateFiles.put(
@@ -37,30 +32,32 @@ public class GoServerCodegen extends AbstractGoCodegen {
                 ".go");
 
         /*
-         * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
-         * as with models, add multiple entries with different extensions for multiple files per
+         * Api classes. You can write classes for each Api file with the
+         * apiTemplateFiles map.
+         * as with models, add multiple entries with different extensions for multiple
+         * files per
          * class
          */
         apiTemplateFiles.put(
-                "controller-api.mustache",   // the template to use
-                ".go");       // the extension for each file to write
+                "controller-api.mustache", // the template to use
+                ".go.example"); // the extension for each file to write
 
         /*
-         * Reserved words.  Override this with reserved words specific to your language
+         * Reserved words. Override this with reserved words specific to your language
          */
         setReservedWordsLowerCase(
-            Arrays.asList(
-                // data type
-                "string", "bool", "uint", "uint8", "uint16", "uint32", "uint64",
-                "int", "int8", "int16", "int32", "int64", "float32", "float64",
-                "complex64", "complex128", "rune", "byte", "uintptr",
+                Arrays.asList(
+                        // data type
+                        "string", "bool", "uint", "uint8", "uint16", "uint32", "uint64",
+                        "int", "int8", "int16", "int32", "int64", "float32", "float64",
+                        "complex64", "complex128", "rune", "byte", "uintptr",
 
-                "break", "default", "func", "interface", "select",
-                "case", "defer", "go", "map", "struct",
-                "chan", "else", "goto", "package", "switch",
-                "const", "fallthrough", "if", "range", "type",
-                "continue", "for", "import", "return", "var", "error", "nil")
-                // Added "error" as it's used so frequently that it may as well be a keyword
+                        "break", "default", "func", "interface", "select",
+                        "case", "defer", "go", "map", "struct",
+                        "chan", "else", "goto", "package", "switch",
+                        "const", "fallthrough", "if", "range", "type",
+                        "continue", "for", "import", "return", "var", "error", "nil")
+        // Added "error" as it's used so frequently that it may as well be a keyword
         );
     }
 
@@ -75,13 +72,12 @@ public class GoServerCodegen extends AbstractGoCodegen {
 
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
-        }
-        else {
+        } else {
             setPackageName("swagger");
         }
 
         /*
-         * Additional Properties.  These values can be passed to the templates and
+         * Additional Properties. These values can be passed to the templates and
          * are available in models, apis, and supporting files
          */
         additionalProperties.put("apiVersion", apiVersion);
@@ -93,16 +89,19 @@ public class GoServerCodegen extends AbstractGoCodegen {
         apiPackage = packageName;
 
         /*
-         * Supporting Files.  You can write single files for the generator with the
-         * entire object tree available.  If the input file has a suffix of `.mustache
-         * it will be processed by the template engine.  Otherwise, it will be copied
+         * Supporting Files. You can write single files for the generator with the
+         * entire object tree available. If the input file has a suffix of `.mustache
+         * it will be processed by the template engine. Otherwise, it will be copied
          */
         supportingFiles.add(new SupportingFile("swagger.mustache", "api", "swagger.yaml"));
         supportingFiles.add(new SupportingFile("Dockerfile", "", "Dockerfile"));
         supportingFiles.add(new SupportingFile("main.mustache", "", "main.go"));
+        supportingFiles.add(new SupportingFile("go.mod.mustache", "", "go.mod"));
+        supportingFiles.add(new SupportingFile("lib.go.mod.mustache", apiPath, "go.mod"));
         supportingFiles.add(new SupportingFile("routers.mustache", apiPath, "routers.go"));
         supportingFiles.add(new SupportingFile("logger.mustache", apiPath, "logger.go"));
-        writeOptional(outputFolder, new SupportingFile("README.mustache", apiPath, "README.md"));
+        supportingFiles.add(new SupportingFile("common.mustache", apiPath, "common.go"));
+        writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
     }
 
     @Override
@@ -122,7 +121,8 @@ public class GoServerCodegen extends AbstractGoCodegen {
     }
 
     /**
-     * Configures a friendly name for the generator.  This will be used by the generator
+     * Configures a friendly name for the generator. This will be used by the
+     * generator
      * to select the library with the -l flag.
      *
      * @return the friendly name for the generator
@@ -133,7 +133,7 @@ public class GoServerCodegen extends AbstractGoCodegen {
     }
 
     /**
-     * Returns human-friendly help for the generator.  Provide the consumer with help
+     * Returns human-friendly help for the generator. Provide the consumer with help
      * tips, parameters here
      *
      * @return A string value for the help message
@@ -145,7 +145,8 @@ public class GoServerCodegen extends AbstractGoCodegen {
     }
 
     /**
-     * Location to write api files.  You can use the apiPackage() as defined when the class is
+     * Location to write api files. You can use the apiPackage() as defined when the
+     * class is
      * instantiated
      */
     @Override

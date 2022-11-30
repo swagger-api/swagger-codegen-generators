@@ -4,9 +4,13 @@ package {{packageName}}
 {{#operations}}
 import (
 	"net/http"
-){{#operation}}
+) 
+{{#operation}}
+func {{classname}}{{nickname}}(w http.ResponseWriter, r *http.Request) {
+	msg := "hello world!"
+	// business code here.
+	HttpRendHtml(w,http.StatusOK, msg)
+}
 
-func {{nickname}}(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-}{{/operation}}{{/operations}}
+{{/operation}}
+{{/operations}}
