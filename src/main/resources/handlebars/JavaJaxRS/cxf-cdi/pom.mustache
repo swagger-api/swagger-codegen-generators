@@ -47,9 +47,9 @@
 
         <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>{{#jakarta}}10.0.0{{/jakarta}}{{^jakarta}}8.0.0{{/jakarta}}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -59,7 +59,7 @@
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <!-- Version is just a guess -->
             <!-- IBM WebSphere Application Server Liberty Core v8.5.5.6 uses v3.0.2, source https://www.ibm.com/support/knowledgecenter/SSD28V_8.5.5/com.ibm.websphere.wlp.core.doc/ae/rwlp_jaxrs_secure.html -->
-            <version>3.0.2</version>
+            <version>{{#jakarta}}4.0.0{{/jakarta}}{{^jakarta}}3.5.5{{/jakarta}}</version>
             <scope>provided</scope>
         </dependency>
 

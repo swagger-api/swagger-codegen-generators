@@ -60,9 +60,9 @@
     <dependencies>
         <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>{{#jakarta}}10.0.0{{/jakarta}}{{^jakarta}}8.0.0{{/jakarta}}</version>
             <scope>provided</scope>
         </dependency>
         {{#useOas2}}
