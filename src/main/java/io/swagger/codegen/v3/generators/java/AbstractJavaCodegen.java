@@ -62,6 +62,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public static final String WIREMOCK_OPTION = "wiremock";
 
+    public static final String JAKARTA = "jakarta";
+
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
     protected boolean java11Mode = false;
@@ -93,6 +95,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
 
     public AbstractJavaCodegen() {
@@ -194,6 +197,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
 
         cliOptions.add(CliOption.newBoolean(WIREMOCK_OPTION, "Use wiremock to generate endpoint calls to mock on generated tests."));
+
+        cliOptions.add(CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)"));
+
+        CliOption jeeSpec = CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)");
+        Map<String, String> jeeSpecModeOptions = new HashMap<String, String>();
+        jeeSpecModeOptions.put("true", "Use Jakarta EE (package jakarta.*)");
+        jeeSpecModeOptions.put("false", "Use Java EE (javax.*)");
+        jeeSpec.setEnum(jeeSpecModeOptions);
+        cliOptions.add(jeeSpec);
     }
 
     @Override
@@ -490,6 +502,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if (dateLibrary.equals("legacy")) {
             additionalProperties.put("legacyDates", true);
         }
+
+        setJakarta(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAKARTA))));
+        additionalProperties.put(JAKARTA, jakarta);
     }
 
     private void sanitizeConfig() {
@@ -1562,6 +1577,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava11Mode(boolean java11Mode) {
         this.java11Mode = java11Mode;
+    }
+
+    public void setJakarta(boolean jakarta) {
+        this.jakarta = jakarta;
     }
 
     @Override
