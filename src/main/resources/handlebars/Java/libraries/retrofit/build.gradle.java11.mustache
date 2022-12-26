@@ -33,7 +33,7 @@ dependencies {
     }
     implementation "org.json:json:20180130"
     implementation "joda-time:joda-time:$jodatime_version"
-    implementation "com.sun.xml.ws:jaxws-rt:2.3.3"
+    implementation "com.sun.xml.ws:jaxws-rt:{{#jakarta}}4.0.0{{/jakarta}}{{^jakarta}}2.3.3{{/jakarta}}"
     testImplementation "junit:junit:$junit_version"
     {{#wiremock}}
     testImplementation "com.github.tomakehurst:wiremock:2.27.2"
