@@ -30,6 +30,13 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: itemWithDefault
+        in: query
+        description: boolean with default value
+        required: false
+        schema:
+          default: false
+          type: boolean
     put:
       summary: Update
       description: description
