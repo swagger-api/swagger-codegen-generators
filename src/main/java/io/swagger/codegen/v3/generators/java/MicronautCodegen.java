@@ -2,21 +2,40 @@ package io.swagger.codegen.v3.generators.java;
 
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
-import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenContent;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenResponse;
+import io.swagger.codegen.v3.CodegenSecurity;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.OptionalFeatures;
-import io.swagger.codegen.v3.generators.handlebars.lambda.*;
+import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.CapitaliseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.EscapeDoubleQuotesLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.RemoveLineBreakLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.UppercaseLambda;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
@@ -36,6 +55,8 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     private static final String USE_TAGS = "useTags";
     private static final String IMPLICIT_HEADERS = "implicitHeaders";
     private static final String SKIP_SUPPORT_FILES = "skipSupportFiles";
+    private static final String USE_LOMBOK_MODEL = "useLombokModel";
+    private static final String USE_PROJECT_REACTOR = "useProjectReactor";
 
     private String title = "swagger-petstore";
     private String configPackage = "io.swagger.configuration";
@@ -44,6 +65,8 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     private boolean useBeanValidation = true;
     private boolean implicitHeaders = false;
     private boolean useOptional = false;
+    private boolean useLombokModel=false;
+    private boolean useProjectReactor=false;
 
     @SuppressWarnings("unused")
     public MicronautCodegen() {
@@ -73,6 +96,10 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         cliOptions.add(CliOption.newBoolean(IMPLICIT_HEADERS, "Use of @ApiImplicitParams for headers."));
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
+        cliOptions.add(CliOption.newBoolean(USE_LOMBOK_MODEL,
+            "Use lombok for the pojo generation. It comes with @AllArgsConstructor, @EqualsAndHashCode, @ToString, @Getter, @Builder and @NonNull on required fields"));
+        cliOptions.add(CliOption.newBoolean(USE_PROJECT_REACTOR,
+            "Use Project Reactor instead of RxJava"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Java Micronaut Server application.");
         setLibrary(DEFAULT_LIBRARY);
@@ -150,6 +177,14 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
         }
 
+        if (additionalProperties.containsKey(USE_LOMBOK_MODEL)) {
+            this.setUseLombokModel(convertPropertyToBoolean(USE_LOMBOK_MODEL));
+        }
+
+        if (additionalProperties.containsKey(USE_PROJECT_REACTOR)) {
+            this.setUseProjectReactor(convertPropertyToBoolean(USE_PROJECT_REACTOR));
+        }
+
         boolean skipSupportFiles = false;
         if (additionalProperties.containsKey(SKIP_SUPPORT_FILES)) {
             skipSupportFiles = Boolean.valueOf(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
@@ -165,6 +200,14 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
 
         if (useOptional) {
             writePropertyBack(USE_OPTIONAL, useOptional);
+        }
+
+        if (useLombokModel) {
+            writePropertyBack(USE_LOMBOK_MODEL, useLombokModel);
+        }
+
+        if (useProjectReactor) {
+            writePropertyBack(USE_PROJECT_REACTOR, useProjectReactor);
         }
 
         if (!skipSupportFiles) {
@@ -528,5 +571,13 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
+    }
+
+    public void setUseLombokModel(boolean useLombokModel) {
+        this.useLombokModel = useLombokModel;
+    }
+
+    public void setUseProjectReactor(boolean useProjectReactor) {
+        this.useProjectReactor = useProjectReactor;
     }
 }

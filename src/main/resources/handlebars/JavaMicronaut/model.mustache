@@ -11,6 +11,14 @@ import io.micronaut.validation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 {{/useBeanValidation}}
+{{#useLombokModel}}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.ToString;
+{{/useLombokModel}}
 {{#jackson}}
 {{#withXml}}
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
