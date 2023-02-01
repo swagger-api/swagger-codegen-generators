@@ -83,6 +83,8 @@ public class ApiClient {
     }
     
     private boolean debugging = false;
+
+    private boolean encodeUri = false;
     
     private HttpHeaders defaultHeaders = new HttpHeaders();
     
@@ -286,6 +288,17 @@ public class ApiClient {
         return debugging;
     }
 
+    public void setEncodeUri(boolean encodeUri) {
+        this.encodeUri = encodeUri;
+    }
+
+    /**
+     * Check that whether encoding URI is enabled for this API client.
+     * @return boolean true if this client is enabled for encoding URI, false otherwise
+     */
+    public boolean isEncodingUri() {
+        return encodeUri;
+    }
     /**
      * Get the date format used to parse/format date parameters.
      * @return DateFormat format
@@ -509,6 +522,9 @@ public class ApiClient {
             builder.queryParams(queryParams);
         }
         
+        if (encodeUri) {
+            builder.encode();
+        }
         final BodyBuilder requestBuilder = RequestEntity.method(method, builder.build().toUri());
         if(accept != null) {
             requestBuilder.accept(accept.toArray(new MediaType[accept.size()]));
