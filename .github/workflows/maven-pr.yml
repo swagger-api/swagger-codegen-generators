@@ -16,7 +16,7 @@ jobs:
       GENERATORS_VERSION_PROPERTY: ""
     steps:
       - uses: actions/checkout@v3
-        name: git checkout 3.0.0
+        name: git checkout
         with:
           ref: master
       - name: Set up Java
