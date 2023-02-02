@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build_push_30:
+  build_push:
 
     runs-on: ubuntu-latest
     strategy:

@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build_pr_30:
+  build_pr:
 
     runs-on: ubuntu-latest
     strategy:
