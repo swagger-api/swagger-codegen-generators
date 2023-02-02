@@ -1,8 +1,8 @@
-name: Build Test Push 3.0
+name: Build Test Push
 
 on:
   push:
-    branches: [ "3.0.0" ]
+    branches: [ "master" ]
 
 jobs:
   build_push_30:
