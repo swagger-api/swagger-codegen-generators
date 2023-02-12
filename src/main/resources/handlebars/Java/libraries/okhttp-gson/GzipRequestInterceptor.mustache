@@ -2,13 +2,17 @@
 
 package {{invokerPackage}};
 
-import com.squareup.okhttp.*;
+import java.io.IOException;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.GzipSink;
 import okio.Okio;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
-import java.io.IOException;
 
 /**
  * Encodes request bodies using gzip.
