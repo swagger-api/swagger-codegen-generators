@@ -42,7 +42,8 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     protected String packageName = "swagger";
 
-    protected static final String PREFIX_VAR = "Var";
+    protected static final String VAR_PREFIX = "Var";
+    protected static final String ENUM_SYMBOL_PREFIX = "Symbol_";
 
     public AbstractGoCodegen() {
         super();
@@ -529,7 +530,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        return formatSpecialName(name);
+        return formatSpecialEnumName(name);
     }
 
     @Override
@@ -583,7 +584,19 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
         // for reserved word or word starting with number, append _
         if (name.matches("^\\d.*"))
-            name = PREFIX_VAR + name;
+            name = VAR_PREFIX + name;
+
+        return name;
+    }
+
+    protected String formatSpecialEnumName(String name) {
+        // for reserved word or word starting with number, append _
+        if (isReservedWord(name))
+            name = escapeReservedWord(name);
+
+        // for reserved word or word starting with number, append _
+        if (name.matches("^\\d.*"))
+            name = ENUM_SYMBOL_PREFIX + name;
 
         return name;
     }
