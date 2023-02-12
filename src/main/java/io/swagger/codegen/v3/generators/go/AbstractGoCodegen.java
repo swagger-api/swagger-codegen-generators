@@ -148,7 +148,15 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         // pet_id => PetId
         name = camelize(name);
 
-        return formatSpecialName(name);
+        // for reserved word or word starting with number, append _
+        if (isReservedWord(name))
+            name = escapeReservedWord(name);
+
+        // for reserved word or word starting with number, append _
+        if (name.matches("^\\d.*"))
+            name = VAR_PREFIX + name;
+
+        return name;
     }
 
     @Override
@@ -530,7 +538,14 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        return formatSpecialEnumSymbol(name);
+        // for reserved word, append _
+        if (isReservedWord(enumName))
+            enumName = escapeReservedWord(enumName);
+
+        if (enumName.matches("^\\d.*"))
+            enumName = ENUM_SYMBOL_PREFIX + enumName;
+
+        return enumName;
     }
 
     @Override
@@ -575,29 +590,5 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     @Override
     public boolean checkAliasModel() {
         return true;
-    }
-
-    protected String formatSpecialName(String name) {
-        // for reserved word or word starting with number, append _
-        if (isReservedWord(name))
-            name = escapeReservedWord(name);
-
-        // for reserved word or word starting with number, append _
-        if (name.matches("^\\d.*"))
-            name = VAR_PREFIX + name;
-
-        return name;
-    }
-
-    protected String formatSpecialEnumSymbol(String name) {
-        // for reserved word or word starting with number, append _
-        if (isReservedWord(name))
-            name = escapeReservedWord(name);
-
-        // for reserved word or word starting with number, append _
-        if (name.matches("^\\d.*"))
-            name = ENUM_SYMBOL_PREFIX + name;
-
-        return name;
     }
 }
