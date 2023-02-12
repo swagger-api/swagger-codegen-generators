@@ -530,7 +530,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        return formatSpecialEnumName(name);
+        return formatSpecialEnumSymbol(name);
     }
 
     @Override
@@ -589,7 +589,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         return name;
     }
 
-    protected String formatSpecialEnumName(String name) {
+    protected String formatSpecialEnumSymbol(String name) {
         // for reserved word or word starting with number, append _
         if (isReservedWord(name))
             name = escapeReservedWord(name);
