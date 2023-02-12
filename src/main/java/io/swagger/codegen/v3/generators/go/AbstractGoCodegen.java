@@ -42,6 +42,8 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     protected String packageName = "swagger";
 
+    protected static final String PREFIX_VAR = "Var";
+
     public AbstractGoCodegen() {
         super();
 
@@ -145,15 +147,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         // pet_id => PetId
         name = camelize(name);
 
-        // for reserved word or word starting with number, append _
-        if (isReservedWord(name))
-            name = escapeReservedWord(name);
-
-        // for reserved word or word starting with number, append _
-        if (name.matches("^\\d.*"))
-            name = "Var" + name;
-
-        return name;
+        return formatSpecialName(name);
     }
 
     @Override
@@ -535,11 +529,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        if (isReservedWord(enumName) || enumName.matches("\\d.*")) { // reserved word or starts with number
-            return escapeReservedWord(enumName);
-        } else {
-            return enumName;
-        }
+        return formatSpecialName(name);
     }
 
     @Override
@@ -584,5 +574,17 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     @Override
     public boolean checkAliasModel() {
         return true;
+    }
+
+    protected String formatSpecialName(String name) {
+        // for reserved word or word starting with number, append _
+        if (isReservedWord(name))
+            name = escapeReservedWord(name);
+
+        // for reserved word or word starting with number, append _
+        if (name.matches("^\\d.*"))
+            name = PREFIX_VAR + name;
+
+        return name;
     }
 }
