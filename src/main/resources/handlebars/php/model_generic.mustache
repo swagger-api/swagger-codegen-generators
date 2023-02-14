@@ -15,8 +15,12 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
       * @var string[]
       */
     protected static $swaggerTypes = [
-        {{#vars}}'{{name}}' => '{{{datatype}}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}
+        {{#description}}
+        // {{{description}}}
+        {{/description}}
+        '{{name}}' => '{{{datatype}}}'{{#hasMore}},{{/hasMore}}
+        {{/vars}}
     ];
 
     /**
@@ -25,8 +29,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
       * @var string[]
       */
     protected static $swaggerFormats = [
-        {{#vars}}'{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}
+        '{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},{{/hasMore}}
+        {{/vars}}
     ];
 
     /**
@@ -56,8 +61,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $attributeMap = [
-        {{#vars}}'{{name}}' => '{{baseName}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}
+        '{{name}}' => '{{baseName}}'{{#hasMore}},{{/hasMore}}
+        {{/vars}}
     ];
 
     /**
@@ -66,8 +72,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $setters = [
-        {{#vars}}'{{name}}' => '{{setter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}
+        '{{name}}' => '{{setter}}'{{#hasMore}},{{/hasMore}}
+        {{/vars}}
     ];
 
     /**
@@ -76,8 +83,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
      * @var string[]
      */
     protected static $getters = [
-        {{#vars}}'{{name}}' => '{{getter}}'{{#hasMore}},
-        {{/hasMore}}{{/vars}}
+        {{#vars}}
+        '{{name}}' => '{{getter}}'{{#hasMore}},{{/hasMore}}
+        {{/vars}}
     ];
 
     /**
@@ -121,10 +129,18 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
         return self::$swaggerModelName;
     }
 
-    {{#vars}}{{#isEnum}}{{#allowableValues}}{{#enumVars}}const {{enumName}}_{{{name}}} = {{{value}}};
-    {{/enumVars}}{{/allowableValues}}{{/isEnum}}{{/vars}}
+    {{#vars}}
+    {{#isEnum}}
+    {{#allowableValues}}
+    {{#enumVars}}
+    const {{enumName}}_{{{name}}} = {{{value}}};
+    {{/enumVars}}
+    {{/allowableValues}}
+    {{/isEnum}}
+    {{/vars}}
 
-    {{#vars}}{{#isEnum}}
+    {{#vars}}
+    {{#isEnum}}
     /**
      * Gets allowable values of the enum
      *
@@ -133,11 +149,15 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
     public function {{getter}}AllowableValues()
     {
         return [
-            {{#allowableValues}}{{#enumVars}}self::{{enumName}}_{{{name}}},{{^@last}}
-            {{/@last}}{{/enumVars}}{{/allowableValues}}
+            {{#allowableValues}}
+            {{#enumVars}}
+            self::{{enumName}}_{{{name}}}{{#hasMore}},{{/hasMore}}
+            {{/enumVars}}
+            {{/allowableValues}}
         ];
     }
-    {{/isEnum}}{{/vars}}
+    {{/isEnum}}
+    {{/vars}}
 
     {{^parentSchema}}
     /**
