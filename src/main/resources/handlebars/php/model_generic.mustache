@@ -16,9 +16,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}} {{/parentSchema}}{{^pa
       */
     protected static $swaggerTypes = [
         {{#vars}}
-        {{#description}}
-        // {{{description}}}
-        {{/description}}
         '{{name}}' => '{{{datatype}}}'{{#hasMore}},{{/hasMore}}
         {{/vars}}
     ];
