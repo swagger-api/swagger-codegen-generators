@@ -17,8 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: git checkout
-        with:
-          ref: master
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -51,11 +49,12 @@ jobs:
             }]
       - name: Build with Maven
         run: |
-          export MY_POM_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${projects.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
+          export MY_POM_VERSION=`mvn -Dswagger-codegen-version=3.0.38 -q -Dexec.executable="echo" -Dexec.args='${projects.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
           echo "POM VERSION" ${MY_POM_VERSION}
-          export CODEGEN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${swagger-codegen-version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
+          export CODEGEN_VERSION=`sed -n 's/<swagger\-codegen\-version>\([^\s]*\)<\/swagger\-codegen\-version>/\1/p' pom.xml`
+          export CODEGEN_VERSION=`echo ${CODEGEN_VERSION} | tr -d '[:space:]'`
           echo "CODEGEN_VERSION" ${CODEGEN_VERSION}
-          export CODEGEN_VERSION=""
+          export CODEGEN_VERSION_PROPERTY=""
           if [[ ! $MY_POM_VERSION =~ ^.*SNAPSHOT$ ]];
           then
             if [[ ! $CODEGEN_VERSION =~ ^.*SNAPSHOT$ ]];
@@ -72,7 +71,7 @@ jobs:
                 LAST_SNAP=`jq '.data | sort_by(.lastModified) | reverse | .[0].text' maven-metadata.json`
                 export LAST_SNAP=${LAST_SNAP:1:${#LAST_SNAP}-2}
                 echo "LAST_SNAP $LAST_SNAP"
-                export CODEGEN_VERSION_PROPERTY=-Dswagger-codgen-version=$LAST_SNAP
+                export CODEGEN_VERSION_PROPERTY=-Dswagger-codegen-version=$LAST_SNAP
               fi
             fi
           fi
