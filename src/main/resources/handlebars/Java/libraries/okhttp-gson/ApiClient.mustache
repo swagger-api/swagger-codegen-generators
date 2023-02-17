@@ -2,6 +2,10 @@
 
 package {{invokerPackage}};
 
+import com.squareup.okhttp.*;
+import com.squareup.okhttp.internal.http.HttpMethod;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 import okio.BufferedSink;
 import okio.Okio;
 {{#joda}}
@@ -48,21 +52,6 @@ import {{invokerPackage}}.auth.Authentication;
 import {{invokerPackage}}.auth.HttpBasicAuth;
 import {{invokerPackage}}.auth.ApiKeyAuth;
 import {{invokerPackage}}.auth.OAuth;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.internal.http.HttpMethod;
-import okhttp3.internal.tls.OkHostnameVerifier;
-import okhttp3.logging.HttpLoggingInterceptor;
-import okhttp3.logging.HttpLoggingInterceptor.Level;
 
 public class ApiClient {
 
@@ -417,11 +406,9 @@ public class ApiClient {
             if (debugging) {
                 loggingInterceptor = new HttpLoggingInterceptor();
                 loggingInterceptor.setLevel(Level.BODY);
-                httpClient = httpClient.newBuilder().addInterceptor(loggingInterceptor).build();
+                httpClient.interceptors().add(loggingInterceptor);
             } else {
-                final OkHttpClient.Builder builder = httpClient.newBuilder();
-                builder.interceptors().remove(loggingInterceptor);
-                httpClient = builder.build();
+                httpClient.interceptors().remove(loggingInterceptor);
                 loggingInterceptor = null;
             }
         }
@@ -458,7 +445,7 @@ public class ApiClient {
      * @return Timeout in milliseconds
      */
     public int getConnectTimeout() {
-        return httpClient.connectTimeoutMillis();
+        return httpClient.getConnectTimeout();
     }
 
     /**
@@ -469,7 +456,7 @@ public class ApiClient {
      * @return Api client
      */
     public ApiClient setConnectTimeout(int connectionTimeout) {
-        httpClient = httpClient.newBuilder().connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS).build();
+        httpClient.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
         return this;
     }
 
@@ -479,7 +466,7 @@ public class ApiClient {
      * @return Timeout in milliseconds
      */
     public int getReadTimeout() {
-        return httpClient.readTimeoutMillis();
+        return httpClient.getReadTimeout();
     }
 
     /**
@@ -491,7 +478,7 @@ public class ApiClient {
      * @return Api client
      */
     public ApiClient setReadTimeout(int readTimeout) {
-        httpClient = httpClient.newBuilder().readTimeout(readTimeout, TimeUnit.MILLISECONDS).build();
+        httpClient.setReadTimeout(readTimeout, TimeUnit.MILLISECONDS);
         return this;
     }
 
@@ -501,7 +488,7 @@ public class ApiClient {
      * @return Timeout in milliseconds
      */
     public int getWriteTimeout() {
-        return httpClient.writeTimeoutMillis();
+        return httpClient.getWriteTimeout();
     }
 
     /**
@@ -513,7 +500,7 @@ public class ApiClient {
      * @return Api client
      */
     public ApiClient setWriteTimeout(int writeTimeout) {
-        httpClient = httpClient.newBuilder().writeTimeout(writeTimeout, TimeUnit.MILLISECONDS).build();
+        httpClient.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS);
         return this;
     }
 
@@ -532,11 +519,11 @@ public class ApiClient {
             return jsonStr.substring(1, jsonStr.length() - 1);
         } else if (param instanceof Collection) {
             StringBuilder b = new StringBuilder();
-            for (Object o : (Collection) param) {
+            for (Object o : (Collection)param) {
                 if (b.length() > 0) {
                     b.append(",");
                 }
-                b.append(o);
+                b.append(String.valueOf(o));
             }
             return b.toString();
         } else {
@@ -602,7 +589,7 @@ public class ApiClient {
             delimiter = escapeString("|");
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder() ;
         for (Object item : value) {
             sb.append(delimiter);
             sb.append(escapeString(parameterToString(item)));
@@ -770,12 +757,10 @@ public class ApiClient {
     public RequestBody serialize(Object obj, String contentType) throws ApiException {
         if (obj instanceof byte[]) {
             // Binary (byte array) body parameter support.
-            return RequestBody.create((byte[]) obj, MediaType.parse(contentType));
+            return RequestBody.create(MediaType.parse(contentType), (byte[]) obj);
         } else if (obj instanceof File) {
             // File body parameter support.
-            return RequestBody.create((File) obj, MediaType.parse(contentType));
-        } else if ("text/plain".equals(contentType) && obj instanceof String) {
-            return RequestBody.create((String) obj, MediaType.parse(contentType));
+            return RequestBody.create(MediaType.parse(contentType), (File) obj);
         } else if (isJsonMime(contentType)) {
             String content;
             if (obj != null) {
@@ -783,9 +768,7 @@ public class ApiClient {
             } else {
                 content = null;
             }
-            return RequestBody.create(content, MediaType.parse(contentType));
-        } else if (obj instanceof String) {
-            return RequestBody.create((String) obj, MediaType.parse(contentType));
+            return RequestBody.create(MediaType.parse(contentType), content);
         } else {
             throw new ApiException("Content type \"" + contentType + "\" is not supported");
         }
@@ -910,20 +893,17 @@ public class ApiClient {
     public <T> void executeAsync(Call call, final Type returnType, final ApiCallback<T> callback) {
         call.enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(Request request, IOException e) {
                 callback.onFailure(new ApiException(e), 0, null);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Response response) throws IOException {
                 T result;
                 try {
                     result = (T) handleResponse(response, returnType);
                 } catch (ApiException e) {
                     callback.onFailure(e, response.code(), response.headers().toMultimap());
-                    return;
-                } catch (Exception e) {
-                    callback.onFailure(new ApiException(e), response.code(), response.headers().toMultimap());
                     return;
                 }
                 callback.onSuccess(result, response.code(), response.headers().toMultimap());
@@ -949,7 +929,7 @@ public class ApiClient {
                 if (response.body() != null) {
                     try {
                         response.body().close();
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         throw new ApiException(response.message(), e, response.code(), response.headers().toMultimap());
                     }
                 }
@@ -1138,7 +1118,7 @@ public class ApiClient {
      * @return RequestBody
      */
     public RequestBody buildRequestBodyFormEncoding(Map<String, Object> formParams) {
-        FormBody.Builder formBuilder = new FormBody.Builder();
+        FormEncodingBuilder formBuilder  = new FormEncodingBuilder();
         for (Entry<String, Object> param : formParams.entrySet()) {
             formBuilder.add(param.getKey(), parameterToString(param.getValue()));
         }
@@ -1153,63 +1133,19 @@ public class ApiClient {
      * @return RequestBody
      */
     public RequestBody buildRequestBodyMultipart(Map<String, Object> formParams) {
-        MultipartBody.Builder mpBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        MultipartBuilder mpBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
         for (Entry<String, Object> param : formParams.entrySet()) {
             if (param.getValue() instanceof File) {
                 File file = (File) param.getValue();
-                addPartToMultiPartBuilder(mpBuilder, param.getKey(), file);
-            } else if (param.getValue() instanceof List) {
-                List list = (List) param.getValue();
-                for (Object item: list) {
-                    if (item instanceof File) {
-                        addPartToMultiPartBuilder(mpBuilder, param.getKey(), (File) item);
-                    } else {
-                        addPartToMultiPartBuilder(mpBuilder, param.getKey(), param.getValue());
-                    }
-                }
+                Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\"" + param.getKey() + "\"; filename=\"" + file.getName() + "\"");
+                MediaType mediaType = MediaType.parse(guessContentTypeFromFile(file));
+                mpBuilder.addPart(partHeaders, RequestBody.create(mediaType, file));
             } else {
-                addPartToMultiPartBuilder(mpBuilder, param.getKey(), param.getValue());
+                Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\"" + param.getKey() + "\"");
+                mpBuilder.addPart(partHeaders, RequestBody.create(null, parameterToString(param.getValue())));
             }
         }
         return mpBuilder.build();
-    }
-
-    /**
-     * Add a Content-Disposition Header for the given key and file to the MultipartBody Builder.
-     *
-     * @param mpBuilder MultipartBody.Builder
-     * @param key The key of the Header element
-     * @param file The file to add to the Header
-     */
-    private void addPartToMultiPartBuilder(MultipartBody.Builder mpBuilder, String key, File file) {
-        Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\"" + key + "\"; filename=\"" + file.getName() + "\"");
-        MediaType mediaType = MediaType.parse(guessContentTypeFromFile(file));
-        mpBuilder.addPart(partHeaders, RequestBody.create(file, mediaType));
-    }
-
-    /**
-     * Add a Content-Disposition Header for the given key and complex object to the MultipartBody Builder.
-     *
-     * @param mpBuilder MultipartBody.Builder
-     * @param key The key of the Header element
-     * @param obj The complex object to add to the Header
-     */
-    private void addPartToMultiPartBuilder(MultipartBody.Builder mpBuilder, String key, Object obj) {
-        RequestBody requestBody;
-        if (obj instanceof String) {
-            requestBody = RequestBody.create((String) obj, MediaType.parse("text/plain"));
-        } else {
-            String content;
-            if (obj != null) {
-                content = json.serialize(obj);
-            } else {
-                content = null;
-            }
-            requestBody = RequestBody.create(content, MediaType.parse("application/json"));
-        }
-
-        Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\"" + key + "\"");
-        mpBuilder.addPart(partHeaders, requestBody);
     }
 
     /**
@@ -1233,61 +1169,49 @@ public class ApiClient {
      */
     private void applySslSettings() {
         try {
-            TrustManager[] trustManagers;
-            HostnameVerifier hostnameVerifier;
+            TrustManager[] trustManagers = null;
+            HostnameVerifier hostnameVerifier = null;
             if (!verifyingSsl) {
-                trustManagers = new TrustManager[]{
-                        new X509TrustManager() {
-                            @Override
-                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                            }
-
-                            @Override
-                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                            }
-
-                            @Override
-                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                                return new java.security.cert.X509Certificate[]{};
-                            }
-                        }
+                TrustManager trustAll = new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() { return null; }
                 };
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                trustManagers = new TrustManager[]{ trustAll };
                 hostnameVerifier = new HostnameVerifier() {
                     @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
+                    public boolean verify(String hostname, SSLSession session) { return true; }
                 };
-            } else {
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-
-                if (sslCaCert == null) {
-                    trustManagerFactory.init((KeyStore) null);
-                } else {
-                    char[] password = null; // Any password will work.
-                    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                    Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(sslCaCert);
-                    if (certificates.isEmpty()) {
-                        throw new IllegalArgumentException("expected non-empty set of trusted certificates");
-                    }
-                    KeyStore caKeyStore = newEmptyKeyStore(password);
-                    int index = 0;
-                    for (Certificate certificate : certificates) {
-                        String certificateAlias = "ca" + (index++);
-                        caKeyStore.setCertificateEntry(certificateAlias, certificate);
-                    }
-                    trustManagerFactory.init(caKeyStore);
+            } else if (sslCaCert != null) {
+                char[] password = null; // Any password will work.
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(sslCaCert);
+                if (certificates.isEmpty()) {
+                    throw new IllegalArgumentException("expected non-empty set of trusted certificates");
                 }
+                KeyStore caKeyStore = newEmptyKeyStore(password);
+                int index = 0;
+                for (Certificate certificate : certificates) {
+                    String certificateAlias = "ca" + Integer.toString(index++);
+                    caKeyStore.setCertificateEntry(certificateAlias, certificate);
+                }
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(caKeyStore);
                 trustManagers = trustManagerFactory.getTrustManagers();
-                hostnameVerifier = OkHostnameVerifier.INSTANCE;
             }
 
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(keyManagers, trustManagers, new SecureRandom());
-            httpClient = httpClient.newBuilder()
-                            .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0])
-                            .hostnameVerifier(hostnameVerifier)
-                            .build();
+            if (keyManagers != null || trustManagers != null) {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(keyManagers, trustManagers, new SecureRandom());
+                httpClient.setSslSocketFactory(sslContext.getSocketFactory());
+            } else {
+                httpClient.setSslSocketFactory(null);
+            }
+            httpClient.setHostnameVerifier(hostnameVerifier);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
