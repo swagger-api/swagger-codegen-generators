@@ -352,7 +352,7 @@
                                   <div id='responses-{{nickname}}-{{code}}-schema-{{code}}' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
                                     <script>
                                       $(document).ready(function() {
-                                        var schemaWrapper = {{{jsonSchema}}};
+                                        var schemaWrapper = {{{../jsonSchema}}};
                                         var schema = schemaWrapper.content["{{extensions.x-content-type}}"].schema;
                                         if (schema.$ref != null) {
                                           schema = defsParser.$refs.get(schema.$ref);
