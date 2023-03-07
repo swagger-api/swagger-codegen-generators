@@ -368,6 +368,24 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         return false;
     }
 
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (operationImport.contains("|")) {
+                String[] importNames = operationImport.split("\\|");
+                for (String importName : importNames) {
+                    importName = importName.trim();
+                    if (needToImport(importName)) {
+                        codegenOperation.imports.add(importName);
+                    }
+                }
+            } else {
+                if (needToImport(operationImport)) {
+                    codegenOperation.imports.add(operationImport);
+                }
+            }
+        }
+    }
+
     @Override
     public void postProcessParameter(CodegenParameter parameter) {
         super.postProcessParameter(parameter);
