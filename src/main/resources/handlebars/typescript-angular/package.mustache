@@ -20,23 +20,16 @@
     "build": "ngc && npm pack"
   },
   {{/useNgPackagr}}
-  "peerDependencies": {
-    "@angular/core": "^{{ngVersion}}",{{#useHttpClientPackage}}
-    "@angular/http": "^{{ngVersion}}",{{/useHttpClientPackage}}
-    "@angular/common": "^{{ngVersion}}",
-    "@angular/compiler": "^{{ngVersion}}",
-    "core-js": "^2.4.0",
-    "reflect-metadata": "^0.1.3",
-    "rxjs": "^{{rxjsVersion}}"
-  },
   "devDependencies": {
     "@angular/compiler-cli": "^{{ngVersion}}",
-    "@angular/core": "^{{ngVersion}}",{{#useHttpClientPackage}}
-    "@angular/http": "^{{ngVersion}}",{{/useHttpClientPackage}}
+    "@angular/core": "^{{ngVersion}}",
+    {{#useHttpClientPackage}}
+    "@angular/http": "^{{ngVersion}}",
+    {{/useHttpClientPackage}}
     "@angular/common": "^{{ngVersion}}",
     "@angular/compiler": "^{{ngVersion}}",
-    "@angular/platform-browser": "^{{ngVersion}}",{{#useNgPackagr}}
-    "ng-packagr": "^{{ngPackagrVersion}}",{{/useNgPackagr}}
+    "@angular/platform-browser": "^{{ngVersion}}",
+    "ng-packagr": "^{{ngPackagrVersion}}",
     "reflect-metadata": "^0.1.3",
     "rxjs": "^{{rxjsVersion}}",
     "typescript": "{{{tsVersion}}}",
