@@ -307,6 +307,10 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public String  getSchemaType(Schema schema) {
         String swaggerType = super.getSchemaType(schema);
+        if (swaggerType == null) {
+            // default to object, see #10496
+            swaggerType = "object";
+        }
         if (schema instanceof ComposedSchema) {
             ComposedSchema composedSchema = (ComposedSchema)schema;
             if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {

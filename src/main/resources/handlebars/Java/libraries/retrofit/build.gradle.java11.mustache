@@ -28,7 +28,10 @@ dependencies {
     {{^useOas2}}
     implementation "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/useOas2}}
-    implementation "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: 'org.json', module: 'json'
+    }
+    implementation "org.json:json:20180130"
     implementation "joda-time:joda-time:$jodatime_version"
     implementation "com.sun.xml.ws:jaxws-rt:2.3.3"
     testImplementation "junit:junit:$junit_version"
