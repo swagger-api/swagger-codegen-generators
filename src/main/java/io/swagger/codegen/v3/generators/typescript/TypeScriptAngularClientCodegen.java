@@ -212,8 +212,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             this.setNpmVersion(additionalProperties.get(NPM_VERSION).toString());
         }
 
-        if (additionalProperties.containsKey(SNAPSHOT)
-                && Boolean.valueOf(additionalProperties.get(SNAPSHOT).toString())) {
+        if (additionalProperties.containsKey(SNAPSHOT) && Boolean.parseBoolean(additionalProperties.get(SNAPSHOT).toString())) {
             this.setNpmVersion(npmVersion + "-SNAPSHOT." + SNAPSHOT_SUFFIX_FORMAT.format(new Date()));
         }
         additionalProperties.put(NPM_VERSION, npmVersion);
@@ -223,35 +222,50 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         }
 
         additionalProperties.put("useHttpClientPackage", false);
-        if (ngVersion.atLeast("11.0.0")) {
+        if (ngVersion.atLeast("15.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.8.2 <4.10.0");
+            additionalProperties.put("rxjsVersion", "7.5.5");
+            additionalProperties.put("ngPackagrVersion", "15.0.2");
+            additionalProperties.put("zonejsVersion", "0.11.5");
+        } else if (ngVersion.atLeast("14.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.6.0 <=4.8.0");
+            additionalProperties.put("rxjsVersion", "7.5.5");
+            additionalProperties.put("ngPackagrVersion", "14.0.2");
+            additionalProperties.put("zonejsVersion", "0.11.5");
+        } else if (ngVersion.atLeast("13.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.4.2 <4.5.0");
+            additionalProperties.put("rxjsVersion", "7.4.0");
+            additionalProperties.put("ngPackagrVersion", "13.0.3");
+            additionalProperties.put("zonejsVersion", "0.11.4");
+        } else if (ngVersion.atLeast("12.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.3.0 <4.4.0");
+            additionalProperties.put("rxjsVersion", "7.4.0");
+            additionalProperties.put("ngPackagrVersion", "12.2.1");
+            additionalProperties.put("zonejsVersion", "0.11.4");
+        } else if (ngVersion.atLeast("11.0.0")) {
             additionalProperties.put("tsVersion", ">=4.0.0 <4.1.0");
             additionalProperties.put("rxjsVersion", "6.6.0");
             additionalProperties.put("ngPackagrVersion", "11.0.2");
-            additionalProperties.put("tsickleVersion", "0.39.1");
             additionalProperties.put("zonejsVersion", "0.11.3");
         } else if (ngVersion.atLeast("10.0.0")) {
             additionalProperties.put("tsVersion", ">=3.9.2 <4.0.0");
             additionalProperties.put("rxjsVersion", "6.6.0");
             additionalProperties.put("ngPackagrVersion", "10.0.3");
-            additionalProperties.put("tsickleVersion", "0.39.1");
             additionalProperties.put("zonejsVersion", "0.10.2");
         } else if (ngVersion.atLeast("9.0.0")) {
             additionalProperties.put("tsVersion", ">=3.6.0 <3.8.0");
             additionalProperties.put("rxjsVersion", "6.5.3");
             additionalProperties.put("ngPackagrVersion", "9.0.1");
-            additionalProperties.put("tsickleVersion", "0.38.0");
             additionalProperties.put("zonejsVersion", "0.10.2");
         } else if (ngVersion.atLeast("8.0.0")) {
             additionalProperties.put("tsVersion", ">=3.4.0 <3.6.0");
             additionalProperties.put("rxjsVersion", "6.5.0");
             additionalProperties.put("ngPackagrVersion", "5.4.0");
-            additionalProperties.put("tsickleVersion", "0.35.0");
             additionalProperties.put("zonejsVersion", "0.9.1");
         } else if (ngVersion.atLeast("7.0.0")) {
             additionalProperties.put("tsVersion", ">=3.1.1 <3.2.0");
             additionalProperties.put("rxjsVersion", "6.3.0");
             additionalProperties.put("ngPackagrVersion", "5.1.0");
-            additionalProperties.put("tsickleVersion", "0.34.0");
             additionalProperties.put("zonejsVersion", "0.8.26");
 
             additionalProperties.put("useHttpClientPackage", true);
@@ -259,7 +273,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             additionalProperties.put("tsVersion", ">=2.7.2 and <2.10.0");
             additionalProperties.put("rxjsVersion", "6.1.0");
             additionalProperties.put("ngPackagrVersion", "3.0.6");
-            additionalProperties.put("tsickleVersion", "0.32.1");
             additionalProperties.put("zonejsVersion", "0.8.26");
 
             additionalProperties.put("useHttpClientPackage", true);
@@ -267,7 +280,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             additionalProperties.put("tsVersion", ">=2.1.5 and <2.8");
             additionalProperties.put("rxjsVersion", "6.1.0");
             additionalProperties.put("ngPackagrVersion", "3.0.6");
-            additionalProperties.put("tsickleVersion", "0.32.1");
             additionalProperties.put("zonejsVersion", "0.8.26");
 
             additionalProperties.put("useHttpClientPackage", true);
@@ -354,6 +366,24 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             }
         }
         return false;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (operationImport.contains("|")) {
+                String[] importNames = operationImport.split("\\|");
+                for (String importName : importNames) {
+                    importName = importName.trim();
+                    if (needToImport(importName)) {
+                        codegenOperation.imports.add(importName);
+                    }
+                }
+            } else {
+                if (needToImport(operationImport)) {
+                    codegenOperation.imports.add(operationImport);
+                }
+            }
+        }
     }
 
     @Override

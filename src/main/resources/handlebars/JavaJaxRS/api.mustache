@@ -121,7 +121,7 @@ public class {{classname}}  {
     {{/useOas2}}
     public Response {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}},{{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#parameters}}{{paramName}},{{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{#isBodyParam}}{{paramName}}{{/isBodyParam}}{{^isBodyParam}}{{paramName}}InputStream, {{paramName}}Detail{{/isBodyParam}}{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
     }
 {{/@first}}
 {{/contents}}
