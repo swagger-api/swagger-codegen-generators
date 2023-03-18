@@ -110,7 +110,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         instantiationTypes.put("array", "array");
         instantiationTypes.put("map", "map");
-        
+
         // provide primitives to mustache template
         List<String> sortedLanguageSpecificPrimitives= new ArrayList<String>(languageSpecificPrimitives);
         Collections.sort(sortedLanguageSpecificPrimitives);
@@ -295,10 +295,10 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         if (additionalProperties.containsKey(VARIABLE_NAMING_CONVENTION)) {
             this.setParameterNamingConvention((String) additionalProperties.get(VARIABLE_NAMING_CONVENTION));
         }
-        if (StringUtils.isBlank(composerVendorName)) {
+        if (StringUtils.isBlank(composerVendorName) && additionalProperties.get(CodegenConstants.GIT_USER_ID) != null) {
             additionalProperties.put(CodegenConstants.GIT_USER_ID, StringUtils.lowerCase(additionalProperties.get(CodegenConstants.GIT_USER_ID).toString()));
         }
-        if (StringUtils.isBlank(composerProjectName)) {
+        if (StringUtils.isBlank(composerProjectName) && additionalProperties.get(CodegenConstants.GIT_REPO_ID) != null) {
             additionalProperties.put(CodegenConstants.GIT_REPO_ID, StringUtils.lowerCase(additionalProperties.get(CodegenConstants.GIT_REPO_ID).toString()));
         }
 
