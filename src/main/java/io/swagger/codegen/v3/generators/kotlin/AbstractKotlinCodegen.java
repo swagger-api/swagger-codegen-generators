@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.jknack.handlebars.helper.StringHelpers;
@@ -182,6 +183,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         typeMapping.put("binary", "kotlin.Array<kotlin.Byte>");
         typeMapping.put("Date", "java.time.LocalDate");
         typeMapping.put("DateTime", "java.time.LocalDateTime");
+        typeMapping.put("ByteArray", "kotlin.ByteArray");
 
         instantiationTypes.put("array", "arrayOf");
         instantiationTypes.put("list", "arrayOf");
@@ -506,6 +508,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     @Override
     public String toVarName(String name) {
         return super.toVarName(sanitizeKotlinSpecificNames(name));
+    }
+
+    @Override
+    public String toEnumName(CodegenProperty property) {
+        return StringUtils.capitalize(property.name);
     }
 
     @Override
