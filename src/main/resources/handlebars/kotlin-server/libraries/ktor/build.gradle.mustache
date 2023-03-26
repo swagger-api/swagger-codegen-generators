@@ -2,16 +2,19 @@ group '{{groupId}}'
 version '{{artifactVersion}}'
 
 wrapper {
-    gradleVersion = '5.3'
+    gradleVersion = '7.5'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
 buildscript {
-    ext.kotlin_version = '1.4.30'
-    ext.ktor_version = '1.5.1'
-    ext.shadow_version = '5.2.0'
+    ext.kotlin_version = '1.8.0'
+    ext.ktor_version = "1.5.4"
+    ext.shadow_version = "6.1.0"
 
     repositories {
+        maven {
+            url "https://repo1.maven.org/maven2"
+        }
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -40,12 +43,6 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
-
 shadowJar {
     baseName = '{{artifactId}}'
     classifier = null
@@ -59,13 +56,13 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "io.ktor:ktor-server-netty:$ktor_version"
-    compile "io.ktor:ktor-metrics:$ktor_version"
-    compile "io.ktor:ktor-locations:$ktor_version"
-    compile "io.ktor:ktor-gson:$ktor_version"
-    compile "io.ktor:ktor-client-core:$ktor_version"
-    compile "io.ktor:ktor-client-apache:$ktor_version"
-    compile "ch.qos.logback:logback-classic:1.2.9"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-metrics:$ktor_version"
+    implementation "io.ktor:ktor-locations:$ktor_version"
+    implementation "io.ktor:ktor-gson:$ktor_version"
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-apache:$ktor_version"
+    implementation "ch.qos.logback:logback-classic:1.2.9"
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

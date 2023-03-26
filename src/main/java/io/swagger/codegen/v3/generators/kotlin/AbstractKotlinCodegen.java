@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -519,6 +520,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(StringHelpers.class);
+        handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
     /**
