@@ -234,12 +234,12 @@ use {{invokerPackage}}\Authentication\Authenticator;
         }
         for ($retries = 0; ; $retries++) {
 
-            {{#authMethods}}{{#isOAuth}}
+            {{#authMethods}}
             // this endpoint requires OAuth (access token)
             if (strlen($this->apiClient->getConfig()->getAccessToken()) !== 0) {
                 $headerParams['Authorization'] = 'Bearer ' . $this->apiClient->getConfig()->getAccessToken();
             }
-            {{/isOAuth}}{{/authMethods}}
+            {{/authMethods}}
 
             // make the API Call
             try {
@@ -267,12 +267,12 @@ use {{invokerPackage}}\Authentication\Authenticator;
             } catch (ApiException $e) {
                 switch ($e->getCode()) {
                 {{#responses}}
-                    {{#dataType}}{{#defaultStatus code}}{{#authMethods}}{{#isOAuth}}case 401:
+                    {{#dataType}}{{#defaultStatus code}}{{#authMethods}}case 401:
                         if ($retries < 1) {
                             Authenticator::reauthenticate();
                             continue 2;
                         }
-                    {{/isOAuth}}{{/authMethods}}default:{{else}}case {{code}}:{{/defaultStatus}}
+                    {{/authMethods}}default:{{else}}case {{code}}:{{/defaultStatus}}
                         $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '{{dataType}}', $e->getResponseHeaders());
                         $e->setResponseObject($data);
                         break;

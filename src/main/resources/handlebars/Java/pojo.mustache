@@ -1,3 +1,16 @@
+{{#hasEnums}}
+{{#jackson}}
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+{{/jackson}}
+{{#gson}}
+import java.io.IOException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+{{/gson}}
+{{/hasEnums}}
 
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
