@@ -1,7 +1,17 @@
 package {{invokerPackage}};
 
+{{#jakarta}}
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+import jakarta.servlet.ServletConfig;
+import jakarta.ws.rs.core.Context;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import javax.servlet.ServletConfig;
+import javax.ws.rs.core.Context;
+{{/jakarta}}
 
 import java.util.Set;
 import java.util.HashSet;
@@ -10,7 +20,6 @@ import java.util.HashSet;
 import io.swagger.jaxrs.config.BeanConfig;
 {{/useOas2}}
 {{^useOas2}}
-import javax.servlet.ServletConfig;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
@@ -18,7 +27,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import javax.ws.rs.core.Context;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 {{/useOas2}}

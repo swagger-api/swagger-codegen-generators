@@ -9,7 +9,12 @@ import java.util.ArrayList;
 import java.io.Serializable;
 {{/serializableModel}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{/x-is-composed-model}}
 {{#models}}
