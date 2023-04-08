@@ -8,8 +8,14 @@ import java.util.Objects;
 import java.io.Serializable;
 {{/serializableModel}}
 {{#useBeanValidation}}
-import javax.validation.Valid;
+{{#jakarta}}
 import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/jakarta}}
+{{^jakarta}}
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{/x-is-composed-model}}
 import io.vertx.core.json.JsonObject;

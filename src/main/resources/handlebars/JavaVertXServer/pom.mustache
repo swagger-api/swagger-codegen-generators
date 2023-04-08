@@ -11,12 +11,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.8</java.version>
+		<java.version>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</java.version>
 		<jupiter.version>5.9.1</jupiter.version>
-		<vertx.version>4.3.7</vertx.version>
+		<vertx.version>4.4.1</vertx.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
-		<jackson.version>2.14.1</jackson.version>
+		<jackson.version>2.14.2</jackson.version>
 		<joschi.version>2.12.5</joschi.version>
     <slf4j-version>2.0.6</slf4j-version>
 	</properties>
@@ -85,15 +85,16 @@
     {{#useBeanValidation}}
     <!-- Bean Validation API support -->
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}2.0.2{{/jakarta}}</version>
     </dependency>
     {{/useBeanValidation}}
     {{#notNullJacksonAnnotation}}
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
     {{/notNullJacksonAnnotation}}
 
