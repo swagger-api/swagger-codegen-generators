@@ -15,8 +15,14 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 {{/joda}}
 
+{{#jakarta}}
+import jakarta.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ext.Provider;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+{{/jakarta}}
 import java.io.IOException;
 
 @Provider

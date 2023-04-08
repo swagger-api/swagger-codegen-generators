@@ -60,9 +60,9 @@
     <dependencies>
         <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>{{#jakarta}}10.0.0{{/jakarta}}{{^jakarta}}8.0.0{{/jakarta}}</version>
             <scope>provided</scope>
         </dependency>
         {{#useOas2}}
@@ -84,12 +84,22 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j-version}</version>
         </dependency>
+      {{#jakarta}}
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+      {{/jakarta}}
+      {{^jakarta}}
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
+      {{/jakarta}}
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -121,9 +131,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.2</version>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>{{#jakarta}}2.1.1{{/jakarta}}{{^jakarta}}1.3.5{{/jakarta}}</version>
             <scope>provided</scope>
         </dependency>
 {{#java8}}
@@ -194,9 +204,9 @@
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
     <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>1.1.0.Final</version>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}2.0.2{{/jakarta}}</version>
         <scope>provided</scope>
     </dependency>
 {{/useBeanValidation}}        
@@ -222,7 +232,7 @@
         <resteasy-version>3.0.11.Final</resteasy-version>
         <slf4j-version>1.6.3</slf4j-version>
         <junit-version>4.13.1</junit-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}3.1.0{{/jakarta}}</servlet-api-version>
         {{#java8}}<jackson-version>2.10.1</jackson-version>{{/java8}}
     </properties>
 </project>

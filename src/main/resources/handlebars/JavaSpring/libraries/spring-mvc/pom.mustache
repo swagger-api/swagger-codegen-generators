@@ -175,11 +175,20 @@
             <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
+{{#jakarta}}
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta-api</artifactId>
+            <version>${servlet-api-version}</version>
+        </dependency>
+{{/jakarta}}
+{{^jakarta}}
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>
         </dependency>
+{{/jakarta}}
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
     <dependency>
@@ -230,7 +239,7 @@
         <jetty-version>9.3.28.v20191105</jetty-version>
         <slf4j-version>1.7.21</slf4j-version>
         <junit-version>4.13.1</junit-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}3.1.0{{/jakarta}}</servlet-api-version>
         {{#useOas2}}
         <springfox-version>2.9.2</springfox-version>
         {{/useOas2}}

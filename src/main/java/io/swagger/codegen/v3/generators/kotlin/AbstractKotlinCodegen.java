@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.jknack.handlebars.helper.StringHelpers;
@@ -182,6 +184,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         typeMapping.put("binary", "kotlin.Array<kotlin.Byte>");
         typeMapping.put("Date", "java.time.LocalDate");
         typeMapping.put("DateTime", "java.time.LocalDateTime");
+        typeMapping.put("ByteArray", "kotlin.ByteArray");
 
         instantiationTypes.put("array", "arrayOf");
         instantiationTypes.put("list", "arrayOf");
@@ -509,9 +512,15 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toEnumName(CodegenProperty property) {
+        return StringUtils.capitalize(property.name);
+    }
+
+    @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(StringHelpers.class);
+        handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
     /**

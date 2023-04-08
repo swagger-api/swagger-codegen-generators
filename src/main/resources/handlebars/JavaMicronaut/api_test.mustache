@@ -8,7 +8,12 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
+{{#jakarta}}
+import jakarta.inject.Inject;
+{{/jakarta}}
+{{^jakarta}}
 import javax.inject.Inject;
+{{/jakarta}}
 
 import java.util.*;
 

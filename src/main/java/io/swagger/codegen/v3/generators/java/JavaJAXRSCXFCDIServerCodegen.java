@@ -5,8 +5,6 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 
 /**
@@ -48,7 +46,14 @@ public class JavaJAXRSCXFCDIServerCodegen extends JavaJAXRSSpecServerCodegen imp
 
         super.processOpts();
 
-        importMapping.put("Valid", "javax.validation.Valid");
+        if (additionalProperties.containsKey(JAKARTA)) {
+            setJakarta(convertPropertyToBoolean(JAKARTA));
+        }
+        if (jakarta) {
+            importMapping.put("Valid", "jakarta.validation.Valid");
+        } else {
+            importMapping.put("Valid", "javax.validation.Valid");
+        }
 
         // Three API templates to support CDI injection
         apiTemplateFiles.put("apiService.mustache", ".java");

@@ -45,8 +45,8 @@
 {{#useBeanValidation}}
         <dependencies>
           <dependency>
-              <groupId>javax.validation</groupId>
-              <artifactId>validation-api</artifactId>
+              <groupId>jakarta.validation</groupId>
+              <artifactId>jakarta.validation-api</artifactId>
               <version>${beanvalidation-version}</version>
           </dependency>
         </dependencies>
@@ -129,11 +129,20 @@
       <artifactId>jersey-server</artifactId>
       <version>${jersey-version}</version>
     </dependency>
+{{#jakarta}}
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta-api</artifactId>
+      <version>${servlet-api-version}</version>
+    </dependency>
+{{/jakarta}}
+{{^jakarta}}
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${servlet-api-version}</version>
     </dependency>
+{{/jakarta}}
 
     <dependency>
       <groupId>junit</groupId>
@@ -180,8 +189,8 @@
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
     <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
         <version>${beanvalidation-version}</version>
         <scope>provided</scope>
     </dependency>
@@ -206,9 +215,9 @@
     <jackson-version>2.8.9</jackson-version>
     <slf4j-version>1.7.21</slf4j-version>
     <junit-version>4.13.1</junit-version>
-    <servlet-api-version>2.5</servlet-api-version>
+    <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}3.1.0{{/jakarta}}</servlet-api-version>
 {{#useBeanValidation}}
-    <beanvalidation-version>1.1.0.Final</beanvalidation-version>
+    <beanvalidation-version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}2.0.2{{/jakarta}}</beanvalidation-version>
 {{/useBeanValidation}}
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

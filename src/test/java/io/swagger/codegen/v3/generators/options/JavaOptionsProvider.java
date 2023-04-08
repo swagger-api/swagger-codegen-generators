@@ -78,6 +78,7 @@ public class JavaOptionsProvider implements OptionsProvider {
                 .put(CodegenConstants.USE_OAS2, "true")
                 .put(JavaClientCodegen.CHECK_DUPLICATED_MODEL_NAME, "false")
                 .put(JavaClientCodegen.WIREMOCK_OPTION, "false")
+                .put(JavaClientCodegen.JAKARTA, "false")
                 //.put("supportJava6", "true")
                 .build();
     }
