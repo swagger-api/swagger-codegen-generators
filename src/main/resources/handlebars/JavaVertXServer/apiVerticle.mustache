@@ -1,0 +1,92 @@
+package {{verticlePackage}};
+
+{{#mountFromInterface}}{{#apiInfo}}{{#apis}}import {{{package}}}.{{{classFilename}}};
+import static {{{package}}}.{{{classFilename}}}.WEBSERVICE_ADDRESS_{{#lambda.uppercase}}{{{classFilename}}}{{/lambda.uppercase}};
+{{/apis}}{{/apiInfo}}{{/mountFromInterface}}
+
+{{#rxInterface}}
+import io.reactivex.Completable;
+import io.vertx.reactivex.core.AbstractVerticle;
+import io.vertx.reactivex.core.eventbus.MessageConsumer;
+import io.vertx.reactivex.core.http.HttpServer;
+import io.vertx.reactivex.ext.web.Router;
+import io.vertx.reactivex.ext.web.openapi.RouterBuilder;
+{{/rxInterface}}
+{{^rxInterface}}
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.http.HttpServer;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.openapi.RouterBuilder;
+{{/rxInterface}}
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.openapi.RouterBuilderOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class {{title}}Verticle extends AbstractVerticle {
+    static final Logger LOGGER = LoggerFactory.getLogger({{title}}Verticle.class);
+
+    HttpServer server;
+
+    @Override
+    {{^rxInterface}}public void start(Promise<Void> startPromise) throws Exception {
+      RouterBuilder.create(this.vertx, "{{specLocation}}")
+      .flatMap(routerBuilder -> { {{/rxInterface}}
+    {{#rxInterface}}public Completable rxStart() {
+      return RouterBuilder.rxCreate(this.vertx, "{{specLocation}}")
+      .map(routerBuilder -> { {{/rxInterface}}
+        RouterBuilderOptions factoryOptions = new RouterBuilderOptions()
+          .setRequireSecurityHandlers(false)
+          .setMountResponseContentTypeHandler(true);
+        routerBuilder.setOptions(factoryOptions);
+
+{{#mountFromExtensions}}        routerBuilder.mountServicesFromExtensions();{{/mountFromExtensions}}
+{{#mountFromInterface}}{{#apiInfo}}{{#apis}}        routerBuilder.mountServiceInterface({{{classFilename}}}.class, WEBSERVICE_ADDRESS_{{#lambda.uppercase}}{{{classFilename}}}{{/lambda.uppercase}});
+        {{/apis}}{{/apiInfo}}{{/mountFromInterface}}
+
+        return {{#rxInterface}}routerBuilder.createRouter(){{/rxInterface}}{{^rxInterface}}Future.succeededFuture(routerBuilder.createRouter()){{/rxInterface}};
+      })
+      .flatMap(openapiRouter -> {
+        Router router = Router.router(vertx);
+
+        server = vertx.createHttpServer(new HttpServerOptions().setPort({{serverPort}}).setHost("localhost"))
+          .requestHandler(router);
+
+        router.route("/*").subRouter(openapiRouter);
+
+        router.route().last().handler(context ->
+          context.response()
+            .setStatusCode(404)
+            .end(new JsonObject()
+              .put("message", "Resource not found")
+              .encode())
+        );
+
+        {{#rxInterface}}return server.rxListen()
+          .doOnSuccess(server -> LOGGER.info("SwaggerPetstoreVerticle started on port " + server.actualPort()));
+      })
+      .ignoreElement();
+    }
+
+  @Override
+  public Completable rxStop() {
+    return this.server.rxClose();
+  }{{/rxInterface}}
+      {{^rxInterface}}return server.listen()
+          .onSuccess(server -> LOGGER.info("{{title}}Verticle started on port " + server.actualPort()));
+      })
+      .onSuccess(server -> startPromise.complete())
+      .onFailure(startPromise::fail);
+    }
+
+  @Override
+  public void stop(Promise<Void> stopPromise) throws Exception {
+    this.server.close()
+      .onSuccess(server -> stopPromise.complete())
+      .onFailure(stopPromise::fail);
+  }{{/rxInterface}}
+
+}
