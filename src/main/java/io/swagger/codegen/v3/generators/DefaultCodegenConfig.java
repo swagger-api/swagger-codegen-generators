@@ -2355,7 +2355,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             if (getBooleanValue(codegenProperty, CodegenConstants.IS_FILE_EXT_NAME)) {
                 codegenResponse.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
-            } if (getBooleanValue(codegenProperty, CodegenConstants.IS_BINARY_EXT_NAME)) {
+            }
+            if (getBooleanValue(codegenProperty, CodegenConstants.IS_BINARY_EXT_NAME)) {
                 codegenResponse.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
             } else if (getBooleanValue(codegenProperty, CodegenConstants.IS_STRING_EXT_NAME)) {
                 codegenResponse.getVendorExtensions().put(CodegenConstants.IS_STRING_EXT_NAME, Boolean.TRUE);
