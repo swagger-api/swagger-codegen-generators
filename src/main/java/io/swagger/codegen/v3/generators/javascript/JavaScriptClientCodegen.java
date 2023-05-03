@@ -596,11 +596,13 @@ public class JavaScriptClientCodegen extends DefaultCodegenConfig {
         }
         name = sanitizeName(name);  // FIXME parameter should not be assigned. Also declare it as "final"
 
-        if (!StringUtils.isEmpty(modelNamePrefix)) {
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+	    !name.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) {
             name = modelNamePrefix + "_" + name;
         }
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) {
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !name.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) {
             name = name + "_" + modelNameSuffix;
         }
 
