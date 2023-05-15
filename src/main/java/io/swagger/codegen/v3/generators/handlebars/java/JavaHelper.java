@@ -89,7 +89,7 @@ public class JavaHelper {
         if (withXml && jakarta) {
             builder.append("import jakarta.xml.bind.annotation.*;\n");
         } else if (withXml) {
-            builder.append("import jakarta.xml.bind.annotation.*;\n");
+            builder.append("import javax.xml.bind.annotation.*;\n");
         }
         if (parcelableModel) {
             builder.append("import android.os.Parcelable;\n");
