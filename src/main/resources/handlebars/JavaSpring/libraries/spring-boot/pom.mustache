@@ -146,10 +146,18 @@
         {{#useBeanValidation}}
 
         <!-- Bean Validation API support -->
+        {{#jakarta}}
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+        {{/jakarta}}
+        {{^jakarta}}
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        {{/jakarta}}
         {{/useBeanValidation}}
         {{#notNullJacksonAnnotation}}
             <dependency>
