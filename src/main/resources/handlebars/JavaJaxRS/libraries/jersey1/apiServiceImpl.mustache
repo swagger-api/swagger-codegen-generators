@@ -39,7 +39,7 @@ public class {{classname}}ServiceImpl extends {{classname}}Service {
     {{#operation}}
     {{#contents}}
     @Override
-    public Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}, {{/parameters}}SecurityContext securityContext)
+    public Response {{nickname}}({{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>serviceCookieParams}}, {{/parameters}}SecurityContext securityContext)
     throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();

@@ -9,6 +9,7 @@ import {{package}}.*;
 {{/imports}}
 
 import java.util.List;
+import java.util.Map;
 import {{package}}.NotFoundException;
 
 import java.io.InputStream;
@@ -27,8 +28,7 @@ import javax.ws.rs.core.SecurityContext;
 public interface {{classname}}Service {
   {{#operation}}
   {{#contents}}
-      Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{^isMultipart}}{{>serviceFormParams}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}SecurityContext securityContext)
-      throws NotFoundException;
+      Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>serviceQueryParams}}{{>serviceCookieParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>comma}}{{/parameters}}SecurityContext securityContext) throws NotFoundException;
   {{/contents}}
   {{/operation}}
 }
