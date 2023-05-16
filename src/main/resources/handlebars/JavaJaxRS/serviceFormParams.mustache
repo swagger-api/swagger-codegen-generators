@@ -1,1 +1,1 @@
-{{#isFormParam}}{{^isBinary}}{{{dataType}}} {{paramName}}{{/isBinary}}{{/isFormParam}}
+{{#isFormParam}}{{^isBinary}}{{{dataType}}} {{paramName}}{{/isBinary}}{{#isBinary}}java.io.InputStream {{paramName}}InputStream, FormDataContentDisposition {{paramName}}Detail{{/isBinary}}{{/isFormParam}}
