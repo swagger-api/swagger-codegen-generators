@@ -46,12 +46,22 @@
     <dependencies>
 
         <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
+        {{#jakarta}}
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>{{#jakarta}}10.0.0{{/jakarta}}{{^jakarta}}8.0.0{{/jakarta}}</version>
+            <version>10.0.0</version>
             <scope>provided</scope>
         </dependency>
+        {{/jakarta}}
+        {{^jakarta}}
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        {{/jakarta}}
 
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxrs -->
         <dependency>
@@ -88,12 +98,22 @@
         
 {{#useBeanValidation}}
        <!-- Bean Validation API support -->
+       {{#jakarta}}
        <dependency>
            <groupId>jakarta.validation</groupId>
            <artifactId>jakarta.validation-api</artifactId>
-           <version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}2.0.2{{/jakarta}}</version>
+           <version>3.0.2</version>
            <scope>provided</scope>
        </dependency>
+       {{/jakarta}}
+       {{^jakarta}}
+       <dependency>
+           <groupId>javax.validation</groupId>
+           <artifactId>validation-api</artifactId>
+           <version>1.1.0.Final</version>
+           <scope>provided</scope>
+       </dependency>
+       {{/jakarta}}
 {{/useBeanValidation}}
 
     </dependencies>

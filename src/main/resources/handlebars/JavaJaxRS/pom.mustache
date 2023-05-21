@@ -53,11 +53,20 @@
         </configuration>
 {{#useBeanValidation}}
         <dependencies>
+          {{#jakarta}}
           <dependency>
-              <groupId>jakarta.validation</groupId>
-              <artifactId>jakarta.validation-api</artifactId>
-              <version>${beanvalidation-version}</version>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${beanvalidation-version}</version>
           </dependency>
+          {{/jakarta}}
+          {{^jakarta}}
+          <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${beanvalidation-version}</version>
+          </dependency>
+          {{/jakarta}}
         </dependencies>
 {{/useBeanValidation}}
         <executions>
@@ -137,11 +146,27 @@
       <version>${junit-version}</version>
       <scope>test</scope>
     </dependency>
+    {{#jakarta}}
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api-version}</version>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${servlet-api-version}</version>
     </dependency>
+
+    <dependency>
+        <groupId>jakarta.platform</groupId>
+        <artifactId>jakarta.jakartaee-api</artifactId>
+        <version>10.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
+     <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>${servlet-api-version}</version>
+    </dependency>
+    {{/jakarta}}
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet-core</artifactId>
@@ -204,12 +229,27 @@
 
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
+    {{#jakarta}}
     <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
         <version>${beanvalidation-version}</version>
-        <scope>provided</scope>
     </dependency>
+
+    <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>2.1.1</version>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>${beanvalidation-version}</version>
+    </dependency>
+    {{/jakarta}}
+
 {{/useBeanValidation}}
 
   </dependencies>
@@ -241,9 +281,9 @@
   {{/supportJava6}}
     <junit-version>4.13.1</junit-version>
     <logback-version>1.2.9</logback-version>
-    <servlet-api-version>2.5</servlet-api-version>
+    <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}2.5{{/jakarta}}</servlet-api-version>
 {{#useBeanValidation}}
-    <beanvalidation-version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}2.0.2{{/jakarta}}</beanvalidation-version>
+    <beanvalidation-version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}1.1.0.Final{{/jakarta}}</beanvalidation-version>
 {{/useBeanValidation}}
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

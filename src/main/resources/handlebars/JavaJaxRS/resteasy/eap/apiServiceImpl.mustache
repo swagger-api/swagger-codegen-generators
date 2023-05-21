@@ -9,6 +9,7 @@ import {{package}}.*;
 {{/imports}}
 
 import java.util.List;
+import java.util.Map;
 
 import java.io.InputStream;
 
@@ -26,7 +27,7 @@ import javax.ws.rs.core.SecurityContext;
 public class {{classname}}ServiceImpl implements {{classname}} {
   {{#operation}}
   {{#contents}}
-      public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{^isMultipart}}{{>serviceFormParams}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}SecurityContext securityContext) {
+      public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>serviceCookieParams}}{{>comma}}{{/parameters}}SecurityContext securityContext) {
       // do some magic!
       return Response.ok().build();
   }
