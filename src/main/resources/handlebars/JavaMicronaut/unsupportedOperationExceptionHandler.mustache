@@ -8,7 +8,12 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 
+{{#jakarta}}
+import jakarta.inject.Singleton;
+{{/jakarta}}
+{{^jakarta}}
 import javax.inject.Singleton;
+{{/jakarta}}
 
 @Produces
 @Singleton

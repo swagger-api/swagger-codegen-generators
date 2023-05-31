@@ -8,8 +8,14 @@ import java.io.Serializable;
 {{/serializableModel}}
 {{#useBeanValidation}}
 import io.micronaut.validation.Validated;
+{{#jakarta}}
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{#jackson}}
 {{#withXml}}
@@ -18,7 +24,12 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 {{/withXml}}
 {{/jackson}}
 {{#withXml}}
+{{#jakarta}}
+import jakarta.xml.bind.annotation.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.xml.bind.annotation.*;
+{{/jakarta}}
 {{/withXml}}
 
 {{#models}}

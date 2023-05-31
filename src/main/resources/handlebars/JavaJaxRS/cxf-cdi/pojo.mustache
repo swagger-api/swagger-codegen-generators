@@ -6,7 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 {{/useOas2}}
 import java.util.Objects;
 
+{{#jakarta}}
+import jakarta.xml.bind.annotation.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.xml.bind.annotation.*;
+{{/jakarta}}
 
 {{#description}}{{#useOas2}}@ApiModel{{/useOas2}}{{^useOas2}}@Schema{{/useOas2}}(description = "{{{description}}}"){{/description}}
 

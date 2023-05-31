@@ -41,11 +41,22 @@
         </configuration>
 {{#useBeanValidation}}
         <dependencies>
+          {{#jakarta}}
           <dependency>
-              <groupId>javax.validation</groupId>
-              <artifactId>validation-api</artifactId>
-              <version>${beanvalidation-version}</version>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${beanvalidation-version}</version>
+            <scope>provided</scope>
           </dependency>
+          {{/jakarta}}
+          {{^jakarta}}
+          <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${beanvalidation-version}</version>
+            <scope>provided</scope>
+          </dependency>
+          {{/jakarta}}
         </dependencies>
 {{/useBeanValidation}}
         <executions>
@@ -127,12 +138,22 @@
     </dependency>
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
+    {{#jakarta}}
+    <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>${beanvalidation-version}</version>
+        <scope>provided</scope>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
     <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
         <version>${beanvalidation-version}</version>
         <scope>provided</scope>
     </dependency>
+    {{/jakarta}}
 {{/useBeanValidation}}
     <!-- CXF Client -->
     <dependency>
@@ -191,9 +212,27 @@
     <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.2.2.Final</version>
+      <version>{{#jakarta}}8.0.0.Final{{/jakarta}}{{^jakarta}}5.2.2.Final{{/jakarta}}</version>
     </dependency>
 {{/useBeanValidationFeature}}
+    {{#jakarta}}
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
     <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
@@ -204,6 +243,7 @@
         <artifactId>activation</artifactId>
         <version>1.1.1</version>
     </dependency>
+    {{/jakarta}}
   </dependencies>
   <repositories>
     <repository>
@@ -229,9 +269,9 @@
     <logback-version>1.2.9</logback-version>
     <servlet-api-version>2.5</servlet-api-version>
 {{#useBeanValidation}}
-    <beanvalidation-version>1.1.0.Final</beanvalidation-version>
+    <beanvalidation-version>{{#jakarta}}3.0.2{{/jakarta}}{{^jakarta}}1.1.0.Final{{/jakarta}}</beanvalidation-version>
 {{/useBeanValidation}}
-    <cxf-version>3.2.4</cxf-version>
+    <cxf-version>{{#jakarta}}4.0.0{{/jakarta}}{{^jakarta}}3.2.4{{/jakarta}}</cxf-version>
     <jackson-jaxrs-version>2.9.1</jackson-jaxrs-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
