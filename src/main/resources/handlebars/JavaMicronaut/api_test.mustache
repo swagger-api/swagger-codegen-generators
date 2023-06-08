@@ -5,15 +5,12 @@ package {{package}};
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-
-{{#jakarta}}
+{{#useReactor}}
+import reactor.core.publisher.Mono;
+{{/useReactor}}
 import jakarta.inject.Inject;
-{{/jakarta}}
-{{^jakarta}}
-import javax.inject.Inject;
-{{/jakarta}}
 
 import java.util.*;
 
@@ -34,7 +31,13 @@ class {{classname}}ControllerTest {
         {{{dataType}}} {{paramName}} = {{{example}}};
         {{/parameters}}
         try {
-            api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}).blockingGet();
+            {{#useReactor}}Mono.from({{/useReactor}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#useReactor}}){{/useReactor}}
+{{#useRxJava}}
+                    .blockingGet();
+{{/useRxJava}}
+{{#useReactor}}
+                    .block();
+{{/useReactor}}
         } catch (UnsupportedOperationException e) {
             assumeTrue(false, "API is not yet implemented");
         }
