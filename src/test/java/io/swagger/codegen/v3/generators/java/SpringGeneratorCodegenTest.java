@@ -1,6 +1,7 @@
 package io.swagger.codegen.v3.generators.java;
 
 import static io.swagger.codegen.v3.generators.java.AbstractJavaCodegen.JAKARTA;
+import static io.swagger.codegen.v3.generators.java.AbstractJavaCodegen.JAVA8_MODE;
 
 import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.CodegenArgument;
@@ -88,16 +89,16 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
-          .setLang("spring")
-          .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
-          .setOutputDir(output.getAbsolutePath())
-          .addAdditionalProperty(JAKARTA, true);
+            .setLang("spring")
+            .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
+            .setOutputDir(output.getAbsolutePath())
+            .addAdditionalProperty(JAKARTA, true);
 
         configurator.setCodegenArguments(Collections.singletonList(
-          new CodegenArgument()
-            .option(CodegenConstants.USE_OAS2_OPTION)
-            .type("boolean")
-            .value(Boolean.TRUE.toString())));
+            new CodegenArgument()
+                .option(CodegenConstants.USE_OAS2_OPTION)
+                .type("boolean")
+                .value(Boolean.TRUE.toString())));
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -124,10 +125,10 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         final File output = folder.getRoot();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
-          .setLang("spring")
-          .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
-          .setOutputDir(output.getAbsolutePath())
-          .addAdditionalProperty(JAKARTA, true);
+            .setLang("spring")
+            .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
+            .setOutputDir(output.getAbsolutePath())
+            .addAdditionalProperty(JAKARTA, true);
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -144,6 +145,54 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(contentAdminApiController.contains("jakarta"));
         Assert.assertFalse(contentAdminApiController.contains("javax"));
+
+        folder.delete();
+    }
+
+    @Test(description = "verify java8 & jakarta")
+    public void testJava8Jakarta() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+            .setLang("spring")
+            .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
+            .setOutputDir(output.getAbsolutePath())
+            .addAdditionalProperty(JAKARTA, true)
+            .addAdditionalProperty(JAVA8_MODE, true);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File adminApiFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
+        final String contentAdminApi = FileUtils.readFileToString(adminApiFile);
+
+        Assert.assertTrue(contentAdminApi.contains("import jakarta.servlet.http.HttpServletRequest;"));
+
+        folder.delete();
+    }
+
+    @Test(description = "verify java8 & javax")
+    public void testJava8Javax() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+            .setLang("spring")
+            .setInputSpecURL("src/test/resources/3_0_0/parameterOrder.yaml")
+            .setOutputDir(output.getAbsolutePath())
+            .addAdditionalProperty(JAKARTA, false)
+            .addAdditionalProperty(JAVA8_MODE, true);
+
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File adminApiFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
+        final String contentAdminApi = FileUtils.readFileToString(adminApiFile);
+
+        Assert.assertTrue(contentAdminApi.contains("import javax.servlet.http.HttpServletRequest;"));
 
         folder.delete();
     }
