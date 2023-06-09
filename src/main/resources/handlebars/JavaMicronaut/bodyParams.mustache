@@ -1,1 +1,1 @@
-{{#isBodyParam}}@Parameter(description = "{{{description}}}") {{#useBeanValidation}}@Valid {{/useBeanValidation}}@Body {{{dataType}}} {{paramName}}{{/isBodyParam}}
+{{#isBodyParam}}{{>nullableBeanValidationParams}}@Parameter(description = "{{{description}}}") @Body {{{dataType}}} {{paramName}}{{/isBodyParam}}

@@ -5,15 +5,12 @@ package {{package}};
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-
-{{#jakarta}}
+{{#useReactor}}
+import reactor.core.publisher.Mono;
+{{/useReactor}}
 import jakarta.inject.Inject;
-{{/jakarta}}
-{{^jakarta}}
-import javax.inject.Inject;
-{{/jakarta}}
 
 import java.util.*;
 
@@ -28,18 +25,20 @@ class {{classname}}ControllerTest {
     {{#operations}}
     {{#operation}}
     {{#contents}}
+    {{#@first}}
     @Test
-    void {{operationId}}{{#isForm}}WithForm{{/isForm}}Test() {
+    void {{operationId}}{{#isForm}}Form{{/isForm}}Test() {
         {{#parameters}}
-        {{{dataType}}} {{paramName}} = {{{example}}};
+        {{{dataType}}} {{paramName}} = null;
         {{/parameters}}
         try {
-            api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}).blockingGet();
+            //TODO: {{#useReactor}}Mono.from({{/useReactor}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#useReactor}}){{/useReactor}}{{^useReactor}}.blockingGet();{{/useReactor}}{{#useReactor}}.block();{{/useReactor}}
         } catch (UnsupportedOperationException e) {
             assumeTrue(false, "API is not yet implemented");
         }
     }
 
+    {{/@first}}
     {{/contents}}
     {{/operation}}
     {{/operations}}
