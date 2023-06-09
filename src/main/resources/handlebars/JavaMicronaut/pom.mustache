@@ -59,14 +59,17 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-{{#useRxJava2}}
-            <groupId>io.micronaut.rxjava2</groupId>
-            <artifactId>micronaut-rxjava2</artifactId>
-{{/useRxJava2}}
 {{#useRxJava3}}
             <groupId>io.micronaut.rxjava3</groupId>
             <artifactId>micronaut-rxjava3</artifactId>
 {{/useRxJava3}}
+{{^useRxJava3}}
+{{#useRxJava2}}
+            <groupId>io.micronaut.rxjava2</groupId>
+            <artifactId>micronaut-rxjava2</artifactId>
+{{/useRxJava2}}
+{{/useRxJava3}}
+
 {{#useReactor}}
             <groupId>io.micronaut.reactor</groupId>
             <artifactId>micronaut-reactor</artifactId>

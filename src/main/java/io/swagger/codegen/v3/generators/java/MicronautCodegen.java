@@ -31,8 +31,9 @@ import static java.util.Collections.singletonList;
 public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
 
     private static Logger LOGGER = LoggerFactory.getLogger(MicronautCodegen.class);
-    private static final String DEFAULT_LIBRARY = "rxjava2";
+    private static final String DEFAULT_LIBRARY = "rxjava3";
     private static final String RXJAVA3_LIBRARY = "rxjava3";
+    private static final String RXJAVA2_LIBRARY = "rxjava2";
     private static final String REACTOR_LIBRARY = "reactor";
     private static final String TITLE = "title";
     private static final String CONFIG_PACKAGE = "configPackage";
@@ -86,13 +87,12 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
 
-        supportedLibraries.put(DEFAULT_LIBRARY, "Java Micronaut Server application with RxJava2 reactive streams implementation");
-        supportedLibraries.put(RXJAVA3_LIBRARY, "Java Micronaut Server application with RxJava3 reactive streams implementation");
+        supportedLibraries.put(DEFAULT_LIBRARY, "Java Micronaut Server application with RxJava3 reactive streams implementation");
+        supportedLibraries.put(USE_RXJAVA2, "Java Micronaut Server application with RxJava2 reactive streams implementation");
         supportedLibraries.put(REACTOR_LIBRARY, "Java Micronaut Server application with Project Reactor reactive streams implementation");
         setLibrary(DEFAULT_LIBRARY);
 
         CliOption library = new CliOption(CodegenConstants.LIBRARY, "library template (sub-template) to use");
-        library.setDefault(DEFAULT_LIBRARY);
         library.setEnum(supportedLibraries);
         library.setDefault(DEFAULT_LIBRARY);
         cliOptions.add(library);
@@ -152,8 +152,8 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             this.setBasePackage((String) additionalProperties.get(BASE_PACKAGE));
         }
 
-        if (additionalProperties.containsKey(USE_TAGS)) {
-            this.setUseTags(Boolean.valueOf(additionalProperties.get(USE_TAGS).toString()));
+        if (additionalProperties.get(USE_TAGS) != null) {
+            this.setUseTags(Boolean.parseBoolean(additionalProperties.get(USE_TAGS).toString()));
         }
 
         if (additionalProperties.containsKey(USE_BEANVALIDATION)) {
@@ -165,21 +165,22 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         }
 
         boolean skipSupportFiles = false;
-        if (additionalProperties.containsKey(SKIP_SUPPORT_FILES)) {
-            skipSupportFiles = Boolean.valueOf(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
+        if (additionalProperties.get(SKIP_SUPPORT_FILES) != null) {
+            skipSupportFiles = Boolean.parseBoolean(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
         }
 
         writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
 
-        if (additionalProperties.containsKey(IMPLICIT_HEADERS)) {
-            this.setImplicitHeaders(Boolean.valueOf(additionalProperties.get(IMPLICIT_HEADERS).toString()));
+        if (additionalProperties.get(IMPLICIT_HEADERS) != null) {
+            this.setImplicitHeaders(Boolean.parseBoolean(additionalProperties.get(IMPLICIT_HEADERS).toString()));
         }
 
         writePropertyBack(USE_OPTIONAL, useOptional);
-
-        additionalProperties.put(USE_RXJAVA, isRxJava2Library() || isRxJava3Library());
-        additionalProperties.put(USE_RXJAVA2, isRxJava2Library());
-        additionalProperties.put(USE_RXJAVA3, isRxJava3Library());
+        if (isRxJava2Library()) {
+            additionalProperties.put(USE_RXJAVA2, true);
+        } else {
+            additionalProperties.put(USE_RXJAVA3, isRxJava3Library());
+        }
         additionalProperties.put(USE_REACTOR, isReactorLibrary());
 
         if (!skipSupportFiles) {
@@ -189,7 +190,7 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             supportingFiles.add(new SupportingFile("mvnw.cmd", "", "mvnw.cmd"));
             supportingFiles.add(new SupportingFile("unsupportedOperationExceptionHandler.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", File.separator), "UnsupportedOperationExceptionHandler.java"));
-            supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator).replace(".", File.separator), "MainApplication.java"));
+            supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator + basePackage).replace(".", File.separator), "MainApplication.java"));
             apiTemplateFiles.put("apiController.mustache", "Controller.java");
         }
         addHandlebarsLambdas(additionalProperties);
@@ -553,7 +554,7 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     }
 
     private boolean isRxJava2Library() {
-        return library.equals(DEFAULT_LIBRARY);
+        return library.equals(RXJAVA2_LIBRARY);
     }
 
     private boolean isRxJava3Library() {

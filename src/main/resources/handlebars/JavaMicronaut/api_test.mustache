@@ -25,24 +25,20 @@ class {{classname}}ControllerTest {
     {{#operations}}
     {{#operation}}
     {{#contents}}
+    {{#@first}}
     @Test
-    void {{operationId}}{{#isForm}}WithForm{{/isForm}}Test() {
+    void {{operationId}}{{#isForm}}Form{{/isForm}}Test() {
         {{#parameters}}
-        {{{dataType}}} {{paramName}} = {{{example}}};
+        {{{dataType}}} {{paramName}} = null;
         {{/parameters}}
         try {
-            {{#useReactor}}Mono.from({{/useReactor}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#useReactor}}){{/useReactor}}
-{{#useRxJava}}
-                    .blockingGet();
-{{/useRxJava}}
-{{#useReactor}}
-                    .block();
-{{/useReactor}}
+            //TODO: {{#useReactor}}Mono.from({{/useReactor}}api.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}){{#useReactor}}){{/useReactor}}{{^useReactor}}.blockingGet();{{/useReactor}}{{#useReactor}}.block();{{/useReactor}}
         } catch (UnsupportedOperationException e) {
             assumeTrue(false, "API is not yet implemented");
         }
     }
 
+    {{/@first}}
     {{/contents}}
     {{/operation}}
     {{/operations}}
