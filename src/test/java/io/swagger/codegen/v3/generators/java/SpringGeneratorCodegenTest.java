@@ -30,10 +30,10 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
             .setOutputDir(output.getAbsolutePath());
 
         configurator.setCodegenArguments(Collections.singletonList(
-            new CodegenArgument()
-                .option(CodegenConstants.USE_OAS2_OPTION)
-                .type("boolean")
-                .value(Boolean.TRUE.toString())));
+          new CodegenArgument()
+            .option(CodegenConstants.USE_OAS2_OPTION)
+            .type("boolean")
+            .value(Boolean.TRUE.toString())));
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
@@ -95,10 +95,10 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
             .addAdditionalProperty(JAKARTA, true);
 
         configurator.setCodegenArguments(Collections.singletonList(
-            new CodegenArgument()
-                .option(CodegenConstants.USE_OAS2_OPTION)
-                .type("boolean")
-                .value(Boolean.TRUE.toString())));
+          new CodegenArgument()
+            .option(CodegenConstants.USE_OAS2_OPTION)
+            .type("boolean")
+            .value(Boolean.TRUE.toString())));
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
