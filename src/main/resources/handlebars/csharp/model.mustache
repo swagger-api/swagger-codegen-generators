@@ -1,4 +1,5 @@
 {{>partial_header}}
+{{^x-is-composed-model}}
 using System;
 using System.Linq;
 using System.IO;
@@ -27,12 +28,17 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 {{/netStandard}}
 using SwaggerDateConverter = {{packageName}}.Client.SwaggerDateConverter;
-
+{{/x-is-composed-model}}
 {{#models}}
 {{#model}}
 namespace {{packageName}}.{{modelPackage}}
 {
+{{#isComposedModel}}
+    {{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>modelGeneric}}{{/isEnum}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}
 }

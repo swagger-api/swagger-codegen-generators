@@ -4,7 +4,12 @@ package {{package}};
 {{#imports}}import {{import}};
 {{/imports}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{/isComposedModel}}
 

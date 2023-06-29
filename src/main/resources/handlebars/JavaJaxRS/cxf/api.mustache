@@ -7,9 +7,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+{{#jakarta}}
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.MediaType;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
+{{/jakarta}}
 import org.apache.cxf.jaxrs.ext.multipart.*;
 
 {{#useOas2}}
@@ -28,8 +35,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 {{/useOas2}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
 import javax.validation.Valid;
+{{/jakarta}}
 {{/useBeanValidation}}
 
 {{#appName}}
@@ -83,7 +96,7 @@ public interface {{classname}}  {
     @ApiResponses(value = { {{#responses}}
         @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{#schema.extensions.x-content-type}}mediaType = "{{schema.extensions.x-content-type}}", {{/schema.extensions.x-content-type}}{{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     {{/useOas2}}
-    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
 {{/contents}}
 {{/operation}}
 }
