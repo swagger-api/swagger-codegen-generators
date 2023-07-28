@@ -9,6 +9,8 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class SchemaHandler implements ISchemaHandler {
     public static final String ONE_OF_PREFFIX = "OneOf";
     public static final String ANY_OF_PREFFIX = "AnyOf";
     public static final String ARRAY_ITEMS_SUFFIX = "Items";
+    private static Logger LOGGER = LoggerFactory.getLogger(SchemaHandler.class);
 
     protected DefaultCodegenConfig codegenConfig;
     private List<CodegenModel> composedModels = new ArrayList<>();
@@ -189,27 +192,31 @@ public class SchemaHandler implements ISchemaHandler {
             final String schemaName = ref.substring(ref.lastIndexOf("/") + 1);
 
             final CodegenModel model = allModels.get(codegenConfig.toModelName(schemaName));
-            this.addInterfaceModel(model, codegenModel);
+            if (model == null) {
+              LOGGER.error("Could not find model for reference '{}' when processing '{}' with json - {}", ref, codegenModel.getName(), codegenModel.getModelJson());
+            } else {
+                this.addInterfaceModel(model, codegenModel);
 
-            boolean subTypeAdded = false;
-            if (codegenModel.getSubTypes() != null) {
-                subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
-            }
-            if (!subTypeAdded) {
-                codegenModel.addSubType(model);
-            }
+                boolean subTypeAdded = false;
+                if (codegenModel.getSubTypes() != null) {
+                    subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
+                }
+                if (!subTypeAdded) {
+                    codegenModel.addSubType(model);
+                }
 
-            if (codegenModel.getVendorExtensions() == null || codegenModel.getVendorExtensions().containsKey("x-discriminator-type")) {
-                continue;
-            }
-            if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
-                Optional<CodegenProperty> optionalProperty = model.vars.stream()
-                    .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
+                if (codegenModel.getVendorExtensions() == null || codegenModel.getVendorExtensions().containsKey("x-discriminator-type")) {
+                    continue;
+                }
+                if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
+                    Optional<CodegenProperty> optionalProperty = model.vars.stream()
+                        .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
 
-                optionalProperty.ifPresent(codegenProperty -> {
-                    codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
-                    codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
-                });
+                    optionalProperty.ifPresent(codegenProperty -> {
+                        codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
+                        codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
+                    });
+                }
             }
         }
     }
