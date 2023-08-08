@@ -282,24 +282,7 @@ export const {{classname}}Fp = function(configuration?: Configuration) {
  * @export
  */
 export const {{classname}}Factory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-    {{#operation}}
-        /**
-         * {{&notes}}
-         {{#summary}}
-         * @summary {{&summary}}
-         {{/summary}}
-         {{#allParams}}
-         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
-         {{/allParams}}
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any) {
-            return {{classname}}Fp(configuration).{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options)(fetch, basePath);
-        },
-    {{/operation}}
-    };
+    return new {{classname}}(configuration, basePath, fetch);
 };
 
 {{#withInterfaces}}
