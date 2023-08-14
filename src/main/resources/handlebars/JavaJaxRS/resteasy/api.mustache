@@ -27,14 +27,28 @@ import {{package}}.NotFoundException;
 
 import java.io.InputStream;
 
+{{#jakarta}}
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.*;
+import jakarta.inject.Inject;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.*;
 import javax.inject.Inject;
+{{/jakarta}}
 
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{#operations}}
 {{#operation}}
@@ -86,9 +100,9 @@ public class {{classname}}  {
         @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{#schema.extensions.x-content-type}}mediaType = "{{schema.extensions.x-content-type}}", {{/schema.extensions.x-content-type}}{{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
         {{/hasMore}}{{/responses}} })
     {{/useOas2}}
-    public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{^isMultipart}}{{>formParams}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}@Context SecurityContext securityContext)
+    public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{>comma}}{{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return service.{{nickname}}({{#isMultipart}}input,{{/isMultipart}}{{#parameters}}{{^isMultipart}}{{paramName}},{{/isMultipart}}{{#isMultipart}}{{^isFormParam}}{{paramName}},{{/isFormParam}}{{/isMultipart}}{{/parameters}}securityContext);
+        return service.{{nickname}}({{#isMultipart}}input,{{/isMultipart}}{{#parameters}}{{^isFormParam}}{{paramName}}{{/isFormParam}}{{#isFormParam}}{{^isBinary}}{{paramName}}{{/isBinary}}{{/isFormParam}}{{>comma}}{{/parameters}}securityContext);
     }
 {{/contents}}
 {{/operation}}

@@ -1,31 +1,33 @@
 /**
  * {{{description}}}
-{{#allVars}}
+{{#vars}}
  * @param {{name}} {{{description}}}
-{{/allVars}}
+{{/vars}}
  */
 {{#hasVars}}data {{/hasVars}}class {{classname}} (
 
-{{#allVars}}
+{{#vars}}
 {{#required}}
 {{>data_class_req_var}}{{^@last}},{{/@last}}
 {{/required}}
 {{^required}}
 {{>data_class_opt_var}}{{^@last}},{{/@last}}
 {{/required}}
-{{/allVars}}
+{{/vars}}
 ) {
-{{#allVars}}
+{{#vars}}
+{{#baseItems this}}
 {{#isEnum}}
     /**
     * {{{description}}}
     * Values: {{#allowableValues}}{{#enumVars}}{{&name}}{{^@last}},{{/@last}}{{/enumVars}}{{/allowableValues}}
     */
-    enum class {{nameInCamelCase}}(val value: {{datatype}}{{#isNullable}}?{{/isNullable}}){
+    enum class {{{datatypeWithEnum}}}(val value: {{{datatype}}}{{#isNullable}}?{{/isNullable}}){
     {{#allowableValues}}{{#enumVars}}
         {{&name}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},{{/@last}}{{#@last}};{{/@last}}
     {{/enumVars}}{{/allowableValues}}
     }
 {{/isEnum}}
-{{/allVars}}
+{{/baseItems}}
+{{/vars}}
 }
