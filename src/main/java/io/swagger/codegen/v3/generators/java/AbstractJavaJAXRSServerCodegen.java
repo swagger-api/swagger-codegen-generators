@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -77,6 +78,10 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     @Override
     public void processOpts() {
         super.processOpts();
+
+        if (java11Mode) {
+            additionalProperties.put(JAKARTA, jakarta = true);
+        }
 
         if (additionalProperties.containsKey(CodegenConstants.IMPL_FOLDER)) {
             implFolder = (String) additionalProperties.get(CodegenConstants.IMPL_FOLDER);
@@ -236,11 +241,11 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         String result = super.apiFilename(templateName, tag);
 
         if ( templateName.endsWith("Impl.mustache") ) {
-            int ix = result.lastIndexOf('/');
+            int ix = result.lastIndexOf(File.separatorChar);
             result = result.substring(0, ix) + "/impl" + result.substring(ix, result.length() - 5) + "ServiceImpl.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Factory.mustache") ) {
-            int ix = result.lastIndexOf('/');
+            int ix = result.lastIndexOf(File.separatorChar);
             result = result.substring(0, ix) + "/factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Service.mustache") ) {

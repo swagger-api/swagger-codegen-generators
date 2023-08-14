@@ -3,9 +3,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 {{/jackson}}
 {{#withXml}}
+{{#jakarta}}
+import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+{{/jakarta}}
+{{^jakarta}}
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
+{{/jakarta}}
 {{/withXml}}
 
 /**

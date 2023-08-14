@@ -54,7 +54,12 @@ if(hasProperty('target') && target == 'android') {
         }
 
         dependencies {
+            {{#jakarta}}
+            provided 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+            {{/jakarta}}
+            {{^jakarta}}
             provided 'javax.annotation:jsr250-api:1.0'
+            {{/jakarta}}
         }
     }
 
@@ -122,7 +127,10 @@ dependencies {
     {{^useOas2}}
     compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/useOas2}}
-    compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: "org.json", module: "json"
+    }
+    compile "org.json:json:20180130"
     compile "joda-time:joda-time:$jodatime_version"
     testCompile "junit:junit:$junit_version"
 }

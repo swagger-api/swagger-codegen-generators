@@ -1,0 +1,38 @@
+{{#models}}
+{{#model}}
+{{#isEnum}}
+{{modelPackage}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.serializer={{modelPackage}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}#serialize
+{{modelPackage}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.deserializer={{modelPackage}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}#fromValue
+{{/isEnum}}
+{{^isEnum}}
+  {{#vars}}
+  {{#isEnum}}
+{{modelPackage}}.{{classname}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.serializer={{modelPackage}}.{{classname}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}#serialize
+{{modelPackage}}.{{classname}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.deserializer={{modelPackage}}.{{classname}}.{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}#fromValue
+  {{/isEnum}}
+  {{/vars}}
+{{/isEnum}}
+{{/model}}
+{{/models}}
+{{#java8}}
+java.time.LocalDate.serializer={{modelPackage}}.DataObjectMapper#serializeLocalDate
+java.time.LocalDate.deserializer=java.time.LocalDate#parse
+java.time.LocalDateTime.serializer={{modelPackage}}.DataObjectMapper#serializeLocalDateTime
+java.time.LocalDateTime.deserializer=java.time.LocalDateTime#parse
+java.time.OffsetDateTime.serializer={{modelPackage}}.DataObjectMapper#serializeOffsetDateTime
+java.time.OffsetDateTime.deserializer=java.time.OffsetDateTime#parse
+{{/java8}}
+{{#threetenbp}}
+org.threeten.bp.Instant.serializer={{modelPackage}}.DataObjectMapper#serializeThreetenbpInstant
+org.threeten.bp.Instant.deserializer=org.threeten.bp.Instant#parse
+org.threeten.bp.OffsetDateTime.serializer={{modelPackage}}.DataObjectMapper#serializeThreetenbpOffsetDateTime
+org.threeten.bp.OffsetDateTime.deserializer=org.threeten.bp.OffsetDateTime#parse
+org.threeten.bp.ZonedDateTime.serializer={{modelPackage}}.DataObjectMapper#serializeThreetenbpZonedDateTime
+org.threeten.bp.ZonedDateTime.deserializer=org.threeten.bp.ZonedDateTime#parse
+{{/threetenbp}}
+{{#joda}}
+org.joda.time.LocalDate.serializer={{modelPackage}}.DataObjectMapper#serializeJodaLocalDate
+org.joda.time.LocalDate.deserializer=org.joda.time.LocalDate#parse
+org.joda.time.DateTime.serializer={{modelPackage}}.DataObjectMapper#serializeJodaDateTime
+org.joda.time.DateTime.deserializer=org.joda.time.DateTime#parse
+{{/joda}}

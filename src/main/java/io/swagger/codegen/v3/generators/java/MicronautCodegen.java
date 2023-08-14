@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.java;
 
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.*;
@@ -30,10 +31,18 @@ import static java.util.Collections.singletonList;
 public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
 
     private static Logger LOGGER = LoggerFactory.getLogger(MicronautCodegen.class);
+    private static final String DEFAULT_LIBRARY = "rxjava3";
+    private static final String RXJAVA3_LIBRARY = "rxjava3";
+    private static final String RXJAVA2_LIBRARY = "rxjava2";
+    private static final String REACTOR_LIBRARY = "reactor";
     private static final String TITLE = "title";
     private static final String CONFIG_PACKAGE = "configPackage";
     private static final String BASE_PACKAGE = "basePackage";
     private static final String USE_TAGS = "useTags";
+    private static final String USE_RXJAVA = "useRxJava";
+    private static final String USE_RXJAVA2 = "useRxJava2";
+    private static final String USE_RXJAVA3 = "useRxJava3";
+    private static final String USE_REACTOR = "useReactor";
     private static final String IMPLICIT_HEADERS = "implicitHeaders";
     private static final String SKIP_SUPPORT_FILES = "skipSupportFiles";
 
@@ -69,16 +78,21 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         cliOptions.add(new CliOption(BASE_PACKAGE, "base package (invokerPackage) for generated code"));
         cliOptions.add(new CliOption(SKIP_SUPPORT_FILES, "skip support files such as pom.xml, mvnw, etc from code generation."));
         cliOptions.add(CliOption.newBoolean(USE_TAGS, "use tags for creating interface and controller classnames"));
-        cliOptions.add(CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations"));
+
+        CliOption useBeanValidation = CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations");
+        useBeanValidation.setDefault("true");
+        cliOptions.add(useBeanValidation);
+
         cliOptions.add(CliOption.newBoolean(IMPLICIT_HEADERS, "Use of @ApiImplicitParams for headers."));
         cliOptions.add(CliOption.newBoolean(USE_OPTIONAL,
                 "Use Optional container for optional parameters"));
 
-        supportedLibraries.put(DEFAULT_LIBRARY, "Java Micronaut Server application.");
+        supportedLibraries.put(DEFAULT_LIBRARY, "Java Micronaut Server application with RxJava3 reactive streams implementation");
+        supportedLibraries.put(USE_RXJAVA2, "Java Micronaut Server application with RxJava2 reactive streams implementation");
+        supportedLibraries.put(REACTOR_LIBRARY, "Java Micronaut Server application with Project Reactor reactive streams implementation");
         setLibrary(DEFAULT_LIBRARY);
 
         CliOption library = new CliOption(CodegenConstants.LIBRARY, "library template (sub-template) to use");
-        library.setDefault(DEFAULT_LIBRARY);
         library.setEnum(supportedLibraries);
         library.setDefault(DEFAULT_LIBRARY);
         cliOptions.add(library);
@@ -138,8 +152,8 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             this.setBasePackage((String) additionalProperties.get(BASE_PACKAGE));
         }
 
-        if (additionalProperties.containsKey(USE_TAGS)) {
-            this.setUseTags(Boolean.valueOf(additionalProperties.get(USE_TAGS).toString()));
+        if (additionalProperties.get(USE_TAGS) != null) {
+            this.setUseTags(Boolean.parseBoolean(additionalProperties.get(USE_TAGS).toString()));
         }
 
         if (additionalProperties.containsKey(USE_BEANVALIDATION)) {
@@ -151,21 +165,23 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
         }
 
         boolean skipSupportFiles = false;
-        if (additionalProperties.containsKey(SKIP_SUPPORT_FILES)) {
-            skipSupportFiles = Boolean.valueOf(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
+        if (additionalProperties.get(SKIP_SUPPORT_FILES) != null) {
+            skipSupportFiles = Boolean.parseBoolean(additionalProperties.get(SKIP_SUPPORT_FILES).toString());
         }
 
-        if (useBeanValidation) {
-            writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
+        writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
+
+        if (additionalProperties.get(IMPLICIT_HEADERS) != null) {
+            this.setImplicitHeaders(Boolean.parseBoolean(additionalProperties.get(IMPLICIT_HEADERS).toString()));
         }
 
-        if (additionalProperties.containsKey(IMPLICIT_HEADERS)) {
-            this.setImplicitHeaders(Boolean.valueOf(additionalProperties.get(IMPLICIT_HEADERS).toString()));
+        writePropertyBack(USE_OPTIONAL, useOptional);
+        if (isRxJava2Library()) {
+            additionalProperties.put(USE_RXJAVA2, true);
+        } else {
+            additionalProperties.put(USE_RXJAVA3, isRxJava3Library());
         }
-
-        if (useOptional) {
-            writePropertyBack(USE_OPTIONAL, useOptional);
-        }
+        additionalProperties.put(USE_REACTOR, isReactorLibrary());
 
         if (!skipSupportFiles) {
             supportingFiles.add(new SupportingFile("pom.mustache", "", "pom.xml"));
@@ -174,7 +190,8 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
             supportingFiles.add(new SupportingFile("mvnw.cmd", "", "mvnw.cmd"));
             supportingFiles.add(new SupportingFile("unsupportedOperationExceptionHandler.mustache",
                 (sourceFolder + File.separator + configPackage).replace(".", File.separator), "UnsupportedOperationExceptionHandler.java"));
-            supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator).replace(".", File.separator), "MainApplication.java"));
+            supportingFiles.add(new SupportingFile("mainApplication.mustache", (sourceFolder + File.separator + basePackage).replace(".", File.separator), "MainApplication.java"));
+            apiTemplateFiles.put("apiController.mustache", "Controller.java");
         }
         addHandlebarsLambdas(additionalProperties);
     }
@@ -528,5 +545,23 @@ public class MicronautCodegen extends AbstractJavaCodegen implements BeanValidat
     @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        handlebars.setInfiniteLoops(true);
+        super.addHandlebarHelpers(handlebars);
+    }
+
+    private boolean isRxJava2Library() {
+        return library.equals(RXJAVA2_LIBRARY);
+    }
+
+    private boolean isRxJava3Library() {
+        return library.equals(RXJAVA3_LIBRARY);
+    }
+
+    private boolean isReactorLibrary() {
+        return library.equals(REACTOR_LIBRARY);
     }
 }
