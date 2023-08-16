@@ -59,6 +59,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String USE_TAGS = "useTags";
     public static final String SPRING_MVC_LIBRARY = "spring-mvc";
     public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
+    public static final String SPRING_BOOT_3_LIBRARY = "spring-boot3";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
     public static final String TARGET_OPENFEIGN = "generateForOpenFeign";
@@ -127,6 +128,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(CliOption.newBoolean(DATE_TIME_PATTERN, "use pattern for date time parameters").defaultValue("true"));
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
+        supportedLibraries.put(SPRING_BOOT_3_LIBRARY, "Spring-boot v3 Server application.");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_CLOUD_LIBRARY, "Spring-Cloud-Feign client with Spring-Boot auto-configured settings.");
         setLibrary(DEFAULT_LIBRARY);
@@ -212,6 +214,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             this.setBasePackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
             additionalProperties.put(BASE_PACKAGE, basePackage);
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
+        }
+
+        if (isSpringBoot3Library()) {
+            setDateLibrary("java8");
         }
 
         super.processOpts();
@@ -324,7 +330,16 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
         if (!this.interfaceOnly) {
-
+            if (isSpringBoot3Library()) {
+                useOas2 = false;
+                additionalProperties.remove("threetenbp");
+                additionalProperties.put(JAKARTA, jakarta = true);
+                apiTestTemplateFiles.clear();
+                supportingFiles.add(new SupportingFile("homeController.mustache", (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "HomeController.java"));
+                supportingFiles.add(new SupportingFile("openAPISpringBoot.mustache", (sourceFolder + File.separator + basePackage).replace(".", java.io.File.separator), "OpenAPISpringBoot.java"));
+                supportingFiles.add(new SupportingFile("swaggerUiConfiguration.mustache", (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerUiConfiguration.java"));
+                supportingFiles.add(new SupportingFile("application.mustache", ("src.main.resources").replace(".", java.io.File.separator), "application.properties"));
+            }
             if (isDefaultLibrary()) {
                 apiTestTemplateFiles.clear();
                 supportingFiles.add(new SupportingFile("homeController.mustache",
@@ -385,14 +400,16 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "NotFoundException.java"));
                 supportingFiles.add(new SupportingFile("apiOriginFilter.mustache",
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "ApiOriginFilter.java"));
-                supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
+                if (!isSpringBoot3Library()) {
+                    supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
+                }
                 supportingFiles.add(new SupportingFile("LocalDateConverter.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateConverter.java"));
                 supportingFiles.add(new SupportingFile("LocalDateTimeConverter.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateTimeConverter.java"));
             }
-        } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary()) {
+        } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary() && !isSpringBoot3Library()) {
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
         }
@@ -756,6 +773,9 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     private boolean isDefaultLibrary() {
         return library.equals(DEFAULT_LIBRARY);
+    }
+    private boolean isSpringBoot3Library() {
+        return library.equals(SPRING_BOOT_3_LIBRARY);
     }
 
     @Override
