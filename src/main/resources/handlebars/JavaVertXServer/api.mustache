@@ -1,0 +1,37 @@
+package {{package}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{#useFuture}}
+import io.vertx.core.Future;
+{{/useFuture}}
+{{^useFuture}}
+import io.vertx.core.Handler;
+import io.vertx.core.AsyncResult;
+{{/useFuture}}
+import io.vertx.ext.web.validation.RequestParameter;
+import io.vertx.ext.web.api.service.ServiceRequest;
+import io.vertx.ext.web.api.service.ServiceResponse;
+{{#mountFromExtensions}}
+import io.vertx.ext.web.api.service.WebApiServiceGen;
+{{/mountFromExtensions}}
+
+import java.util.List;
+import java.util.Map;
+
+{{#mountFromExtensions}}@WebApiServiceGen{{/mountFromExtensions}}
+public interface {{classname}}  {
+
+{{#operations}}{{#operation}}{{#@first}}    String WEBSERVICE_ADDRESS_{{#lambda.uppercase}}{{classname}}{{/lambda.uppercase}} = "{{#mountFromExtensions}}{{#vendorExtensions}}{{x-event-bus-address}}{{/vendorExtensions}}{{/mountFromExtensions}}{{#mountFromInterface}}{{baseName}}.address{{/mountFromInterface}}";{{/@first}}{{/operation}}{{/operations}}
+{{#operations}}{{#operation}}    String OPERATION_ID_{{#lambda.uppercase}}{{operationId}}{{/lambda.uppercase}} = "{{operationId}}";
+{{/operation}}{{/operations}}
+
+{{#operations}}
+{{#operation}}
+{{#contents}}
+    {{#useFuture}}Future<ServiceResponse>{{/useFuture}}{{^useFuture}}void{{/useFuture}} {{#vendorExtensions}}{{x-serviceid}}{{/vendorExtensions}}({{#useDataObject}}{{#parameters}}{{^isBodyParam}}{{^isEnum}}{{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{dataType}}}{{/datatypeWithEnum}}{{/isEnum}}{{#isEnum}}{{{dataType}}}{{/isEnum}} {{paramName}}{{/isBodyParam}}{{#isBodyParam}}{{^isBinary}}{{^parent}}{{^children}}{{{dataType}}} body{{/children}}{{/parent}}{{/isBinary}}{{/isBodyParam}}{{#hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{^hasMore}}{{^isBinary}}, {{/isBinary}}{{/hasMore}}{{/parameters}}{{/useDataObject}}{{^useDataObject}}RequestParameter body, {{/useDataObject}}ServiceRequest request{{^useFuture}}, Handler<AsyncResult<ServiceResponse>> resultHandler{{/useFuture}});
+{{/contents}}
+{{/operation}}
+{{/operations}}
+}

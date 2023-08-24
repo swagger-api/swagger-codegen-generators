@@ -36,6 +36,8 @@ import io.ktor.util.KtorExperimentalAPI
 {{#hasAuthMethods}}
 import io.ktor.auth.Authentication
 import io.ktor.auth.oauth
+import io.ktor.auth.basic
+import io.ktor.auth.UserIdPrincipal
 import io.ktor.metrics.dropwizard.DropwizardMetrics
 import io.swagger.server.infrastructure.ApiKeyCredential
 import io.swagger.server.infrastructure.ApiPrincipal
@@ -88,13 +90,14 @@ fun Application.main() {
     {{#authMethods}}
         {{#isBasic}}
         basic("{{{name}}}") {
-        validate { credentials ->
-            // TODO: "Apply your basic authentication functionality."
-            // Accessible in-method via call.principal<UserIdPrincipal>()
-            if (credentials.name == "Swagger" && "Codegen" == credentials.password) {
-                UserIdPrincipal(credentials.name)
-            } else {
-                null
+            validate { credentials ->
+                // TODO: "Apply your basic authentication functionality."
+                // Accessible in-method via call.principal<UserIdPrincipal>()
+                if (credentials.name == "Swagger" && "Codegen" == credentials.password) {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
             }
         }
         {{/isBasic}}

@@ -1,5 +1,10 @@
 package io.swagger.codegen.v3.generators.java;
 
+import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+
 import com.github.jknack.handlebars.Handlebars;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenArgument;
@@ -26,11 +31,6 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,11 +42,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
@@ -61,6 +60,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
 
     public static final String WIREMOCK_OPTION = "wiremock";
+
+    public static final String JAKARTA = "jakarta";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -93,6 +94,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
 
     public AbstractJavaCodegen() {
@@ -194,6 +196,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
 
         cliOptions.add(CliOption.newBoolean(WIREMOCK_OPTION, "Use wiremock to generate endpoint calls to mock on generated tests."));
+
+        cliOptions.add(CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)"));
+
+        CliOption jeeSpec = CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)");
+        Map<String, String> jeeSpecModeOptions = new HashMap<String, String>();
+        jeeSpecModeOptions.put("true", "Use Jakarta EE (package jakarta.*)");
+        jeeSpecModeOptions.put("false", "Use Java EE (javax.*)");
+        jeeSpec.setEnum(jeeSpecModeOptions);
+        cliOptions.add(jeeSpec);
     }
 
     @Override
@@ -489,6 +500,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
         } else if (dateLibrary.equals("legacy")) {
             additionalProperties.put("legacyDates", true);
+        }
+
+        if (additionalProperties.containsKey(JAKARTA)) {
+            setJakarta(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAKARTA))));
+            additionalProperties.put(JAKARTA, jakarta);
         }
     }
 
@@ -1562,6 +1578,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava11Mode(boolean java11Mode) {
         this.java11Mode = java11Mode;
+    }
+
+    public void setJakarta(boolean jakarta) {
+        this.jakarta = jakarta;
     }
 
     @Override

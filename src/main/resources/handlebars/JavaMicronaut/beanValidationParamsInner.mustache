@@ -1,0 +1,5 @@
+{{^isPrimitiveType}}{{^isEnum}}{{!
+    Non-container
+}}{{^isContainer}}@Valid {{/isContainer}}{{!
+    Container
+}}{{#isContainer}}{{#items}}{{>beanValidationParamsInner}}{{/items}}{{/isContainer}}{{/isEnum}}{{/isPrimitiveType}}
