@@ -165,11 +165,14 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public String toVarName(String name) {
         // sanitize name
-        name = sanitizeName(name);
+        name = sanitizeVarName(name);
 
         if("_".equals(name)) {
             name = "_u";
         }
+
+        name = name.replaceAll("\\$", "_")
+            .replaceAll("\\!", "_");
 
         // if it's all uppper case, do nothing
         if (name.matches("^[A-Z_]*$")) {
@@ -341,6 +344,9 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
                     ArraySchema ap = (ArraySchema) schema;
                     Schema inner = ap.getItems();
                     schemaType = schemaType + "<" + getSchemaType(inner) + ">";
+                }
+                if (schema instanceof MapSchema) {
+                    schemaType = "Map<any, any>";
                 }
                 return schemaType;
             }).distinct().collect(Collectors.toList());
