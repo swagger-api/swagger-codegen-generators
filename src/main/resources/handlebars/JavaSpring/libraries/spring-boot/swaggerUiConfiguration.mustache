@@ -8,9 +8,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 {{>generatedAnnotation}}
 @Configuration
 public class SwaggerUiConfiguration implements WebMvcConfigurer {
+
     @Override
+    {{#useOas2}}
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        {{#useOas2}}
+
         registry
             .addResourceHandler("/swagger-ui.html")
             .addResourceLocations("classpath:/META-INF/resources/");
@@ -18,19 +20,15 @@ public class SwaggerUiConfiguration implements WebMvcConfigurer {
         registry
             .addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
-        {{/useOas2}}
-        {{^useOas2}}
         registry.
             addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .resourceChain(false);
-        {{/useOas2}}
     }
-
-    @Override
+    {{/useOas2}}
+    {{^useOas2}}
     public void addViewControllers(ViewControllerRegistry registry) {
-        {{^useOas2}}
         registry.addViewController("/swagger-ui/").setViewName("forward:/swagger-ui/index.html");
-        {{/useOas2}}
     }
+    {{/useOas2}}
 }

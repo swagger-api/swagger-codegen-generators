@@ -13,12 +13,7 @@
         <springfox-version>2.9.2</springfox-version>
         {{/useOas2}}
         {{^useOas2}}
-        {{^springBootV2}}
-        <springdoc-version>1.2.9</springdoc-version>
-        {{/springBootV2}}
-        {{#springBootV2}}
-        <springfox-version>3.0.0</springfox-version>
-        {{/springBootV2}}
+        <springdoc-version>1.7.0</springdoc-version>
         {{/useOas2}}
     </properties>
     <parent>
@@ -79,22 +74,6 @@
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox-version}</version>
         </dependency>
-        {{/useOas2}}
-        {{^useOas2}}
-        {{#springBootV2}}
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-oas</artifactId>
-            <version>${springfox-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox-version}</version>
-        </dependency>
-        {{/springBootV2}}
-        {{/useOas2}}
-        {{#useOas2}}
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
@@ -102,14 +81,12 @@
         </dependency>
         {{/useOas2}}
         {{^useOas2}}
-        {{^springBootV2}}
         <!-- SpringDoc dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc-version}</version>
         </dependency>
-        {{/springBootV2}}
         {{/useOas2}}
 
         {{#withXml}}
