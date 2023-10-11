@@ -1,10 +1,11 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+
 import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -19,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 @SuppressWarnings("static-method")
 public class KotlinClientCodegenModelTest {
@@ -286,11 +283,11 @@ public class KotlinClientCodegenModelTest {
 
     @DataProvider
     public static Object[][] enumClassNames() {
-        return new Object[][]{
-                {"name1", "Name1"},
-                {"A", "A"},
-                {"NAME2", "NAME2"},
-                {"`return`", "`Return`"},
+        return new Object[][] {
+            {"name1", "Name1"},
+            {"A", "A"},
+            {"NAME2", "NAME2"},
+            {"`return`", "`Return`"},
         };
     }
 
@@ -300,7 +297,6 @@ public class KotlinClientCodegenModelTest {
         CodegenProperty property = new CodegenProperty();
         property.setName(name);
         Assert.assertEquals(codegen.toEnumName(property), expectedName);
-
     }
 
     private static class ModelNameTest {
