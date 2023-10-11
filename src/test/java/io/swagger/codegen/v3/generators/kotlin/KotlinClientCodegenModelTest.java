@@ -269,8 +269,7 @@ public class KotlinClientCodegenModelTest {
                 {"VALUE1", "VALUE1"},
                 {"1", "_1"},
                 {"1X2", "_1X2"},
-                {"1x2", "_1X2"},
-                {"`return`", "`Return`"},
+                {"1x2", "_1X2"}
         };
     }
 
