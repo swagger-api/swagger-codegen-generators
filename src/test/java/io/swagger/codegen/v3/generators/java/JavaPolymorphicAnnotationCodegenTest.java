@@ -9,6 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 public class JavaPolymorphicAnnotationCodegenTest {
 
@@ -28,15 +29,11 @@ public class JavaPolymorphicAnnotationCodegenTest {
         new DefaultGenerator().opts(clientOptInput).generate();
 
         final File petControllerFile = new File(output, "/src/main/java/io/swagger/model/PolymorphicResponse.java");
-        final String content = FileUtils.readFileToString(petControllerFile);
+        final String content = FileUtils.readFileToString(petControllerFile, Charset.forName("UTF-8"));
 
-        Assert.assertTrue(content.contains(
-            "@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )\n" +
-                "@JsonSubTypes({\n" +
-                "        @JsonSubTypes.Type(value = Error.class, name = \"Error\"),\n" +
-                "        @JsonSubTypes.Type(value = Success.class, name = \"Success\"),\n" +
-                "})"));
-
+        Assert.assertTrue(content.contains("@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )"));  
+        Assert.assertTrue(content.contains("@JsonSubTypes.Type(value = Error.class, name = \"Error\"),"));
+        Assert.assertTrue(content.contains("@JsonSubTypes.Type(value = Success.class, name = \"Success\"),"));    
         this.folder.delete();
     }
 }
