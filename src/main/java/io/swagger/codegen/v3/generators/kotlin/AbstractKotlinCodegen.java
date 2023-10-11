@@ -1,6 +1,10 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.helper.ConditionalHelpers;
+import com.github.jknack.handlebars.helper.StringHelpers;
+import com.samskivert.mustache.Escapers;
+import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -13,15 +17,9 @@ import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.jknack.handlebars.helper.StringHelpers;
-import com.github.jknack.handlebars.Handlebars;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
@@ -44,126 +42,126 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         supportsInheritance = true;
 
         languageSpecificPrimitives = new HashSet<>(Arrays.asList(
-                "kotlin.Any",
-                "kotlin.Byte",
-                "kotlin.Short",
-                "kotlin.Int",
-                "kotlin.Long",
-                "kotlin.Float",
-                "kotlin.Double",
-                "kotlin.Boolean",
-                "kotlin.Char",
-                "kotlin.String",
-                "kotlin.Array",
-                "kotlin.collections.List",
-                "kotlin.collections.Map",
-                "kotlin.collections.Set",
-                "kotlin.ByteArray",
-                "kotlin.CharArray",
-                "kotlin.ShortArray",
-                "kotlin.IntArray",
-                "kotlin.LongArray",
-                "kotlin.FloatArray",
-                "kotlin.DoubleArray",
-                "kotlin.BooleanArray"
+            "kotlin.Any",
+            "kotlin.Byte",
+            "kotlin.Short",
+            "kotlin.Int",
+            "kotlin.Long",
+            "kotlin.Float",
+            "kotlin.Double",
+            "kotlin.Boolean",
+            "kotlin.Char",
+            "kotlin.String",
+            "kotlin.Array",
+            "kotlin.collections.List",
+            "kotlin.collections.Map",
+            "kotlin.collections.Set",
+            "kotlin.ByteArray",
+            "kotlin.CharArray",
+            "kotlin.ShortArray",
+            "kotlin.IntArray",
+            "kotlin.LongArray",
+            "kotlin.FloatArray",
+            "kotlin.DoubleArray",
+            "kotlin.BooleanArray"
         ));
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
         // as well as keywords from https://kotlinlang.org/docs/reference/keyword-reference.html
         reservedWords = new HashSet<>(Arrays.asList(
-                "abstract",
-                "actual",
-                "annotation",
-                "as",
-                "break",
-                "case",
-                "catch",
-                "class",
-                "companion",
-                "const",
-                "constructor",
-                "continue",
-                "crossinline",
-                "data",
-                "delegate",
-                "do",
-                "else",
-                "enum",
-                "expect",
-                "external",
-                "false",
-                "final",
-                "finally",
-                "for",
-                "fun",
-                "if",
-                "in",
-                "infix",
-                "init",
-                "inline",
-                "inner",
-                "interface",
-                "internal",
-                "is",
-                "it",
-                "lateinit",
-                "lazy",
-                "noinline",
-                "null",
-                "object",
-                "open",
-                "operator",
-                "out",
-                "override",
-                "package",
-                "private",
-                "protected",
-                "public",
-                "reified",
-                "return",
-                "sealed",
-                "super",
-                "suspend",
-                "tailrec",
-                "this",
-                "throw",
-                "true",
-                "try",
-                "typealias",
-                "typeof",
-                "val",
-                "var",
-                "vararg",
-                "when",
-                "while"
+            "abstract",
+            "actual",
+            "annotation",
+            "as",
+            "break",
+            "case",
+            "catch",
+            "class",
+            "companion",
+            "const",
+            "constructor",
+            "continue",
+            "crossinline",
+            "data",
+            "delegate",
+            "do",
+            "else",
+            "enum",
+            "expect",
+            "external",
+            "false",
+            "final",
+            "finally",
+            "for",
+            "fun",
+            "if",
+            "in",
+            "infix",
+            "init",
+            "inline",
+            "inner",
+            "interface",
+            "internal",
+            "is",
+            "it",
+            "lateinit",
+            "lazy",
+            "noinline",
+            "null",
+            "object",
+            "open",
+            "operator",
+            "out",
+            "override",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "reified",
+            "return",
+            "sealed",
+            "super",
+            "suspend",
+            "tailrec",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "typealias",
+            "typeof",
+            "val",
+            "var",
+            "vararg",
+            "when",
+            "while"
         ));
 
         defaultIncludes = new HashSet<>(Arrays.asList(
-                "kotlin.Byte",
-                "kotlin.Short",
-                "kotlin.Int",
-                "kotlin.Long",
-                "kotlin.Float",
-                "kotlin.Double",
-                "kotlin.Boolean",
-                "kotlin.Char",
-                "kotlin.Array",
-                "kotlin.collections.List",
-                "kotlin.collections.Set",
-                "kotlin.collections.Map",
-                "kotlin.ByteArray",
-                "kotlin.CharArray",
-                "kotlin.ShortArray",
-                "kotlin.IntArray",
-                "kotlin.LongArray",
-                "kotlin.FloatArray",
-                "kotlin.DoubleArray",
-                "kotlin.BooleanArray"
+            "kotlin.Byte",
+            "kotlin.Short",
+            "kotlin.Int",
+            "kotlin.Long",
+            "kotlin.Float",
+            "kotlin.Double",
+            "kotlin.Boolean",
+            "kotlin.Char",
+            "kotlin.Array",
+            "kotlin.collections.List",
+            "kotlin.collections.Set",
+            "kotlin.collections.Map",
+            "kotlin.ByteArray",
+            "kotlin.CharArray",
+            "kotlin.ShortArray",
+            "kotlin.IntArray",
+            "kotlin.LongArray",
+            "kotlin.FloatArray",
+            "kotlin.DoubleArray",
+            "kotlin.BooleanArray"
         ));
 
         instantiationLibraryFunction = new HashSet<>(Arrays.asList(
-                "arrayOf",
-                "mapOf"
+            "arrayOf",
+            "mapOf"
         ));
 
         typeMapping = new HashMap<>();
@@ -513,7 +511,26 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumName(CodegenProperty property) {
+        //Need to handle case when property name is escaped (possible reserved word)
+        if (property.name.startsWith("`")) {
+            return String.format("`%s", StringUtils.capitalize(property.name.substring(1)));
+        }
         return StringUtils.capitalize(property.name);
+    }
+
+    @Override
+    public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
+        Mustache.Escaper KOTLIN = new Mustache.Escaper() {
+            @Override
+            public String escape(String text) {
+                if (text.startsWith("`") && text.endsWith("`")) {
+                    String unescaped = text.substring(1, text.length() - 1);
+                    return "`" + Escapers.HTML.escape(unescaped) + "`";
+                }
+                return Escapers.HTML.escape(text);
+            }
+        };
+        return compiler.withEscaper(KOTLIN);
     }
 
     @Override
@@ -591,11 +608,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
     protected boolean needToImport(String type) {
         // provides extra protection against improperly trying to import language primitives and java types
         boolean imports =
-                !type.startsWith("kotlin.") &&
-                        !type.startsWith("java.") &&
-                        !defaultIncludes.contains(type) &&
-                        !languageSpecificPrimitives.contains(type) &&
-                        !instantiationLibraryFunction.contains(type);
+            !type.startsWith("kotlin.") &&
+                !type.startsWith("java.") &&
+                !defaultIncludes.contains(type) &&
+                !languageSpecificPrimitives.contains(type) &&
+                !instantiationLibraryFunction.contains(type);
 
         return imports;
     }

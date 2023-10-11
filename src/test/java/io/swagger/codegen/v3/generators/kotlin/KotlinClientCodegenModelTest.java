@@ -272,7 +272,8 @@ public class KotlinClientCodegenModelTest {
                 {"VALUE1", "VALUE1"},
                 {"1", "_1"},
                 {"1X2", "_1X2"},
-                {"1x2", "_1X2"}
+                {"1x2", "_1X2"},
+                {"`return`", "`Return`"},
         };
     }
 
@@ -280,6 +281,25 @@ public class KotlinClientCodegenModelTest {
     public void sanitizeEnumVarNames(final String name, final String expectedName) {
         final KotlinClientCodegen codegen = new KotlinClientCodegen();
         Assert.assertEquals(codegen.toEnumVarName(name, "String"), expectedName);
+
+    }
+
+    @DataProvider
+    public static Object[][] enumClassNames() {
+        return new Object[][]{
+                {"name1", "Name1"},
+                {"A", "A"},
+                {"NAME2", "NAME2"},
+                {"`return`", "`Return`"},
+        };
+    }
+
+    @Test(dataProvider = "enumClassNames", description = "sanitize Enum class names")
+    public void capitalizeEnumName(final String name, final String expectedName) {
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+        CodegenProperty property = new CodegenProperty();
+        property.setName(name);
+        Assert.assertEquals(codegen.toEnumName(property), expectedName);
 
     }
 
