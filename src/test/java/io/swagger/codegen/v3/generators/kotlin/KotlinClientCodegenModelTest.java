@@ -1,7 +1,5 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
-
 import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -20,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 @SuppressWarnings("static-method")
 public class KotlinClientCodegenModelTest {
