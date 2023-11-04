@@ -13,12 +13,14 @@ using Newtonsoft.Json;
 {{#models}}
 {{#model}}
 namespace {{packageName}}.Models
-{ {{#isEnum}}{{>enumClass}}{{/isEnum}}{{^isEnum}}
+{
+  {{^isComposedModel}}
+  {{#isEnum}}{{>enumClass}}{{/isEnum}}{{^isEnum}}
     /// <summary>
     /// {{description}}
     /// </summary>
     [DataContract]
-    public partial class {{classname}} : {{#parent}}{{{parent}}}, {{/parent}}IEquatable<{{classname}}>
+    public partial class {{classname}} : {{#parent}}{{{parent}}}, {{/parent}}IEquatable<{{classname}}>{{#interfaceModels}}{{#@first}}, {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}
     { {{#vars}}{{#isEnum}}{{^isContainer}}{{>enumClass}}{{/isContainer}}{{/isEnum}}{{#items.isEnum}}{{#items}}{{^isContainer}}{{>enumClass}}{{/isContainer}}{{/items}}{{/items.isEnum}}
         /// <summary>
         /// {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{description}}{{/description}}
@@ -139,6 +141,20 @@ namespace {{packageName}}.Models
         #endregion Operators
     }
 {{/isEnum}}
+{{/isComposedModel}}
+{{#isComposedModel}}
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public interface {{{classname}}}
+    {
+        {{#vendorExtensions}}
+        {{#x-discriminator-type-getter}}
+            {{x-discriminator-type}} {{x-discriminator-type-getter}}();
+        {{/x-discriminator-type-getter}}
+        {{/vendorExtensions}}
+    }
+{{/isComposedModel}}
 {{/model}}
 {{/models}}
 }

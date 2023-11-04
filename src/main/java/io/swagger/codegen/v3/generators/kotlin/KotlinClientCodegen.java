@@ -58,12 +58,6 @@ public class KotlinClientCodegen extends AbstractKotlinCodegen {
     }
 
     @Override
-    public void addHandlebarHelpers(Handlebars handlebars) {
-        super.addHandlebarHelpers(handlebars);
-        handlebars.registerHelpers(ConditionalHelpers.class);
-    }
-
-    @Override
     public String getDefaultTemplateDir() {
         return "kotlin-client";
     }

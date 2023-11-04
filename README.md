@@ -7,7 +7,7 @@
 ## Overview
 **Swagger Codegen Generators** project is a set of classes and templates ([Handlebars](https://jknack.github.io/handlebars.java)) used by [Swagger Codegen 3.0.0 project](https://github.com/swagger-api/swagger-codegen/tree/3.0.0) in its code generation process for a specific language or language framework. The main differents with **Swagger Codegen 2.x.x** are:
 
-- **Handlebars as template engine:** with Handelbars feature is possible to create more logic-less templates.
+- **Handlebars as template engine:** with Handlebars feature is possible to create more logic-less templates.
 - **OAS 3 support:** generator classes work with OpenAPI Specification V3.
 
 More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0)
@@ -18,16 +18,16 @@ You need the following installed and available in your $PATH:
 * Java 8 (http://java.oracle.com)
 * Apache maven 3.0.4 or greater (http://maven.apache.org/)
 
-## How to contribute.
-Right now the templates and generators classes are migrated from  [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) **3.0.0** branch. 
+## How to Contribute.
+Right now the templates and generators classes are migrated from  [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) **3.0.0** branch.
 If you want to migrate an existing language/framework, you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-(swagger-codegen-generators-repository)).
-Also you need to keep in mind that **Handlebars** is used as template engines and besides it's pretty similar to **Mustache** there are different that can not be ignored. So you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-from-Mustache-and-Handlebars-templates.) which explains steps to migrate templates from **Mustaches** to **Handelbars**.
+Also you need to keep in mind that **Handlebars** is used as the template engine. It's pretty similar to **Mustache**, but there are differences that can not be ignored. So you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-from-Mustache-and-Handlebars-templates.) which explains steps to migrate templates from **Mustaches** to **Handlebars**.
 
-## Security contact
+## Security Contact
 
 Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
 
-## License information on Generated Code
+## License Information on Generated Code
 
 The Swagger Codegen project is intended as a benefit for users of the Swagger / Open API Specification.  The project itself has the [License](#license) as specified.  In addition, please understand the following points:
 

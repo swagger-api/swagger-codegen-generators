@@ -76,6 +76,10 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     public void processOpts() {
         super.processOpts();
 
+        if (java11Mode) {
+            additionalProperties.put(JAKARTA, jakarta = true);
+        }
+
         if (additionalProperties.containsKey(CodegenConstants.IMPL_FOLDER)) {
             implFolder = (String) additionalProperties.get(CodegenConstants.IMPL_FOLDER);
         }

@@ -1,0 +1,36 @@
+package {{rootPackage}};
+
+{{#rxInterface}}
+import io.reactivex.Completable;
+import io.vertx.reactivex.core.AbstractVerticle;
+{{/rxInterface}}
+{{^rxInterface}}
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
+{{/rxInterface}}
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MainApiVerticle extends AbstractVerticle {
+    static final Logger LOGGER = LoggerFactory.getLogger(MainApiVerticle.class);
+
+    @Override
+    {{^rxInterface}}public void start(Promise<Void> startPromise) throws Exception {
+    vertx.deployVerticle("{{verticlePackage}}.{{title}}Verticle")
+      .onFailure(error -> {
+        LOGGER.error("{{title}}Verticle : Deployment failed");
+        startPromise.fail(error);
+      })
+      .onSuccess(server -> {
+        LOGGER.info("{{title}}Verticle : Deployed");
+        startPromise.complete();
+      });
+    }{{/rxInterface}}
+    {{#rxInterface}}public Completable rxStart() {
+      return vertx.rxDeployVerticle("{{verticlePackage}}.{{title}}Verticle")
+        .doOnError(error -> LOGGER.error("{{title}}Verticle : Deployment failed"))
+        .doOnSuccess(server -> LOGGER.info("{{title}}Verticle : Deployed"))
+        .ignoreElement();
+    }{{/rxInterface}}
+
+}
