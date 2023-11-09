@@ -40,7 +40,7 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractTypeScriptClientCodegen.class);
 
     private static final String UNDEFINED_VALUE = "undefined";
 

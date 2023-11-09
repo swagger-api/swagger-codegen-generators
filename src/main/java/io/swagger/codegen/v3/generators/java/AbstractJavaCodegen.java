@@ -1052,7 +1052,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         for (CodegenProperty codegenProperty : codegenModel.vars) {
             CodegenModel parentModel = codegenModel.parentModel;
-            
+
             while (parentModel != null) {
                 if (parentModel.vars == null || parentModel.vars.isEmpty()) {
                     parentModel = parentModel.parentModel;
@@ -1675,11 +1675,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         super.setLanguageArguments(languageArguments);
-    }
-
-    @Override
-    public boolean defaultIgnoreImportMappingOption() {
-        return true;
     }
 
     @Override

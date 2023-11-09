@@ -11,11 +11,9 @@ public class HomeController {
     @RequestMapping(value = "/")
     public String index() {
         {{#useOas2}}
-        System.out.println("swagger-ui.html");
         return "redirect:swagger-ui.html";
         {{/useOas2}}
         {{^useOas2}}
-        System.out.println("/swagger-ui/index.html");
         return "redirect:/swagger-ui/";
         {{/useOas2}}
     }

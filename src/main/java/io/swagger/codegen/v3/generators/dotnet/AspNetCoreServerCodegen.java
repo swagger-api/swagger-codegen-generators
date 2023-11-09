@@ -8,6 +8,7 @@ import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.utils.SemVer;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -30,7 +31,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private static final String ASP_NET_CORE_VERSION_OPTION = "--aspnet-core-version";
     private static final String INTERFACE_ONLY_OPTION = "--interface-only";
     private static final String INTERFACE_CONTROLLER_OPTION = "--interface-controller";
-    private final String DEFAULT_ASP_NET_CORE_VERSION = "3.1";
+    private static final String SWASH_BUCKLE_VERSION_OPTION = "swashBuckleVersion";
+    private static final String TARGET_FRAMEWORK = "targetFramework";
+    private final String DEFAULT_ASP_NET_CORE_VERSION = "7.0";
     private String aspNetCoreVersion;
 
     @SuppressWarnings("hiding")
@@ -162,6 +165,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache", packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
             supportingFiles.add(new SupportingFile("Startup.mustache", packageFolder, "Startup.cs"));
         } else {
+            final SemVer semVer = new SemVer(aspNetCoreVersion);
             apiTemplateFiles.put("3.0/controller.mustache", ".cs");
             addInterfaceControllerTemplate();
 
@@ -170,7 +174,20 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
             supportingFiles.add(new SupportingFile("3.0/Startup.mustache", packageFolder, "Startup.cs"));
             supportingFiles.add(new SupportingFile("3.0/Program.mustache", packageFolder, "Program.cs"));
-            if (isThreeDotOneVersion) {
+
+            if (semVer.atLeast("5.0")) {
+                additionalProperties.put(SWASH_BUCKLE_VERSION_OPTION, "6.4.0");
+                supportingFiles.add(new SupportingFile("3.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
+            }
+            if (semVer.atLeast("7.0")) {
+                additionalProperties.put(TARGET_FRAMEWORK, "net7.0");
+            } else if (semVer.atLeast("6.0")) {
+                additionalProperties.put(TARGET_FRAMEWORK, "net6.0");
+            } else if (semVer.atLeast("5.0")) {
+                additionalProperties.put(TARGET_FRAMEWORK, "net5.0");
+            } else if (semVer.atLeast("3.1")) {
+                additionalProperties.put(SWASH_BUCKLE_VERSION_OPTION, "5.5.1");
+                additionalProperties.put(TARGET_FRAMEWORK, "netcoreapp3.1");
                 supportingFiles.add(new SupportingFile("3.1/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
             } else {
                 supportingFiles.add(new SupportingFile("3.0/Project.csproj.mustache", packageFolder, this.packageName + ".csproj"));
@@ -284,7 +301,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             List <CodegenContent> contents = operation.getContents()
                     .stream()
                     .filter(codegenContent -> !codegenContent.getIsForm())
-                    .collect(Collectors.toList());
+                    .collect(
+                        Collectors.toList());
             operation.getContents().clear();
             operation.getContents().addAll(contents);
         }
@@ -345,7 +363,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         boolean interfaceController = false;
         if (StringUtils.isNotBlank(interfaceControllerOption)) {
             interfaceController = Boolean.valueOf(getOptionValue(INTERFACE_CONTROLLER_OPTION));
-        } else {
+          } else {
             if (additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)) != null) {
                 interfaceController = Boolean.valueOf(additionalProperties.get(INTERFACE_CONTROLLER_OPTION.substring(2)).toString());
             }
@@ -378,7 +396,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         } else {
             this.aspNetCoreVersion = optionValue;
         }
-        if (!this.aspNetCoreVersion.equals("2.0") && !this.aspNetCoreVersion.equals("2.1") && !this.aspNetCoreVersion.equals("2.2") && !this.aspNetCoreVersion.equals("3.0")) {
+        final SemVer semVer = new SemVer(this.aspNetCoreVersion);
+        if (semVer.compareTo(new SemVer("2.0")) < 0) {
             LOGGER.error("version '" + this.aspNetCoreVersion + "' is not supported, switching to default version: '" + DEFAULT_ASP_NET_CORE_VERSION + "'");
             this.aspNetCoreVersion = DEFAULT_ASP_NET_CORE_VERSION;
         }

@@ -44,7 +44,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.CookieValue;
 
 {{#jdk8-no-delegate}}
+{{#jakarta}}
+import jakarta.servlet.http.HttpServletRequest;
+{{/jakarta}}
+{{^jakarta}}
 import javax.servlet.http.HttpServletRequest;
+{{/jakarta}}
 {{/jdk8-no-delegate}}
 {{#useBeanValidation}}
 {{#jakarta}}
