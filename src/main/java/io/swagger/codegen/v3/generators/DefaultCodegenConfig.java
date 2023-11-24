@@ -2513,6 +2513,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
 
+            setParameterJson(codegenParameter, parameterSchema);
+
             if (getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME)) {
                 codegenParameter.datatypeWithEnum = codegenProperty.datatypeWithEnum;
                 codegenParameter.enumName = codegenProperty.enumName;
@@ -4401,6 +4403,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected void setParameterNullable(CodegenParameter parameter, CodegenProperty property) {
         parameter.nullable = property.nullable;
+    }
+
+    protected void setParameterJson(CodegenParameter codegenParameter, Schema parameterSchema) {
+        String contentType = parameterSchema.getExtensions() == null ? null : (String) parameterSchema.getExtensions().get("x-content-type");
+        if (contentType != null && contentType.startsWith("application/") && contentType.endsWith("json")) {
+            // application/json, application/problem+json, application/ld+json, some more?
+            codegenParameter.isJson = true;
+        }
     }
 
     @Override
