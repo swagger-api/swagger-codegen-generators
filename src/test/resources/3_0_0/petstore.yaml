@@ -233,6 +233,60 @@ paths:
         - petstore_auth:
             - 'write:pets'
             - 'read:pets'
+
+  /pet/feed/{petId}:
+    post:
+      tags:
+        - pet
+      summary: Find pet by ID
+      description: schedule pet feeding
+      operationId: feedPet
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: petType
+          in: query
+          description: type of food
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: status
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: cookie
+          description: session id
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: header
+          description: status
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Pet object that needs to be added to the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Pet'
+        required: true
+      responses:
+        200:
+          description: successful operation
+
   '/pet/{petId}/uploadImage':
     post:
       tags:
@@ -576,6 +630,18 @@ components:
           format: int64
         name:
           type: string
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+      example:
+        - id: 100
+          name: Mammal
+          subcategories:
+            - id: 110
+              name: Yinotheria
+            - id: 120
+              name: Theriiformes
       xml:
         name: Category
     User:

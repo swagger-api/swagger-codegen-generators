@@ -54,7 +54,7 @@ if(hasProperty('target') && target == 'android') {
         }
 
         dependencies {
-            provided 'javax.annotation:jsr250-api:1.0'
+            provided 'jakarta.annotation:jakarta.annotation-api:{{#jakarta}}2.1.1{{/jakarta}}{{^jakarta}}1.3.5{{/jakarta}}'
         }
     }
 
@@ -111,8 +111,8 @@ ext {
     {{^useOas2}}
     swagger_annotations_version = "2.0.0"
     {{/useOas2}}
-    jackson_version = "2.7.5"
-    jersey_version = "2.22.2"
+    jackson_version = "2.10.1"
+    jersey_version = "{{#jakarta}}3.1.0{{/jakarta}}{{^jakarta}}2.22.2{{/jakarta}}"
     {{^java8}}
     jodatime_version = "2.9.4"
     {{/java8}}

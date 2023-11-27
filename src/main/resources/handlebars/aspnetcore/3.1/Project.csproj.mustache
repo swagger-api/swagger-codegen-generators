@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <Description>{{packageName}}</Description>
+    <Copyright>{{packageName}}</Copyright>
+    <TargetFramework>{{targetFramework}}</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>{{packageName}}</AssemblyName>
+    <PackageId>{{packageName}}</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="{{swashBuckleVersion}}"/>`
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="{{swashBuckleVersion}}"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="{{swashBuckleVersion}}"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="{{swashBuckleVersion}}" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="{{swashBuckleVersion}}"/>
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+  </ItemGroup>
+</Project>

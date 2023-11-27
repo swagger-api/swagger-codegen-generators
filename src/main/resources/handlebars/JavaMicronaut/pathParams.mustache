@@ -1,0 +1,3 @@
+{{#isPathParam}}{{!
+    PathParam is always required, no @NotNull necessary
+}}{{>beanValidationParams}}@Parameter(description = "{{{description}}}") @PathVariable("{{baseName}}") {{>optionalDataType}} {{paramName}}{{/isPathParam}}

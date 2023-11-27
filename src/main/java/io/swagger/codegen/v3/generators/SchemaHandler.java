@@ -1,137 +1,277 @@
 package io.swagger.codegen.v3.generators;
 
-import io.swagger.codegen.v3.*;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenModelFactory;
+import io.swagger.codegen.v3.CodegenModelType;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.ISchemaHandler;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public class SchemaHandler {
+public class SchemaHandler implements ISchemaHandler {
 
-    private DefaultCodegenConfig codegenConfig;
+    public static final String ALL_OF_PREFFIX = "AllOf";
+    public static final String ONE_OF_PREFFIX = "OneOf";
+    public static final String ANY_OF_PREFFIX = "AnyOf";
+    public static final String ARRAY_ITEMS_SUFFIX = "Items";
+
+    protected DefaultCodegenConfig codegenConfig;
+    private List<CodegenModel> composedModels = new ArrayList<>();
 
     public SchemaHandler(DefaultCodegenConfig codegenConfig) {
         this.codegenConfig = codegenConfig;
     }
 
-
-    /**
-     * creates a codegen model object based on a composed schema property.
-     * @param composedProperty
-     * @param codegenProperty
-     */
-    public void createCodegenModel(ComposedSchema composedProperty, CodegenProperty codegenProperty) {
-        final List<Schema> oneOf = composedProperty.getOneOf();
-        final List<Schema> anyOf = composedProperty.getAnyOf();
-
-        if (oneOf != null && !oneOf.isEmpty()) {
-             final CodegenModel oneOfModel = createFromOneOfSchemas(oneOf);
-            codegenProperty.vendorExtensions.put("oneOf-model", oneOfModel);
+    @Override
+    public void processComposedSchemas(CodegenModel codegenModel, Schema schema, Map<String, CodegenModel> allModels) {
+        if (schema instanceof ComposedSchema) {
+            this.addComposedModel(this.processComposedSchema(codegenModel, (ComposedSchema) schema, allModels));
         }
-        if (anyOf != null && !anyOf.isEmpty()) {
-            final CodegenModel anyOfModel = createFromOneOfSchemas(anyOf);
-            codegenProperty.vendorExtensions.put("anyOf-model", anyOfModel);
+        if (schema instanceof ArraySchema) {
+            this.addComposedModel(this.processArrayItemSchema(codegenModel, (ArraySchema) schema, allModels));
+            return;
         }
-
+        final Map<String, Schema> properties = schema.getProperties();
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        for (String name : properties.keySet()) {
+            final Schema property = properties.get(name);
+            final Optional<CodegenProperty> optionalCodegenProperty = codegenModel.getVars()
+                .stream()
+                .filter(codegenProperty -> codegenProperty.baseName.equals(name))
+                .findFirst();
+            if (!optionalCodegenProperty.isPresent()) {
+                continue;
+            }
+            final CodegenProperty codegenProperty = optionalCodegenProperty.get();
+            final String codegenName = codegenModel.getName() + codegenConfig.toModelName(codegenProperty.getName());
+            if (property instanceof ComposedSchema) {
+                this.addComposedModel(this.processComposedSchema(codegenName, codegenProperty, (ComposedSchema) property, allModels));
+                continue;
+            }
+            if (property instanceof ArraySchema) {
+                this.addComposedModel(this.processArrayItemSchema(codegenName, codegenProperty, (ArraySchema) property, allModels));
+                continue;
+            }
+        }
     }
 
-    public void configureOneOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
-        String oneOfModelName = "OneOf" + codegenModel.name;
-        final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        oneOfModel.name = oneOfModelName;
-        oneOfModel.classname = codegenConfig.toModelName(oneOfModelName);
-        oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
+    @Override
+    public List<CodegenModel> getModels() {
+        return composedModels;
+    }
 
-        final List<String> modelNames = new ArrayList<>();
+    protected CodegenModel processComposedSchema(CodegenModel codegenModel, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
 
-        for (Schema interfaceSchema : oneOf) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+        final boolean schemaWithNoProperties = codegenModel.vars == null || codegenModel.vars.isEmpty();
+        if (schemaWithNoProperties && (composedSchema.getAllOf() == null || composedSchema.getAllOf().isEmpty())) {
+            if (composedSchema.getOneOf() != null && !composedSchema.getOneOf().isEmpty()) {
+                this.addInterfaces(composedSchema.getOneOf(), codegenModel, allModels);
+            } else if (composedSchema.getAnyOf() != null && !composedSchema.getAnyOf().isEmpty()) {
+                this.addInterfaces(composedSchema.getAnyOf(), codegenModel, allModels);
+            }
+            codegenModel.setIsComposedModel(true);
+            return codegenModel;
         }
-        oneOfModel.vendorExtensions.put("x-model-names", modelNames);
-        codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
-        if (codegenModel.interfaceModels == null) {
-            codegenModel.interfaceModels = new ArrayList<>();
+
+        List<Schema> schemas = composedSchema.getOneOf();
+        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModel.getName(), schemas);
+        if (composedModel == null) {
+            schemas = composedSchema.getAnyOf();
+            composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModel.getName(), schemas);
+            if (composedModel == null) {
+                return null;
+            }
         }
-        codegenModel.interfaceModels.add(oneOfModel);
+        this.addInterfaceModel(codegenModel, composedModel);
+        this.addInterfaces(schemas, composedModel, allModels);
+        return composedModel;
     }
 
-    public void configureAnyOfModel(CodegenModel codegenModel, List<Schema> oneOf) {
-        String oneOfModelName = "AnyOf" + codegenModel.name;
-        final CodegenModel oneOfModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        oneOfModel.name = oneOfModelName;
-        oneOfModel.classname = codegenConfig.toModelName(oneOfModelName);
-        oneOfModel.classVarName = codegenConfig.toVarName(oneOfModelName);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(oneOfModelName);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
-
-        final List<String> modelNames = new ArrayList<>();
-
-        for (Schema interfaceSchema : oneOf) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+    protected CodegenModel processComposedSchema(String name, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+        List<Schema> schemas = composedSchema.getOneOf();
+        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + name, schemas);
+        if (composedModel == null) {
+            schemas = composedSchema.getAnyOf();
+            composedModel = this.createComposedModel(ANY_OF_PREFFIX + name, schemas);
+            if (composedModel == null) {
+                return null;
+            }
         }
-        oneOfModel.vendorExtensions.put("x-model-names", modelNames);
-        codegenModel.vendorExtensions.put("anyOf-model", oneOfModel);
-        if (codegenModel.interfaceModels == null) {
-            codegenModel.interfaceModels = new ArrayList<>();
+        this.addInterfaces(schemas, composedModel, allModels);
+        return composedModel;
+    }
+
+    protected CodegenModel processComposedSchema(String codegenModelName, CodegenProperty codegenProperty, ComposedSchema composedSchema, Map<String, CodegenModel> allModels) {
+        List<Schema> schemas = composedSchema.getAllOf();
+        if (schemas != null && !schemas.isEmpty()) {
+            final CodegenModel composedModel = codegenConfig.fromModel(ALL_OF_PREFFIX + codegenModelName, composedSchema);
+            this.updatePropertyDataType(codegenProperty, composedModel);
+            return composedModel;
         }
-        codegenModel.interfaceModels.add(oneOfModel);
+        schemas = composedSchema.getOneOf();
+        CodegenModel composedModel = this.createComposedModel(ONE_OF_PREFFIX + codegenModelName, schemas);
+        if (composedModel == null) {
+            schemas = composedSchema.getAnyOf();
+            composedModel = this.createComposedModel(ANY_OF_PREFFIX + codegenModelName, schemas);
+            if (composedModel == null) {
+                return null;
+            }
+        }
+        this.addInterfaces(schemas, composedModel, allModels);
+        this.updatePropertyDataType(codegenProperty, composedModel);
+        return composedModel;
     }
 
-    public void configureOneOfModelFromProperty(CodegenProperty codegenProperty, CodegenModel codegenModel) {
-        String name = "OneOf" + codegenConfig.toModelName(codegenModel.name);
-        name += codegenConfig.toModelName(codegenProperty.name);
-        CodegenModel oneOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("oneOf-model");
-        oneOfModel.name = name;
-        oneOfModel.classname = codegenConfig.toModelName(name);
-        oneOfModel.classVarName = codegenConfig.toVarName(name);
-        oneOfModel.classFilename = codegenConfig.toModelFilename(name);
-        oneOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
-        codegenProperty.vendorExtensions.remove("oneOf-model");
-
-        codegenProperty.datatype = name;
-        codegenProperty.datatypeWithEnum = name;
-        codegenProperty.baseType = name;
-
-        codegenModel.vendorExtensions.put("oneOf-model", oneOfModel);
+    protected CodegenModel processArrayItemSchema(CodegenModel codegenModel, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
+        final Schema itemsSchema = arraySchema.getItems();
+        if (itemsSchema instanceof ComposedSchema) {
+            final CodegenModel composedModel = this.processComposedSchema(codegenModel.name + ARRAY_ITEMS_SUFFIX, (ComposedSchema) itemsSchema, allModels);
+            if (composedModel == null) {
+                return null;
+            }
+            this.updateArrayModel(codegenModel, composedModel.name, arraySchema);
+            return composedModel;
+        }
+        return null;
     }
 
-    public void configureAnyOfModelFromProperty(CodegenProperty codegenProperty, CodegenModel codegenModel) {
-        String name = "AnyOf" + codegenConfig.toModelName(codegenModel.name);
-        name += codegenConfig.toModelName(codegenProperty.name);
-        CodegenModel anyOfModel = (CodegenModel) codegenProperty.vendorExtensions.get("anyOf-model");
-        anyOfModel.name = name;
-        anyOfModel.classname = codegenConfig.toModelName(name);
-        anyOfModel.classVarName = codegenConfig.toVarName(name);
-        anyOfModel.classFilename = codegenConfig.toModelFilename(name);
-        anyOfModel.vendorExtensions.put("x-is-composed-model", Boolean.TRUE);
-        codegenProperty.vendorExtensions.remove("anyOf-model");
-
-        codegenProperty.datatype = name;
-        codegenProperty.datatypeWithEnum = name;
-        codegenProperty.baseType = name;
-
-        codegenModel.vendorExtensions.put("anyOf-model", anyOfModel);
+    protected CodegenModel processArrayItemSchema(String codegenModelName, CodegenProperty codegenProperty, ArraySchema arraySchema, Map<String, CodegenModel> allModels) {
+        final Schema itemsSchema = arraySchema.getItems();
+        if (itemsSchema instanceof ComposedSchema) {
+            final CodegenModel composedModel = this.processComposedSchema(codegenModelName + ARRAY_ITEMS_SUFFIX, codegenProperty.items, (ComposedSchema) itemsSchema, allModels);
+            if (composedModel == null) {
+                return null;
+            }
+            this.updatePropertyDataType(codegenProperty, composedModel.name, arraySchema);
+            this.updatePropertyDataType(codegenProperty.items, composedModel);
+            return composedModel;
+        }
+        return null;
     }
 
-    public void configureAnyOfModelFromProperty() {
+    protected CodegenModel createComposedModel(String name, List<Schema> schemas) {
+        if (schemas == null || schemas.isEmpty()) {
+            return null;
+        }
+        final CodegenModel composedModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
+        composedModel.setIsComposedModel(true);
+        composedModel.setInterfaces(new ArrayList<>());
+        this.configureModel(composedModel, name);
 
+        return composedModel;
     }
 
-    private CodegenModel createFromOneOfSchemas(List<Schema> schemas) {
-        final CodegenModel codegenModel = CodegenModelFactory.newInstance(CodegenModelType.MODEL);
-        final List<String> modelNames = new ArrayList<>();
+    protected void addInterfaceModel(CodegenModel codegenModel, CodegenModel interfaceModel) {
+        if (codegenModel == null) {
+            return;
+        }
+        if (codegenModel.getInterfaceModels() == null) {
+            codegenModel.setInterfaceModels(new ArrayList<>());
+        }
+        codegenModel.getInterfaceModels().add(interfaceModel);
+    }
 
+    protected void addInterfaces(List<Schema> schemas, CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
         for (Schema interfaceSchema : schemas) {
-            String schemaName = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-            modelNames.add(codegenConfig.toModelName(schemaName));
+            final String ref = interfaceSchema.get$ref();
+            if (StringUtils.isBlank(ref)) {
+                continue;
+            }
+            final String schemaName = ref.substring(ref.lastIndexOf("/") + 1);
+
+            final CodegenModel model = allModels.get(codegenConfig.toModelName(schemaName));
+            this.addInterfaceModel(model, codegenModel);
+
+            boolean subTypeAdded = false;
+            if (codegenModel.getSubTypes() != null) {
+                subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
+            }
+            if (!subTypeAdded) {
+                codegenModel.addSubType(model);
+            }
+
+            if (codegenModel.getVendorExtensions() == null || codegenModel.getVendorExtensions().containsKey("x-discriminator-type")) {
+                continue;
+            }
+            if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
+                Optional<CodegenProperty> optionalProperty = model.vars.stream()
+                    .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
+
+                optionalProperty.ifPresent(codegenProperty -> {
+                    codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
+                    codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
+                });
+            }
         }
-        codegenModel.vendorExtensions.put("x-model-names", modelNames);
-        return codegenModel;
+    }
+
+    protected void configureModel(CodegenModel codegenModel, String name) {
+        codegenModel.name = name;
+        codegenModel.classname = codegenConfig.toModelName(name);
+        codegenModel.classVarName = codegenConfig.toVarName(name);
+        codegenModel.classFilename = codegenConfig.toModelFilename(name);
+    }
+
+    protected boolean hasNonObjectSchema(List<Schema> schemas) {
+        for  (Schema schema : schemas) {
+            if (!codegenConfig.isObjectSchema(schema)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void addComposedModel(CodegenModel composedModel) {
+        if (composedModel == null) {
+            return;
+        }
+        this.composedModels.add(composedModel);
+    }
+
+    protected void updatePropertyDataType(CodegenProperty codegenProperty, String schemaName, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + schemaName);
+        arraySchema.setItems(refSchema);
+        codegenProperty.setDatatype(this.codegenConfig.getTypeDeclaration(arraySchema));
+        codegenProperty.setDatatypeWithEnum(codegenProperty.getDatatype());
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
+
+        codegenProperty.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenProperty.defaultValueWithParam = this.codegenConfig.toDefaultValueWithParam(codegenProperty.baseName, arraySchema);
+
+        arraySchema.setItems(items);
+    }
+
+    protected void updateArrayModel(CodegenModel codegenModel, String schemaName, ArraySchema arraySchema) {
+        final Schema items = arraySchema.getItems();
+        final Schema refSchema = new Schema();
+        refSchema.set$ref("#/components/schemas/" + schemaName);
+        arraySchema.setItems(refSchema);
+
+        this.codegenConfig.addParentContainer(codegenModel, codegenModel.name, arraySchema);
+        codegenModel.defaultValue = this.codegenConfig.toDefaultValue(arraySchema);
+        codegenModel.arrayModelType = this.codegenConfig.fromProperty(codegenModel.name, arraySchema).complexType;
+        boolean isInterface = codegenModel.arrayModelType.startsWith(ALL_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ONE_OF_PREFFIX) || codegenModel.arrayModelType.startsWith(ANY_OF_PREFFIX);
+        codegenModel.getVendorExtensions().put("x-array-model-type-is-interface", isInterface);
+
+        arraySchema.setItems(items);
+    }
+
+    private void updatePropertyDataType(CodegenProperty codegenProperty, CodegenModel composedModel) {
+        codegenProperty.datatype = composedModel.getClassname();
+        codegenProperty.datatypeWithEnum = composedModel.getClassname();
+        codegenProperty.baseType = composedModel.getClassname();
+        codegenProperty.complexType = composedModel.getClassname();
+        codegenProperty.vendorExtensions.put("x-is-composed", true);
     }
 }

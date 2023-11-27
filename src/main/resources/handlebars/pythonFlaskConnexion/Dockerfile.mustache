@@ -2,7 +2,7 @@
 FROM python:2-alpine
 {{/supportPython2}}
 {{^supportPython2}}
-FROM python:3-alpine
+FROM python:3.6-alpine
 {{/supportPython2}}
 
 RUN mkdir -p /usr/src/app

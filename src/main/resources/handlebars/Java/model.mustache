@@ -29,17 +29,23 @@ import android.os.Parcelable;
 import android.os.Parcel;
 {{/parcelableModel}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
 import javax.validation.Valid;
+{{/jakarta}}
 {{/useBeanValidation}}
 {{/x-is-composed-model}}
 {{#models}}
 {{#model}}
-{{#vendorExtensions.x-is-composed-model}}
+{{#isComposedModel}}
 {{>interface}}
-{{/vendorExtensions.x-is-composed-model}}
-{{^vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
-{{/vendorExtensions.x-is-composed-model}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

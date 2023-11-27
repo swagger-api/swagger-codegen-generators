@@ -3,12 +3,19 @@ package {{configPackage}};
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
+{{#useOas2}}
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.service.ApiInfo;
+{{/useOas2}}
+{{^useOas2}}
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+{{/useOas2}}
 {{#useOptional}}
 import java.util.Optional;
 {{/useOptional}}
@@ -17,20 +24,10 @@ import java.util.Optional;
 @Configuration
 public class SwaggerDocumentationConfig {
 
-    ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-            .title("{{appName}}")
-            .description("{{{appDescription}}}")
-            .license("{{licenseInfo}}")
-            .licenseUrl("{{licenseUrl}}")
-            .termsOfServiceUrl("{{infoUrl}}")
-            .version("{{appVersion}}")
-            .contact(new Contact("","", "{{infoEmail}}"))
-            .build();
-    }
-
+    {{#useOas2}}
     @Bean
     public Docket customImplementation(){
+
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                     .apis(RequestHandlerSelectors.basePackage("{{apiPackage}}"))
@@ -52,5 +49,34 @@ public class SwaggerDocumentationConfig {
                 {{/useOptional}}
                 .apiInfo(apiInfo());
     }
+
+    ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+            .title("{{appName}}")
+            .description("{{{appDescription}}}")
+            .license("{{licenseInfo}}")
+            .licenseUrl("{{licenseUrl}}")
+            .termsOfServiceUrl("{{infoUrl}}")
+            .version("{{appVersion}}")
+            .contact(new Contact("","", "{{infoEmail}}"))
+            .build();
+    }
+    {{/useOas2}}
+    {{^useOas2}}
+    @Bean
+    public OpenAPI openApi() {
+        return new OpenAPI()
+            .info(new Info()
+                .title("{{appName}}")
+                .description("{{{appDescription}}}")
+                .termsOfService("{{infoUrl}}")
+                .version("{{appVersion}}")
+                .license(new License()
+                    .name("{{licenseInfo}}")
+                    .url("{{licenseUrl}}"))
+                .contact(new io.swagger.v3.oas.models.info.Contact()
+                    .email("{{infoEmail}}")));
+    }
+    {{/useOas2}}
 
 }

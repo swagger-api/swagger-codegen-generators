@@ -114,7 +114,12 @@
     var defs = {}
         {{#models}}
         {{#model}}
-            defs.{{name}} = {{{modelJson}}};
+            {{#isComposedModel}}
+            defs["{{name}}"] = {};
+            {{/isComposedModel}}
+            {{^isComposedModel}}
+            defs["{{name}}"] = {{{modelJson}}};
+            {{/isComposedModel}}
         {{/model}}
     {{/models}}
   </script>
@@ -206,7 +211,11 @@
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-{{baseName}}-{{nickname}}-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X {{vendorExtensions.x-codegen-httpMethodUpperCase}}{{#authMethods}}{{#is this 'api-key'}}{{#is this 'key-in-header'}} -H "{{keyParamName}}: [[apiKey]]"{{/is}}{{/is}}{{#is this 'basic'}}{{#has this 'produces'}} -H "Accept: {{#produces}}{{{mediaType}}}{{#hasMore}},{{/hasMore}}{{/produces}}"{{/has}}{{#has this 'consumes'}} -H "Content-Type: {{#consumes}}{{{mediaType}}}{{#hasMore}},{{/hasMore}}{{/consumes}}"{{/has}} -H "Authorization: Basic [[basicHash]]"{{/is}}{{/authMethods}} "{{basePath}}{{path}}{{#hasQueryParams}}?{{#queryParams}}{{^@first}}&{{/@first}}{{baseName}}={{vendorExtensions.x-eg}}{{/queryParams}}{{/hasQueryParams}}"</code></pre>
+                           <pre class="prettyprint"><code class="language-bsh">curl -X {{vendorExtensions.x-codegen-httpMethodUpperCase}}{{#authMethods}}\
+{{#isApiKey}}{{#isKeyInHeader}}-H "{{keyParamName}}: [[apiKey]]"{{/isKeyInHeader}}{{/isApiKey}}{{^isBasicBearer}}{{#isBasic}} -H "Authorization: Basic [[basicHash]]"{{/isBasic}}{{/isBasicBearer}}{{#isBearer}} -H "Authorization: Bearer [[accessToken]]"{{/isBearer}}{{/authMethods}}{{#hasProduces}}\
+-H "Accept: {{#produces}}{{{mediaType}}}{{#hasMore}},{{/hasMore}}{{/produces}}"{{/hasProduces}}{{#hasConsumes}}\
+-H "Content-Type: {{#consumes}}{{{mediaType}}}{{#hasMore}},{{/hasMore}}{{/consumes}}"{{/hasConsumes}}\
+"{{basePath}}{{path}}{{#hasQueryParams}}?{{#queryParams}}{{^@first}}&{{/@first}}{{baseName}}={{vendorExtensions.x-eg}}{{/queryParams}}{{/hasQueryParams}}"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-{{baseName}}-{{nickname}}-0-java">
                             <pre class="prettyprint"><code class="language-java">{{>sample_java}}</code></pre>
@@ -326,7 +335,7 @@
 
                                 {{#examples}}
                                   <li class="">
-                                    <a data-toggle="tab" href="#responses-{{nickname}}-{{code}}-example">Response Example</a>
+                                    <a data-toggle="tab" href="#responses-{{nickname}}-{{code}}-example-{{@index}}">Response Example</a>
                                   </li>
                                 {{/examples}}
                               {{/schema}}
@@ -343,7 +352,7 @@
                                   <div id='responses-{{nickname}}-{{code}}-schema-{{code}}' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
                                     <script>
                                       $(document).ready(function() {
-                                        var schemaWrapper = {{{jsonSchema}}};
+                                        var schemaWrapper = {{{../jsonSchema}}};
                                         var schema = schemaWrapper.content["{{extensions.x-content-type}}"].schema;
                                         if (schema.$ref != null) {
                                           schema = defsParser.$refs.get(schema.$ref);
@@ -367,7 +376,7 @@
                                   <input id='responses-{{nickname}}-{{code}}-schema-data' type='hidden' value=''></input>
                                 </div>
                                 {{#examples}}
-                                  <div class="tab-pane" id="responses-{{nickname}}-{{code}}-example">
+                                  <div class="tab-pane" id="responses-{{nickname}}-{{code}}-example-{{@index}}">
                                       <pre class="prettyprint"><code class="json">{{example}}</code></pre>
                                 </div>
                                 {{/examples}}

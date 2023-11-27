@@ -54,7 +54,12 @@ if(hasProperty('target') && target == 'android') {
         }
 
         dependencies {
+            {{#jakarta}}
+            provided 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+            {{/jakarta}}
+            {{^jakarta}}
             provided 'javax.annotation:jsr250-api:1.0'
+            {{/jakarta}}
         }
     }
 
@@ -106,12 +111,12 @@ ext {
     {{^useOas2}}
     swagger_annotations_version = "2.0.0"
     {{/useOas2}}
-    jackson_version = "2.8.7"
+    jackson_version = "2.10.1"
     {{#threetenbp}}
     threepane_version = "2.6.4"
     {{/threetenbp}}
-    feign_version = "9.4.0"
-    feign_form_version = "2.1.0"
+    feign_version = "11.6"
+    feign_form_version = "3.8.0"
     junit_version = "4.12"
     oltu_version = "1.0.2"
 }
@@ -123,9 +128,9 @@ dependencies {
     {{^useOas2}}
     compile "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/useOas2}}
-    compile "com.netflix.feign:feign-core:$feign_version"
-    compile "com.netflix.feign:feign-jackson:$feign_version"
-    compile "com.netflix.feign:feign-slf4j:$feign_version"
+    compile "io.github.openfeign:feign-core:$feign_version"
+    compile "io.github.openfeign:feign-jackson:$feign_version"
+    compile "io.github.openfeign:feign-slf4j:$feign_version"
     compile "io.github.openfeign.form:feign-form:$feign_form_version"
     compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
     compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
@@ -139,7 +144,10 @@ dependencies {
     {{#threetenbp}}
     compile "com.github.joschi.jackson:jackson-datatype-threetenbp:$threepane_version"
     {{/threetenbp}}
-    compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version"
+    compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$oltu_version") {
+        exclude group: "org.json", module: "json"
+    }
+    compile "org.json:json:20180130"
     compile "com.brsanthu:migbase64:2.2"
     testCompile "junit:junit:$junit_version"
 }

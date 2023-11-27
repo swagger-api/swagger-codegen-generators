@@ -2,6 +2,7 @@
 
 package {{package}};
 
+{{^x-is-composed-model}}
 {{^supportJava6}}
 import java.util.Objects;
 {{/supportJava6}}
@@ -14,11 +15,24 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.io.Serializable;
 {{/serializableModel}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/jakarta}}
 {{/useBeanValidation}}
+{{/x-is-composed-model}}
 
 {{#models}}
 {{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

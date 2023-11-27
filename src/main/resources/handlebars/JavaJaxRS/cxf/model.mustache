@@ -1,18 +1,30 @@
 package {{package}};
 
+{{^isComposedModel}}
 {{#imports}}import {{import}};
 {{/imports}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
+{{/isComposedModel}}
 
 {{#models}}
 {{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
 {{#is this 'enum'}}
 {{>enumOuterClass}}
 {{/is}}
 {{#isNot this 'enum'}}
 {{>pojo}}
 {{/isNot}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

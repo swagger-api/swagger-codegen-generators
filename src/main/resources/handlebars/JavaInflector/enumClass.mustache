@@ -14,7 +14,7 @@
     {{#unless gson}}
         {{#allowableValues}}
             {{#enumVars}}
-    {{{name}}}({{{value}}}){{^@last}},
+    {{{name}}}({{#value}}{{{value}}}{{/value}}{{^value}}null{{/value}}){{^@last}},
     {{/@last}}{{#@last}};{{/@last}}
             {{/enumVars}}
         {{/allowableValues}}
@@ -39,6 +39,6 @@
           return b;
         }
       }
-      return null;
+      {{^errorOnUnknownEnum}}return null;{{/errorOnUnknownEnum}}{{#errorOnUnknownEnum}}throw new IllegalArgumentException("Unexpected value '" + text + "' for '{{{classname}}}' enum.");{{/errorOnUnknownEnum}}
     }
   }

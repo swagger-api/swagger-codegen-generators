@@ -107,11 +107,15 @@ namespace {{apiPackage}}
             {{/queryParams}}
             {{#headerParams}} if ({{paramName}} != null) headerParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // header parameter
             {{/headerParams}}
-            {{#formParams}}if ({{paramName}} != null) {{#isFile}}fileParams.Add("{{baseName}}", ApiClient.ParameterToFile("{{baseName}}", {{paramName}}));{{/isFile}}{{^isFile}}formParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // form parameter{{/isFile}}
+            {{#isForm}}
+            {{#formParams}}if ({{paramName}} != null) {{#isBinary}}fileParams.Add("{{baseName}}", ApiClient.ParameterToFile("{{baseName}}", {{paramName}}));{{/isBinary}}{{^isBinary}}formParams.Add("{{baseName}}", ApiClient.ParameterToString({{paramName}})); // form parameter{{/isBinary}}
             {{/formParams}}
+            {{/isForm}}
+            {{^isForm}}
             {{#bodyParam}}postBody = ApiClient.Serialize({{paramName}}); // http body (model) parameter
             {{/bodyParam}}
-    
+            {{/isForm}}
+
             // authentication setting, if any
             String[] authSettings = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
     

@@ -1,0 +1,1 @@
+{{#isQueryParam}}{{>nullableBeanValidationParams}}@Parameter(description = "{{{description}}}") @QueryValue(value = "{{baseName}}"{{#defaultValue}}, defaultValue = "{{{defaultValue}}}"{{/defaultValue}}) {{>optionalDataType}} {{paramName}}{{/isQueryParam}}

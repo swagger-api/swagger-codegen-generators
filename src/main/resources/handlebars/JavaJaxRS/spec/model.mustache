@@ -1,17 +1,30 @@
 package {{package}};
 
+{{^x-is-composed-model}}
 {{#imports}}import {{import}};
 {{/imports}}
 {{#serializableModel}}
 import java.io.Serializable;
 {{/serializableModel}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
 import javax.validation.Valid;
+{{/jakarta}}
 {{/useBeanValidation}}
+{{/x-is-composed-model}}
 
 {{#models}}
-{{#model}}{{#description}}
+{{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
+{{#description}}
 /**
  * {{description}}
  **/{{/description}}
@@ -19,5 +32,6 @@ import javax.validation.Valid;
 {{>enumOuterClass}}
 {{/is}}
 {{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{/isComposedModel}}
 {{/model}}
 {{/models}}

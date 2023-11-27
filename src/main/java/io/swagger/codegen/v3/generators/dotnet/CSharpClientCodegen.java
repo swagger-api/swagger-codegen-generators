@@ -516,7 +516,7 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         if (allDefinitions != null && codegenModel != null && codegenModel.parent != null) {
             final Schema parentModel = allDefinitions.get(toModelName(codegenModel.parent));
             if (parentModel != null) {
-                final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel);
+                final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allDefinitions);
                 boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
                 if (hasEnums) {
                     codegenModel = this.reconcileInlineEnums(codegenModel, parentCodegenModel);
@@ -587,6 +587,26 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         super.postProcessModelProperty(model, property);
     }
 
+    @Override
+    protected void fixUpParentAndInterfaces(CodegenModel codegenModel, Map<String, CodegenModel> allModels) {
+        super.fixUpParentAndInterfaces(codegenModel, allModels);
+        final CodegenModel parentModel = codegenModel.getParentModel();
+        if (parentModel == null || (codegenModel.getReadWriteVars() == null || codegenModel.getReadWriteVars().isEmpty()) || (parentModel.getVars() == null || parentModel.getVars().isEmpty())) {
+            return;
+        }
+        codegenModel.setParentVars(parentModel.getVars());
+        parentModel.getVars().forEach(parentProperty -> {
+            codegenModel.getReadWriteVars().stream()
+                    .filter(codegenProperty -> parentProperty.getName().equalsIgnoreCase(codegenProperty.getName()))
+                    .findFirst()
+                    .ifPresent(codegenProperty -> {
+                        codegenProperty.setDatatype(parentProperty.getDatatype());
+                        codegenProperty.setDatatypeWithEnum(parentProperty.getDatatypeWithEnum());
+                    });
+        });
+
+    }
+
     /*
      * The swagger pattern spec follows the Perl convention and style of modifiers. .NET
      * does not support this syntax directly so we need to convert the pattern to a .NET compatible
@@ -600,8 +620,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
             //Must follow Perl /pattern/modifiers convention
             if (pattern.charAt(0) != '/' || i < 2) {
-                throw new IllegalArgumentException("Pattern must follow the Perl "
-                        + "/pattern/modifiers convention. " + pattern + " is not valid.");
+                pattern = String.format("/%s/", pattern);;
+                i = pattern.lastIndexOf('/');
             }
 
             String regex = pattern.substring(1, i).replace("'", "\'");

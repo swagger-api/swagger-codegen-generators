@@ -14,8 +14,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
-                    <source>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</source>
-                    <target>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</target>
+                    <source>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</source>
+                    <target>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -59,12 +59,22 @@
     </build>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
+        {{#jakarta}}
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>10.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        {{/jakarta}}
+        {{^jakarta}}
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
+        {{/jakarta}}
         {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
@@ -84,12 +94,22 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j-version}</version>
         </dependency>
+      {{#jakarta}}
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+      {{/jakarta}}
+      {{^jakarta}}
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
+      {{/jakarta}}
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -100,12 +120,12 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>jaxrs-api</artifactId>
-            <version>${resteasy-version}</version>
+            <version>3.0.12.Final</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-validator-provider-11</artifactId>
-            <version>${resteasy-version}</version>
+            <version>3.6.3.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -120,13 +140,30 @@
             <version>${resteasy-version}</version>
             <scope>provided</scope>
         </dependency>
+        {{#jakarta}}
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        {{/jakarta}}
+        {{^jakarta}}
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.2</version>
             <scope>provided</scope>
         </dependency>
-
+        {{/jakarta}}
+{{#java8}}
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+{{/java8}}
+{{^java8}}
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
@@ -137,6 +174,7 @@
             <artifactId>joda-time</artifactId>
             <version>2.7</version>
         </dependency>
+{{/java8}}
         {{#useOas2}}
         <dependency>
             <groupId>io.swagger</groupId>
@@ -177,14 +215,30 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.10</version>
+            <scope>test</scope>
+        </dependency>
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
+    {{#jakarta}}
+    <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>3.0.2</version>
+        <scope>provided</scope>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
     <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
         <version>1.1.0.Final</version>
         <scope>provided</scope>
     </dependency>
+    {{/jakarta}}
 {{/useBeanValidation}}        
         
     </dependencies>
@@ -202,12 +256,13 @@
         <swagger-core-version>1.5.18</swagger-core-version>
         {{/useOas2}}
         {{^useOas2}}
-        <swagger-core-version>2.0.0</swagger-core-version>
+        <swagger-core-version>2.0.9</swagger-core-version>
         {{/useOas2}}
-        <jetty-version>9.2.9.v20150224</jetty-version>
-        <resteasy-version>3.0.11.Final</resteasy-version>
+        <jetty-version>9.3.27.v20190418</jetty-version>
+        <resteasy-version>3.15.6.Final</resteasy-version>
         <slf4j-version>1.6.3</slf4j-version>
-        <junit-version>4.8.1</junit-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <junit-version>4.13.1</junit-version>
+        <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}2.5{{/jakarta}}</servlet-api-version>
+        {{#java8}}<jackson-version>2.10.1</jackson-version>{{/java8}}
     </properties>
 </project>

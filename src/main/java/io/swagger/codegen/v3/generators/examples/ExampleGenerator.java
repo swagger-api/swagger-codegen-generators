@@ -157,7 +157,12 @@ public class ExampleGenerator {
     }
 
     private Object resolveSchemaToExample(String propertyName, String mediaType, Schema schema, Set<String> processedModels) {
-//        logger.debug("Resolving example for property {}...", schema);
+        if (processedModels.contains(schema.get$ref())) {
+            return schema.getExample();
+        }
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            processedModels.add(schema.get$ref());
+        }
         if (schema.getExample() != null) {
             logger.debug("Example set in swagger spec, returning example: '{}'", schema.getExample().toString());
             return schema.getExample();
@@ -190,6 +195,10 @@ public class ExampleGenerator {
             Schema innerType = ((ArraySchema) schema).getItems();
             if (innerType != null) {
                 int arrayLength = schema.getMaxItems() != null ? schema.getMaxItems() : 2;
+                if (arrayLength > 10) {
+                    logger.warn("value of maxItems of property {} is {}; limiting to 10 examples", schema, arrayLength);
+                    arrayLength = 10;
+                }
                 Object[] objectProperties = new Object[arrayLength];
                 Object objProperty = resolveSchemaToExample(propertyName, mediaType, innerType, processedModels);
                 for(int i=0; i < arrayLength; i++) {
@@ -238,7 +247,7 @@ public class ExampleGenerator {
                 return "{}";
             }
             return resolveSchemaToExample(propertyName, mediaType, model, processedModels);
-        } else if (schema instanceof ObjectSchema) {
+        } else if (schema instanceof ObjectSchema || schema.getProperties() != null) {
             Map<String, Object> values = new HashMap<>();
             if (schema.getProperties() != null) {
                 logger.debug("Creating example from model values");
@@ -269,10 +278,12 @@ public class ExampleGenerator {
     }
 
     private Object resolveModelToExample(String name, String mediaType, Schema schema, Set<String> processedModels) {
-        if (processedModels.contains(name)) {
+        if (processedModels.contains(schema.get$ref())) {
             return schema.getExample();
         }
-        processedModels.add(name);
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            processedModels.add(schema.get$ref());
+        }
         Map<String, Object> values = new HashMap<>();
 
         logger.debug("Resolving model '{}' to example", name);

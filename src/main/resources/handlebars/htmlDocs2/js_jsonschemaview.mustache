@@ -117,10 +117,15 @@ var JSONSchemaView = (function () {
 
     _classCallCheck(this, JSONSchemaView);
 
-    this.schema = schema; //console.log(schema);
+    this.schema = schema;
     this.open = open;
     this.options = options;
     this.isCollapsed = open <= 0;
+
+    if (this.schema.type == undefined && this.schema.$ref) {
+      const elements = this.schema.$ref.split('/');
+      this.schema = defs[elements.pop()];
+    }
 
     // if schema is an empty object which means any JOSN
     this.isAny = typeof schema === 'object' && !Array.isArray(schema) && !Object.keys(schema).filter(function (k) {
@@ -130,7 +135,7 @@ var JSONSchemaView = (function () {
     // Determine if a schema is an array
     this.isArray = !this.isAny && this.schema && this.schema.type === 'array';
 
-    this.isObject = this.schema && (this.schema.type === 'object' || this.schema.properties || this.schema.anyOf || this.schema.oneof || this.schema.allOf);
+    this.isObject = this.schema && (this.schema.type === 'object' || this.schema.properties || this.schema.allOf);
 
     // Determine if a schema is a primitive
     this.isPrimitive = !this.isAny && !this.isArray && !this.isObject;
@@ -221,6 +226,12 @@ var JSONSchemaView = (function () {
 
       this.element.innerHTML = this.template();
 
+      if (this.schema && this.schema.example) {
+        var exampleDiv = document.createElement('div');
+        exampleDiv.innerHTML = '<div style="display: block" class="example">\n          <span style="color: #808080" class="name">example: ' + this.schema.example + '</span>\n        </div>';
+        this.element.appendChild(exampleDiv.querySelector('.example'));
+      }
+
       if (!this.schema) {
         return this.element;
       }
@@ -258,7 +269,13 @@ var JSONSchemaView = (function () {
       }
 
       if (this.isArray) {
-        var view = new JSONSchemaView(this.schema.items, Infinity);
+        var schemaItems = this.schema.items;
+        if (this.schema.items.$ref) {
+           var elements = this.schema.items.$ref.split('/');
+           var schemaName = elements.pop();
+           schemaItems = defs[schemaName];
+        }
+        var view = new JSONSchemaView(schemaItems, Infinity);
         inner.appendChild(view.render());
       }
 

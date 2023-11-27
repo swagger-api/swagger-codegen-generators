@@ -1,11 +1,13 @@
 {{#authMethods}}
-{{#is this 'basic'}}
-    principals.add(call.authentication.principal<UserIdPrincipal>())
-{{/is}}
-{{#is this 'api-key'}}
-    principals.add(call.authentication.principal<ApiPrincipal>())
-{{/is}}
-{{#is this 'oauth'}}
-    principals.add(call.authentication.principal<OAuthAccessTokenResponse>())
-{{/is}}
+{{#@first}}
+{{#or isBasic isBearer}}
+val principal = call.authentication.principal<UserIdPrincipal>()
+{{/or}}
+{{#isApiKey}}
+val principal = call.authentication.principal<ApiPrincipal>()
+{{/isApiKey}}
+{{#isOAuth}}
+val principal = call.authentication.principal<OAuthAccessTokenResponse>()
+{{/isOAuth}}
+{{/@first}}
 {{/authMethods}}

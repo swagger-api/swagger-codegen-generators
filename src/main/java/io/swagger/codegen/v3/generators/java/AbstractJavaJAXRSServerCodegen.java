@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -75,6 +76,10 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     public void processOpts() {
         super.processOpts();
 
+        if (java11Mode) {
+            additionalProperties.put(JAKARTA, jakarta = true);
+        }
+
         if (additionalProperties.containsKey(CodegenConstants.IMPL_FOLDER)) {
             implFolder = (String) additionalProperties.get(CodegenConstants.IMPL_FOLDER);
         }
@@ -92,11 +97,12 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         //this.openAPIUtil = new OpenAPIUtil(openAPI);
+        this.openAPI = openAPI;
         if (!this.additionalProperties.containsKey("serverPort")) {
             final URL urlInfo = URLPathUtil.getServerURL(openAPI);
             String port = "8080"; // Default value for a JEE Server
-            if ( urlInfo != null && urlInfo.getPort() != 0) {
-                port = String.valueOf(urlInfo.getPort());
+            if ( urlInfo != null && urlInfo.getPort() > 0) {
+                    port = String.valueOf(urlInfo.getPort());
             }
             this.additionalProperties.put("serverPort", port);
         }
@@ -223,11 +229,11 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         String result = super.apiFilename(templateName, tag);
 
         if ( templateName.endsWith("Impl.mustache") ) {
-            int ix = result.lastIndexOf('/');
+            int ix = result.lastIndexOf(File.separatorChar);
             result = result.substring(0, ix) + "/impl" + result.substring(ix, result.length() - 5) + "ServiceImpl.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Factory.mustache") ) {
-            int ix = result.lastIndexOf('/');
+            int ix = result.lastIndexOf(File.separatorChar);
             result = result.substring(0, ix) + "/factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
             result = result.replace(apiFileFolder(), implFileFolder(implFolder));
         } else if ( templateName.endsWith("Service.mustache") ) {
@@ -245,5 +251,8 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         this.useBeanValidation = useBeanValidation;
     }
 
-
+    @Override
+    public String getArgumentsLocation() {
+        return "/arguments/server.yaml";
+    }
 }

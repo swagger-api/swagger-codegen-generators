@@ -1,0 +1,27 @@
+/**
+ * {{{description}}}
+ * @export
+ */
+export type {{classname}} = {{#parent}}{{{parent}}}{{/parent}}{{^parent}}{{{dataType}}}{{/parent}}{{#hasEnums}}
+
+/**
+ * @export
+ * @namespace {{classname}}
+ */
+export namespace {{classname}} {
+{{#vars}}
+    {{#isEnum}}
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum {{enumName}} {
+    {{#allowableValues}}
+        {{#enumVars}}
+        {{{name}}} = <any> {{{value}}}{{^@last}},{{/@last}}
+        {{/enumVars}}
+    {{/allowableValues}}
+    }
+    {{/isEnum}}
+{{/vars}}
+}{{/hasEnums}}

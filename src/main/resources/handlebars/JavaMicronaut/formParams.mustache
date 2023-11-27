@@ -1,0 +1,1 @@
+{{#isFormParam}}{{#notFile}}{{>nullableBeanValidationParams}}@Parameter(description = "{{{description}}}") @Body(value = "{{baseName}}")  {{{dataType}}} {{paramName}}{{/notFile}}{{#isFile}}@Parameter(description = "file detail") {{#useBeanValidation}}@Valid {{/useBeanValidation}}File {{baseName}}{{/isFile}}{{/isFormParam}}

@@ -1,14 +1,20 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.jknack.handlebars.helper.StringHelpers;
+import com.github.jknack.handlebars.Handlebars;
 
 import java.io.File;
 import java.util.Arrays;
@@ -17,13 +23,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
+public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
 
     private Set<String> instantiationLibraryFunction;
-
-   
 
     protected String artifactId;
     protected String artifactVersion = "1.0.0";
@@ -35,13 +39,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
 
-    protected CodegenConstants.ENUM_PROPERTY_NAMING_TYPE enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.camelCase;
-
     public AbstractKotlinCodegen() {
         super();
         supportsInheritance = true;
 
-        languageSpecificPrimitives = new HashSet<String>(Arrays.asList(
+        languageSpecificPrimitives = new HashSet<>(Arrays.asList(
                 "kotlin.Any",
                 "kotlin.Byte",
                 "kotlin.Short",
@@ -55,13 +57,22 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
-                "kotlin.collections.Set"
+                "kotlin.collections.Set",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
         // this includes hard reserved words defined by https://github.com/JetBrains/kotlin/blob/master/core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java
         // as well as keywords from https://kotlinlang.org/docs/reference/keyword-reference.html
-        reservedWords = new HashSet<String>(Arrays.asList(
+        reservedWords = new HashSet<>(Arrays.asList(
                 "abstract",
+                "actual",
                 "annotation",
                 "as",
                 "break",
@@ -78,6 +89,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "do",
                 "else",
                 "enum",
+                "expect",
                 "external",
                 "false",
                 "final",
@@ -126,7 +138,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "while"
         ));
 
-        defaultIncludes = new HashSet<String>(Arrays.asList(
+        defaultIncludes = new HashSet<>(Arrays.asList(
                 "kotlin.Byte",
                 "kotlin.Short",
                 "kotlin.Int",
@@ -138,15 +150,23 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
                 "kotlin.Array",
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
-                "kotlin.collections.Map"
+                "kotlin.collections.Map",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray",
+                "kotlin.BooleanArray"
         ));
 
-        instantiationLibraryFunction = new HashSet<String>(Arrays.asList(
+        instantiationLibraryFunction = new HashSet<>(Arrays.asList(
                 "arrayOf",
                 "mapOf"
         ));
 
-        typeMapping = new HashMap<String, String>();
+        typeMapping = new HashMap<>();
         typeMapping.put("string", "kotlin.String");
         typeMapping.put("boolean", "kotlin.Boolean");
         typeMapping.put("integer", "kotlin.Int");
@@ -155,21 +175,22 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         typeMapping.put("double", "kotlin.Double");
         typeMapping.put("number", "java.math.BigDecimal");
         typeMapping.put("date-time", "java.time.LocalDateTime");
-        typeMapping.put("date", "java.time.LocalDateTime");
+        typeMapping.put("date", "java.time.LocalDate");
         typeMapping.put("file", "java.io.File");
         typeMapping.put("array", "kotlin.Array");
         typeMapping.put("list", "kotlin.Array");
         typeMapping.put("map", "kotlin.collections.Map");
         typeMapping.put("object", "kotlin.Any");
         typeMapping.put("binary", "kotlin.Array<kotlin.Byte>");
-        typeMapping.put("Date", "java.time.LocalDateTime");
+        typeMapping.put("Date", "java.time.LocalDate");
         typeMapping.put("DateTime", "java.time.LocalDateTime");
+        typeMapping.put("ByteArray", "kotlin.ByteArray");
 
         instantiationTypes.put("array", "arrayOf");
         instantiationTypes.put("list", "arrayOf");
         instantiationTypes.put("map", "mapOf");
 
-        importMapping = new HashMap<String, String>();
+        importMapping = new HashMap<>();
         importMapping.put("BigDecimal", "java.math.BigDecimal");
         importMapping.put("UUID", "java.util.UUID");
         importMapping.put("File", "java.io.File");
@@ -181,6 +202,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         importMapping.put("LocalTime", "java.time.LocalTime");
 
         specialCharReplacements.put(";", "Semicolon");
+        specialCharReplacements.put(":", "Colon");
 
         cliOptions.clear();
         addOption(CodegenConstants.SOURCE_FOLDER, CodegenConstants.SOURCE_FOLDER_DESC, sourceFolder);
@@ -188,9 +210,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         addOption(CodegenConstants.GROUP_ID, "Generated artifact package's organization (i.e. maven groupId).", groupId);
         addOption(CodegenConstants.ARTIFACT_ID, "Generated artifact id (name of jar).", artifactId);
         addOption(CodegenConstants.ARTIFACT_VERSION, "Generated artifact's package version.", artifactVersion);
-
-        CliOption enumPropertyNamingOpt = new CliOption(CodegenConstants.ENUM_PROPERTY_NAMING, CodegenConstants.ENUM_PROPERTY_NAMING_DESC);
-        cliOptions.add(enumPropertyNamingOpt.defaultValue(enumPropertyNaming.name()));
     }
 
     protected void addOption(String key, String description) {
@@ -241,24 +260,10 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
-    public CodegenConstants.ENUM_PROPERTY_NAMING_TYPE getEnumPropertyNaming() {
-        return this.enumPropertyNaming;
-    }
-
-    /**
-     * Sets the naming convention for Kotlin enum properties
-     *
-     * @param enumPropertyNamingType The string representation of the naming convention, as defined by {@link CodegenConstants.ENUM_PROPERTY_NAMING_TYPE}
-     */
-    public void setEnumPropertyNaming(final String enumPropertyNamingType) {
-        try {
-            this.enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.valueOf(enumPropertyNamingType);
-        } catch (IllegalArgumentException ex) {
-            StringBuilder sb = new StringBuilder(enumPropertyNamingType + " is an invalid enum property naming option. Please choose from:");
-            for (CodegenConstants.ENUM_PROPERTY_NAMING_TYPE t : CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.values()) {
-                sb.append("\n  ").append(t.name());
-            }
-            throw new RuntimeException(sb.toString());
+    protected void updateCodegenModelEnumVars(CodegenModel codegenModel) {
+        super.updateCodegenModelEnumVars(codegenModel);
+        for (CodegenProperty var : codegenModel.allVars) {
+            updateCodegenPropertyEnum(var);
         }
     }
 
@@ -272,7 +277,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     public String getTypeDeclaration(Schema propertySchema) {
         if (propertySchema instanceof ArraySchema) {
             return getArrayTypeDeclaration((ArraySchema) propertySchema);
-        } else if (propertySchema instanceof MapSchema  && hasSchemaProperties(propertySchema)) {
+        } else if (propertySchema instanceof MapSchema && hasSchemaProperties(propertySchema)) {
             Schema inner = (Schema) propertySchema.getAdditionalProperties();
             if (inner == null) {
                 LOGGER.warn(propertySchema.getName() + "(map property) does not have a proper inner type defined");
@@ -334,10 +339,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     @Override
     public void processOpts() {
         super.processOpts();
-
-        if (additionalProperties.containsKey(CodegenConstants.ENUM_PROPERTY_NAMING)) {
-            setEnumPropertyNaming((String) additionalProperties.get(CodegenConstants.ENUM_PROPERTY_NAMING));
-        }
 
         if (additionalProperties.containsKey(CodegenConstants.SOURCE_FOLDER)) {
             this.setSourceFolder((String) additionalProperties.get(CodegenConstants.SOURCE_FOLDER));
@@ -421,34 +422,32 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
             modified = sanitizeKotlinSpecificNames(modified);
         }
 
-        switch (getEnumPropertyNaming()) {
-            case original:
-                // NOTE: This is provided as a last-case allowance, but will still result in reserved words being escaped.
-                modified = value;
-                break;
-            case camelCase:
-                // NOTE: Removes hyphens and underscores
-                modified = camelize(modified, true);
-                break;
-            case PascalCase:
-                // NOTE: Removes hyphens and underscores
-                String result = camelize(modified);
-                modified = titleCase(result);
-                break;
-            case snake_case:
-                // NOTE: Removes hyphens
-                modified = underscore(modified);
-                break;
-            case UPPERCASE:
-                modified = modified.toUpperCase();
-                break;
-        }
+        modified = modified.toUpperCase();
 
-        if (reservedWords.contains(modified)) {
+        if (isReservedWord(modified)) {
             return escapeReservedWord(modified);
         }
 
         return modified;
+    }
+
+    @Override
+    public String toEnumValue(String value, String datatype) {
+        if (isPrimivite(datatype)) {
+            return value;
+        }
+        return super.toEnumValue(value, datatype);
+    }
+
+    @Override
+    public boolean isPrimivite(String datatype) {
+        return "kotlin.Byte".equalsIgnoreCase(datatype)
+            || "kotlin.Short".equalsIgnoreCase(datatype)
+            || "kotlin.Int".equalsIgnoreCase(datatype)
+            || "kotlin.Long".equalsIgnoreCase(datatype)
+            || "kotlin.Float".equalsIgnoreCase(datatype)
+            || "kotlin.Double".equalsIgnoreCase(datatype)
+            || "kotlin.Boolean".equalsIgnoreCase(datatype);
     }
 
     @Override
@@ -498,16 +497,30 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
         String modifiedName = name.replaceAll("\\.", "");
         modifiedName = sanitizeKotlinSpecificNames(modifiedName);
 
-        if (reservedWords.contains(modifiedName)) {
-            modifiedName = escapeReservedWord(modifiedName);
+        modifiedName = titleCase(modifiedName);
+
+        if (modifiedName.equalsIgnoreCase("Companion")) {
+            modifiedName = "_" + modifiedName;
         }
 
-        return titleCase(modifiedName);
+        return modifiedName;
     }
 
     @Override
     public String toVarName(String name) {
         return super.toVarName(sanitizeKotlinSpecificNames(name));
+    }
+
+    @Override
+    public String toEnumName(CodegenProperty property) {
+        return StringUtils.capitalize(property.name);
+    }
+
+    @Override
+    public void addHandlebarHelpers(Handlebars handlebars) {
+        super.addHandlebarHelpers(handlebars);
+        handlebars.registerHelpers(StringHelpers.class);
+        handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
     /**
@@ -578,11 +591,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig  {
     protected boolean needToImport(String type) {
         // provides extra protection against improperly trying to import language primitives and java types
         boolean imports =
-            !type.startsWith("kotlin.") &&
-            !type.startsWith("java.") &&
-            !defaultIncludes.contains(type) &&
-            !languageSpecificPrimitives.contains(type) &&
-            !instantiationLibraryFunction.contains(type);
+                !type.startsWith("kotlin.") &&
+                        !type.startsWith("java.") &&
+                        !defaultIncludes.contains(type) &&
+                        !languageSpecificPrimitives.contains(type) &&
+                        !instantiationLibraryFunction.contains(type);
 
         return imports;
     }

@@ -5,10 +5,13 @@ import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
@@ -17,6 +20,7 @@ import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
 import org.testng.Assert;
@@ -24,6 +28,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -282,7 +289,71 @@ public class DefaultCodegenConfigTest {
         List<CodegenParameter> requiredParams = codegenOp.getRequiredParams();
         Assert.assertTrue(requiredParams == null || requiredParams.size() == 0);
     }
-    
+
+    @Test
+    public void testFromResponse_inlineHeaders() {
+        final String RESPONSE_CODE = "200";
+
+        ApiResponse apiResponse = new ApiResponse();
+        Header inlineHeader = new Header().description("This is header1").schema(new Schema().type("string").example("header_val"));
+        apiResponse.addHeaderObject("header1", inlineHeader);
+
+        OpenAPI openAPI = new OpenAPI().components(new Components().responses(new HashMap<>()));
+        openAPI.getComponents().addHeaders("ref-header1", inlineHeader);
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        codegen.preprocessOpenAPI(openAPI);
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse);
+
+        Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
+
+        CodegenProperty headerProperty = codegenResponse.headers.get(0);
+        Assert.assertNotNull(headerProperty);
+        Assert.assertEquals(headerProperty.description, inlineHeader.getSchema().getDescription());
+        Assert.assertEquals(headerProperty.datatype, "String");
+        Assert.assertEquals(headerProperty.example, inlineHeader.getSchema().getExample());
+    }
+
+    @Test
+    public void testFromResponse_referenceHeaders() {
+        final String RESPONSE_CODE = "200";
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.addHeaderObject("header1", new Header().$ref("#/components/ref-header1"));
+
+        OpenAPI openAPI = new OpenAPI().components(new Components().responses(new HashMap<>()));
+        Header referencedHeader = new Header().schema(new Schema().description("This is header1").type("string").example("header_val"));
+        openAPI.getComponents().addHeaders("ref-header1", referencedHeader);
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        codegen.preprocessOpenAPI(openAPI);
+        CodegenResponse codegenResponse = codegen.fromResponse(RESPONSE_CODE, apiResponse);
+
+        Assert.assertEquals(codegenResponse.code, RESPONSE_CODE);
+
+        CodegenProperty headerProperty = codegenResponse.headers.get(0);
+        Assert.assertNotNull(headerProperty);
+        Assert.assertEquals(headerProperty.description, referencedHeader.getSchema().getDescription());
+        Assert.assertEquals(headerProperty.datatype, "String");
+        Assert.assertEquals(headerProperty.example, referencedHeader.getSchema().getExample());
+    }
+
+    @Test(dataProvider = "testCommonPrefixProvider")
+    public void testCommonPrefix(List<Object> vars, String expectedPrefix) {
+        DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        Assert.assertEquals(codegen.findCommonPrefixOfVars(vars), expectedPrefix);
+    }
+
+    @DataProvider(name = "testCommonPrefixProvider")
+    public Object[][] provideData_testCommonPrefix() {
+        return new Object[][]{
+            {Collections.singletonList("FOO_BAR"), ""},
+            {Arrays.asList("FOO_BAR", "FOO_BAZ"), "FOO_"},
+            {Arrays.asList("FOO_BAR", "FOO_BAZ", "TEST"), ""},
+            {Arrays.asList("STATUS-ON", "STATUS-OFF", "STATUS"), ""}
+        };
+    }
+
     private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
         @Override
         public String getArgumentsLocation() {

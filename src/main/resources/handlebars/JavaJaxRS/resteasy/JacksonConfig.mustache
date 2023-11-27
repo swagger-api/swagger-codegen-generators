@@ -5,13 +5,24 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+{{#java8}}
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+{{/java8}}
+{{#joda}}
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
+{{/joda}}
 
+{{#jakarta}}
+import jakarta.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ext.Provider;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+{{/jakarta}}
 import java.io.IOException;
 
 @Provider
@@ -21,7 +32,11 @@ public class JacksonConfig implements ContextResolver<ObjectMapper> {
     public JacksonConfig() throws Exception {
 
         objectMapper = new ObjectMapper()
-            .setDateFormat(new RFC3339DateFormat())
+            .setDateFormat(new RFC3339DateFormat()){{#legacyDates}};{{/legacyDates}}
+{{#java8}}
+            .registerModule(new JavaTimeModule());
+{{/java8}}
+{{#joda}}
             .registerModule(new JodaModule() {
                 {
                     addSerializer(DateTime.class, new StdSerializer<DateTime>(DateTime.class) {
@@ -39,6 +54,7 @@ public class JacksonConfig implements ContextResolver<ObjectMapper> {
 
                 }
             });
+{{/joda}}
     }
 
     public ObjectMapper getContext(Class<?> arg0) {

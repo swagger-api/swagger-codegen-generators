@@ -150,13 +150,6 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
     }
 
     @Override
-    public void processOpts() {
-        super.processOpts();
-
-        embeddedTemplateDir = templateDir = getTemplateDir();
-    }
-
-    @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
 
@@ -188,6 +181,9 @@ public class StaticHtml2Codegen extends DefaultCodegenConfig implements CodegenC
         if (op.returnType != null) {
             op.returnType = normalizeType(op.returnType);
         }
+
+        op.operationId = op.operationId.replace(" ", "_");
+        op.nickname = op.operationId;
 
         // path is an unescaped variable in the mustache template api.mustache
         // line 82 '<&path>'

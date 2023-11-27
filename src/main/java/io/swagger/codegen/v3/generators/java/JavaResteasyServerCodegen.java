@@ -51,10 +51,6 @@ public class JavaResteasyServerCodegen extends AbstractJavaJAXRSServerCodegen im
     public void processOpts() {
         super.processOpts();
 
-        if (StringUtils.isBlank(templateDir)) {
-            embeddedTemplateDir = templateDir = getTemplateDir();
-        }
-
         apiTemplateFiles.put("apiService.mustache", ".java");
         apiTemplateFiles.put("apiServiceImpl.mustache", ".java");
         apiTestTemplateFiles.clear(); // TODO: add test template
@@ -97,12 +93,6 @@ public class JavaResteasyServerCodegen extends AbstractJavaJAXRSServerCodegen im
             supportingFiles.add(new SupportingFile("OffsetDateTimeProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "OffsetDateTimeProvider.java"));
             supportingFiles.add(new SupportingFile("LocalDateProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "LocalDateProvider.java"));
         }
-    }
-    
-
-    @Override
-    public String getArgumentsLocation() {
-        return "";
     }
 
     @Override
