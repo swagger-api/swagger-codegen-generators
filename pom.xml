@@ -269,7 +269,7 @@
         <jackson-databind-version>2.15.3</jackson-databind-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
-        <commons-io-version>2.15.0</commons-io-version>
+        <commons-io-version>2.15.1</commons-io-version>
         <commons-cli-version>1.6.0</commons-cli-version>
         <junit-version>4.13.2</junit-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
