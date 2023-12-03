@@ -3,30 +3,9 @@ package io.swagger.codegen.v3.generators;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenArgument;
-import io.swagger.codegen.v3.CodegenConfig;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenContent;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenModelFactory;
-import io.swagger.codegen.v3.CodegenModelType;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenSecurity;
-import io.swagger.codegen.v3.ISchemaHandler;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
-import io.swagger.codegen.v3.generators.handlebars.BaseItemsHelper;
-import io.swagger.codegen.v3.generators.handlebars.BracesHelper;
-import io.swagger.codegen.v3.generators.handlebars.HasHelper;
-import io.swagger.codegen.v3.generators.handlebars.HasNotHelper;
-import io.swagger.codegen.v3.generators.handlebars.IsHelper;
-import io.swagger.codegen.v3.generators.handlebars.IsNotHelper;
-import io.swagger.codegen.v3.generators.handlebars.NotEmptyHelper;
-import io.swagger.codegen.v3.generators.handlebars.StringUtilHelper;
+import io.swagger.codegen.v3.generators.handlebars.*;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
@@ -38,30 +17,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.headers.Header;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BinarySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.DateSchema;
-import io.swagger.v3.oas.models.media.DateTimeSchema;
-import io.swagger.v3.oas.models.media.EmailSchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.UUIDSchema;
-import io.swagger.v3.oas.models.parameters.CookieParameter;
-import io.swagger.v3.oas.models.parameters.HeaderParameter;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.parameters.PathParameter;
-import io.swagger.v3.oas.models.parameters.QueryParameter;
-import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.OAuthFlow;
@@ -99,16 +56,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.swagger.codegen.v3.CodegenConstants.HAS_ONLY_READ_ONLY_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.HAS_OPTIONAL_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.HAS_REQUIRED_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_CONTAINER_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getDefaultIncludes;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
-import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
+import static io.swagger.codegen.v3.CodegenConstants.*;
+import static io.swagger.codegen.v3.generators.CodegenHelper.*;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
@@ -1345,9 +1294,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
         codegenModel.discriminator = schema.getDiscriminator();
-        if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-            codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
-        }
+
 
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
@@ -1398,6 +1345,33 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                 }
+
+                if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    Map<String, String> classnameKeys = new HashMap<>();
+
+                    if (composed.getOneOf()!=null) {
+                        composed.getOneOf().forEach( s -> {
+
+                            codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
+                                .forEach(key -> {
+                                    String mappingValue = codegenModel.discriminator.getMapping().get(key);
+                                    if (classnameKeys.containsKey(codegenModel.classname)) {
+                                        throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
+                                    }
+                                    classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
+                                });
+
+                        });
+
+                        codegenModel.discriminator.getMapping().putAll(classnameKeys);
+
+                    }
+
+
+                }
+
+
             } else {
                 allProperties = null;
                 allRequired = null;

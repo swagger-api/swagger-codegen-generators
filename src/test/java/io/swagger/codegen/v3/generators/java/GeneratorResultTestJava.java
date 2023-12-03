@@ -1,7 +1,9 @@
 package io.swagger.codegen.v3.generators.java;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import io.swagger.codegen.v3.generators.GeneratorRunner;
 import io.swagger.codegen.v3.service.GenerationRequest;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -52,6 +54,8 @@ public class GeneratorResultTestJava {
         boolean flattenInlineComposedSchema = true;
         String outFolder = null; // temporary folder
 
+        File tmpFolder = GeneratorRunner.getTmpFolder();
+        Assert.assertNotNull(tmpFolder);
 
         List<File> files = GeneratorRunner.runGenerator(
             name,
@@ -60,9 +64,8 @@ public class GeneratorResultTestJava {
             v2Spec,
             yaml,
             flattenInlineComposedSchema,
-            outFolder,
+            tmpFolder.getAbsolutePath(),
             options -> options.setLibrary("resttemplate"));
-
 
 
         File interfaceFile = files.stream().filter(f -> f.getName().equals("Item.java")).findAny().orElseThrow(() -> new RuntimeException("No interface generated"));
@@ -73,19 +76,21 @@ public class GeneratorResultTestJava {
 
         Matcher matcher = typeInfoPattern.matcher(interfaceContent);
 
-        Assert.assertTrue(matcher.matches(), "No JsonTypeInfo generated into the interface file");
+        Assert.assertTrue(matcher.matches(),
+            "No JsonTypeInfo generated into the interface file");
 
-        String generatedTypeinfoLines = matcher.group(2)+matcher.group(3)+matcher.group(4);
+        String generatedTypeInfoLines = matcher.group(2)+matcher.group(3)+matcher.group(4);
 
-        Assert.assertEquals( generatedTypeinfoLines,"@JsonTypeInfo(\n" +
-            "  use = JsonTypeInfo.Id.NAME,\n" +
-            "  include = JsonTypeInfo.As.PROPERTY,\n" +
-            "  property = \"aCustomProperty\")\n" +
-            "@JsonSubTypes({\n" +
-            "  @JsonSubTypes.Type(value = ClassA.class, name = \"typeA\"),\n" +
-            "  @JsonSubTypes.Type(value = ClassB.class, name = \"typeB\"),\n" +
-            "  @JsonSubTypes.Type(value = ClassC.class, name = \"typeC\")\n" +
+        Assert.assertEquals( generatedTypeInfoLines, "@JsonTypeInfo(" + System.lineSeparator() +
+            "  use = JsonTypeInfo.Id.NAME," + System.lineSeparator() +
+            "  include = JsonTypeInfo.As.PROPERTY," + System.lineSeparator() +
+            "  property = \"aCustomProperty\")" + System.lineSeparator() +
+            "@JsonSubTypes({" + System.lineSeparator() +
+            "  @JsonSubTypes.Type(value = ClassA.class, name = \"typeA\")," + System.lineSeparator() +
+            "  @JsonSubTypes.Type(value = ClassB.class, name = \"typeB\")," + System.lineSeparator() +
+            "  @JsonSubTypes.Type(value = ClassC.class, name = \"typeC\")" + System.lineSeparator() +
             "})", "Wrong json subtypes generated");
 
+        FileUtils.deleteDirectory(new File(tmpFolder.getAbsolutePath()));
     }
 }
