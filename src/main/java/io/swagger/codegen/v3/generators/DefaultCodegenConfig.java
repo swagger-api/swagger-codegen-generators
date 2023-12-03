@@ -83,6 +83,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -2338,6 +2339,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 } else {
                     codegenResponse.baseType = codegenProperty.baseType;
                 }
+                if (isFileTypeSchema(responseSchema)) {
+                    codegenResponse.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
+                }
             }
             codegenResponse.dataType = codegenProperty.datatype;
 
@@ -4411,6 +4415,21 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // application/json, application/problem+json, application/ld+json, some more?
             codegenParameter.isJson = true;
         }
+    }
+  
+    protected boolean isFileTypeSchema(Schema schema) {
+        final Schema fileTypeSchema;
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            fileTypeSchema = OpenAPIUtil.getSchemaFromRefSchema(schema, openAPI);
+        } else {
+            fileTypeSchema = schema;
+        }
+        if (fileTypeSchema.getProperties() != null) {
+            final Collection<Schema> propertySchemas = fileTypeSchema.getProperties().values();
+            return propertySchemas.stream().anyMatch(propertySchema -> "string".equalsIgnoreCase(propertySchema.getType())
+                && "binary".equalsIgnoreCase(propertySchema.getFormat()));
+        }
+        return false;
     }
 
     @Override
