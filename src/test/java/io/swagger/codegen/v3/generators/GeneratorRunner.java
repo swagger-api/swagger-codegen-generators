@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  *
@@ -28,7 +30,8 @@ public abstract class GeneratorRunner {
         boolean v2Spec,
         boolean yaml,
         boolean flattenInlineComposedSchema,
-        String outFolder
+        String outFolder,
+        Consumer<Options> optionsCustomizer
     ) throws Exception {
 
         String path = outFolder;
@@ -36,6 +39,13 @@ public abstract class GeneratorRunner {
             path = getTmpFolder().getAbsolutePath();
         }
         GenerationRequest request = new GenerationRequest();
+
+        Options option = new Options()
+            .flattenInlineComposedSchema(flattenInlineComposedSchema)
+            .outputDir(path);
+
+        optionsCustomizer.accept(option);
+
         request
             .codegenVersion(codegenVersion) // use V2 to target Swagger/OpenAPI 2.x Codegen version
             .type(GenerationRequest.Type.CLIENT)
@@ -44,9 +54,7 @@ public abstract class GeneratorRunner {
                 yaml, // YAML file, use false for JSON
                 v2Spec)) // OpenAPI 3.x - use true for Swagger/OpenAPI 2.x definitions
             .options(
-                new Options()
-                    .flattenInlineComposedSchema(flattenInlineComposedSchema)
-                    .outputDir(path)
+                option
             );
 
         List<File> files = new GeneratorService().generationRequest(request).generate();
