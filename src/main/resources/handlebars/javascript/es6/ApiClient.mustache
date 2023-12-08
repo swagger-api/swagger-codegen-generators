@@ -176,6 +176,12 @@ export class ApiClient {
             }
         }
 
+        // HACK (issue #11000)
+        // Readstream - fs.createReadStream or fs.ReadStream
+        if (isStream.readable(param)) {
+            return true;
+        }
+        
         // Buffer in Node.js
         if (typeof Buffer === 'function' && param instanceof Buffer) {
             return true;
