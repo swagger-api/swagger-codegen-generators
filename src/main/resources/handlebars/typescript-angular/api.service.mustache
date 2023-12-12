@@ -175,7 +175,12 @@ export class {{classname}} {
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}}.toISOString());
         {{/isDateTime}}
         {{^isDateTime}}
+            {{#isJson}}
+            {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', JSON.stringify({{paramName}}));
+            {{/isJson}}
+            {{^isJson}}
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}});
+            {{/isJson}}
         {{/isDateTime}}
         }
         {{/isListContainer}}
