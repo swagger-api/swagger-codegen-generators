@@ -1,4 +1,4 @@
 {{#description}}
     /* {{{description}}} */
 {{/description}}
-    val {{{name}}}: {{#is this 'enum'}}{{classname}}.{{nameInCamelCase}}{{/is}}{{#isNot this 'enum'}}{{{datatype}}}{{/isNot}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}
+    val {{{name}}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{datatype}}}{{/isEnum}}? = {{#defaultvalue}}{{defaultvalue}}{{/defaultvalue}}{{^defaultvalue}}null{{/defaultvalue}}

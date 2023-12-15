@@ -32,13 +32,27 @@ import java.io.InputStream;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+{{#jakarta}}
+import jakarta.servlet.ServletConfig;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.*;
+{{/jakarta}}
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 
 {{#apiBasePath}}@Path("/{{{apiBasePath}}}"){{/apiBasePath}}
@@ -76,6 +90,7 @@ public class {{classname}}  {
 
 {{#operation}}
 {{#contents}}
+{{#@first}}
     @{{httpMethod}}
     {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
     {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
@@ -83,8 +98,8 @@ public class {{classname}}  {
     {{#useOas2}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
@@ -95,19 +110,20 @@ public class {{classname}}  {
     {{^useOas2}}
     @Operation(summary = "{{{summary}}}", description = "{{{notes}}}"{{#hasAuthMethods}}, security = {
         {{#authMethods}}@SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}"{{scope}}"{{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}"{{@key}}"{{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
+        @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{^vendorExtensions.x-java-is-response-void}}, content = @Content({{#schema.extensions.x-content-type}}mediaType = "{{schema.extensions.x-content-type}}", {{/schema.extensions.x-content-type}}{{^containerType}}schema = @Schema(implementation = {{{baseType}}}.class)){{/containerType}}{{#containerType}}array = @ArraySchema(schema = @Schema(implementation = {{{baseType}}}.class))){{/containerType}}{{/vendorExtensions.x-java-is-response-void}}){{#hasMore}},
         {{/hasMore}}{{/responses}} })
     {{/useOas2}}
     public Response {{nickname}}({{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}},{{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{paramName}}InputStream, {{paramName}}Detail{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{#isBodyParam}}{{paramName}}{{/isBodyParam}}{{^isBodyParam}}{{paramName}}InputStream, {{paramName}}Detail{{/isBodyParam}}{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
     }
+{{/@first}}
 {{/contents}}
 {{/operation}}
 }

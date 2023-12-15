@@ -9,7 +9,12 @@ import io.swagger.jaxrs.*;
 
 import com.sun.jersey.multipart.FormDataParam;
 {{#useBeanValidation}}
+{{#jakarta}}
+import jakarta.validation.constraints.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.constraints.*;
+{{/jakarta}}
 {{/useBeanValidation}}
 
 {{#imports}}import {{import}};
@@ -24,10 +29,18 @@ import java.io.InputStream;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
+{{#jakarta}}
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.*;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.*;
+{{/jakarta}}
 
 {{#apiBasePath}}@Path("/{{{apiBasePath}}}"){{/apiBasePath}}
 {{^apiBasePath}}@Path("/{{{baseName}}}"){{/apiBasePath}}
@@ -47,18 +60,18 @@ public class {{classname}}  {
     {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
     @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
         {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-            {{/hasMore}}{{/scopes}}
+            {{#each scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},
+            {{/@last}}{{/each}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
     }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @io.swagger.annotations.ApiResponses(value = { {{#responses}}
         @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     public Response {{nickname}}(
-        {{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}},
+        {{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>serviceCookieParams}},
         {{/parameters}}@Context SecurityContext securityContext)
     throws NotFoundException {
-        return delegate.{{nickname}}({{#parameters}}{{#isBinary}} {{paramName}}InputStream, {{paramName}}Detail{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
+        return delegate.{{nickname}}({{#parameters}}{{#isBinary}}{{#isBodyParam}}{{paramName}}{{/isBodyParam}}{{^isBodyParam}}{{paramName}}InputStream, {{paramName}}Detail{{/isBodyParam}}{{/isBinary}}{{^isBinary}}{{paramName}}{{/isBinary}},{{/parameters}}securityContext);
     }
 {{/contents}}
 {{/operation}}

@@ -21,6 +21,7 @@ namespace {{invokerPackage}};
 use {{backslash}}{{invokerPackage}}\Configuration;
 use {{backslash}}{{invokerPackage}}\ApiException;
 use {{backslash}}{{invokerPackage}}\ObjectSerializer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * {{classname}}Test Class Doc Comment
@@ -30,37 +31,38 @@ use {{backslash}}{{invokerPackage}}\ObjectSerializer;
  * @author   Swagger Codegen team
  * @link     https://github.com/swagger-api/swagger-codegen
  */
-{{#operations}}class {{classname}}Test extends \PHPUnit_Framework_TestCase
+{{#operations}}class {{classname}}Test extends TestCase
 {
 
     /**
      * Setup before running any test cases
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
     }
 
     /**
      * Setup before running each test case
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
     /**
      * Clean up after running each test case
      */
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 
     /**
      * Clean up after running all test cases
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
     }
     {{#operation}}
+    {{#contents}}
 
     /**
      * Test case for {{{operationId}}}
@@ -68,9 +70,10 @@ use {{backslash}}{{invokerPackage}}\ObjectSerializer;
      * {{{summary}}}.
      *
      */
-    public function test{{vendorExtensions.x-testOperationId}}()
+    public function test{{vendorExtensions.x-testOperationId}}{{#isForm}}Form{{/isForm}}()
     {
     }
+    {{/contents}}
     {{/operation}}
 }
 {{/operations}}

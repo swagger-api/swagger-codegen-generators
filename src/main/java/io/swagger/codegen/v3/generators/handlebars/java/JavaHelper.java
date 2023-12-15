@@ -79,20 +79,26 @@ public class JavaHelper {
         boolean withXml = Boolean.valueOf(String.valueOf(templateData.get("withXml")));
         boolean parcelableModel = Boolean.valueOf(String.valueOf(templateData.get("parcelableModel")));
         boolean useBeanValidation = Boolean.valueOf(String.valueOf(templateData.get("useBeanValidation")));
+        boolean jakarta = Boolean.valueOf(String.valueOf(templateData.get("jakarta")));
         if (serializableMode) {
             builder.append("import java.io.Serializable;\n");
         }
         if (jackson && withXml) {
             builder.append("import com.fasterxml.jackson.dataformat.xml.annotation.*;\n");
         }
-        if (withXml) {
+        if (withXml && jakarta) {
+            builder.append("import jakarta.xml.bind.annotation.*;\n");
+        } else if (withXml) {
             builder.append("import javax.xml.bind.annotation.*;\n");
         }
         if (parcelableModel) {
             builder.append("import android.os.Parcelable;\n");
             builder.append("import android.os.Parcel;\n");
         }
-        if (useBeanValidation) {
+        if (useBeanValidation && jakarta) {
+            builder.append("import jakarta.validation.constraints.*;\n");
+            builder.append("import jakarta.validation.Valid;\n");
+        } else if (useBeanValidation) {
             builder.append("import javax.validation.constraints.*;\n");
             builder.append("import javax.validation.Valid;\n");
         }

@@ -175,7 +175,12 @@ export class {{classname}} {
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}}.toISOString());
         {{/isDateTime}}
         {{^isDateTime}}
+            {{#isJson}}
+            {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', JSON.stringify({{paramName}}));
+            {{/isJson}}
+            {{^isJson}}
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}});
+            {{/isJson}}
         {{/isDateTime}}
         }
         {{/isListContainer}}
@@ -285,6 +290,15 @@ export class {{classname}} {
         // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
         useForm = canConsumeForm;
 {{/isBinary}}
+{{^isBinary}}
+{{#items}}
+{{#isBinary}}
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        useForm = canConsumeForm;
+{{/isBinary}}
+{{/items}}
+{{/isBinary}}
 {{/formParams}}
         if (useForm) {
             formParams = new FormData();
@@ -306,11 +320,11 @@ export class {{classname}} {
         if ({{paramName}}) {
         {{#isCollectionFormatMulti}}
             {{paramName}}.forEach((element) => {
-                {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', <any>element){{#useHttpClient}} || formParams{{/useHttpClient}};
+                {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', <any>element){{#useHttpClient}} as any || formParams{{/useHttpClient}};
             })
         {{/isCollectionFormatMulti}}
         {{^isCollectionFormatMulti}}
-            {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}'])){{#useHttpClient}} || formParams{{/useHttpClient}};
+            {{#useHttpClient}}formParams = {{/useHttpClient}}formParams.append('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}'])){{#useHttpClient}}  as any || formParams{{/useHttpClient}};
         {{/isCollectionFormatMulti}}
         }
         {{/isListContainer}}

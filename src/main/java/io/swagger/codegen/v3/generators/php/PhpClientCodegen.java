@@ -2,6 +2,7 @@ package io.swagger.codegen.v3.generators.php;
 
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
@@ -9,24 +10,31 @@ import io.swagger.codegen.v3.CodegenSecurity;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.regex.Matcher;
-
-import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -103,7 +111,6 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         instantiationTypes.put("array", "array");
         instantiationTypes.put("map", "map");
 
-
         // provide primitives to mustache template
         List<String> sortedLanguageSpecificPrimitives= new ArrayList<String>(languageSpecificPrimitives);
         Collections.sort(sortedLanguageSpecificPrimitives);
@@ -144,6 +151,7 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(CodegenConstants.GIT_USER_ID, CodegenConstants.GIT_USER_ID_DESC));
         cliOptions.add(new CliOption(COMPOSER_PROJECT_NAME, "The project name used in the composer package name. The template uses {{composerVendorName}}/{{composerProjectName}} for the composer package name. e.g. petstore-client. IMPORTANT NOTE (2016/03): composerProjectName will be deprecated and replaced by gitRepoId in the next swagger-codegen release"));
         cliOptions.add(new CliOption(CodegenConstants.GIT_REPO_ID, CodegenConstants.GIT_REPO_ID_DESC));
+        cliOptions.add(new CliOption(CodegenConstants.GIT_REPO_BASE_URL, CodegenConstants.GIT_REPO_BASE_URL_DESC));
         cliOptions.add(new CliOption(CodegenConstants.ARTIFACT_VERSION, "The version to use in the composer package version field. e.g. 1.2.3"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, "hides the timestamp when files were generated")
                 .defaultValue(Boolean.TRUE.toString()));
@@ -272,6 +280,12 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
             additionalProperties.put(CodegenConstants.GIT_REPO_ID, gitRepoId);
         }
 
+        if (additionalProperties.containsKey(CodegenConstants.GIT_REPO_BASE_URL)) {
+            this.setGitRepoBaseURL((String) additionalProperties.get(CodegenConstants.GIT_REPO_BASE_URL));
+        } else {
+            additionalProperties.put(CodegenConstants.GIT_REPO_BASE_URL, gitRepoBaseURL);
+        }
+
         if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_VERSION)) {
             this.setArtifactVersion((String) additionalProperties.get(CodegenConstants.ARTIFACT_VERSION));
         } else {
@@ -280,6 +294,12 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
         if (additionalProperties.containsKey(VARIABLE_NAMING_CONVENTION)) {
             this.setParameterNamingConvention((String) additionalProperties.get(VARIABLE_NAMING_CONVENTION));
+        }
+        if (StringUtils.isBlank(composerVendorName) && additionalProperties.get(CodegenConstants.GIT_USER_ID) != null) {
+            additionalProperties.put(CodegenConstants.GIT_USER_ID, StringUtils.lowerCase(additionalProperties.get(CodegenConstants.GIT_USER_ID).toString()));
+        }
+        if (StringUtils.isBlank(composerProjectName) && additionalProperties.get(CodegenConstants.GIT_REPO_ID) != null) {
+            additionalProperties.put(CodegenConstants.GIT_REPO_ID, StringUtils.lowerCase(additionalProperties.get(CodegenConstants.GIT_REPO_ID).toString()));
         }
 
         additionalProperties.put("escapedInvokerPackage", invokerPackage.replace("\\", "\\\\"));
@@ -442,6 +462,12 @@ public class PhpClientCodegen extends DefaultCodegenConfig {
 
     public void setComposerProjectName(String composerProjectName) {
         this.composerProjectName = composerProjectName;
+    }
+
+    @Override
+    protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
+        super.processMapSchema(codegenModel, name, schema);
+        addVars(codegenModel, schema.getProperties(), schema.getRequired());
     }
 
     @Override

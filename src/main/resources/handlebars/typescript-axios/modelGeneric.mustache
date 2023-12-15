@@ -1,5 +1,10 @@
+import {
+    {{#imports}}{{.}},{{/imports}}
+} from ".";
+
 /**
  * {{{description}}}
+ *
  * @export
  * @interface {{classname}}
  */
@@ -9,24 +14,31 @@ export interface {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{
 
 {{/additionalPropertiesType}}
 {{#vars}}
+
     /**
-     * {{{description}}}
-     * @type {{braces "left"}}{{datatype}}{{braces "right"}}
+    {{#description}}
+     * {{{.}}}
+     *
+    {{/description}}
+     * @type {{braces "left"}}{{{datatype}}}{{braces "right"}}
      * @memberof {{classname}}
+    {{#example}}
+     * @example {{{.}}}
+    {{/example}}
     {{#deprecated}}
      * @deprecated
     {{/deprecated}}
      */
-    {{name}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+    {{name}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{datatype}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
 {{/vars}}
 }{{#hasEnums}}
 
 {{#vars}}
 {{#isEnum}}
 /**
-    * @export
-    * @enum {string}
-    */
+ * @export
+ * @enum {string}
+ */
 export enum {{enumName}} {
 {{#allowableValues}}
     {{#enumVars}}

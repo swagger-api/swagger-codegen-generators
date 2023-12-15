@@ -45,10 +45,13 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String NG_VERSION = "ngVersion";
     public static final String NG_PACKAGR = "useNgPackagr";
     public static final String PROVIDED_IN_ROOT ="providedInRoot";
+    public static final String KEBAB_FILE_NAME ="kebab-file-name";
+    public static final String USE_OVERRIDE ="useOverride";
 
     protected String npmName = null;
     protected String npmVersion = "1.0.0";
     protected String npmRepository = null;
+    protected boolean kebabFileNaming;
 
     public TypeScriptAngularClientCodegen() {
         super();
@@ -61,6 +64,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(new CliOption(WITH_INTERFACES, "Setting this property to true will generate interfaces next to the default class implementations.", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
         this.cliOptions.add(new CliOption(NG_VERSION, "The version of Angular. Default is '4.3'"));
         this.cliOptions.add(new CliOption(PROVIDED_IN_ROOT, "Use this property to provide Injectables in root (it is only valid in angular version greater or equal to 6.0.0).", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
+        this.cliOptions.add(new CliOption(USE_OVERRIDE, "Use this property to place `override` keyword in encoder methods.", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
     }
 
     @Override
@@ -121,20 +125,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             additionalProperties.put(NG_PACKAGR, true);
         }
 
-        // Set the typescript version compatible to the Angular version
-        if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.4.0 <3.6.0");
-        } else if (ngVersion.atLeast("7.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.1.1 <3.2.0");
-        } else if (ngVersion.atLeast("6.0.0")) {
-            additionalProperties.put("tsVersion", ">=2.7.2 and <2.10.0");
-        } else if (ngVersion.atLeast("5.0.0")) {
-            additionalProperties.put("tsVersion", ">=2.1.5 <2.7.0");
-        } else {
-            // Angular v2-v4 requires typescript ">=2.1.5 <2.8"
-            additionalProperties.put("tsVersion", ">=2.1.5 <2.8.0");
-        }
-
         // Set the rxJS version compatible to the Angular version
         if (ngVersion.atLeast("8.0.0")) {
             additionalProperties.put("rxjsVersion", "6.5.0");
@@ -153,6 +143,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             supportingFiles.add(new SupportingFile("rxjs-operators.mustache", getIndexDirectory(), "rxjs-operators.ts"));
         }
 
+        // Version after Angular 10 require ModuleWithProviders to be generic. Compatible from version 7.
+        if (ngVersion.atLeast("7.0.0")) {
+            additionalProperties.put("genericModuleWithProviders", true);
+        }
+
         // for Angular 2 AOT support we will use good-old ngc,
         // Angular Package format wasn't invented at this time and building was much more easier
         if (!ngVersion.atLeast("4.0.0")) {
@@ -167,48 +162,13 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         // Libraries generated with v2.x of ng-packagr will ship with AoT metadata in v4, which is intended for Angular v5 (and Angular v6).
         additionalProperties.put("useOldNgPackagr", !ngVersion.atLeast("5.0.0"));
 
-        // Specific ng-packagr configuration
-        if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "5.4.0");
-            additionalProperties.put("tsickleVersion", "0.35.0");
-        } else if (ngVersion.atLeast("7.0.0")) {
-            // compatible versions with typescript version
-            additionalProperties.put("ngPackagrVersion", "5.1.0");
-            additionalProperties.put("tsickleVersion", "0.34.0");
-        } else if (ngVersion.atLeast("6.0.0")) {
-            // compatible versions with typescript version
-            additionalProperties.put("ngPackagrVersion", "3.0.6");
-            additionalProperties.put("tsickleVersion", "0.32.1");
-        } else if (ngVersion.atLeast("5.0.0")) {
-            // compatible versions with typescript version
-            additionalProperties.put("ngPackagrVersion", "2.4.5");
-            additionalProperties.put("tsickleVersion", "0.27.5");
-        } else {
-            // Angular versions prior to v5
-            additionalProperties.put("ngPackagrVersion", "1.6.0");
-        }
-
-        // set zone.js version
-        if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("zonejsVersion", "0.9.1");
-        } else if (ngVersion.atLeast("5.0.0")) {
-            // compatible versions to Angular 5+
-            additionalProperties.put("zonejsVersion", "0.8.26");
-        } else {
-            // Angular versions prior to v5
-            additionalProperties.put("zonejsVersion", "0.7.6");
-        }
-
         // set http client usage
         if (ngVersion.atLeast("8.0.0")) {
             additionalProperties.put("useHttpClient", true);
-            additionalProperties.put("useHttpClientPackage", false);
         } else if (ngVersion.atLeast("4.3.0")) {
             additionalProperties.put("useHttpClient", true);
-            additionalProperties.put("useHttpClientPackage", true);
         } else {
             additionalProperties.put("useHttpClient", false);
-            additionalProperties.put("useHttpClientPackage", false);
         }
 
         if (additionalProperties.containsKey(PROVIDED_IN_ROOT) && !ngVersion.atLeast("6.0.0")) {
@@ -219,7 +179,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         additionalProperties.put("injectionTokenTyped", ngVersion.atLeast("4.0.0"));
 
         if (additionalProperties.containsKey(NPM_NAME)) {
-            addNpmPackageGeneration();
+            addNpmPackageGeneration(ngVersion);
         }
 
         if (additionalProperties.containsKey(WITH_INTERFACES)) {
@@ -228,6 +188,13 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                 apiTemplateFiles.put("apiInterface.mustache", "Interface.ts");
             }
         }
+
+        if (additionalProperties.containsKey(USE_OVERRIDE)) {
+            final boolean useOverride = Boolean.parseBoolean(String.valueOf(additionalProperties.get(USE_OVERRIDE)));
+            additionalProperties.put(USE_OVERRIDE, useOverride);
+        }
+
+        kebabFileNaming = Boolean.parseBoolean(String.valueOf(additionalProperties.get(KEBAB_FILE_NAME)));
 
     }
 
@@ -243,7 +210,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         return ngVersion;
     }
 
-    private void addNpmPackageGeneration() {
+    private void addNpmPackageGeneration(SemVer ngVersion) {
         if (additionalProperties.containsKey(NPM_NAME)) {
             this.setNpmName(additionalProperties.get(NPM_NAME).toString());
         }
@@ -252,14 +219,77 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             this.setNpmVersion(additionalProperties.get(NPM_VERSION).toString());
         }
 
-        if (additionalProperties.containsKey(SNAPSHOT)
-                && Boolean.valueOf(additionalProperties.get(SNAPSHOT).toString())) {
+        if (additionalProperties.containsKey(SNAPSHOT) && Boolean.parseBoolean(additionalProperties.get(SNAPSHOT).toString())) {
             this.setNpmVersion(npmVersion + "-SNAPSHOT." + SNAPSHOT_SUFFIX_FORMAT.format(new Date()));
         }
         additionalProperties.put(NPM_VERSION, npmVersion);
 
         if (additionalProperties.containsKey(NPM_REPOSITORY)) {
             this.setNpmRepository(additionalProperties.get(NPM_REPOSITORY).toString());
+        }
+
+        additionalProperties.put("useHttpClientPackage", false);
+        if (ngVersion.atLeast("15.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.8.2 <4.10.0");
+            additionalProperties.put("rxjsVersion", "7.5.5");
+            additionalProperties.put("ngPackagrVersion", "15.0.2");
+            additionalProperties.put("zonejsVersion", "0.11.5");
+        } else if (ngVersion.atLeast("14.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.6.0 <=4.8.0");
+            additionalProperties.put("rxjsVersion", "7.5.5");
+            additionalProperties.put("ngPackagrVersion", "14.0.2");
+            additionalProperties.put("zonejsVersion", "0.11.5");
+        } else if (ngVersion.atLeast("13.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.4.2 <4.5.0");
+            additionalProperties.put("rxjsVersion", "7.4.0");
+            additionalProperties.put("ngPackagrVersion", "13.0.3");
+            additionalProperties.put("zonejsVersion", "0.11.4");
+        } else if (ngVersion.atLeast("12.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.3.0 <4.4.0");
+            additionalProperties.put("rxjsVersion", "7.4.0");
+            additionalProperties.put("ngPackagrVersion", "12.2.1");
+            additionalProperties.put("zonejsVersion", "0.11.4");
+        } else if (ngVersion.atLeast("11.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.0.0 <4.1.0");
+            additionalProperties.put("rxjsVersion", "6.6.0");
+            additionalProperties.put("ngPackagrVersion", "11.0.2");
+            additionalProperties.put("zonejsVersion", "0.11.3");
+        } else if (ngVersion.atLeast("10.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.9.2 <4.0.0");
+            additionalProperties.put("rxjsVersion", "6.6.0");
+            additionalProperties.put("ngPackagrVersion", "10.0.3");
+            additionalProperties.put("zonejsVersion", "0.10.2");
+        } else if (ngVersion.atLeast("9.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.6.0 <3.8.0");
+            additionalProperties.put("rxjsVersion", "6.5.3");
+            additionalProperties.put("ngPackagrVersion", "9.0.1");
+            additionalProperties.put("zonejsVersion", "0.10.2");
+        } else if (ngVersion.atLeast("8.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.4.0 <3.6.0");
+            additionalProperties.put("rxjsVersion", "6.5.0");
+            additionalProperties.put("ngPackagrVersion", "5.4.0");
+            additionalProperties.put("zonejsVersion", "0.9.1");
+        } else if (ngVersion.atLeast("7.0.0")) {
+            additionalProperties.put("tsVersion", ">=3.1.1 <3.2.0");
+            additionalProperties.put("rxjsVersion", "6.3.0");
+            additionalProperties.put("ngPackagrVersion", "5.1.0");
+            additionalProperties.put("zonejsVersion", "0.8.26");
+
+            additionalProperties.put("useHttpClientPackage", true);
+        } else if (ngVersion.atLeast("6.0.0")) {
+            additionalProperties.put("tsVersion", ">=2.7.2 and <2.10.0");
+            additionalProperties.put("rxjsVersion", "6.1.0");
+            additionalProperties.put("ngPackagrVersion", "3.0.6");
+            additionalProperties.put("zonejsVersion", "0.8.26");
+
+            additionalProperties.put("useHttpClientPackage", true);
+        } else {
+            additionalProperties.put("tsVersion", ">=2.1.5 and <2.8");
+            additionalProperties.put("rxjsVersion", "6.1.0");
+            additionalProperties.put("ngPackagrVersion", "3.0.6");
+            additionalProperties.put("zonejsVersion", "0.8.26");
+
+            additionalProperties.put("useHttpClientPackage", true);
         }
 
         //Files for building our lib
@@ -343,6 +373,24 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             }
         }
         return false;
+    }
+
+    protected void addOperationImports(CodegenOperation codegenOperation, Set<String> operationImports) {
+        for (String operationImport : operationImports) {
+            if (operationImport.contains("|")) {
+                String[] importNames = operationImport.split("\\|");
+                for (String importName : importNames) {
+                    importName = importName.trim();
+                    if (needToImport(importName)) {
+                        codegenOperation.imports.add(importName);
+                    }
+                }
+            } else {
+                if (needToImport(operationImport)) {
+                    codegenOperation.imports.add(operationImport);
+                }
+            }
+        }
     }
 
     @Override
@@ -496,6 +544,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if (name.length() == 0) {
             return "default.service";
         }
+        if (kebabFileNaming) {
+            return dashize(name);
+        }
         return camelize(name, true) + ".service";
     }
 
@@ -506,6 +557,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String toModelFilename(String name) {
+        if (kebabFileNaming) {
+            return dashize(name);
+        }
         return camelize(toModelName(name), true);
     }
 

@@ -1,4 +1,4 @@
-# {{concat invokerPackage '\\' classname}}{{#description}}
+# {{invokerPackage}}{{backSlash}}{{classname}}{{#description}}
 {{description}}{{/description}}
 
 All URIs are relative to *{{basePath}}*
@@ -40,7 +40,7 @@ $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setApiK
 $config = {{{invokerPackage}}}\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');{{/isOAuth}}{{/authMethods}}
 {{/hasAuthMethods}}
 
-$apiInstance = new {{concat apiPackage '\\' classname}}(
+$apiInstance = new {{apiPackage}}{{backSlash}}{{classname}}(
     // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
     // This is optional, `GuzzleHttp\Client` will be used as default.
     new GuzzleHttp\Client(){{#hasAuthMethods}},

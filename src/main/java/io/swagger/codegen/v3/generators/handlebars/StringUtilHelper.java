@@ -20,6 +20,19 @@ public class StringUtilHelper {
         return builder.toString();
     }
 
+    public String toLowerCase(String string) {
+        return string.toLowerCase();
+    }
+
+    public String toQuotedWord(Object object) {
+        String string = object.toString();
+        if (string.contains("\"")) {
+            return string;
+        } else {
+            return "\"" + string + "\"";
+        }
+    }
+
     public String backSlash() {
         return "\\";
     }

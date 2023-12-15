@@ -50,8 +50,7 @@ public class MicronautGeneratorCodegenTest extends AbstractCodegenTest {
 
     @Test(description = "verify interface api generated")
     public void testApiInterface() throws IOException {
-        final String expectedContent = "@Controller" + System.lineSeparator()
-                                       + "public interface AdminApi {";
+        final String expectedContent = "public interface AdminApi {";
         final File controllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
         final String content = FileUtils.readFileToString(controllerFile);
         Assert.assertTrue(content.contains(expectedContent));
@@ -59,10 +58,10 @@ public class MicronautGeneratorCodegenTest extends AbstractCodegenTest {
 
     @Test(description = "verify that parameters are listed as follows: header, path, query, cookie, body")
     public void testApiParameters() throws IOException {
-        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@Parameter(description = \"Localized Text object.\" ) @Valid @Body LocalizedText body" + System.lineSeparator()
-                                 + ",@NotNull @Pattern(regexp=\"[0-9]+\") @Parameter(description = \"header description\" ) @Valid @Header(value = \"x-header\") String xHeader" + System.lineSeparator()
-                                 + ",@Parameter(description = \"path description\") @PathVariable(\"id\") Long id" + System.lineSeparator()
-                                 + ",@Nullable @Parameter(description = \"query description\") @Valid @QueryValue(value = \"name\") String name";
+        final String expectedContent = "default Single<HttpResponse<LocalizedText>> updateTest(@NotNull @Valid @Parameter(description = \"Localized Text object.\") @Body LocalizedText body"
+                                 + ",@NotNull @Pattern(regexp=\"[0-9]+\") @Parameter(description = \"header description\") @Header(value = \"x-header\") String xHeader"
+                                 + ",@Parameter(description = \"path description\") @PathVariable(\"id\") Long id"
+                                 + ",@Nullable @Parameter(description = \"query description\") @QueryValue(value = \"name\") String name";
         final File controllerFile = new File(output, "/src/main/java/io/swagger/api/AdminApi.java");
         final String content = FileUtils.readFileToString(controllerFile);
         Assert.assertTrue(content.contains(expectedContent));

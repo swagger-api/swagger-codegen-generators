@@ -65,6 +65,24 @@
             </plugin>
         </plugins>
     </build>
+    {{#java11}}
+    <profiles>
+        <profile>
+            <id>jdk11</id>
+            <activation>
+                <jdk>[11,)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun.xml.ws</groupId>
+                    <artifactId>jaxws-rt</artifactId>
+                    <version>2.3.3</version>
+                    <type>pom</type>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+    {{/java11}}
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -157,19 +175,38 @@
             <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
+{{#jakarta}}
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta-api</artifactId>
+            <version>${servlet-api-version}</version>
+        </dependency>
+{{/jakarta}}
+{{^jakarta}}
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>
         </dependency>
+{{/jakarta}}
 {{#useBeanValidation}}
     <!-- Bean Validation API support -->
+    {{#jakarta}}
+    <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>3.0.2</version>
+        <scope>provided</scope>
+    </dependency>
+    {{/jakarta}}
+    {{^jakarta}}
     <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
         <version>1.1.0.Final</version>
         <scope>provided</scope>
     </dependency>
+    {{/jakarta}}
 {{/useBeanValidation}}
     <dependency>
         <groupId>org.testng</groupId>
@@ -206,13 +243,13 @@
     </dependency>
     </dependencies>
     <properties>
-        <java.version>{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}</java.version>
+        <java.version>{{#java11}}11{{/java11}}{{^java11}}{{#java8}}1.8{{/java8}}{{^java8}}1.7{{/java8}}{{/java11}}</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <jetty-version>9.3.28.v20191105</jetty-version>
         <slf4j-version>1.7.21</slf4j-version>
         <junit-version>4.13.1</junit-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <servlet-api-version>{{#jakarta}}6.0.0{{/jakarta}}{{^jakarta}}2.5{{/jakarta}}</servlet-api-version>
         {{#useOas2}}
         <springfox-version>2.9.2</springfox-version>
         {{/useOas2}}
@@ -221,6 +258,6 @@
         {{/useOas2}}
         <jackson-version>2.9.10</jackson-version>
         <jackson-threetenbp-version>2.9.10</jackson-threetenbp-version>
-        <spring-version>5.0.18.RELEASE</spring-version>
+        <spring-version>5.3.27</spring-version>
     </properties>
 </project>

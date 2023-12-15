@@ -22,7 +22,9 @@ public class OpenAPIUtil {
         if (schema == null) {
             return;
         }
-        codegenProperty.pattern = schema.getPattern();
+        if (StringUtils.isBlank(codegenProperty.pattern)) {
+            codegenProperty.pattern = schema.getPattern();
+        }
         codegenProperty.minLength = schema.getMinLength();
         codegenProperty.maxLength = schema.getMaxLength();
         if (codegenProperty.pattern != null || codegenProperty.minLength != null || codegenProperty.maxLength != null) {
@@ -49,6 +51,17 @@ public class OpenAPIUtil {
             return null;
         }
         return mapSchema.get(name);
+    }
+
+    public static Schema getRefSchemaIfExists(Schema schema, OpenAPI openAPI) {
+        if (schema == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(schema.get$ref()) || openAPI == null || openAPI.getComponents() == null) {
+            return schema;
+        }
+        final String name = getSimpleRef(schema.get$ref());
+        return getSchemaFromName(name, openAPI);
     }
 
     public static Schema getSchemaFromRefSchema(Schema refSchema, OpenAPI openAPI) {

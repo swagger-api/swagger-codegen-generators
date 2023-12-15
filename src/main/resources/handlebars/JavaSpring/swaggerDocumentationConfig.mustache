@@ -3,17 +3,16 @@ package {{configPackage}};
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+{{#useOas2}}
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.builders.RequestHandlerSelectors;
-{{#useOas2}}
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.service.ApiInfo;
 {{/useOas2}}
 {{^useOas2}}
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 {{/useOas2}}
@@ -25,14 +24,11 @@ import java.util.Optional;
 @Configuration
 public class SwaggerDocumentationConfig {
 
+    {{#useOas2}}
     @Bean
     public Docket customImplementation(){
-        {{#useOas2}}
+
         return new Docket(DocumentationType.SWAGGER_2)
-        {{/useOas2}}
-        {{^useOas2}}
-        return new Docket(DocumentationType.OAS_30)
-        {{/useOas2}}
                 .select()
                     .apis(RequestHandlerSelectors.basePackage("{{apiPackage}}"))
                     .build()
@@ -53,7 +49,7 @@ public class SwaggerDocumentationConfig {
                 {{/useOptional}}
                 .apiInfo(apiInfo());
     }
-{{#useOas2}}
+
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
             .title("{{appName}}")
@@ -65,10 +61,10 @@ public class SwaggerDocumentationConfig {
             .contact(new Contact("","", "{{infoEmail}}"))
             .build();
     }
-{{/useOas2}}
-{{^useOas2}}
+    {{/useOas2}}
+    {{^useOas2}}
     @Bean
-    public OpenAPI configure() {
+    public OpenAPI openApi() {
         return new OpenAPI()
             .info(new Info()
                 .title("{{appName}}")
@@ -78,9 +74,9 @@ public class SwaggerDocumentationConfig {
                 .license(new License()
                     .name("{{licenseInfo}}")
                     .url("{{licenseUrl}}"))
-                .contact(new Contact()
+                .contact(new io.swagger.v3.oas.models.info.Contact()
                     .email("{{infoEmail}}")));
     }
-{{/useOas2}}
+    {{/useOas2}}
 
 }
