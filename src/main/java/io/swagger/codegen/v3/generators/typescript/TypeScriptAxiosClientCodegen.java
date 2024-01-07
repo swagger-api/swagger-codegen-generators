@@ -6,6 +6,8 @@ import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeSet;
 
+import static io.swagger.codegen.v3.CodegenConstants.IS_CONTAINER_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodegen {
@@ -115,6 +118,16 @@ public class TypeScriptAxiosClientCodegen extends AbstractTypeScriptClientCodege
         supportingFiles.add(new SupportingFile("tsconfig.mustache", "", "tsconfig.json"));
 
         addNpmPackageGeneration();
+    }
+
+    protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
+        final Map<String, Schema> properties = new HashMap<>(schema.getProperties());
+        if (schema.getAdditionalProperties() instanceof Schema) {
+            properties.put("additionalProperties", (Schema) schema.getAdditionalProperties());
+        } else if (schema.getAdditionalProperties() instanceof Boolean) {
+            properties.put("additionalProperties", new BooleanSchema());
+        }
+        addVars(codegenModel, properties, schema.getRequired());
     }
 
     @Override
