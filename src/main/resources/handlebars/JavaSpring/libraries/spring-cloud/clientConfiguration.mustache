@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 
 @Configuration
 @EnableConfigurationProperties
-public class ClientConfiguration {
+public class {{configPrefix}}ClientConfiguration {
 
 {{#authMethods}}
     {{#isBasic}}
