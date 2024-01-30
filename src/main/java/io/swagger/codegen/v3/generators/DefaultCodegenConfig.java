@@ -174,7 +174,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected String ignoreFilePathOverride;
     protected boolean useOas2 = false;
-    protected boolean copyFistAllOfProperties = false;
     protected boolean ignoreImportMapping;
 
     public List<CliOption> cliOptions() {
@@ -1406,29 +1405,24 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             final String parentName = getParentName(composed);
             final Schema parent = StringUtils.isBlank(parentName) ? null : allDefinitions.get(parentName);
             final List<Schema> allOf = composed.getAllOf();
-            // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-                for (int i = 0; i < allOf.size(); i++) {
-                    if (i == 0 && !copyFistAllOfProperties) {
-                        continue;
+                final int index = copyFirstAllOfProperties(allOf.get(0)) ? 0 : 1;
+                for (int i = index; i < allOf.size(); i++) {
+                    Schema allOfSchema = allOf.get(i);
+                    if (StringUtils.isNotBlank(allOfSchema.get$ref())) {
+                        String ref = OpenAPIUtil.getSimpleRef(allOfSchema.get$ref());
+                        if (allDefinitions != null) {
+                            allOfSchema = allDefinitions.get(ref);
+                        }
+                        final String modelName = toModelName(ref);
+                        addImport(codegenModel, modelName);
                     }
-                    Schema interfaceSchema = allOf.get(i);
-                    if (StringUtils.isBlank(interfaceSchema.get$ref())) {
-                        continue;
-                    }
-                    Schema refSchema = null;
-                    String ref = OpenAPIUtil.getSimpleRef(interfaceSchema.get$ref());
-                    if (allDefinitions != null) {
-                        refSchema = allDefinitions.get(ref);
-                    }
-                    final String modelName = toModelName(ref);
-                    addImport(codegenModel, modelName);
-                    if (allDefinitions != null && refSchema != null) {
+                    if (allDefinitions != null && allOfSchema != null) {
                         if (!supportsMixins) {
-                            addProperties(properties, required, refSchema, allDefinitions);
+                            addProperties(properties, required, allOfSchema, allDefinitions);
                         }
                         if (supportsInheritance) {
-                            addProperties(allProperties, allRequired, refSchema, allDefinitions);
+                            addProperties(allProperties, allRequired, allOfSchema, allDefinitions);
                         }
                     }
                 }
@@ -1475,6 +1469,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
 
         return codegenModel;
+    }
+
+    protected boolean copyFirstAllOfProperties(Schema allOfSchema) {
+        return StringUtils.isBlank(allOfSchema.get$ref())
+            && allOfSchema.getProperties() != null && !allOfSchema.getProperties().isEmpty();
     }
 
     protected void processMapSchema(CodegenModel codegenModel, String name, Schema schema) {
