@@ -103,7 +103,7 @@ namespace {{packageName}}.Models
                     {{name}} == other.{{name}} ||
                     {{name}} != null &&
                     {{name}}.SequenceEqual(other.{{name}})
-                ){{#hasMore}} && {{/hasMore}}{{/isNotContainer}}{{/vars}}{{^vars}}false{{/vars}};
+                ){{#hasMore}} && {{/hasMore}}{{/isNotContainer}}{{/vars}}{{^vars}}false{{/vars}}{{#parent}} && base.Equals(other){{/parent}};
         }
 
         /// <summary>
