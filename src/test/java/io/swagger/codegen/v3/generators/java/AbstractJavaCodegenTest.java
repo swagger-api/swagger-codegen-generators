@@ -2,6 +2,8 @@ package io.swagger.codegen.v3.generators.java;
 
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -10,7 +12,11 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AbstractJavaCodegenTest {
 
@@ -162,6 +168,194 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(codegen.getSortParamsByRequiredFlag(), Boolean.TRUE);
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG), Boolean.TRUE);
     }
+
+    @Test
+    public void testFixUpParentAndInterfaces_propertyNameDifferent_getterSetterSame_typeDifferent() {
+        AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+
+        CodegenModel parentModel = new CodegenModel();
+        parentModel.name = "parent_type";
+        CodegenModel childModel = new CodegenModel();
+        childModel.name = "child_type";
+        childModel.parentModel = parentModel;
+        parentModel.children = new ArrayList<>();
+
+        CodegenProperty parentValueProperty1 = new CodegenProperty();
+        parentValueProperty1.name = "value";
+        parentValueProperty1.baseName = "value";
+        parentValueProperty1.getter = "getValue";
+        parentValueProperty1.setter = "setValue";
+        parentValueProperty1.datatype = "value_type";
+        CodegenProperty parentValueProperty2 = new CodegenProperty();
+        parentValueProperty2.name = "other_value";
+        parentValueProperty2.baseName = "other_value";
+        parentValueProperty2.getter = "getOtherValue";
+        parentValueProperty2.setter = "setOtherValue";
+        parentValueProperty2.datatype = "other_type";
+        parentModel.vars = new ArrayList<>();
+        parentModel.vars.add(parentValueProperty1);
+        parentModel.vars.add(parentValueProperty2);
+
+        CodegenProperty childValueProperty1 = new CodegenProperty();
+        childValueProperty1.name = "_value"; // different to parent "value"
+        childValueProperty1.baseName = "_value";
+        childValueProperty1.getter = "getValue"; // same as parent "getValue"
+        childValueProperty1.setter = "setValue"; // same as parent "setValue"
+        childValueProperty1.datatype = "different_type"; // different to parent "value_type"
+        CodegenProperty childValueProperty2 = new CodegenProperty();
+        childValueProperty2.name = "third_value";
+        childValueProperty2.baseName = "third_value";
+        childValueProperty2.getter = "getThirdValue";
+        childValueProperty2.setter = "setThirdValue";
+        childValueProperty2.datatype = "other_type";
+        childModel.vars = new ArrayList<>();
+        childModel.vars.add(childValueProperty1);
+        childModel.vars.add(childValueProperty2);
+
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        allModels.put(parentModel.name, parentModel);
+        allModels.put(childModel.name, childModel);
+
+        codegen.fixUpParentAndInterfaces(childModel, Collections.EMPTY_MAP);
+        Assert.assertEquals(childModel.vars.get(0).baseName, "_value");
+        Assert.assertEquals(childModel.vars.get(0).name, "childTypeValue");
+        Assert.assertEquals(childModel.vars.get(0).getter, "getChildTypeValue");
+        Assert.assertEquals(childModel.vars.get(0).setter, "setChildTypeValue");
+
+        // unchanged
+        Assert.assertEquals(childModel.vars.get(1).baseName, childValueProperty2.baseName);
+        Assert.assertEquals(childModel.vars.get(1).name, childValueProperty2.name);
+        Assert.assertEquals(childModel.vars.get(1).getter, childValueProperty2.getter);
+        Assert.assertEquals(childModel.vars.get(1).setter, childValueProperty2.setter);
+    }
+
+    @Test
+    public void testFixUpParentAndInterfaces_propertyNameSame_getterSetterSame_typeDifferent() {
+        AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+
+        CodegenModel parentModel = new CodegenModel();
+        parentModel.name = "parent_type";
+        CodegenModel childModel = new CodegenModel();
+        childModel.name = "child_type";
+        childModel.parentModel = parentModel;
+        parentModel.children = new ArrayList<>();
+
+        CodegenProperty parentValueProperty1 = new CodegenProperty();
+        parentValueProperty1.name = "value";
+        parentValueProperty1.baseName = "value";
+        parentValueProperty1.getter = "getValue";
+        parentValueProperty1.setter = "setValue";
+        parentValueProperty1.datatype = "value_type";
+        CodegenProperty parentValueProperty2 = new CodegenProperty();
+        parentValueProperty2.name = "other_value";
+        parentValueProperty2.baseName = "other_value";
+        parentValueProperty2.getter = "getOtherValue";
+        parentValueProperty2.setter = "setOtherValue";
+        parentValueProperty2.datatype = "other_type";
+        parentModel.vars = new ArrayList<>();
+        parentModel.vars.add(parentValueProperty1);
+        parentModel.vars.add(parentValueProperty2);
+
+        CodegenProperty childValueProperty1 = new CodegenProperty();
+        childValueProperty1.name = "value"; // same as parent "value"
+        childValueProperty1.baseName = "value";
+        childValueProperty1.getter = "getValue"; // same as parent "getValue"
+        childValueProperty1.setter = "setValue"; // same as parent "setValue"
+        childValueProperty1.datatype = "different_type"; // different to parent "value_type"
+        CodegenProperty childValueProperty2 = new CodegenProperty();
+        childValueProperty2.name = "third_value";
+        childValueProperty2.baseName = "third_value";
+        childValueProperty2.getter = "getThirdValue";
+        childValueProperty2.setter = "setThirdValue";
+        childValueProperty2.datatype = "other_type";
+        childModel.vars = new ArrayList<>();
+        childModel.vars.add(childValueProperty1);
+        childModel.vars.add(childValueProperty2);
+
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        allModels.put(parentModel.name, parentModel);
+        allModels.put(childModel.name, childModel);
+
+        codegen.fixUpParentAndInterfaces(childModel, Collections.EMPTY_MAP);
+        Assert.assertEquals(childModel.vars.get(0).baseName, "value");
+        Assert.assertEquals(childModel.vars.get(0).name, "childTypeValue");
+        Assert.assertEquals(childModel.vars.get(0).getter, "getChildTypeValue");
+        Assert.assertEquals(childModel.vars.get(0).setter, "setChildTypeValue");
+
+        // unchanged
+        Assert.assertEquals(childModel.vars.get(1).baseName, childValueProperty2.baseName);
+        Assert.assertEquals(childModel.vars.get(1).name, childValueProperty2.name);
+        Assert.assertEquals(childModel.vars.get(1).getter, childValueProperty2.getter);
+        Assert.assertEquals(childModel.vars.get(1).setter, childValueProperty2.setter);
+    }
+    
+    /**
+     * Issue #1066 - testing case when the conflicting property is actually not the first one but the
+     * second
+     */
+    @Test
+    public void testFixUpParentAndInterfaces_2ndproperty_propertyNameSame_getterSetterSame_typeDifferent() {
+        AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+
+        CodegenModel parentModel = new CodegenModel();
+        parentModel.name = "parent_type";
+        CodegenModel childModel = new CodegenModel();
+        childModel.name = "child_type";
+        childModel.parentModel = parentModel;
+        parentModel.children = new ArrayList<>();
+
+        CodegenProperty parentValueProperty1 = new CodegenProperty();
+        parentValueProperty1.name = "value";
+        parentValueProperty1.baseName = "value";
+        parentValueProperty1.getter = "getValue";
+        parentValueProperty1.setter = "setValue";
+        parentValueProperty1.datatype = "value_type";
+        CodegenProperty parentValueProperty2 = new CodegenProperty();
+        parentValueProperty2.name = "other_value";
+        parentValueProperty2.baseName = "other_value";
+        parentValueProperty2.getter = "getOtherValue";
+        parentValueProperty2.setter = "setOtherValue";
+        parentValueProperty2.datatype = "other_type";
+        parentModel.vars = new ArrayList<>();
+        parentModel.vars.add(parentValueProperty1);
+        parentModel.vars.add(parentValueProperty2);
+
+        CodegenProperty childValueProperty1 = new CodegenProperty();
+        childValueProperty1.name = "third_value";
+        childValueProperty1.baseName = "third_value";
+        childValueProperty1.nameInCamelCase = "ThirdValue";
+        childValueProperty1.getter = "getThirdValue";
+        childValueProperty1.setter = "setThirdValue";
+        childValueProperty1.datatype = "other_type";
+        CodegenProperty childValueProperty2 = new CodegenProperty();
+        childValueProperty2.name = "value"; // same as parent "value"
+        childValueProperty2.baseName = "value";
+        childValueProperty2.getter = "getValue"; // same as parent "getValue"
+        childValueProperty2.setter = "setValue"; // same as parent "setValue"
+        childValueProperty2.datatype = "different_type"; // different to parent "value_type"
+
+        childModel.vars = new ArrayList<>();
+        childModel.vars.add(childValueProperty1);
+        childModel.vars.add(childValueProperty2);
+
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        allModels.put(parentModel.name, parentModel);
+        allModels.put(childModel.name, childModel);
+
+        codegen.fixUpParentAndInterfaces(childModel, Collections.EMPTY_MAP);
+        Assert.assertEquals(childModel.vars.get(1).baseName, "value");
+        Assert.assertEquals(childModel.vars.get(1).name, "childTypeValue");
+        Assert.assertEquals(childModel.vars.get(1).nameInCamelCase, "ChildTypeValue");
+        Assert.assertEquals(childModel.vars.get(1).getter, "getChildTypeValue");
+        Assert.assertEquals(childModel.vars.get(1).setter, "setChildTypeValue");
+
+        // unchanged
+        Assert.assertEquals(childModel.vars.get(0).baseName, childValueProperty1.baseName);
+        Assert.assertEquals(childModel.vars.get(0).name, childValueProperty1.name);
+        Assert.assertEquals(childModel.vars.get(0).nameInCamelCase, childValueProperty1.nameInCamelCase);
+        Assert.assertEquals(childModel.vars.get(0).getter, childValueProperty1.getter);
+        Assert.assertEquals(childModel.vars.get(0).setter, childValueProperty1.setter);
+    }    
 
     public static class P_AbstractJavaCodegen extends AbstractJavaCodegen {
         @Override

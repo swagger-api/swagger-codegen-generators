@@ -1,0 +1,55 @@
+package {{modelPackage}};
+
+{{#java8}}
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+{{/java8}}
+{{#threetenbp}}
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZonedDateTime;
+{{/threetenbp}}
+{{#joda}}
+import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
+{{/joda}}
+
+public class DataObjectMapper {
+  {{#java8}}
+  public static String serializeOffsetDateTime(OffsetDateTime value) {
+    return value.toString();
+  }
+
+  public static String serializeLocalDateTime(LocalDateTime value) {
+    return value.toString();
+  }
+
+  public static String serializeLocalDate(LocalDate value) {
+    return value.toString();
+  }
+  {{/java8}}
+  {{#threetenbp}}
+  public static String serializeThreetenbpInstant(org.threeten.bp.Instant value) {
+    return value.toString();
+  }
+
+  public static String serializeThreetenbpOffsetDateTime(org.threeten.bp.OffsetDateTime value) {
+    return value.toString();
+  }
+
+  public static String serializeThreetenbpZonedDateTime(org.threeten.bp.ZonedDateTime value) {
+    return value.toString();
+  }
+  {{/threetenbp}}
+  {{#joda}}
+  public static String serializeJodaLocalDate(org.joda.time.LocalDate value) {
+    return value.toString();
+  }
+
+  public static String serializeJodaDateTime(org.joda.time.DateTime value) {
+    return value.toString();
+  }
+  {{/joda}}
+
+}

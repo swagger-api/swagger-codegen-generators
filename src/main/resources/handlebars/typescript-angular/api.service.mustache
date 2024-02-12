@@ -175,7 +175,12 @@ export class {{classname}} {
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}}.toISOString());
         {{/isDateTime}}
         {{^isDateTime}}
+            {{#isJson}}
+            {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', JSON.stringify({{paramName}}));
+            {{/isJson}}
+            {{^isJson}}
             {{#useHttpClient}}queryParameters = {{/useHttpClient}}queryParameters.set('{{baseName}}', <any>{{paramName}});
+            {{/isJson}}
         {{/isDateTime}}
         }
         {{/isListContainer}}
@@ -284,6 +289,15 @@ export class {{classname}} {
         // use FormData to transmit files using content-type "multipart/form-data"
         // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
         useForm = canConsumeForm;
+{{/isBinary}}
+{{^isBinary}}
+{{#items}}
+{{#isBinary}}
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        useForm = canConsumeForm;
+{{/isBinary}}
+{{/items}}
 {{/isBinary}}
 {{/formParams}}
         if (useForm) {

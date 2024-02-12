@@ -54,7 +54,7 @@ public class ApiClient {
         this();
         for(String authName : authNames) {
             {{#hasAuthMethods}}
-            Interceptor auth;
+            Interceptor auth = null;
             {{#authMethods}}if ("{{name}}".equals(authName)) {
             {{#is this 'basic'}}
                 auth = new HttpBasicAuth();
