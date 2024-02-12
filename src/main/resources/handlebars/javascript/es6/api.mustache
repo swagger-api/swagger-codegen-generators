@@ -1,6 +1,6 @@
 {{>licenseInfo}}
-import {{braces "left"}}ApiClient{{braces "right"}} from "../ApiClient";
-{{#imports}}import {{braces "left"}}{{import}}{{braces "right"}} from '../{{#modelPackage}}{{&modelPackage}}/{{/modelPackage}}{{import}}';
+import ApiClient from "../ApiClient";
+{{#imports}}import {{import}} from '../{{#modelPackage}}{{&modelPackage}}/{{/modelPackage}}{{import}}';
 {{/imports}}
 
 {{#emitJSDoc}}/**
@@ -8,7 +8,7 @@ import {{braces "left"}}ApiClient{{braces "right"}} from "../ApiClient";
 * @module {{#invokerPackage}}{{&invokerPackage}}/{{/invokerPackage}}{{#apiPackage}}{{&apiPackage}}/{{/apiPackage}}{{classname}}
 * @version {{projectVersion}}
 */{{/emitJSDoc}}
-export class {{classname}} {
+export default class {{classname}} {
 
     {{#emitJSDoc}}/**
     * Constructs a new {{&classname}}. {{#description}}
