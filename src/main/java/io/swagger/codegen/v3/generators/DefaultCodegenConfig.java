@@ -99,16 +99,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.swagger.codegen.v3.CodegenConstants.HAS_ONLY_READ_ONLY_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.HAS_OPTIONAL_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.HAS_REQUIRED_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ARRAY_MODEL_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_CONTAINER_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getDefaultIncludes;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getImportMappings;
-import static io.swagger.codegen.v3.generators.CodegenHelper.getTypeMappings;
-import static io.swagger.codegen.v3.generators.CodegenHelper.initalizeSpecialCharacterMapping;
+import static io.swagger.codegen.v3.CodegenConstants.*;
+import static io.swagger.codegen.v3.generators.CodegenHelper.*;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 public abstract class DefaultCodegenConfig implements CodegenConfig {
@@ -1344,9 +1336,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
         codegenModel.discriminator = schema.getDiscriminator();
-        if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-            codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
-        }
 
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
@@ -1397,6 +1386,25 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         }
                     }
                 }
+                if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    Map<String, String> classnameKeys = new HashMap<>();
+
+                    if (composed.getOneOf()!=null) {
+                        composed.getOneOf().forEach( s -> {
+                            codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
+                                .forEach(key -> {
+                                    String mappingValue = codegenModel.discriminator.getMapping().get(key);
+                                    if (classnameKeys.containsKey(codegenModel.classname)) {
+                                        throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
+                                    }
+                                    classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
+                                });
+                        });
+                        codegenModel.discriminator.getMapping().putAll(classnameKeys);
+                    }
+                }
+
             } else {
                 allProperties = null;
                 allRequired = null;
@@ -4415,7 +4423,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             codegenParameter.isJson = true;
         }
     }
-  
+
     protected boolean isFileTypeSchema(Schema schema) {
         final Schema fileTypeSchema;
         if (StringUtils.isNotBlank(schema.get$ref())) {
