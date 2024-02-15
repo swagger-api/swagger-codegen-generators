@@ -72,7 +72,7 @@ public class GeneratorResultTestJava {
 
         String interfaceContent = new String(Files.readAllBytes(Paths.get(interfaceFile.toURI())));
 
-        Pattern typeInfoPattern = Pattern.compile( 	"(.*)(@JsonTypeInfo\\()(.*)(}\\))(.*)", Pattern.DOTALL);
+        Pattern typeInfoPattern = Pattern.compile("(.*)(@JsonTypeInfo\\()(.*)(}\\))(.*)", Pattern.DOTALL);
 
         Matcher matcher = typeInfoPattern.matcher(interfaceContent);
 
@@ -123,7 +123,7 @@ public class GeneratorResultTestJava {
 
         String interfaceContent = new String(Files.readAllBytes(Paths.get(interfaceFile.toURI())));
 
-        Pattern typeInfoPattern = Pattern.compile( 	"(.*)(@JsonTypeInfo\\()(.*)(}\\))(.*)", Pattern.DOTALL);
+        Pattern typeInfoPattern = Pattern.compile("(.*)(@JsonTypeInfo\\()(.*)(}\\))(.*)", Pattern.DOTALL);
 
         Matcher matcher = typeInfoPattern.matcher(interfaceContent);
 
