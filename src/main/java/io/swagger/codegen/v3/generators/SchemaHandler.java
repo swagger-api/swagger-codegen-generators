@@ -199,9 +199,7 @@ public class SchemaHandler implements ISchemaHandler {
                 codegenModel.addSubType(model);
             }
 
-            if (codegenModel.getVendorExtensions() == null || codegenModel.getVendorExtensions().containsKey("x-discriminator-type")) {
-                continue;
-            }
+
             if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
                 Optional<CodegenProperty> optionalProperty = model.vars.stream()
                     .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
