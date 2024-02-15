@@ -2146,6 +2146,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 final CodegenContent codegenContent = new CodegenContent(contentType);
                 codegenContent.getContentExtensions().put(CodegenConstants.IS_FORM_EXT_NAME, isForm);
 
+                boolean bodyRequired = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
                 if (schema == null) {
                     CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
                     codegenParameter.description = body.getDescription();
@@ -2159,7 +2160,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     codegenParameter.dataType = "Object";
                     codegenParameter.baseType = "Object";
 
-                    codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
+                    codegenParameter.required = bodyRequired;
                     if (!isForm) {
                         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
                     }
@@ -2167,12 +2168,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
                 if (isForm) {
                     final Map<String, Schema> propertyMap = schema.getProperties();
+                    List<String> requiredProperties = schema.getRequired();
                     boolean isMultipart = contentType.equalsIgnoreCase("multipart/form-data");
                     if (propertyMap != null && !propertyMap.isEmpty()) {
                         for (String propertyName : propertyMap.keySet()) {
                             CodegenParameter formParameter = fromParameter(new Parameter()
                                     .name(propertyName)
-                                    .required(body.getRequired())
+                                    .required(requiredProperties != null ? requiredProperties.contains(propertyName) : bodyRequired)
                                     .schema(propertyMap.get(propertyName)), imports);
                             if (isMultipart) {
                                 formParameter.getVendorExtensions().put(CodegenConstants.IS_MULTIPART_EXT_NAME, Boolean.TRUE);
