@@ -31,10 +31,10 @@ public class JavaPolymorphicAnnotationCodegenTest {
         final String content = FileUtils.readFileToString(petControllerFile);
 
         Assert.assertTrue(content.contains(
-            "@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )\n" +
-                "@JsonSubTypes({\n" +
-                "        @JsonSubTypes.Type(value = Error.class, name = \"Error\"),\n" +
-                "        @JsonSubTypes.Type(value = Success.class, name = \"Success\"),\n" +
+            "@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = \"type\", visible = true )" + System.lineSeparator() +
+                "@JsonSubTypes({" + System.lineSeparator() +
+                "        @JsonSubTypes.Type(value = Error.class, name = \"Error\")," + System.lineSeparator() +
+                "        @JsonSubTypes.Type(value = Success.class, name = \"Success\")," + System.lineSeparator() +
                 "})"));
 
         this.folder.delete();
