@@ -1183,9 +1183,27 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     @SuppressWarnings("static-method")
     public String snakeCase(String name) {
-        return (name.length() > 0) ? (Character.toLowerCase(name.charAt(0)) + name.substring(1)) : "";
+        if (name.isEmpty()) {
+            return "";
+        }
+        StringBuilder snakeCase = new StringBuilder();
+        boolean previousCharWasUpperCase = false;
+        
+        for (int i = 0; i < camelCase.length(); i++) {
+            char currentChar = camelCase.charAt(i);
+            
+            if (Character.isUpperCase(currentChar)) {
+                if (i > 0 && !previousCharWasUpperCase) {
+                    snakeCase.append('_');
+                }
+                snakeCase.append(Character.toLowerCase(currentChar));
+                previousCharWasUpperCase = true;
+            } else {
+                snakeCase.append(currentChar);
+                previousCharWasUpperCase = false;
+            }
+        }
     }
-
     /**
      * Capitalize the string
      *
