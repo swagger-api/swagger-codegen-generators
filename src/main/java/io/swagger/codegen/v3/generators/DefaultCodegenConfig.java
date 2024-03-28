@@ -1176,13 +1176,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     /**
-     * Return the snake-case of the string
+     * Return the snake_case of the string
      *
-     * @param name string to be snake-cased
-     * @return snake-cased string
+     * @param name string to be snake_cased
+     * @return snake_cased string
      */
     @SuppressWarnings("static-method")
-    public String snakeCase(String name) {
+    public String snakeCase(String camelCase) {
         if (name.isEmpty()) {
             return "";
         }
