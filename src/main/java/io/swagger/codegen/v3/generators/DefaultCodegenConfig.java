@@ -1181,9 +1181,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      * @param name string to be snake_cased
      * @return snake_cased string
      */
-    @SuppressWarnings("static-method")
     public String snakeCase(String camelCase) {
-        if (name.isEmpty()) {
+        if (camelCase.isEmpty()) {
             return "";
         }
         StringBuilder snakeCase = new StringBuilder();
@@ -1203,7 +1202,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 previousCharWasUpperCase = false;
             }
         }
+        return snakeCase.toString();
     }
+
     /**
      * Capitalize the string
      *

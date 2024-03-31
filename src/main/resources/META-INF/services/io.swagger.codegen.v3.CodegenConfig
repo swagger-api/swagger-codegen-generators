@@ -1,4 +1,5 @@
 io.swagger.codegen.v3.generators.dart.DartClientCodegen
+io.swagger.codegen.v3.generators.dart.DartFrogGenerator
 io.swagger.codegen.v3.generators.dotnet.AspNetCoreServerCodegen
 io.swagger.codegen.v3.generators.dotnet.CSharpClientCodegen
 io.swagger.codegen.v3.generators.dotnet.CsharpDotNet2ClientCodegen
