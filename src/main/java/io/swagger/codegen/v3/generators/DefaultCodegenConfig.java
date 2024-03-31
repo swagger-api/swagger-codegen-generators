@@ -1194,6 +1194,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             if (Character.isUpperCase(currentChar)) {
                 if (i > 0 && !previousCharWasUpperCase) {
                     snakeCase.append('_');
+                } else if (previousCharWasUpperCase && i + 1 < camelCase.length() &&
+                    Character.isLowerCase(camelCase.charAt(i + 1))) {
+                        snakeCase.append('_');
                 }
                 snakeCase.append(Character.toLowerCase(currentChar));
                 previousCharWasUpperCase = true;
