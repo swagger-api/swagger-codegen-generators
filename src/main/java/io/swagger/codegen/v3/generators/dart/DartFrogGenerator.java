@@ -95,7 +95,7 @@ public class DartFrogGenerator extends DefaultCodegenConfig {
      * The generator
      * will use the resource stream to attempt to read the templates.
      */
-    templateDir = "dart-frog";
+    templateDir = "handlebars/dart-frog";
 
     /**
      * Api Package. Optional, if needed, this can be used in templates
