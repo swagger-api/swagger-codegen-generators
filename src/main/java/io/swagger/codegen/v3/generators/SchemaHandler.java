@@ -189,25 +189,31 @@ public class SchemaHandler implements ISchemaHandler {
             final String schemaName = ref.substring(ref.lastIndexOf("/") + 1);
 
             final CodegenModel model = allModels.get(codegenConfig.toModelName(schemaName));
-            this.addInterfaceModel(model, codegenModel);
+            if (model != null)  {
+                {
+                    this.addInterfaceModel(model, codegenModel);
 
-            boolean subTypeAdded = false;
-            if (codegenModel.getSubTypes() != null) {
-                subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
-            }
-            if (!subTypeAdded) {
-                codegenModel.addSubType(model);
-            }
+                    boolean subTypeAdded = false;
+                    if (codegenModel.getSubTypes() != null) {
+                        subTypeAdded = codegenModel.getSubTypes().stream().anyMatch(existingSubType -> existingSubType.classname.equalsIgnoreCase(model.classname));
+                    }
+                    if (!subTypeAdded) {
+                        codegenModel.addSubType(model);
+                    }
 
 
-            if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
-                Optional<CodegenProperty> optionalProperty = model.vars.stream()
-                    .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
+                    if (codegenModel.getDiscriminator() != null && StringUtils.isNotBlank(codegenModel.getDiscriminator().getPropertyName())) {
+                        Optional<CodegenProperty> optionalProperty = model.vars.stream()
+                            .filter(codegenProperty -> codegenProperty.baseName.equals(codegenModel.getDiscriminator().getPropertyName())).findFirst();
 
-                optionalProperty.ifPresent(codegenProperty -> {
-                    codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
-                    codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
-                });
+                        optionalProperty.ifPresent(codegenProperty -> {
+                            codegenModel.getVendorExtensions().put("x-discriminator-type", codegenProperty.datatypeWithEnum);
+                            codegenModel.getVendorExtensions().put("x-discriminator-type-getter", codegenConfig.toGetter(codegenModel.getDiscriminator().getPropertyName()));
+                        });
+                    }
+                }
+            }else {
+                throw new NullPointerException("Could not find model for reference: " + ref);
             }
         }
     }
