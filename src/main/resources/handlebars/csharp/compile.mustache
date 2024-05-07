@@ -17,7 +17,7 @@ if not exist ".\bin" mkdir bin
 
 copy packages\Newtonsoft.Json.10.0.3\lib{{backslash}}{{targetFrameworkNuget}}\Newtonsoft.Json.dll bin\Newtonsoft.Json.dll
 copy packages\JsonSubTypes.1.2.0\lib{{backslash}}{{targetFrameworkNuget}}\JsonSubTypes.dll bin\JsonSubTypes.dll
-copy packages\RestSharp.105.1.0\lib{{backslash}}{{#isNet40}}net4{{/isNet40}}{{^isNet40}}{{targetFrameworkNuget}}{{/isNet40}}\RestSharp.dll bin\RestSharp.dll
+copy packages\RestSharp.110.2.0\lib{{backslash}}{{#isNet40}}net4{{/isNet40}}{{^isNet40}}{{targetFrameworkNuget}}{{/isNet40}}\RestSharp.dll bin\RestSharp.dll
 {{#generatePropertyChanged}}
 copy packages\Fody.1.29.4\Fody.dll bin\Fody.dll
 copy packages\PropertyChanged.Fody.1.51.3\PropertyChanged.Fody.dll bin\PropertyChanged.Fody.dll
