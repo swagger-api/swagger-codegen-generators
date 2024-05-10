@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.49-SNAPSHOT</version>
+    <version>1.0.49</version>
     <packaging>jar</packaging>
 
     <build>
@@ -262,7 +262,7 @@
     </dependencies>
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
-        <swagger-codegen-version>3.0.54</swagger-codegen-version>
+        <swagger-codegen-version>3.0.56</swagger-codegen-version>
         <swagger-parser-version>2.1.22</swagger-parser-version>
         <swagger-core-version>2.2.21</swagger-core-version>
         <jackson-version>2.17.0</jackson-version>
