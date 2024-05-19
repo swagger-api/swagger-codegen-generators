@@ -84,11 +84,17 @@ public class {{classname}} {
      * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
-        {{#externalDocs}}
+     {{#vendorExtensions.x-is-deprecated}}
+     * @deprecated
+     {{/vendorExtensions.x-is-deprecated}}
+     {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
-        {{/externalDocs}}
+     {{/externalDocs}}
      */
+    {{#vendorExtensions.x-is-deprecated}}
+    @Deprecated
+    {{/vendorExtensions.x-is-deprecated}}
     public com.squareup.okhttp.Call {{operationId}}Call({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
         Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
         
@@ -193,11 +199,17 @@ public class {{classname}} {
      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}{{#returnType}}
      * @return {{returnType}}{{/returnType}}
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-        {{#externalDocs}}
+     {{#vendorExtensions.x-is-deprecated}}
+     * @deprecated
+     {{/vendorExtensions.x-is-deprecated}}
+     {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
-        {{/externalDocs}}
+     {{/externalDocs}}
      */
+    {{#vendorExtensions.x-is-deprecated}}
+    @Deprecated
+    {{/vendorExtensions.x-is-deprecated}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
         {{#returnType}}ApiResponse<{{{returnType}}}> {{localVariablePrefix}}resp = {{/returnType}}{{operationId}}WithHttpInfo({{#parameters}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}});{{#returnType}}
         return {{localVariablePrefix}}resp.getData();{{/returnType}}
@@ -209,11 +221,17 @@ public class {{classname}} {
      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}
      * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-        {{#externalDocs}}
+     {{#vendorExtensions.x-is-deprecated}}
+     * @deprecated
+     {{/vendorExtensions.x-is-deprecated}}
+     {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
-        {{/externalDocs}}
+     {{/externalDocs}}
      */
+    {{#vendorExtensions.x-is-deprecated}}
+    @Deprecated
+    {{/vendorExtensions.x-is-deprecated}}
     public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#parameters}}{{#if useBeanValidation}}{{>beanValidationQueryParams}}{{/if}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
         com.squareup.okhttp.Call {{localVariablePrefix}}call = {{operationId}}ValidateBeforeCall({{#parameters}}{{paramName}}, {{/parameters}}null, null);
         {{#returnType}}Type {{localVariablePrefix}}localVarReturnType = new TypeToken<{{{returnType}}}>(){}.getType();
@@ -227,11 +245,17 @@ public class {{classname}} {
      * @param callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-        {{#externalDocs}}
+     {{#vendorExtensions.x-is-deprecated}}
+     * @deprecated
+     {{/vendorExtensions.x-is-deprecated}}
+     {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
-        {{/externalDocs}}
+     {{/externalDocs}}
      */
+    {{#vendorExtensions.x-is-deprecated}}
+    @Deprecated
+    {{/vendorExtensions.x-is-deprecated}}
     public com.squareup.okhttp.Call {{operationId}}Async({{#parameters}}{{{dataType}}} {{paramName}}, {{/parameters}}final ApiCallback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{localVariablePrefix}}callback) throws ApiException {
 
         ProgressResponseBody.ProgressListener progressListener = null;
