@@ -197,4 +197,24 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         folder.delete();
     }
 
+    @Test(description = "verify that schema with required and nullable=true is generated correctly")
+    public void testNullableTrue() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+            .setLang("spring")
+            .setInputSpecURL("src/test/resources/3_0_0/cc32744.yaml")
+            .setOutputDir(output.getAbsolutePath());
+
+        // configurator.addAdditionalProperty("useNullableForNotNull", true); // DEFAULT
+        final ClientOptInput clientOptInput = configurator.toClientOptInput();
+        new DefaultGenerator().opts(clientOptInput).generate();
+
+        final File file = new File(output, "src/main/java/io/swagger/model/NullableRoot.java");
+        final String content = FileUtils.readFileToString(file);
+        Assert.assertFalse(content.contains("@NotNull"));
+        folder.delete();
+    }
 }

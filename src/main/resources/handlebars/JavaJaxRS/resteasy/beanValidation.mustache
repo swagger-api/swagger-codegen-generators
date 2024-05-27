@@ -1,4 +1,7 @@
-{{#required}}
+{{#required}}{{^useNullableForNotNull}}
   @NotNull
-{{/required}}
+{{/useNullableForNotNull}}{{/required}}
+{{#useNullableForNotNull}}{{^nullable}}
+  @NotNull
+{{/nullable}}{{/useNullableForNotNull}}
 {{>beanValidationCore}}

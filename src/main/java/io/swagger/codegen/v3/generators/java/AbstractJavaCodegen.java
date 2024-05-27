@@ -58,6 +58,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
+    public static final String USE_NULLABLE_FOR_NOTNULL = "useNullableForNotNull";
 
     public static final String WIREMOCK_OPTION = "wiremock";
 
@@ -96,6 +97,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected boolean supportJava6= false;
     protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
+    protected boolean useNullableForNotNull = true;
 
     public AbstractJavaCodegen() {
         super();
@@ -205,6 +207,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         jeeSpecModeOptions.put("false", "Use Java EE (javax.*)");
         jeeSpec.setEnum(jeeSpecModeOptions);
         cliOptions.add(jeeSpec);
+
+        cliOptions.add(CliOption.newBoolean(USE_NULLABLE_FOR_NOTNULL, "Add @NotNull depending on `nullable` property instead of `required`"));
     }
 
     @Override
@@ -386,6 +390,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 }
             }
         }
+
+        if (additionalProperties.containsKey(USE_NULLABLE_FOR_NOTNULL)) {
+            this.setUseNullableForNotnull(Boolean.valueOf(additionalProperties.get(USE_NULLABLE_FOR_NOTNULL).toString()));
+        }
+        writePropertyBack(USE_NULLABLE_FOR_NOTNULL, this.useNullableForNotNull);
 
         if (fullJavaUtil) {
             javaUtilPrefix = "java.util.";
@@ -1509,6 +1518,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setScmUrl(String scmUrl) {
         this.scmUrl = scmUrl;
+    }
+
+    public void setUseNullableForNotnull(Boolean useNullableForNotNull) {
+        this.useNullableForNotNull = useNullableForNotNull;
     }
 
     public void setDeveloperName(String developerName) {
