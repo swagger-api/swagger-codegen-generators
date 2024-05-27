@@ -109,6 +109,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final String REQUEST_BODY_NAME = "body";
     public static final String DEFAULT_TEMPLATE_DIR = "handlebars";
+    public static final String IS_NULLABLE_FALSE = "x-nullable-false";
+    public static final String IS_NULLABLE_TRUE = "x-nullable-true";
 
     protected OpenAPI openAPI;
     protected OpenAPI unflattenedOpenAPI;
@@ -1466,6 +1468,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 }
             }
             codegenModel.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+            codegenModel.getVendorExtensions().put(IS_NULLABLE_FALSE, Boolean.FALSE.equals(schema.getNullable()));
+            codegenModel.getVendorExtensions().put(IS_NULLABLE_TRUE, Boolean.TRUE.equals(schema.getNullable()));
 
             addVars(codegenModel, schema.getProperties(), schema.getRequired());
         }
@@ -1613,6 +1617,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.jsonSchema = Json.pretty(schema);
         codegenProperty.nullable = Boolean.TRUE.equals(schema.getNullable());
         codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
+        codegenProperty.getVendorExtensions().put(IS_NULLABLE_FALSE, Boolean.FALSE.equals(schema.getNullable()));
+        codegenProperty.getVendorExtensions().put(IS_NULLABLE_TRUE, Boolean.TRUE.equals(schema.getNullable()));
         if (schema.getReadOnly() != null) {
             codegenProperty.getVendorExtensions().put(CodegenConstants.IS_READ_ONLY_EXT_NAME, schema.getReadOnly());
         }
