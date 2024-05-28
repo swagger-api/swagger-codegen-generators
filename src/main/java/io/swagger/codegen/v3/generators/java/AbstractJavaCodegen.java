@@ -1631,6 +1631,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         this.supportJava6 = value;
     }
 
+    @Override
     public String toRegularExpression(String pattern) {
         return escapeText(pattern);
     }
