@@ -609,7 +609,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 if (responses != null) {
                     for (final CodegenResponse resp : responses) {
                         if ("0".equals(resp.code)) {
-                            resp.code = "200";
+                            resp.code = "default";
                         }
                         if (resp.baseType == null) {
                             // set vendorExtensions.x-java-is-response-void to true as baseType is set to "Void"
