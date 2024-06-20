@@ -2835,9 +2835,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 codegenSecurity.keyParamName = schemeDefinition.getName();
                 codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_API_KEY_EXT_NAME, Boolean.TRUE);
 
-                boolean isKeyInHeader = schemeDefinition.getIn() == SecurityScheme.In.HEADER;
-                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_HEADER_EXT_NAME, isKeyInHeader);
-                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_QUERY_EXT_NAME, !isKeyInHeader);
+                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_HEADER_EXT_NAME, schemeDefinition.getIn() == SecurityScheme.In.HEADER);
+                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_COOKIE_EXT_NAME, schemeDefinition.getIn() == SecurityScheme.In.COOKIE);
+                codegenSecurity.getVendorExtensions().put(CodegenConstants.IS_KEY_IN_QUERY_EXT_NAME, schemeDefinition.getIn() == SecurityScheme.In.QUERY);
 
             } else if (SecurityScheme.Type.HTTP.equals(schemeDefinition.getType())) {
                 if ("bearer".equalsIgnoreCase(schemeDefinition.getScheme())) {

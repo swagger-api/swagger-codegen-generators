@@ -55,6 +55,8 @@ public class ApiKeyAuth implements Authentication {
             queryParams.add(paramName, value);
         } else if (location.equals("header")) {
             headerParams.add(paramName, value);
-       }
+        } else if (location.equals("cookie")) {
+            headerParams.add("Cookie", String.format("%s=%s", paramName, value));
+        }
     }
 }
