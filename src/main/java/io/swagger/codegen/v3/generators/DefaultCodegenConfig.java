@@ -2673,7 +2673,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenParameter.baseName = bodyName;
         codegenParameter.paramName = bodyName;
-        codegenParameter.description = body.getDescription();
+        codegenParameter.description = escapeText(body.getDescription());
         codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
