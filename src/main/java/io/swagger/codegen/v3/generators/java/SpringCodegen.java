@@ -272,6 +272,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (additionalProperties.containsKey(USE_BEANVALIDATION)) {
             this.setUseBeanValidation(convertPropertyToBoolean(USE_BEANVALIDATION));
         }
+        writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
 
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
@@ -293,10 +294,6 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (springBootVersion.startsWith("2")) {
             additionalProperties.put(SPRING_BOOT_VERSION_2, true);
             this.setOpenFeign(true);
-        }
-
-        if (useBeanValidation) {
-            writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
         }
 
         if (additionalProperties.containsKey(IMPLICIT_HEADERS)) {
