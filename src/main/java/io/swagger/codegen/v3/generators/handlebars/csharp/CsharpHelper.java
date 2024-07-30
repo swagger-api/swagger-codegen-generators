@@ -6,7 +6,7 @@ public class CsharpHelper {
         return "\\";
     }
 
-    public String capitalize(String string){
-        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+    public String capitalize(String str){
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
