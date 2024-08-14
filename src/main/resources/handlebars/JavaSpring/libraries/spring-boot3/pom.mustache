@@ -50,8 +50,21 @@
           <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
         {{/withXml}}
-        {{#useBeanValidation}}
+{{#useBeanValidation}}{{#isStrictValidation}}
         <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isStrictValidation}}{{#isLooseValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isLooseValidation}}
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
