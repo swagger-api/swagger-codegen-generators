@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>{{targetFrameworkNuget}}</TargetFramework>
-    <AssemblyName>{{packageName}}</AssemblyName>
-    <PackageId>{{packageName}}</PackageId>
+    <AssemblyName>{{testPackageName}}</AssemblyName>
+    <PackageId>{{testPackageName}}</PackageId>
     <OutputType>Library</OutputType>
     <Authors>{{packageAuthors}}</Authors>
     <Company>{{packageCompany}}</Company>
@@ -13,19 +13,18 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <RootNamespace>{{packageName}}</RootNamespace>
-    <Version>{{packageVersion}}</Version>
+    <RootNamespace>{{testPackageName}}</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NUnit" Version="2.6.4" />
     {{#netStandard}}
     <PackageReference Include="FubarCoder.RestSharp.Portable.Core" Version="4.0.7" />
-    <PackageReference Include="FubarCoder.RestSharp.Portable.HttpClient" Version="4.0.7" />
     {{/netStandard}}
     {{^netStandard}}
-    <PackageReference Include="RestSharp" Version="105.1.0" />
+    <PackageReference Include="RestSharp" Version="111.4.1" />
     {{/netStandard}}
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="JsonSubTypes" Version="1.2.0" />
   </ItemGroup>
 
@@ -42,5 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   {{/netStandard}}
+
+  <ItemGroup>
+    <ProjectReference Include="..{{backslash}}{{packageName}}{{backslash}}{{packageName}}.csproj" />
+  </ItemGroup>
 
 </Project>
