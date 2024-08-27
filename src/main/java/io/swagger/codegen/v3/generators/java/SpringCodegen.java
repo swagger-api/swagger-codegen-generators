@@ -68,8 +68,13 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
     public static final String DATE_PATTERN = "datePattern";
     public static final String DATE_TIME_PATTERN = "dateTimePattern";
-
     public static final String THROWS_EXCEPTION = "throwsException";
+
+    public static final String VALIDATION_MODE_OPTION = "validationMode";
+    public static final String VALIDATION_MODE_LEGACY = "legacy";
+    public static final String VALIDATION_MODE_LEGACY_NULLABLE = "legacyNullable";
+    public static final String VALIDATION_MODE_STRICT = "strict";
+    public static final String VALIDATION_MODE_LOOSE = "loose";
 
     protected String title = "swagger-petstore";
     protected String configPackage = "io.swagger.configuration";
@@ -92,6 +97,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected String springBootVersion = "2.1.16.RELEASE";
     protected boolean throwsException = false;
     private boolean notNullJacksonAnnotation = false;
+    protected String validationMode = "strict";
 
     public SpringCodegen() {
         super();
@@ -146,6 +152,15 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         springBootVersionOption.setEnum(springBootEnum);
         cliOptions.add(springBootVersionOption);
 
+        CliOption validationMode = new CliOption(VALIDATION_MODE_OPTION, "Validation mode to apply");
+        validationMode.setDefault(VALIDATION_MODE_STRICT);
+        Map<String, String> validationModeOptions = new HashMap<String, String>();
+        validationModeOptions.put(VALIDATION_MODE_STRICT, "Use Helper JsonNullable/NotUndefined on required+nullable fields, @NotNull on required, jackson validation on default");
+        validationModeOptions.put(VALIDATION_MODE_LOOSE, "Use Helper JsonNullable/NotUndefined on required+nullable fields, @NotNull on required, no validation on default");
+        validationModeOptions.put(VALIDATION_MODE_LEGACY, "Apply @NotNull on required fields");
+        validationModeOptions.put(VALIDATION_MODE_LEGACY_NULLABLE, "Apply @NotNull when nullable is not defined or false, if useNullableForNotNull=false Apply @NotNull on required fields");
+        validationMode.setEnum(validationModeOptions);
+        cliOptions.add(validationMode);
     }
 
     @Override
@@ -232,6 +247,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             this.setTitle((String) additionalProperties.get(TITLE));
         }
 
+        if (additionalProperties.containsKey(VALIDATION_MODE_OPTION)) {
+            this.setValidationMode((String) additionalProperties.get(VALIDATION_MODE_OPTION));
+        }
+        additionalProperties.put("is" + validationMode.substring(0, 1).toUpperCase() + validationMode.substring(1) + "Validation", true);
+
         if (additionalProperties.containsKey(CONFIG_PACKAGE)) {
             this.setConfigPackage((String) additionalProperties.get(CONFIG_PACKAGE));
         }
@@ -297,6 +317,12 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
+            if (VALIDATION_MODE_LOOSE.equals(validationMode) || VALIDATION_MODE_STRICT.equals(validationMode)) {
+                supportingFiles.add(new SupportingFile("NotUndefined.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefined.java"));
+                supportingFiles.add(new SupportingFile("NotUndefinedValidator.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefinedValidator.java"));
+            }
         }
 
         if (additionalProperties.containsKey(IMPLICIT_HEADERS)) {
@@ -843,6 +869,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
     public void setConfigPackage(String configPackage) {
         this.configPackage = configPackage;
+    }
+
+    public void setValidationMode(String validationMode) {
+        this.validationMode = validationMode;
     }
 
     public void setBasePackage(String configPackage) {

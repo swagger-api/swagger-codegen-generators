@@ -1615,6 +1615,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenProperty.defaultValue = toDefaultValue(schema);
         codegenProperty.defaultValueWithParam = toDefaultValueWithParam(name, schema);
         codegenProperty.jsonSchema = Json.pretty(schema);
+        codegenProperty.schemaType = schema.getType();
         codegenProperty.nullable = Boolean.TRUE.equals(schema.getNullable());
         codegenProperty.getVendorExtensions().put(CodegenConstants.IS_NULLABLE_EXT_NAME, Boolean.TRUE.equals(schema.getNullable()));
         codegenProperty.getVendorExtensions().put(IS_NULLABLE_FALSE, Boolean.FALSE.equals(schema.getNullable()));
