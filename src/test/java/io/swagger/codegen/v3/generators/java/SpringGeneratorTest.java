@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 
+import static org.testng.Assert.*;
+
 public class SpringGeneratorTest extends AbstractCodegenTest {
     @Test
     public void testGenerator() throws Exception {
@@ -37,12 +39,13 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
                     // .addAdditionalProperty("validationMode", "legacyNullable")
                     // .addAdditionalProperty("useBeanValidation", false)
                     // .addAdditionalProperty("useNullableForNotNull", false)
+                    .addAdditionalProperty("jakarta", true)
                     .outputDir(path)
             );
 
         List<File> files = new GeneratorService().generationRequest(request).generate();
         Assert.assertFalse(files.isEmpty());
-/*        for (File f: files) {
+        for (File f: files) {
             // test stuff
             if (f.getName().endsWith("Pet.java")) {
                 String content = new String(Files.readAllBytes(f.toPath()));
@@ -60,7 +63,17 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
                 String content = new String(Files.readAllBytes(f.toPath()));
                 // System.out.println(content);
             }
-        }*/
+            if (f.getName().endsWith("NotUndefined.java")) {
+                String content = new String(Files.readAllBytes(f.toPath()));
+                assertNotNull(content);
+                assertFalse(content.contains("import javax.validation"));
+            }
+            if (f.getName().endsWith("NotUndefinedValidator.java")) {
+                String content = new String(Files.readAllBytes(f.toPath()));
+                assertNotNull(content);
+                assertFalse(content.contains("import javax.validation"));
+            }
+        }
     }
 
     protected static File getTmpFolder() {
