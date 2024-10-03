@@ -206,6 +206,13 @@
               <version>2.10.1</version>
           </dependency>
       {{/notNullJacksonAnnotation}}
+      {{#ignoreUnknownJacksonAnnotation}}
+          <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+              <version>2.10.1</version>
+          </dependency>
+      {{/ignoreUnknownJacksonAnnotation}}
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
       <artifactId>okhttp</artifactId>

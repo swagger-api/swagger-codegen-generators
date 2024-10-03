@@ -2,6 +2,7 @@ package io.swagger.codegen.v3.generators.java;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
 import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.features.IgnoreUnknownJacksonFeatures.IGNORE_UNKNOWN_JACKSON_ANNOTATION;
 import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -14,6 +15,7 @@ import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.features.IgnoreUnknownJacksonFeatures;
 import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
 import io.swagger.codegen.v3.utils.URLPathUtil;
@@ -100,6 +102,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
     protected boolean useNullableForNotNull = true;
+    private IgnoreUnknownJacksonFeatures ignoreUnknown;
 
     public AbstractJavaCodegen() {
         super();
@@ -171,6 +174,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CodegenConstants.USE_OAS2, CodegenConstants.USE_OAS2_DESC));
         if(this instanceof NotNullAnnotationFeatures){
             cliOptions.add(CliOption.newBoolean(NOT_NULL_JACKSON_ANNOTATION, "adds @JsonInclude(JsonInclude.Include.NON_NULL) annotation to model classes"));
+        }
+        if (this instanceof IgnoreUnknownJacksonFeatures){
+            cliOptions.add(CliOption.newBoolean(IGNORE_UNKNOWN_JACKSON_ANNOTATION,
+                "adds @JsonIgnoreProperties(ignoreUnknown = true) annotation to model classes"));
         }
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use");
         Map<String, String> dateOptions = new HashMap<String, String>();
@@ -390,6 +397,17 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 writePropertyBack(NOT_NULL_JACKSON_ANNOTATION, notNullOption.isNotNullJacksonAnnotation());
                 if (notNullOption.isNotNullJacksonAnnotation()) {
                     importMapping.put("JsonInclude", "com.fasterxml.jackson.annotation.JsonInclude");
+                }
+            }
+        }
+
+        if (this instanceof IgnoreUnknownJacksonFeatures) {
+            ignoreUnknown = (IgnoreUnknownJacksonFeatures)this;
+            if (additionalProperties.containsKey(IGNORE_UNKNOWN_JACKSON_ANNOTATION)) {
+                ignoreUnknown.setIgnoreUnknownJacksonAnnotation(convertPropertyToBoolean(IGNORE_UNKNOWN_JACKSON_ANNOTATION));
+                writePropertyBack(IGNORE_UNKNOWN_JACKSON_ANNOTATION, ignoreUnknown.isIgnoreUnknownJacksonAnnotation());
+                if (ignoreUnknown.isIgnoreUnknownJacksonAnnotation()) {
+                    importMapping.put("JsonIgnoreProperties", "com.fasterxml.jackson.annotation.JsonIgnoreProperties");
                 }
             }
         }
@@ -1004,6 +1022,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
                     if (notNullOption.isNotNullJacksonAnnotation()) {
                         codegenModel.imports.add("JsonInclude");
+                    }
+                }
+            }
+        }
+        if (this instanceof IgnoreUnknownJacksonFeatures) {
+            if (this instanceof IgnoreUnknownJacksonFeatures) {
+                ignoreUnknown = (IgnoreUnknownJacksonFeatures)this;
+                if (additionalProperties.containsKey(IGNORE_UNKNOWN_JACKSON_ANNOTATION)) {
+                    if (ignoreUnknown.isIgnoreUnknownJacksonAnnotation()) {
+                        codegenModel.imports.add("JsonIgnoreProperties");
                     }
                 }
             }

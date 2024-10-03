@@ -247,6 +247,13 @@
                 <version>${jackson-version}</version>
             </dependency>
         {{/notNullJacksonAnnotation}}
+        {{#ignoreUnknownJacksonAnnotation}}
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-version}</version>
+            </dependency>
+        {{/ignoreUnknownJacksonAnnotation}}
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
