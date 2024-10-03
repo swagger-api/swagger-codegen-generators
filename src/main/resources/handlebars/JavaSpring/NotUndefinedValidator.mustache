@@ -1,8 +1,14 @@
 package {{configPackage}};
 
 import org.openapitools.jackson.nullable.JsonNullable;
+{{#jakarta}}
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+{{/jakarta}}
 import java.lang.reflect.Field;
 
 public class NotUndefinedValidator implements ConstraintValidator<NotUndefined, Object>{
