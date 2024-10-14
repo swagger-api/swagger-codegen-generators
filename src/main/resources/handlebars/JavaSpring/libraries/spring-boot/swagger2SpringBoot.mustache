@@ -8,6 +8,18 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+{{#useBeanValidation}}
+{{#isStrictValidation}}
+import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.springframework.context.annotation.Bean;
+import com.fasterxml.jackson.databind.Module;
+{{/isStrictValidation}}
+{{#isLooseValidation}}
+    import org.openapitools.jackson.nullable.JsonNullableModule;
+    import org.springframework.context.annotation.Bean;
+    import com.fasterxml.jackson.databind.Module;
+{{/isLooseValidation}}
+{{/useBeanValidation}}
 
 {{#useOas2}}
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -34,6 +46,20 @@ public class Swagger2SpringBoot implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
+    {{#useBeanValidation}}
+    {{#isStrictValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isStrictValidation}}
+    {{#isLooseValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isLooseValidation}}
+    {{/useBeanValidation}}
 
     @Configuration
     static class CustomDateConfig extends WebMvcConfigurerAdapter {

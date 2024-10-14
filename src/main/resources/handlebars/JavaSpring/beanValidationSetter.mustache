@@ -1,0 +1,9 @@
+{{#isLegacyValidation}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}){ {{/isLegacyValidation}}
+{{#isLegacyNullableValidation}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}){ {{/isLegacyNullableValidation}}
+{{#isStrictValidation}}
+{{#required}}{{#nullable}}  public void {{setter}}(JsonNullable<{{{datatypeWithEnum}}}> {{name}}) { {{/nullable}}
+{{^nullable}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) { {{/nullable}}{{/required}}
+{{^required}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) { {{/required}}{{/isStrictValidation}}{{#isLooseValidation}}
+{{#required}}{{#nullable}}  public void {{setter}}(JsonNullable<{{{datatypeWithEnum}}}> {{name}}) { {{/nullable}}
+{{^nullable}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) { {{/nullable}}{{/required}}
+{{^required}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) { {{/required}}{{/isLooseValidation}}

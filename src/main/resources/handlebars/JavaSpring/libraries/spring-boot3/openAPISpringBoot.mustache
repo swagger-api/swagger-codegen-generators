@@ -11,6 +11,19 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+{{#useBeanValidation}}
+{{#isStrictValidation}}
+import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.springframework.context.annotation.Bean;
+import com.fasterxml.jackson.databind.Module;
+{{/isStrictValidation}}
+{{#isLooseValidation}}
+import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.springframework.context.annotation.Bean;
+import com.fasterxml.jackson.databind.Module;
+{{/isLooseValidation}}
+{{/useBeanValidation}}
+
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "{{basePackage}}", "{{apiPackage}}" , "{{configPackage}}"})
@@ -26,6 +39,20 @@ public class OpenAPISpringBoot implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         new SpringApplication(OpenAPISpringBoot.class).run(args);
     }
+{{#useBeanValidation}}
+    {{#isStrictValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isStrictValidation}}
+    {{#isLooseValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isLooseValidation}}
+{{/useBeanValidation}}
 
     @Configuration
     static class CustomDateConfig extends WebMvcConfigurationSupport {
