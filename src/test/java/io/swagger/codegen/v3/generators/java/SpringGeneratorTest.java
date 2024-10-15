@@ -32,6 +32,8 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
                 false)) // OpenAPI 3.x - use true for Swagger/OpenAPI 2.x definitions
             .options(
                 new Options()
+                    // .library("spring-boot3")
+                    // .addAdditionalProperty("jakarta", true)
                     // .addAdditionalProperty("validationMode", "loose")
                     // .addAdditionalProperty("validationMode", "legacy")
                     // .addAdditionalProperty("validationMode", "legacyNullable")

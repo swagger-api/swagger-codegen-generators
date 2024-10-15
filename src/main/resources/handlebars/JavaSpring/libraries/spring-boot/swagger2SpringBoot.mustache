@@ -27,8 +27,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+{{#jakarta}}
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+{{/jakarta}}
+{{^jakarta}}
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
+{{/jakarta}}
 @SpringBootApplication
 {{#useOas2}}
 @EnableSwagger2
@@ -62,7 +66,12 @@ public class Swagger2SpringBoot implements CommandLineRunner {
     {{/useBeanValidation}}
 
     @Configuration
+    {{#jakarta}}
+        static class CustomDateConfig implements WebMvcConfigurer {
+    {{/jakarta}}
+    {{^jakarta}}
     static class CustomDateConfig extends WebMvcConfigurerAdapter {
+    {{/jakarta}}
         @Override
         public void addFormatters(FormatterRegistry registry) {
             registry.addConverter(new LocalDateConverter("{{#datePattern}}{{datePattern}}{{/datePattern}}{{^datePattern}}yyyy-MM-dd{{/datePattern}}"));
