@@ -233,6 +233,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (isSpringBoot3Library()) {
             setDateLibrary("java8");
+            setJakarta(true);
+            additionalProperties.put(JAKARTA, jakarta);
         }
 
         super.processOpts();
