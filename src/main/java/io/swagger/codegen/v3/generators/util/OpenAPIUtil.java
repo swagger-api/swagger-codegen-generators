@@ -22,7 +22,9 @@ public class OpenAPIUtil {
         if (schema == null) {
             return;
         }
-        codegenProperty.pattern = schema.getPattern();
+        if (StringUtils.isBlank(codegenProperty.pattern)) {
+            codegenProperty.pattern = schema.getPattern();
+        }
         codegenProperty.minLength = schema.getMinLength();
         codegenProperty.maxLength = schema.getMaxLength();
         if (codegenProperty.pattern != null || codegenProperty.minLength != null || codegenProperty.maxLength != null) {

@@ -1,0 +1,55 @@
+package {{package}};
+
+{{#imports}}
+import {{import}};
+
+{{/imports}}
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.HttpResponse;
+{{#useRxJava3}}
+import io.reactivex.rxjava3.core.Single;
+{{/useRxJava3}}
+{{^useRxJava3}}
+{{#useRxJava2}}
+import io.reactivex.Single;
+{{/useRxJava2}}
+{{/useRxJava3}}
+{{#useReactor}}
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
+{{/useReactor}}
+
+{{#useBeanValidation}}
+import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+{{/useBeanValidation}}
+import java.util.List;
+import java.util.Map;
+{{#useOptional}}
+import java.util.Optional;
+{{/useOptional}}
+
+{{#operations}}
+@Controller
+public class {{classname}}Controller implements {{classname}} {
+{{#operation}}
+{{#contents}}
+
+    @Override
+    public Single<HttpResponse<{{>returnTypes}}>> {{operationId}}({{#parameters}}{{#useBeanValidation}}{{!
+    Bean validation spec for path parameters (PathParam is always required)
+}}{{#isPathParam}}{{>beanValidationParams}}{{/isPathParam}}{{!
+    Bean validation spec for any other parameters
+}}{{^isPathParam}}{{>nullableBeanValidationParams}}{{/isPathParam}}{{/useBeanValidation}}{{!
+    Method argument type and name
+}}{{>optionalDataType}} {{paramName}}{{!
+    Arguments separator, if required
+}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
+        // TODO: Implement me
+        return {{classname}}.super.{{operationId}}({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});
+    }
+{{/contents}}
+{{/operation}}
+}
+{{/operations}}

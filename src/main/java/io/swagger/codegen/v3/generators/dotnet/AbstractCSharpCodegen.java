@@ -11,6 +11,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.handlebars.csharp.CsharpHelper;
 import io.swagger.codegen.v3.generators.handlebars.lambda.CamelCaseLambda;
+import io.swagger.codegen.v3.generators.handlebars.lambda.CapitaliseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.IndentedLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.LowercaseLambda;
 import io.swagger.codegen.v3.generators.handlebars.lambda.TitlecaseLambda;
@@ -350,6 +351,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                 .put("titlecase", new TitlecaseLambda())
                 .put("camelcase", new CamelCaseLambda().generator(this))
                 .put("camelcase_param", new CamelCaseLambda().generator(this).escapeAsParamName(true))
+                .put("capitalise", new CapitaliseLambda())
                 .put("indented", new IndentedLambda())
                 .put("indented_8", new IndentedLambda(8, " "))
                 .put("indented_12", new IndentedLambda(12, " "))
@@ -755,7 +757,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         String type;
 
         if (swaggerType == null) {
-            swaggerType = StringUtils.EMPTY; // set swagger type to empty string if null
+            swaggerType = "object";
         }
 
         // TODO avoid using toLowerCase as typeMapping should be case-sensitive

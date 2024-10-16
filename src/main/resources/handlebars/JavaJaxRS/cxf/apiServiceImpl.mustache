@@ -8,8 +8,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+{{#jakarta}}
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+{{/jakarta}}
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 
@@ -48,7 +54,7 @@ public class {{classname}}ServiceImpl implements {{classname}} {
      {{/notes}}
      */
     {{/summary}}
-    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParamsImpl}}{{>pathParamsImpl}}{{>headerParamsImpl}}{{>bodyParamsImpl}}{{>formParamsImpl}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
+    public {{>returnTypes}} {{nickname}}({{#parameters}}{{>queryParamsImpl}}{{>pathParamsImpl}}{{>headerParamsImpl}}{{>cookieParamsImpl}}{{>bodyParamsImpl}}{{>formParamsImpl}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) {
         // TODO: Implement...
         
         {{#useGenericResponse}}return Response.ok().entity("magic!").build();{{/useGenericResponse}}{{^useGenericResponse}}{{^vendorExtensions.x-java-is-response-void}}return null;{{/vendorExtensions.x-java-is-response-void}}{{/useGenericResponse}}

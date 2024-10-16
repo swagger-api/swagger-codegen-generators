@@ -1,5 +1,10 @@
 package io.swagger.codegen.v3.generators.java;
 
+import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+
 import com.github.jknack.handlebars.Handlebars;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenArgument;
@@ -11,6 +16,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -26,12 +32,8 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,11 +44,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import static io.swagger.codegen.v3.CodegenConstants.HAS_ENUMS_EXT_NAME;
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
-import static io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures.NOT_NULL_JACKSON_ANNOTATION;
-import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
@@ -59,8 +60,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
+    public static final String USE_NULLABLE_FOR_NOTNULL = "useNullableForNotNull";
 
     public static final String WIREMOCK_OPTION = "wiremock";
+
+    public static final String JAKARTA = "jakarta";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -93,7 +97,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
     protected boolean supportJava6= false;
+    protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
+    protected boolean useNullableForNotNull = true;
 
     public AbstractJavaCodegen() {
         super();
@@ -194,6 +200,18 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         cliOptions.add(CliOption.newBoolean(CHECK_DUPLICATED_MODEL_NAME, "Check if there are duplicated model names (ignoring case)"));
 
         cliOptions.add(CliOption.newBoolean(WIREMOCK_OPTION, "Use wiremock to generate endpoint calls to mock on generated tests."));
+
+        cliOptions.add(CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)"));
+
+        CliOption jeeSpec = CliOption.newBoolean(JAKARTA, "Use Jakarta EE (package jakarta.*) instead of Java EE (javax.*)");
+        Map<String, String> jeeSpecModeOptions = new HashMap<String, String>();
+        jeeSpecModeOptions.put("true", "Use Jakarta EE (package jakarta.*)");
+        jeeSpecModeOptions.put("false", "Use Java EE (javax.*)");
+        jeeSpec.setEnum(jeeSpecModeOptions);
+        cliOptions.add(jeeSpec);
+
+        cliOptions.add(CliOption.newBoolean(USE_NULLABLE_FOR_NOTNULL, "Add @NotNull depending on `nullable` property instead of `required`"));
+
     }
 
     @Override
@@ -376,6 +394,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
         }
 
+        if (additionalProperties.containsKey(USE_NULLABLE_FOR_NOTNULL)) {
+            this.setUseNullableForNotnull(Boolean.valueOf(additionalProperties.get(USE_NULLABLE_FOR_NOTNULL).toString()));
+        }
+        writePropertyBack(USE_NULLABLE_FOR_NOTNULL, this.useNullableForNotNull);
+
         if (fullJavaUtil) {
             javaUtilPrefix = "java.util.";
         }
@@ -490,6 +513,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         } else if (dateLibrary.equals("legacy")) {
             additionalProperties.put("legacyDates", true);
         }
+
+        if (additionalProperties.containsKey(JAKARTA)) {
+            setJakarta(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAKARTA))));
+            additionalProperties.put(JAKARTA, jakarta);
+        }
+
     }
 
     private void sanitizeConfig() {
@@ -1033,9 +1062,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (codegenModel.vars == null || codegenModel.vars.isEmpty() || codegenModel.parentModel == null) {
             return;
         }
-        CodegenModel parentModel = codegenModel.parentModel;
 
         for (CodegenProperty codegenProperty : codegenModel.vars) {
+            CodegenModel parentModel = codegenModel.parentModel;
+
             while (parentModel != null) {
                 if (parentModel.vars == null || parentModel.vars.isEmpty()) {
                     parentModel = parentModel.parentModel;
@@ -1049,6 +1079,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                         !parentProperty.datatype.equals(codegenProperty.datatype)));
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
+                    codegenProperty.nameInCamelCase = camelize(codegenProperty.name, false);
                     codegenProperty.getter = toGetter(codegenProperty.name);
                     codegenProperty.setter = toSetter(codegenProperty.name);
                     break;
@@ -1128,6 +1159,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 operation.addExtension("x-accepts", accepts);
             }
         }
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if (urlInfo != null && StringUtils.isNotBlank(urlInfo.getPath())) {
+            additionalProperties.put("contextPathWithoutHost", urlInfo.getPath());
+        }
+
     }
 
     private static String getAccept(Operation operation) {
@@ -1493,6 +1529,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         this.scmUrl = scmUrl;
     }
 
+    public void setUseNullableForNotnull(Boolean useNullableForNotNull) {
+        this.useNullableForNotNull = useNullableForNotNull;
+    }
+
     public void setDeveloperName(String developerName) {
         this.developerName = developerName;
     }
@@ -1560,6 +1600,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setJava11Mode(boolean java11Mode) {
         this.java11Mode = java11Mode;
+    }
+
+    public void setJakarta(boolean jakarta) {
+        this.jakarta = jakarta;
     }
 
     @Override
@@ -1653,11 +1697,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         super.setLanguageArguments(languageArguments);
-    }
-
-    @Override
-    public boolean defaultIgnoreImportMappingOption() {
-        return true;
     }
 
     @Override

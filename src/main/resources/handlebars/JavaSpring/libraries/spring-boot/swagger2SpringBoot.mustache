@@ -8,24 +8,34 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+{{#useBeanValidation}}
+{{#isStrictValidation}}
+import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.springframework.context.annotation.Bean;
+import com.fasterxml.jackson.databind.Module;
+{{/isStrictValidation}}
+{{#isLooseValidation}}
+    import org.openapitools.jackson.nullable.JsonNullableModule;
+    import org.springframework.context.annotation.Bean;
+    import com.fasterxml.jackson.databind.Module;
+{{/isLooseValidation}}
+{{/useBeanValidation}}
 
 {{#useOas2}}
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 {{/useOas2}}
-{{^useOas2}}
-import springfox.documentation.oas.annotations.EnableOpenApi;
-{{/useOas2}}
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+{{#jakarta}}
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+{{/jakarta}}
+{{^jakarta}}
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
+{{/jakarta}}
 @SpringBootApplication
 {{#useOas2}}
 @EnableSwagger2
-{{/useOas2}}
-{{^useOas2}}
-@EnableOpenApi
 {{/useOas2}}
 @ComponentScan(basePackages = { "{{basePackage}}", "{{apiPackage}}" , "{{configPackage}}"})
 public class Swagger2SpringBoot implements CommandLineRunner {
@@ -40,9 +50,28 @@ public class Swagger2SpringBoot implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
+    {{#useBeanValidation}}
+    {{#isStrictValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isStrictValidation}}
+    {{#isLooseValidation}}
+    @Bean
+    public Module jsonNullableModule() {
+        return new JsonNullableModule();
+    }
+    {{/isLooseValidation}}
+    {{/useBeanValidation}}
 
     @Configuration
+    {{#jakarta}}
+        static class CustomDateConfig implements WebMvcConfigurer {
+    {{/jakarta}}
+    {{^jakarta}}
     static class CustomDateConfig extends WebMvcConfigurerAdapter {
+    {{/jakarta}}
         @Override
         public void addFormatters(FormatterRegistry registry) {
             registry.addConverter(new LocalDateConverter("{{#datePattern}}{{datePattern}}{{/datePattern}}{{^datePattern}}yyyy-MM-dd{{/datePattern}}"));

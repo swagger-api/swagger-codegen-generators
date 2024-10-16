@@ -200,7 +200,13 @@ public class CustomInstantDeserializer<T extends Temporal>
         return value;
       }
     }
+    {{#jakarta}}
+    context.reportInputMismatch(handledType(), "Expected type float, integer, or string.");
+    return null;
+    {{/jakarta}}
+    {{^jakarta}}
     throw context.mappingException("Expected type float, integer, or string.");
+    {{/jakarta}}
   }
 
   private ZoneId getZone(DeserializationContext context) {

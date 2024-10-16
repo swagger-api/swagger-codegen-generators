@@ -191,7 +191,7 @@
             <dependency>
                 <groupId>com.sun.xml.ws</groupId>
                 <artifactId>jaxws-rt</artifactId>
-                <version>2.3.3</version>
+                <version>{{#jakarta}}4.0.0{{/jakarta}}{{^jakarta}}2.3.3{{/jakarta}}</version>
                 <type>pom</type>
             </dependency>
         </dependencies>
@@ -310,7 +310,7 @@
     <jodatime-version>2.9.9</jodatime-version>
     {{/joda}}
     {{#threetenbp}}
-    <jackson-threetenbp-version>2.6.4</jackson-threetenbp-version>
+    <jackson-threetenbp-version>2.15.2</jackson-threetenbp-version>
     {{/threetenbp}}
     <maven-plugin-version>1.0.0</maven-plugin-version>
     <junit-version>4.13.1</junit-version>
