@@ -11,11 +11,11 @@ import java.io.Serializable;
 import org.springframework.validation.annotation.Validated;
 {{#isLooseValidation}}
 import org.openapitools.jackson.nullable.JsonNullable;
-import io.swagger.configuration.NotUndefined;
+import {{configPackage}}.NotUndefined;
 {{/isLooseValidation}}
 {{#isStrictValidation}}
 import org.openapitools.jackson.nullable.JsonNullable;
-import io.swagger.configuration.NotUndefined;
+import {{configPackage}}.NotUndefined;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
