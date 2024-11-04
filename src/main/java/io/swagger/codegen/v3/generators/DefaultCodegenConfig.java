@@ -141,10 +141,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String templateVersion;
     protected String embeddedTemplateDir;
     protected String commonTemplateDir = "_common";
-    protected Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    protected Map<String, Object> additionalProperties = new HashMap<>();
     protected Map<String, Object> vendorExtensions = new HashMap<String, Object>();
-    protected List<SupportingFile> supportingFiles = new ArrayList<SupportingFile>();
-    protected List<CliOption> cliOptions = new ArrayList<CliOption>();
+    protected List<SupportingFile> supportingFiles = new ArrayList<>();
+    protected List<SupportingFile> configFiles = new ArrayList<>();
+    protected List<CliOption> cliOptions = new ArrayList<>();
     protected List<CodegenArgument> languageArguments;
     protected boolean skipOverwrite;
     protected boolean removeOperationIdPrefix;
@@ -662,6 +663,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public List<SupportingFile> supportingFiles() {
         return supportingFiles;
+    }
+
+    public List<SupportingFile> configFiles() {
+        return configFiles;
     }
 
     public String outputFolder() {
@@ -3807,13 +3812,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return codegenArgumentOptional.get().getValue();
     }
 
+    public void writeOptional(String outputFolder, SupportingFile supportingFile) {
+        writeOptional(outputFolder, supportingFile, false);
+    }
     /**
      * Only write if the file doesn't exist
      *
      * @param outputFolder Output folder
      * @param supportingFile Supporting file
      */
-    public void writeOptional(String outputFolder, SupportingFile supportingFile) {
+    public void writeOptional(String outputFolder, SupportingFile supportingFile, boolean configFile) {
         String folder = "";
 
         if(outputFolder != null && !"".equals(outputFolder)) {
@@ -3826,8 +3834,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         else {
             folder = supportingFile.destinationFilename;
         }
+        List<SupportingFile> targetFiles = configFile ? this.configFiles : this.supportingFiles;
         if(!new File(folder).exists()) {
-            supportingFiles.add(supportingFile);
+            targetFiles.add(supportingFile);
         } else {
             LOGGER.info("Skipped overwriting " + supportingFile.destinationFilename + " as the file already exists in " + folder);
         }
