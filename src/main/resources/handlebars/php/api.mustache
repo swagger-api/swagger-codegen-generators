@@ -158,14 +158,8 @@ use {{invokerPackage}}\ObjectSerializer;
 
             {{#returnType}}
             $responseBody = $response->getBody();
-            if ($returnType === '\SplFileObject') {
-                $content = $responseBody; //stream goes to serializer
-            } else {
-                $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
-                    $content = json_decode($content);
-                }
-            }
+
+            $content = $this->getContent($responseBody, $returnType);
 
             return [
                 ObjectSerializer::deserialize($content, $returnType, []),
@@ -182,9 +176,13 @@ use {{invokerPackage}}\ObjectSerializer;
         {{#responses}}
             {{#dataType}}
                 {{^isWildcard}}case {{code}}:{{/isWildcard}}{{#isWildcard}}default:{{/isWildcard}}
+                    $returnType = '{{dataType}}';
+
+                    $content = $this->getContent($e->getResponseBody(), $returnType);
+
                     $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '{{dataType}}',
+                        $content,
+                        $returnType,
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -519,6 +517,28 @@ use {{invokerPackage}}\ObjectSerializer;
         }
 
         return $options;
+    }
+
+    /**
+     * Get content from body
+     *
+     * @param StreamInterface $body Body.
+     * @return StreamInterface|string|\stdClass content
+     */
+    protected function getContent($body, $returnType)
+    {
+        if ($returnType === '\SplFileObject') {
+            //stream goes to serializer
+            return $body;
+        }
+        
+        $content = $body->getContents();
+
+        if (!in_array($returnType, ['string','integer','bool'])) {
+            return json_decode($content);
+        }
+
+        return $content;
     }
 }
 {{/operations}}
