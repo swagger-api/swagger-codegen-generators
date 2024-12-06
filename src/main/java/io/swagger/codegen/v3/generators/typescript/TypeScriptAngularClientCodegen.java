@@ -46,6 +46,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String NG_PACKAGR = "useNgPackagr";
     public static final String PROVIDED_IN_ROOT ="providedInRoot";
     public static final String KEBAB_FILE_NAME ="kebab-file-name";
+    public static final String USE_OVERRIDE ="useOverride";
 
     protected String npmName = null;
     protected String npmVersion = "1.0.0";
@@ -63,6 +64,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(new CliOption(WITH_INTERFACES, "Setting this property to true will generate interfaces next to the default class implementations.", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
         this.cliOptions.add(new CliOption(NG_VERSION, "The version of Angular. Default is '4.3'"));
         this.cliOptions.add(new CliOption(PROVIDED_IN_ROOT, "Use this property to provide Injectables in root (it is only valid in angular version greater or equal to 6.0.0).", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
+        this.cliOptions.add(new CliOption(USE_OVERRIDE, "Use this property to place `override` keyword in encoder methods.", SchemaTypeUtil.BOOLEAN_TYPE).defaultValue(Boolean.FALSE.toString()));
     }
 
     @Override
@@ -185,6 +187,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             if (withInterfaces) {
                 apiTemplateFiles.put("apiInterface.mustache", "Interface.ts");
             }
+        }
+
+        if (additionalProperties.containsKey(USE_OVERRIDE)) {
+            final boolean useOverride = Boolean.parseBoolean(String.valueOf(additionalProperties.get(USE_OVERRIDE)));
+            additionalProperties.put(USE_OVERRIDE, useOverride);
         }
 
         kebabFileNaming = Boolean.parseBoolean(String.valueOf(additionalProperties.get(KEBAB_FILE_NAME)));

@@ -29,6 +29,7 @@ import javax.validation.executable.ExecutableValidator;
 import java.util.Set;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 {{/performBeanValidation}}
 
 {{#imports}}import {{import}};
@@ -147,7 +148,10 @@ public class {{classname}} {
         {{/performBeanValidation}}
         {{#performBeanValidation}}
         try {
-            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            ValidatorFactory factory = Validation.byDefaultProvider()
+                .configure()
+                .messageInterpolator(new ParameterMessageInterpolator())
+                .buildValidatorFactory();
             ExecutableValidator executableValidator = factory.getValidator().forExecutables();
 
             Object[] parameterValues = { {{#parameters}}{{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}} };

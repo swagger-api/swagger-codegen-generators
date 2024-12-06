@@ -29,6 +29,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class CSharpClientCodegen extends AbstractCSharpCodegen {
     @SuppressWarnings({"hiding"})
     private static final Logger LOGGER = LoggerFactory.getLogger(CSharpClientCodegen.class);
+    private static final String NET471 = "v4.7.1";
     private static final String NET45 = "v4.5";
     private static final String NET40 = "v4.0";
     private static final String NET35 = "v3.5";
@@ -48,10 +49,10 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     protected String modelDocPath = "docs/";
 
     // Defines TargetFrameworkVersion in csproj files
-    protected String targetFramework = NET45;
+    protected String targetFramework = NET471;
 
     // Defines nuget identifiers for target framework
-    protected String targetFrameworkNuget = "net45";
+    protected String targetFrameworkNuget = "net471";
     protected boolean supportsAsync = Boolean.TRUE;
     protected boolean supportsUWP = Boolean.FALSE;
     protected boolean netStandard = Boolean.FALSE;
@@ -106,6 +107,7 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
                 .put(NET35, ".NET Framework 3.5 compatible")
                 .put(NET40, ".NET Framework 4.0 compatible")
                 .put(NET45, ".NET Framework 4.5+ compatible")
+                .put(NET471, ".NET Framework 4.71+ compatible")
                 .put(NETSTANDARD, ".NET Standard 1.3 compatible")
                 .put(UWP, "Universal Windows Platform (IMPORTANT: this will be decommissioned and replaced by v5.0)")
                 .build();
@@ -186,6 +188,16 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
     @Override
     public void processOpts() {
+
+        // process targetFramework first as it is used to get Template Dir
+        if (additionalProperties.containsKey(CodegenConstants.DOTNET_FRAMEWORK)) {
+            setTargetFramework((String) additionalProperties.get(CodegenConstants.DOTNET_FRAMEWORK));
+        } else {
+            // Ensure default is set.
+            setTargetFramework(NET471);
+            additionalProperties.put(CodegenConstants.DOTNET_FRAMEWORK, this.targetFramework);
+        }
+
         super.processOpts();
 
         /*
@@ -219,14 +231,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
             setValidatable(convertPropertyToBooleanAndWriteBack(CodegenConstants.VALIDATABLE));
         } else {
             additionalProperties.put(CodegenConstants.VALIDATABLE, validatable);
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.DOTNET_FRAMEWORK)) {
-            setTargetFramework((String) additionalProperties.get(CodegenConstants.DOTNET_FRAMEWORK));
-        } else {
-            // Ensure default is set.
-            setTargetFramework(NET45);
-            additionalProperties.put(CodegenConstants.DOTNET_FRAMEWORK, this.targetFramework);
         }
 
         if (NET35.equals(this.targetFramework)) {
@@ -273,9 +277,13 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
             setTargetFrameworkNuget("net40");
             setSupportsAsync(Boolean.FALSE);
-        } else {
+        } else if (NET45.equals(this.targetFramework)) {
             additionalProperties.put(MCS_NET_VERSION_KEY, "4.5.2-api");
             setTargetFrameworkNuget("net45");
+            setSupportsAsync(Boolean.TRUE);
+        } else {
+            additionalProperties.put(MCS_NET_VERSION_KEY, "4.7.1-api");
+            setTargetFrameworkNuget("net471");
             setSupportsAsync(Boolean.TRUE);
         }
 
@@ -375,15 +383,17 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
                     clientPackageDir, "ReadOnlyDictionary.cs"));
         }
 
-        if (Boolean.FALSE.equals(this.netStandard) && Boolean.FALSE.equals(this.netCoreProjectFileFlag)) {
+        if (Boolean.FALSE.equals(this.netStandard) && Boolean.FALSE.equals(this.netCoreProjectFileFlag) && !NET471.equals(this.targetFramework)) {
             supportingFiles.add(new SupportingFile("compile.mustache", "", "build.bat"));
             supportingFiles.add(new SupportingFile("compile-mono.sh.mustache", "", "build.sh"));
 
-            // copy package.config to nuget's standard location for project-level installs
-            supportingFiles.add(new SupportingFile("packages.config.mustache", packageFolder + File.separator, "packages.config"));
+            if (!NET471.equals(this.targetFramework)) {
+                // copy package.config to nuget's standard location for project-level installs
+                supportingFiles.add(new SupportingFile("packages.config.mustache", packageFolder + File.separator, "packages.config"));
+            }
             // .travis.yml for travis-ci.org CI
             supportingFiles.add(new SupportingFile("travis.mustache", "", ".travis.yml"));
-        } else if (Boolean.FALSE.equals(this.netCoreProjectFileFlag)) {
+        } else if (Boolean.FALSE.equals(this.netCoreProjectFileFlag) && !NET471.equals(this.targetFramework)) {
             supportingFiles.add(new SupportingFile("project.json.mustache", packageFolder + File.separator, "project.json"));
         }
 
@@ -420,7 +430,7 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
 
-        if (optionalAssemblyInfoFlag && Boolean.FALSE.equals(this.netCoreProjectFileFlag)) {
+        if (optionalAssemblyInfoFlag && Boolean.FALSE.equals(this.netCoreProjectFileFlag) && !NET471.equals(this.targetFramework)) {
             supportingFiles.add(new SupportingFile("AssemblyInfo.mustache", packageFolder + File.separator + "Properties", "AssemblyInfo.cs"));
         }
         if (optionalProjectFileFlag) {
@@ -498,6 +508,13 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
     @Override
     public String getName() {
+        return "csharp";
+    }
+
+    public String getDefaultTemplateDir() {
+        if (NET471.equals(this.targetFramework)) {
+            return "csharp-471";
+        }
         return "csharp";
     }
 

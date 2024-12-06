@@ -30,7 +30,7 @@ public class JavaJerseyDIServerCodegen extends JavaJerseyServerCodegen {
 
         apiTestTemplateFiles.clear(); // TODO: add test template
         // clear model and api doc template as this codegen
-        // does not support auto-generated markdown doc at the moment
+        // does not support auto-generated markdown doc at the moment.
         // TODO: add doc templates
         modelDocTemplateFiles.remove("model_doc.mustache");
         apiDocTemplateFiles.remove("api_doc.mustache");

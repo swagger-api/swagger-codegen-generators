@@ -1,0 +1,35 @@
+{{#isLegacyValidation}}{{#required}}@NotNull{{/required}} {{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/isLegacyValidation}}{{#isLegacyNullableValidation}}{{#required}}{{^useNullableForNotNull}}@NotNull{{/useNullableForNotNull}}{{/required}}
+{{#useNullableForNotNull}}{{^nullable}}@NotNull{{/nullable}}{{/useNullableForNotNull}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/isLegacyNullableValidation}}{{#isStrictValidation}}{{#required}}{{#nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public JsonNullable<{{{datatypeWithEnum}}}> {{getter}}() { {{/nullable}}{{^nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+  @NotNull
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/nullable}}{{/required}}{{^required}}{{#nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() {
+{{/nullable}}{{^nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/nullable}}{{/required}}{{/isStrictValidation}} {{#isLooseValidation}}{{#required}}{{#nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public JsonNullable<{{{datatypeWithEnum}}}> {{getter}}() { {{/nullable}}{{^nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+  @NotNull
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/nullable}}{{/required}}{{^required}}{{#nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/nullable}}{{^nullable}}{{#isContainer}}{{^isPrimitiveType}}{{^isEnum}}
+@Valid{{/isEnum}}{{/isPrimitiveType}}{{/isContainer}}{{#isNotContainer}}{{^isPrimitiveType}}
+@Valid{{/isPrimitiveType}}{{/isNotContainer}}
+{{>beanValidationCore}}  public {{{datatypeWithEnum}}} {{getter}}() { {{/nullable}}{{/required}}{{/isLooseValidation}}

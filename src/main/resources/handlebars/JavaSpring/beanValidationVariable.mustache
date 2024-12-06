@@ -1,0 +1,39 @@
+{{#isLegacyValidation}}  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};{{/isLegacyValidation}}{{#isLegacyNullableValidation}}  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};{{/isLegacyNullableValidation}}
+{{#isStrictValidation}}
+{{#required}}
+{{#nullable}}
+  private JsonNullable<{{{datatypeWithEnum}}}> {{name}} = JsonNullable.undefined();
+{{/nullable}}
+{{^nullable}}
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{/required}}
+{{^required}}
+{{#nullable}}
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{^nullable}}
+  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
+  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{/required}}
+{{/isStrictValidation}}
+{{#isLooseValidation}}
+{{#required}}
+{{#nullable}}
+  private JsonNullable<{{{datatypeWithEnum}}}> {{name}} = JsonNullable.undefined();
+{{/nullable}}
+{{^nullable}}
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{/required}}
+{{^required}}
+{{#nullable}}
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{^nullable}}
+  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+{{/nullable}}
+{{/required}}
+{{/isLooseValidation}}

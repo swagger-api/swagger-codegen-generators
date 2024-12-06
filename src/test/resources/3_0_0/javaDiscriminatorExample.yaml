@@ -1,0 +1,52 @@
+openapi: '3.0.3'
+info:
+  title: 'Discriminator Problem API'
+  version: '1.0.0'
+
+components:
+  schemas:
+    SomeTypeDTO:
+      type: string
+      enum:
+        - SubTypeA
+        - WeirdlyNamedSubTypeB
+
+    ResultForSubTypeDTO:
+      type: object
+      properties:
+        type:
+          type: string
+      oneOf:
+        - $ref: '#/components/schemas/SubTypeAResultDTO'
+        - $ref: '#/components/schemas/SubTypeBResultDTO'
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          SubTypeA: '#/components/schemas/SubTypeAResultDTO'
+          WeirdlyNamedSubTypeB: '#/components/schemas/SubTypeBResultDTO'
+
+    SubTypeAResultDTO:
+      allOf:
+        - $ref: '#/components/schemas/ResultForSubTypeDTO'
+      type: object
+      properties:
+        some_attribute:
+          type: string
+
+    SubTypeBResultDTO:
+      allOf:
+        - $ref: '#/components/schemas/ResultForSubTypeDTO'
+      type: object
+      properties:
+        another_attribute:
+          type: string
+
+paths:
+  /repro:
+    get:
+      operationId: 'getRepo'
+      responses:
+        204:
+          description: OK

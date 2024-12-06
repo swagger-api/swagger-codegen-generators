@@ -1,0 +1,118 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Title",
+    "description": "Title",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/sampleObjectResponse": {
+      "get": {
+        "tags": [
+          "Sample"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns requested data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sampleResponse"
+                }
+              }
+            }
+          }
+
+        }
+      }
+
+    }
+  },
+  "components": {
+    "schemas": {
+      "sampleResponse": {
+        "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+      },
+      "item": {
+        "discriminator": {
+          "propertyName": "aCustomProperty",
+          "mapping": {
+            "typeA": "#/components/schemas/classA",
+            "typeB": "#/components/schemas/classB",
+            "typeC": "#/components/schemas/classC"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/classA"
+          },
+          {
+            "$ref": "#/components/schemas/classB"
+          },
+          {
+            "$ref": "#/components/schemas/classC"
+          }
+        ]
+      },
+      "classA": {
+        "type": "object",
+        "properties": {
+          "aaa": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/baseClass"
+          }
+        ]
+      },
+      "classB": {
+        "type": "object",
+        "properties": {
+          "bbb": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/baseClass"
+          }
+        ]
+      },
+      "classC": {
+        "type": "object",
+        "properties": {
+          "ccc": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/baseClass"
+          }
+        ]
+      },
+      "baseClass": {
+
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Sample",
+      "description": "Sample"
+    }
+  ]
+}

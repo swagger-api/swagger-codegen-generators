@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: Title
+  version: "2.0.0"
+paths:
+  '/test':
+    put:
+      description: description
+      operationId: updateTest
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NullableRoot'
+components:
+  schemas:
+    NullableRoot:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          $ref: '#/components/schemas/NullableRef'
+    NullableRef:
+      type: string
+      nullable: true
+      description: Nullable string
+      minLength: 0
+      maxLength: 100
+      example: 'example'

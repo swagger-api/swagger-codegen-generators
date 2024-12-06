@@ -16,6 +16,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.generators.features.NotNullAnnotationFeatures;
 import io.swagger.codegen.v3.generators.handlebars.java.JavaHelper;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -32,6 +33,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +60,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String ERROR_ON_UNKNOWN_ENUM = "errorOnUnknownEnum";
     public static final String CHECK_DUPLICATED_MODEL_NAME = "checkDuplicatedModelName";
+    public static final String USE_NULLABLE_FOR_NOTNULL = "useNullableForNotNull";
 
     public static final String WIREMOCK_OPTION = "wiremock";
 
@@ -96,6 +99,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     protected boolean supportJava6= false;
     protected boolean jakarta = false;
     private NotNullAnnotationFeatures notNullOption;
+    protected boolean useNullableForNotNull = true;
 
     public AbstractJavaCodegen() {
         super();
@@ -205,6 +209,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         jeeSpecModeOptions.put("false", "Use Java EE (javax.*)");
         jeeSpec.setEnum(jeeSpecModeOptions);
         cliOptions.add(jeeSpec);
+
+        cliOptions.add(CliOption.newBoolean(USE_NULLABLE_FOR_NOTNULL, "Add @NotNull depending on `nullable` property instead of `required`"));
+
     }
 
     @Override
@@ -387,6 +394,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             }
         }
 
+        if (additionalProperties.containsKey(USE_NULLABLE_FOR_NOTNULL)) {
+            this.setUseNullableForNotnull(Boolean.valueOf(additionalProperties.get(USE_NULLABLE_FOR_NOTNULL).toString()));
+        }
+        writePropertyBack(USE_NULLABLE_FOR_NOTNULL, this.useNullableForNotNull);
+
         if (fullJavaUtil) {
             javaUtilPrefix = "java.util.";
         }
@@ -506,6 +518,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             setJakarta(Boolean.parseBoolean(String.valueOf(additionalProperties.get(JAKARTA))));
             additionalProperties.put(JAKARTA, jakarta);
         }
+
     }
 
     private void sanitizeConfig() {
@@ -1146,6 +1159,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 operation.addExtension("x-accepts", accepts);
             }
         }
+        final URL urlInfo = URLPathUtil.getServerURL(openAPI);
+        if (urlInfo != null && StringUtils.isNotBlank(urlInfo.getPath())) {
+            additionalProperties.put("contextPathWithoutHost", urlInfo.getPath());
+        }
+
     }
 
     private static String getAccept(Operation operation) {
@@ -1509,6 +1527,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     public void setScmUrl(String scmUrl) {
         this.scmUrl = scmUrl;
+    }
+
+    public void setUseNullableForNotnull(Boolean useNullableForNotNull) {
+        this.useNullableForNotNull = useNullableForNotNull;
     }
 
     public void setDeveloperName(String developerName) {
