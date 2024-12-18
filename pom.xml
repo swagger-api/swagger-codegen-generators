@@ -262,7 +262,7 @@
     </dependencies>
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
-        <swagger-codegen-version>3.0.64</swagger-codegen-version>
+        <swagger-codegen-version>3.0.65-SNAPSHOT</swagger-codegen-version>
         <swagger-parser-version>2.1.22</swagger-parser-version>
         <swagger-core-version>2.2.25</swagger-core-version>
         <jackson-version>2.17.2</jackson-version>
