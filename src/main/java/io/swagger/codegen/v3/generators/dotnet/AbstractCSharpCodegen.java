@@ -152,6 +152,8 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
                         "String",
                         "Boolean",
                         "Double",
+                        "Decimal",
+                        "BigDecimal",
                         "Int32",
                         "Int64",
                         "Float",

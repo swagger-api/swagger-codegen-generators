@@ -2168,7 +2168,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                 if (schema == null) {
                     CodegenParameter codegenParameter = CodegenModelFactory.newInstance(CodegenModelType.PARAMETER);
-                    codegenParameter.description = body.getDescription();
+                    codegenParameter.description = escapeText(body.getDescription());
                     codegenParameter.unescapedDescription = body.getDescription();
                     String bodyName = REQUEST_BODY_NAME;
                     if (body.getExtensions() != null && body.getExtensions().get("x-codegen-request-body-name") != null) {
@@ -2679,7 +2679,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         codegenParameter.baseName = bodyName;
         codegenParameter.paramName = bodyName;
-        codegenParameter.description = body.getDescription();
+        codegenParameter.description = escapeText(body.getDescription());
         codegenParameter.unescapedDescription = body.getDescription();
         codegenParameter.required = body.getRequired() != null ? body.getRequired() : Boolean.FALSE;
         codegenParameter.getVendorExtensions().put(CodegenConstants.IS_BODY_PARAM_EXT_NAME, Boolean.TRUE);
