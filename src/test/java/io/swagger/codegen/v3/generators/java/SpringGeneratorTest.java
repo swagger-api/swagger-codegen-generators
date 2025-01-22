@@ -20,6 +20,9 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
     @Test
     public void testGenerator() throws Exception {
 
+        System.setProperty("supportingFiles", "false");
+        System.setProperty("generateModels", "true");
+        System.setProperty("generateApis", "true");
         String path = getOutFolder(false).getAbsolutePath();
         GenerationRequest request = new GenerationRequest();
         request
@@ -32,11 +35,20 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
                 false)) // OpenAPI 3.x - use true for Swagger/OpenAPI 2.x definitions
             .options(
                 new Options()
+                    .addAdditionalProperty("dateLibrary", "legacy")
+                    .addAdditionalProperty("serializableModel", false)
+                    .addAdditionalProperty("useTags", true)
+                    .addAdditionalProperty("generateForOpenFeign", true)
+                    .addAdditionalProperty("configPackage", "test.configPackage")
+                    // .addAdditionalProperty("generateSupportingFiles", false)
+                    .library("spring-cloud")
+                    .addAdditionalProperty("jakarta", true)
                     // .addAdditionalProperty("validationMode", "loose")
                     // .addAdditionalProperty("validationMode", "legacy")
                     // .addAdditionalProperty("validationMode", "legacyNullable")
-                    // .addAdditionalProperty("useBeanValidation", false)
+                    .addAdditionalProperty("useBeanValidation", false)
                     // .addAdditionalProperty("useNullableForNotNull", false)
+                    .modelPackage("test.foo")
                     .outputDir(path)
             );
 

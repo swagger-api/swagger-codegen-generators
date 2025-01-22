@@ -1,7 +1,13 @@
 package {{configPackage}};
 
+{{#jakarta}}
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+{{/jakarta}}
+{{^jakarta}}
 import javax.validation.Constraint;
 import javax.validation.Payload;
+{{/jakarta}}
 import java.lang.annotation.*;
 
 @Target({ElementType.TYPE})

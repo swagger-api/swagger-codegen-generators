@@ -233,6 +233,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (isSpringBoot3Library()) {
             setDateLibrary("java8");
+            setJakarta(true);
+            additionalProperties.put(JAKARTA, jakarta);
         }
 
         super.processOpts();
@@ -291,6 +293,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         if (additionalProperties.containsKey(USE_BEANVALIDATION)) {
             this.setUseBeanValidation(convertPropertyToBoolean(USE_BEANVALIDATION));
+            writePropertyBack(USE_BEANVALIDATION, this.useBeanValidation);
         }
 
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
@@ -318,10 +321,10 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
             if (VALIDATION_MODE_LOOSE.equals(validationMode) || VALIDATION_MODE_STRICT.equals(validationMode)) {
-                supportingFiles.add(new SupportingFile("NotUndefined.mustache",
-                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefined.java"));
-                supportingFiles.add(new SupportingFile("NotUndefinedValidator.mustache",
-                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefinedValidator.java"));
+                writeOptional(outputFolder, new SupportingFile("NotUndefined.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefined.java"), true);
+                writeOptional(outputFolder, new SupportingFile("NotUndefinedValidator.mustache",
+                    (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "NotUndefinedValidator.java"), true);
             }
         }
 
