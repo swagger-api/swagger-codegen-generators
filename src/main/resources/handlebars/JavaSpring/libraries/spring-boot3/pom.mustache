@@ -7,15 +7,15 @@
     <version>{{artifactVersion}}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
-        <springboot-version>3.3.4</springboot-version>
+        <maven.compiler.release>{{springBoot3JavaVersion}}</maven.compiler.release>
+        <springboot-version>{{springBoot3Version}}</springboot-version>
         <swagger-annotations-version>2.2.25</swagger-annotations-version>
-        <springdoc-version>1.7.0</springdoc-version>
+        <springdoc-version>2.8.3</springdoc-version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>{{springBoot3Version}}</version>
     </parent>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -96,7 +96,7 @@
         <!-- SpringDoc dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-version}</version>
         </dependency>
 
