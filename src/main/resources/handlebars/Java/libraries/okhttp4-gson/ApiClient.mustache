@@ -80,7 +80,7 @@ public class ApiClient {
 
         {{#useGzipFeature}}
         // Enable gzip request compression
-        httpClient.interceptors().add(new GzipRequestInterceptor());
+        setHttpClient(getHttpClient.newBuilder().interceptors().add(new GzipRequestInterceptor()).build());
         {{/useGzipFeature}}
 
         json = new JSON();
@@ -338,9 +338,9 @@ public class ApiClient {
             if (debugging) {
                 loggingInterceptor = new HttpLoggingInterceptor();
                 loggingInterceptor.setLevel(Level.BODY);
-                httpClient.interceptors().add(loggingInterceptor);
+                setHttpClient(getHttpClient.newBuilder().interceptors().add(logginInterceptor).build());
             } else {
-                httpClient.interceptors().remove(loggingInterceptor);
+                setHttpClient(getHttpClient.newBuilder().interceptors().remove(logginInterceptor).build());
                 loggingInterceptor = null;
             }
         }
