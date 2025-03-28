@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.55</version>
+    <version>1.0.56</version>
     <packaging>jar</packaging>
 
     <build>
@@ -256,20 +256,20 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.14.2</version>
+            <version>5.15.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
-        <swagger-codegen-version>3.0.65</swagger-codegen-version>
-        <swagger-parser-version>2.1.23</swagger-parser-version>
-        <swagger-core-version>2.2.26</swagger-core-version>
-        <jackson-version>2.18.0</jackson-version>
-        <jackson-databind-version>2.18.0</jackson-databind-version>
+        <swagger-codegen-version>3.0.67</swagger-codegen-version>
+        <swagger-parser-version>2.1.25</swagger-parser-version>
+        <swagger-core-version>2.2.28</swagger-core-version>
+        <jackson-version>2.18.2</jackson-version>
+        <jackson-databind-version>2.18.2</jackson-databind-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
-        <commons-io-version>2.17.0</commons-io-version>
+        <commons-io-version>2.18.0</commons-io-version>
         <commons-cli-version>1.9.0</commons-cli-version>
         <junit-version>4.13.2</junit-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
@@ -277,7 +277,7 @@
         <slf4j-version>2.0.9</slf4j-version>
         <scala-maven-plugin-version>3.2.1</scala-maven-plugin-version>
         <testng-version>7.10.2</testng-version>
-        <surefire-version>3.5.1</surefire-version>
+        <surefire-version>3.5.2</surefire-version>
         <jmockit-version>1.49</jmockit-version>
         <reflections-version>0.10.2</reflections-version>
 
