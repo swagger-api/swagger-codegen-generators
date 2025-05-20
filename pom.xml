@@ -2,19 +2,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>5</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>swagger-codegen-generators</artifactId>
-    <version>1.0.56</version>
+    <name>swagger-codegen-generators</name>
+    <description>swagger-codegen-generators</description>
+    <url>https://github.com/swagger-api/swagger-codegen-generators</url>
+    <version>1.0.57-SNAPSHOT</version>
     <packaging>jar</packaging>
-
+    <scm>
+        <connection>scm:git:git@github.com:swagger-api/swagger-codegen-generators.git</connection>
+        <developerConnection>scm:git:git@github.com:swagger-api/swagger-codegen-generators.git</developerConnection>
+        <url>https://github.com/swagger-api/swagger-codegen-generators</url>
+    </scm>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/swagger-api/swagger-codegen-generators/issues</url>
+    </issueManagement>
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>frantuma</id>
+            <name>Francesco Tumanischvili</name>
+            <email>frantuma@yahoo.com</email>
+        </developer>
+    </developers>
     <build>
         <plugins>
             <plugin>
@@ -76,8 +94,66 @@
                     <argLine>-javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit-version}/jmockit-${jmockit-version}.jar -XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                    <waitMaxTime>3600</waitMaxTime>
+                </configuration>
+            </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                    <configuration>
+                        <!-- Prevent `gpg` from using pinentry programs -->
+                        <gpgArguments>
+                            <arg>--pinentry-mode</arg>
+                            <arg>loopback</arg>
+                        </gpgArguments>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <!-- Prevent `gpg` from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <dependencyManagement>
         <dependencies>
             <!-- swagger-core v2 -->
@@ -280,7 +356,7 @@
         <surefire-version>3.5.2</surefire-version>
         <jmockit-version>1.49</jmockit-version>
         <reflections-version>0.10.2</reflections-version>
-
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 </project>
