@@ -314,7 +314,7 @@ public class DefaultCodegenConfigTest {
 
     @Test
     public void verifyProperJavaEscapingForRefSchemaPatterns() {
-        //given java codegen
+        //given java client codegen
         final AbstractJavaCodegen codegen = new JavaClientCodegen();
 
         ApiResponse apiResponse = new ApiResponse();
