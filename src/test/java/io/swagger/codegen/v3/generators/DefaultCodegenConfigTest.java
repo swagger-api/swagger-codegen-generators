@@ -86,8 +86,8 @@ public class DefaultCodegenConfigTest {
     @Test
     public void testNumberSchemaMinMax() {
         Schema schema = new NumberSchema()
-            .minimum(BigDecimal.valueOf(50))
-            .maximum(BigDecimal.valueOf(1000));
+                .minimum(BigDecimal.valueOf(50))
+                .maximum(BigDecimal.valueOf(1000));
 
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
         CodegenProperty codegenProperty = codegen.fromProperty("test", schema);
@@ -133,13 +133,13 @@ public class DefaultCodegenConfigTest {
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
 
         ArraySchema paramSchema = new ArraySchema()
-            .items(new IntegerSchema());
+                .items(new IntegerSchema());
         Parameter param = new Parameter()
-            .in("query")
-            .name("testParameter")
-            .schema(paramSchema)
-            .style(style)
-            .explode(explode);
+                .in("query")
+                .name("testParameter")
+                .schema(paramSchema)
+                .style(style)
+                .explode(explode);
 
         CodegenParameter codegenParameter = codegen.fromParameter(param, new HashSet<>());
 
@@ -150,21 +150,21 @@ public class DefaultCodegenConfigTest {
     public Object[][] provideData_testGetCollectionFormat() {
         // See: https://swagger.io/docs/specification/serialization/#query
         return new Object[][] {
-            {null, null, "multi"},
-            {Parameter.StyleEnum.FORM, null, "multi"},
-            {null, Boolean.TRUE, "multi"},
-            {Parameter.StyleEnum.FORM, Boolean.TRUE, "multi"},
+            { null,                                 null,           "multi" },
+            { Parameter.StyleEnum.FORM,             null,           "multi" },
+            { null,                                 Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.FORM,             Boolean.TRUE,   "multi" },
 
-            {null, Boolean.FALSE, "csv"},
-            {Parameter.StyleEnum.FORM, Boolean.FALSE, "csv"},
+            { null,                                 Boolean.FALSE,  "csv" },
+            { Parameter.StyleEnum.FORM,             Boolean.FALSE,  "csv" },
 
-            {Parameter.StyleEnum.SPACEDELIMITED, Boolean.TRUE, "multi"},
-            {Parameter.StyleEnum.SPACEDELIMITED, Boolean.FALSE, "space"},
-            {Parameter.StyleEnum.SPACEDELIMITED, null, "multi"},
+            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.FALSE,  "space" },
+            { Parameter.StyleEnum.SPACEDELIMITED,   null,           "multi" },
 
-            {Parameter.StyleEnum.PIPEDELIMITED, Boolean.TRUE, "multi"},
-            {Parameter.StyleEnum.PIPEDELIMITED, Boolean.FALSE, "pipe"},
-            {Parameter.StyleEnum.PIPEDELIMITED, null, "multi"},
+            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.TRUE,   "multi" },
+            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.FALSE,  "pipe" },
+            { Parameter.StyleEnum.PIPEDELIMITED,    null,           "multi" },
         };
     }
 
@@ -352,10 +352,9 @@ public class DefaultCodegenConfigTest {
         schema.setPattern(StringEscapeUtils.unescapeJava(SSN_ESCAPED_PATTERN));
         return schema;
     }
-
     @DataProvider(name = "testCommonPrefixProvider")
     public Object[][] provideData_testCommonPrefix() {
-        return new Object[][] {
+        return new Object[][]{
             {Collections.singletonList("FOO_BAR"), ""},
             {Arrays.asList("FOO_BAR", "FOO_BAZ"), "FOO_"},
             {Arrays.asList("FOO_BAR", "FOO_BAZ", "TEST"), ""},
@@ -363,7 +362,7 @@ public class DefaultCodegenConfigTest {
         };
     }
 
-    private static class P_DefaultCodegenConfig extends DefaultCodegenConfig {
+    private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
         @Override
         public String getArgumentsLocation() {
             return null;
