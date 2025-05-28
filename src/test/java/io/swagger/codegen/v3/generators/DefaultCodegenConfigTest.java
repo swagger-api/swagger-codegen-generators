@@ -1,12 +1,7 @@
 package io.swagger.codegen.v3.generators;
 
-import io.swagger.codegen.v3.CodegenArgument;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.generators.java.*;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -23,18 +18,17 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
+import java.util.*;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class DefaultCodegenConfigTest {
+
+    private static final String SSN_ESCAPED_PATTERN = "^\\\\d{3}-\\\\d{2}-\\\\d{4}$";
 
     @Test
     public void testInitialValues() throws Exception {
@@ -92,8 +86,8 @@ public class DefaultCodegenConfigTest {
     @Test
     public void testNumberSchemaMinMax() {
         Schema schema = new NumberSchema()
-                .minimum(BigDecimal.valueOf(50))
-                .maximum(BigDecimal.valueOf(1000));
+            .minimum(BigDecimal.valueOf(50))
+            .maximum(BigDecimal.valueOf(1000));
 
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
         CodegenProperty codegenProperty = codegen.fromProperty("test", schema);
@@ -107,7 +101,7 @@ public class DefaultCodegenConfigTest {
         PathItem dummyPath = new PathItem()
             .post(new Operation())
             .get(new Operation());
-      
+
         OpenAPI openAPI = new OpenAPI()
             .path("dummy", dummyPath);
 
@@ -121,7 +115,7 @@ public class DefaultCodegenConfigTest {
         operation.setRequestBody(body);
         Parameter param = new Parameter().in("query").name("testParameter");
         operation.addParametersItem(param);
-        
+
         CodegenOperation codegenOperation = codegen.fromOperation("/path", "GET", operation, null, openAPI);
 
         Assert.assertEquals(true, codegenOperation.allParams.get(0).getVendorExtensions().get("x-has-more"));
@@ -137,43 +131,43 @@ public class DefaultCodegenConfigTest {
     @Test(dataProvider = "testGetCollectionFormatProvider")
     public void testGetCollectionFormat(Parameter.StyleEnum style, Boolean explode, String expectedCollectionFormat) {
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
-        
+
         ArraySchema paramSchema = new ArraySchema()
-                .items(new IntegerSchema());
+            .items(new IntegerSchema());
         Parameter param = new Parameter()
-                .in("query")
-                .name("testParameter")
-                .schema(paramSchema)
-                .style(style)
-                .explode(explode);
-        
+            .in("query")
+            .name("testParameter")
+            .schema(paramSchema)
+            .style(style)
+            .explode(explode);
+
         CodegenParameter codegenParameter = codegen.fromParameter(param, new HashSet<>());
-        
+
         Assert.assertEquals(codegenParameter.collectionFormat, expectedCollectionFormat);
     }
-    
+
     @DataProvider(name = "testGetCollectionFormatProvider")
     public Object[][] provideData_testGetCollectionFormat() {
         // See: https://swagger.io/docs/specification/serialization/#query
         return new Object[][] {
-            { null,                                 null,           "multi" },
-            { Parameter.StyleEnum.FORM,             null,           "multi" },
-            { null,                                 Boolean.TRUE,   "multi" },
-            { Parameter.StyleEnum.FORM,             Boolean.TRUE,   "multi" },
-            
-            { null,                                 Boolean.FALSE,  "csv" },
-            { Parameter.StyleEnum.FORM,             Boolean.FALSE,  "csv" },
-            
-            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.TRUE,   "multi" },
-            { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.FALSE,  "space" },
-            { Parameter.StyleEnum.SPACEDELIMITED,   null,           "multi" },
-            
-            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.TRUE,   "multi" },
-            { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.FALSE,  "pipe" },
-            { Parameter.StyleEnum.PIPEDELIMITED,    null,           "multi" },
+            {null, null, "multi"},
+            {Parameter.StyleEnum.FORM, null, "multi"},
+            {null, Boolean.TRUE, "multi"},
+            {Parameter.StyleEnum.FORM, Boolean.TRUE, "multi"},
+
+            {null, Boolean.FALSE, "csv"},
+            {Parameter.StyleEnum.FORM, Boolean.FALSE, "csv"},
+
+            {Parameter.StyleEnum.SPACEDELIMITED, Boolean.TRUE, "multi"},
+            {Parameter.StyleEnum.SPACEDELIMITED, Boolean.FALSE, "space"},
+            {Parameter.StyleEnum.SPACEDELIMITED, null, "multi"},
+
+            {Parameter.StyleEnum.PIPEDELIMITED, Boolean.TRUE, "multi"},
+            {Parameter.StyleEnum.PIPEDELIMITED, Boolean.FALSE, "pipe"},
+            {Parameter.StyleEnum.PIPEDELIMITED, null, "multi"},
         };
     }
-    
+
     /**
      * Tests that {@link DefaultCodegenConfig#fromOperation(String, String, Operation, java.util.Map, OpenAPI)} correctly
      * resolves the consumes list when the request body is specified via reference rather than inline.
@@ -181,7 +175,7 @@ public class DefaultCodegenConfigTest {
     @Test
     public void testRequestBodyRefConsumesList() {
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requestBodyRefTest.json");
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
         final String path = "/test/requestBodyRefTest";
         final Operation op = openAPI.getPaths().get(path).getPost();
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
@@ -196,28 +190,28 @@ public class DefaultCodegenConfigTest {
     /**
      * Tests when a 'application/x-www-form-urlencoded' request body is marked as required that all form
      * params are also marked as required.
-     * 
+     *
      * @see #testOptionalFormParams()
      */
     @Test
     public void testRequiredFormParams() {
         // Setup
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
 
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
         final String path = "/test_required";
-        
+
         final Operation op = openAPI.getPaths().get(path).getPost();
         Assert.assertNotNull(op);
-        
+
         // Test
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
-        
+
         // Verification
         List<CodegenParameter> formParams = codegenOp.getFormParams();
         Assert.assertNotNull(formParams);
         Assert.assertEquals(formParams.size(), 2);
-        
+
         for (CodegenParameter formParam : formParams) {
             Assert.assertTrue(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not required.");
         }
@@ -233,28 +227,28 @@ public class DefaultCodegenConfigTest {
     /**
      * Tests when a 'application/x-www-form-urlencoded' request body is marked as optional that all form
      * params are also marked as optional.
-     * 
+     *
      * @see #testRequiredFormParams()
      */
     @Test
     public void testOptionalFormParams() {
         // Setup
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
 
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
         final String path = "/test_optional";
-        
+
         final Operation op = openAPI.getPaths().get(path).getPost();
         Assert.assertNotNull(op);
-        
+
         // Test
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
-        
+
         // Verification
         List<CodegenParameter> formParams = codegenOp.getFormParams();
         Assert.assertNotNull(formParams);
         Assert.assertEquals(formParams.size(), 2);
-        
+
         for (CodegenParameter formParam : formParams) {
             Assert.assertFalse(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is required.");
         }
@@ -318,9 +312,50 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(codegen.findCommonPrefixOfVars(vars), expectedPrefix);
     }
 
+    @Test
+    public void verifyProperJavaEscapingForRefSchemaPatterns() {
+        //given java codegen
+        final AbstractJavaCodegen codegen = new JavaClientCodegen();
+
+        ApiResponse apiResponse = new ApiResponse();
+        Header inlineHeader = new Header().description("This is header1").schema(new Schema().type("string").example("header_val"));
+        apiResponse.addHeaderObject("header1", inlineHeader);
+        OpenAPI openAPI = new OpenAPI().components(new Components().responses(new HashMap<>()));
+        openAPI.getComponents().addHeaders("ref-header1", inlineHeader);
+        Map<String, Schema> allSchemas = new HashMap<>();
+        allSchemas.put("Url", buildStringSchemaWithPattern());
+        openAPI.getComponents().setSchemas(allSchemas);
+        codegen.preprocessOpenAPI(openAPI);
+
+        HashMap<String, Schema> properties = new HashMap<>();
+        Schema<Object> refSchema = new Schema<>();
+        refSchema.set$ref("#/components/schemas/Url");
+        properties.put("url", refSchema);
+        CodegenModel codegenModel = new CodegenModel();
+
+        //when
+        codegen.addVars(codegenModel, properties, new ArrayList<>());
+
+        //then
+        Assert.assertNotNull(codegenModel);
+        Assert.assertEquals(codegenModel.vars.size(), 1);
+        CodegenProperty urlProperty = codegenModel.vars.get(0);
+        Assert.assertEquals(urlProperty.getName(), "url");
+        //verifying java pattern is properly escaped
+        Assert.assertEquals(urlProperty.getPattern(), SSN_ESCAPED_PATTERN);
+    }
+
+    private Schema buildStringSchemaWithPattern() {
+        Schema schema = new Schema();
+        schema.setType("string");
+        // manually apply unescapeJava as if it was parsed from the source file
+        schema.setPattern(StringEscapeUtils.unescapeJava(SSN_ESCAPED_PATTERN));
+        return schema;
+    }
+
     @DataProvider(name = "testCommonPrefixProvider")
     public Object[][] provideData_testCommonPrefix() {
-        return new Object[][]{
+        return new Object[][] {
             {Collections.singletonList("FOO_BAR"), ""},
             {Arrays.asList("FOO_BAR", "FOO_BAZ"), "FOO_"},
             {Arrays.asList("FOO_BAR", "FOO_BAZ", "TEST"), ""},
@@ -328,7 +363,7 @@ public class DefaultCodegenConfigTest {
         };
     }
 
-    private static class P_DefaultCodegenConfig extends DefaultCodegenConfig{
+    private static class P_DefaultCodegenConfig extends DefaultCodegenConfig {
         @Override
         public String getArgumentsLocation() {
             return null;
