@@ -189,9 +189,21 @@
             <version>${servlet-api-version}</version>
         </dependency>
 {{/jakarta}}
-{{#useBeanValidation}}
-    <!-- Bean Validation API support -->
-    {{#jakarta}}
+{{#useBeanValidation}}{{#isStrictValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isStrictValidation}}{{#isLooseValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isLooseValidation}}{{#jakarta}}
     <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>

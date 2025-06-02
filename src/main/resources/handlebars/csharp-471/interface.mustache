@@ -1,0 +1,12 @@
+/// <summary>
+/// {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
+/// </summary>
+public interface {{{classname}}}
+{
+
+{{#vendorExtensions}}
+{{#x-discriminator-type-getter}}
+    {{x-discriminator-type}} {{x-discriminator-type-getter}}();
+{{/x-discriminator-type-getter}}
+{{/vendorExtensions}}
+}

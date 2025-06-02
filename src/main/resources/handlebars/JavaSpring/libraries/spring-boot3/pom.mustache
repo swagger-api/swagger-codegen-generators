@@ -7,15 +7,15 @@
     <version>{{artifactVersion}}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
-        <springboot-version>3.1.1</springboot-version>
-        <swagger-annotations-version>2.2.14</swagger-annotations-version>
-        <springdoc-version>1.7.0</springdoc-version>
+        <maven.compiler.release>{{springBoot3JavaVersion}}</maven.compiler.release>
+        <springboot-version>{{springBoot3Version}}</springboot-version>
+        <swagger-annotations-version>2.2.25</swagger-annotations-version>
+        <springdoc-version>2.8.3</springdoc-version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.1</version>
+        <version>{{springBoot3Version}}</version>
     </parent>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -44,14 +44,32 @@
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${springboot-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.1.Final</version>
+        </dependency>
         {{#withXml}}
         <dependency>
           <groupId>com.fasterxml.jackson.dataformat</groupId>
           <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
         {{/withXml}}
-        {{#useBeanValidation}}
+{{#useBeanValidation}}{{#isStrictValidation}}
         <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isStrictValidation}}{{#isLooseValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+{{/isLooseValidation}}
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -78,7 +96,7 @@
         <!-- SpringDoc dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-version}</version>
         </dependency>
 

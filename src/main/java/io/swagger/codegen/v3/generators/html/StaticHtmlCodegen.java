@@ -183,8 +183,10 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
         Info info = openAPI.getInfo();
-        info.setDescription(toHtml(info.getDescription()));
-        info.setTitle(toHtml(info.getTitle()));
+        if (info != null) {
+            info.setDescription(toHtml(info.getDescription()));
+            info.setTitle(toHtml(info.getTitle()));
+        }
         if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
             return;
         }

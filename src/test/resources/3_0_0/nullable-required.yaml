@@ -1,0 +1,44 @@
+openapi: 3.0.2
+info:
+  title: Nullable Required
+  version: 1.0.0
+servers:
+  - url: /api/v3
+paths:
+  /pet:
+    post:
+      operationId: addPet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      required:
+        - notNullable_required
+        - nullable_required
+      type: object
+      properties:
+        nullable_notRequired:
+          type: string
+          example: doggie
+          nullable: true
+        notNullable_notRequired:
+          type: string
+          example: doggie
+        notNullable_required:
+          type: string
+          example: doggie
+        nullable_required:
+          type: string
+          example: doggie
+          nullable: true
