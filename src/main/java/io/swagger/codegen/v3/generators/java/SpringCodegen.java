@@ -65,6 +65,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String TARGET_OPENFEIGN = "generateForOpenFeign";
     public static final String DEFAULT_INTERFACES = "defaultInterfaces";
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
+    public static final String SPRING_BOOT3_VERSION = "springBoot3Version";
+    public static final String SPRING_BOOT3_JAVA_VERSION = "springBoot3JavaVersion";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
     public static final String DATE_PATTERN = "datePattern";
     public static final String DATE_TIME_PATTERN = "dateTimePattern";
@@ -95,6 +97,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected boolean openFeign = false;
     protected boolean defaultInterfaces = true;
     protected String springBootVersion = "2.1.16.RELEASE";
+    protected String springBoot3Version = "3.4.2";
+    protected String springBoot3JavaVersion = "21";
     protected boolean throwsException = false;
     private boolean notNullJacksonAnnotation = false;
     protected String validationMode = "strict";
@@ -151,6 +155,20 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         springBootEnum.put("2.1.7.RELEASE", "2.1.7.RELEASE");
         springBootVersionOption.setEnum(springBootEnum);
         cliOptions.add(springBootVersionOption);
+
+        CliOption springBoot3VersionOption = new CliOption(SPRING_BOOT3_VERSION, "Spring boot 3 version");
+        Map<String, String> springBoot3Enum = new HashMap<>();
+        springBoot3Enum.put("3.3.4", "3.3.4");
+        springBoot3Enum.put("3.4.2", "3.4.2");
+        springBoot3VersionOption.setEnum(springBoot3Enum);
+        cliOptions.add(springBoot3VersionOption);
+
+        CliOption springBoot3JavaVersionOption = new CliOption(SPRING_BOOT3_JAVA_VERSION, "Spring boot 3 Java version");
+        Map<String, String> springBoot3JavaEnum = new HashMap<>();
+        springBoot3JavaEnum.put("17", "17");
+        springBoot3JavaEnum.put("21", "21");
+        springBoot3JavaVersionOption.setEnum(springBoot3JavaEnum);
+        cliOptions.add(springBoot3JavaVersionOption);
 
         CliOption validationMode = new CliOption(VALIDATION_MODE_OPTION, "Validation mode to apply");
         validationMode.setDefault(VALIDATION_MODE_STRICT);
@@ -317,6 +335,16 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             additionalProperties.put(SPRING_BOOT_VERSION_2, true);
             this.setOpenFeign(true);
         }
+
+        if (additionalProperties.containsKey(SPRING_BOOT3_VERSION)) {
+            this.springBoot3Version = additionalProperties.get(SPRING_BOOT3_VERSION).toString();
+        }
+        additionalProperties.put(SPRING_BOOT3_VERSION, this.springBoot3Version);
+
+        if (additionalProperties.containsKey(SPRING_BOOT3_JAVA_VERSION)) {
+            this.springBoot3JavaVersion = additionalProperties.get(SPRING_BOOT3_JAVA_VERSION).toString();
+        }
+        additionalProperties.put(SPRING_BOOT3_JAVA_VERSION, this.springBoot3JavaVersion);
 
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
