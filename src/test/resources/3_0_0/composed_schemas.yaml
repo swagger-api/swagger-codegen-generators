@@ -113,6 +113,21 @@ components:
             oneOf:
               - $ref: "#/components/schemas/Dog"
               - $ref: "#/components/schemas/Cat"
+        owner:
+          oneOf:
+            -
+              type: string
+            -
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+              required:
+                - firstName
+                - lastName
+              additionalProperties: true
       xml:
         name: Pet
 
