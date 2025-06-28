@@ -499,6 +499,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
         modifiedName = titleCase(modifiedName);
 
+        if (!StringUtils.isEmpty(modelNamePrefix)) {
+            modifiedName = titleCase(modelNamePrefix) + modifiedName;
+        }
+
+        if (!StringUtils.isEmpty(modelNameSuffix)) {
+            modifiedName = modifiedName + modelNameSuffix;
+        }
+
         if (modifiedName.equalsIgnoreCase("Companion")) {
             modifiedName = "_" + modifiedName;
         }
