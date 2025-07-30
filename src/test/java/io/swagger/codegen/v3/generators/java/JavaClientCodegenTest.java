@@ -343,4 +343,20 @@ public class JavaClientCodegenTest extends AbstractCodegenTest {
 
         Assert.assertTrue(hasComposedModel);
     }
+
+    @Test
+    public void testMapOfInnerEnum() {
+        final OpenAPI openAPI = getOpenAPI("3_0_0/map_of_inner_enum.yaml");
+        final JavaClientCodegen config = new JavaClientCodegen();
+        final CodegenWrapper codegenWrapper = processSchemas(config, openAPI);
+
+        final Map<String, CodegenModel> codegenModels = codegenWrapper.getAllModels();
+
+        final CodegenModel employeeWithMapOfEnum = codegenModels.get("EmployeeWithMapOfEnum");
+        Assert.assertEquals(employeeWithMapOfEnum.vars.get(0).datatypeWithEnum, "Map<String, InnerEnum>");
+
+        final CodegenModel employeeWithMultiMapOfEnum = codegenModels.get("EmployeeWithMultiMapOfEnum");
+        Assert.assertEquals(employeeWithMultiMapOfEnum.vars.get(0).datatypeWithEnum, "Map<String, List<InnerEnum>>");
+
+    }
 }
