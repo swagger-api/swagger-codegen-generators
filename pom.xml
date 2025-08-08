@@ -339,7 +339,7 @@
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
         <swagger-codegen-version>3.0.70-SNAPSHOT</swagger-codegen-version>
-        <swagger-parser-version>2.1.28</swagger-parser-version>
+        <swagger-parser-version>2.1.31</swagger-parser-version>
         <swagger-core-version>2.2.32</swagger-core-version>
         <jackson-version>2.19.0</jackson-version>
         <jackson-databind-version>2.19.0</jackson-databind-version>
