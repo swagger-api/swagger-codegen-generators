@@ -114,7 +114,7 @@ public class {{classname}} {
         {{localVariablePrefix}}localVarHeaderParams.put("Content-Type", {{localVariablePrefix}}localVarContentType);
 
         if(progressListener != null) {
-            {{localVariablePrefix}}apiClient.getHttpClient().networkInterceptors().add(new okhttp3.Interceptor() {
+            okhttp3.Interceptor interceptor = new okhttp3.Interceptor() {
                 @Override
                 public okhttp3.Response intercept(okhttp3.Interceptor.Chain chain) throws IOException {
                     okhttp3.Response originalResponse = chain.proceed(chain.request());
@@ -122,7 +122,9 @@ public class {{classname}} {
                     .body(new ProgressResponseBody(originalResponse.body(), progressListener))
                     .build();
                 }
-            });
+            };
+            okhttp3.OkHttpClient newClient = {{localVariablePrefix}}apiClient.getHttpClient().newBuilder().addNetworkInterceptor(interceptor).build();
+            {{localVariablePrefix}}apiClient.setHttpClient(newClient);
         }
 
         String[] {{localVariablePrefix}}localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
