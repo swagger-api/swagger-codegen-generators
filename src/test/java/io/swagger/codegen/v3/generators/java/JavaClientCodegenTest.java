@@ -351,7 +351,6 @@ public class JavaClientCodegenTest extends AbstractCodegenTest {
         final CodegenWrapper codegenWrapper = processSchemas(config, openAPI);
 
         final Map<String, CodegenModel> codegenModels = codegenWrapper.getAllModels();
-
         final CodegenModel employeeWithMapOfEnum = codegenModels.get("EmployeeWithMapOfEnum");
         Assert.assertEquals(employeeWithMapOfEnum.vars.get(0).datatypeWithEnum, "Map<String, InnerEnum>");
 
