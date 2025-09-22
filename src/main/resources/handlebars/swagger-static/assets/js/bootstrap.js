@@ -100,7 +100,7 @@
       selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
     }
 
-    $parent = $(selector)
+    $parent = $(document).find(selector)
 
     e && e.preventDefault()
 
@@ -436,8 +436,9 @@
   * ================= */
 
   $(document).on('click.carousel.data-api', '[data-slide]', function (e) {
+    var selector = $(this).attr('data-target') || (href = $(this).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
     var $this = $(this), href
-      , $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
+      , $target = $(document).find(selector)
       , options = $.extend({}, $target.data(), $this.data())
     $target.carousel(options)
     e.preventDefault()
@@ -600,10 +601,9 @@
   * ================= */
 
   $(document).on('click.collapse.data-api', '[data-toggle=collapse]', function (e) {
+    var selector = $(this).attr('data-target') || e.preventDefault() || (href = $(this).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
     var $this = $(this), href
-      , target = $this.attr('data-target')
-        || e.preventDefault()
-        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
+      , target = $(document).find(selector)
       , option = $(target).data('collapse') ? 'toggle' : $this.data()
     $this[$(target).hasClass('in') ? 'addClass' : 'removeClass']('collapsed')
     $(target).collapse(option)
@@ -726,7 +726,7 @@
       selector = selector && /#/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
     }
 
-    $parent = $(selector)
+    $parent = $(document).find(selector)
     $parent.length || ($parent = $this.parent())
 
     return $parent
@@ -999,9 +999,9 @@
   * ============== */
 
   $(document).on('click.modal.data-api', '[data-toggle="modal"]', function (e) {
-    var $this = $(this)
-      , href = $this.attr('href')
-      , $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
+      var selector = $(this).attr('data-target') || (href = $(this).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
+      var $this = $(this), href
+          , $target = $(document).find(selector)
       , option = $target.data('modal') ? 'toggle' : $.extend({ remote:!/#/.test(href) && href }, $target.data(), $this.data())
 
     e.preventDefault()
@@ -1221,7 +1221,9 @@
         , $e = this.$element
         , o = this.options
 
-      title = $e.attr('data-original-title')
+      var target = $e.attr('data-original-title')
+
+      title = $(document).find(target)
         || (typeof o.title == 'function' ? o.title.call($e[0]) :  o.title)
 
       return title
@@ -1635,7 +1637,7 @@
 
       if (e.isDefaultPrevented()) return
 
-      $target = $(selector)
+      $target = $(document).find(selector)
 
       this.activate($this.parent('li'), $ul)
       this.activate($target, $target.parent(), function () {
