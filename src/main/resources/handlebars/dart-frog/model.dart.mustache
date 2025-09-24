@@ -1,0 +1,26 @@
+{{#if imports}}
+// Import models used by this model
+    {{#each imports}}
+import '{{import}}';
+    {{/each}}
+
+{{/if}}
+{{#each models}}
+    {{#with model}}
+        {{#eq dataType "Object"}}
+class {{classname}} {
+            {{#each vars}}
+    {{datatype}}{{#unless required}}?{{/unless}} {{name}};
+            {{/each}}
+
+    {{classname}}({ 
+            {{#each vars}}
+        {{#if required}}required {{/if}}this.{{name}}{{#unless @last}},{{/unless}}
+            {{/each}}
+    });
+}
+        {{else}}
+typedef {{classname}} = {{dataType}};
+        {{/eq}}
+    {{/with}}
+{{/each}}
