@@ -28,3 +28,4 @@ test-output/
 
 .classpath
 .settings/
+.DS_Store
