@@ -240,6 +240,31 @@ public class KotlinClientCodegenModelTest {
         Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
     }
 
+    @Test(description = "convert a model with complex property")
+    public void prefixSuffixTest() {
+        final Schema schema = getComplexSchema();
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+        codegen.setDateLibrary(KotlinClientCodegen.DateLibrary.JAVA8.value);
+        codegen.setModelNamePrefix("Swagger");
+        codegen.setModelNameSuffix("Dto");
+        codegen.processOpts();
+
+        final CodegenModel cm = codegen.fromModel("sample", schema);
+
+        Assert.assertEquals(cm.name, "sample");
+        Assert.assertEquals(cm.classname, "SwaggerSampleDto");
+        Assert.assertEquals(cm.description, "a sample model");
+        Assert.assertEquals(cm.vars.size(), 1);
+
+        final CodegenProperty property1 = cm.vars.get(0);
+        Assert.assertEquals(property1.baseName, "child");
+        Assert.assertEquals(property1.datatype, "SwaggerChildDto");
+        Assert.assertEquals(property1.name, "child");
+        Assert.assertEquals(property1.baseType, "SwaggerChildDto");
+        Assert.assertFalse(property1.required);
+        Assert.assertTrue(getBooleanValue(property1, CodegenConstants.IS_NOT_CONTAINER_EXT_NAME));
+    }
+
     @DataProvider(name = "modelNames")
     public static Object[][] modelNames() {
         return new Object[][]{
