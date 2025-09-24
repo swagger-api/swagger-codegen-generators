@@ -3185,7 +3185,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 if (this.openAPI == null) {
                     LOGGER.warn("open api utility object was not properly set.");
                 } else {
-                    OpenAPIUtil.addPropertiesFromRef(this.openAPI, propertySchema, codegenProperty);
+                    OpenAPIUtil.addPropertiesFromRef(this.openAPI, propertySchema, codegenProperty, this::toRegularExpression);
                 }
             }
 
