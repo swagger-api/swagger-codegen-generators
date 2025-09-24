@@ -16,6 +16,17 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 {{/jakarta}}
 {{/useBeanValidation}}
+{{#jackson}}
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+{{#withXml}}
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+{{/withXml}}
+{{/jackson}}
+{{#withXml}}
+import javax.xml.bind.annotation.*;
+{{/withXml}}
 {{/x-is-composed-model}}
 
 {{#models}}
