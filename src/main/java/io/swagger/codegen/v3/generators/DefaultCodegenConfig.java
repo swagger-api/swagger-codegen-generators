@@ -1394,18 +1394,18 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     }
                 }
                 if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+                    codegenModel.discriminator.setPropertyName(codegenModel.discriminator.getPropertyName());
                     Map<String, String> classnameKeys = new HashMap<>();
 
                     if (composed.getOneOf()!=null) {
                         composed.getOneOf().forEach( s -> {
-                            codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
+                            codegenModel.discriminator.getMapping().keySet().stream().filter(key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
                                 .forEach(key -> {
                                     String mappingValue = codegenModel.discriminator.getMapping().get(key);
                                     if (classnameKeys.containsKey(codegenModel.classname)) {
                                         throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
                                     }
-                                    classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
+                                    classnameKeys.put(key, toModelName(mappingValue.replace("#/components/schemas/", "")));
                                 });
                         });
                         codegenModel.discriminator.getMapping().putAll(classnameKeys);
