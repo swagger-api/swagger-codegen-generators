@@ -1399,16 +1399,20 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                     if (composed.getOneOf()!=null) {
                         composed.getOneOf().forEach( s -> {
-                            codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
-                                .forEach(key -> {
-                                    String mappingValue = codegenModel.discriminator.getMapping().get(key);
-                                    if (classnameKeys.containsKey(codegenModel.classname)) {
-                                        throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
-                                    }
-                                    classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
-                                });
+                            if(codegenModel.discriminator.getMapping() != null){
+                                codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
+                                    .forEach(key -> {
+                                        String mappingValue = codegenModel.discriminator.getMapping().get(key);
+                                        if (classnameKeys.containsKey(codegenModel.classname)) {
+                                            throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
+                                        }
+                                        classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
+                                    });
+                                codegenModel.discriminator.getMapping().putAll(classnameKeys);
+
+                            }
+
                         });
-                        codegenModel.discriminator.getMapping().putAll(classnameKeys);
                     }
                 }
 
