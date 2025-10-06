@@ -52,7 +52,7 @@ jobs:
             if [[ ! $CODEGEN_VERSION =~ ^.*SNAPSHOT$ ]];
             then
               # check release version exists
-              export CODEGEN_FOUND_JSON=`curl -s --max-time 60 --retry 15 --connect-timeout 20 https://search.maven.org/solrsearch/select?q=g:io.swagger.codegen.v3%20AND%20a:swagger-codegen%20AND%20v:${CODEGEN_VERSION}%20AND%20p:jar`
+              export CODEGEN_FOUND_JSON=`curl -s --max-time 60 --retry 15 --connect-timeout 20 https://central.sonatype.com/solrsearch/select?q=g:io.swagger.codegen.v3%20AND%20a:swagger-codegen%20AND%20v:${CODEGEN_VERSION}%20AND%20p:jar`
               export CODEGEN_FOUND=`echo ${CODEGEN_FOUND_JSON} | jq '.response.numFound'`
               echo "CODEGEN_FOUND" ${CODEGEN_FOUND}
               if [[ $CODEGEN_FOUND == '0' ]];
