@@ -1408,11 +1408,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                         }
                                         classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
                                     });
-                                codegenModel.discriminator.getMapping().putAll(classnameKeys);
 
                             }
 
                         });
+                        if(codegenModel.discriminator.getMapping() != null) {
+                            codegenModel.discriminator.getMapping().putAll(classnameKeys);
+                        }
                     }
                 }
 
