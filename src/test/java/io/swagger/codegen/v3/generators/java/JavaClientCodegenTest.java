@@ -7,14 +7,10 @@ import io.swagger.codegen.v3.CodegenModelFactory;
 import io.swagger.codegen.v3.CodegenModelType;
 import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenSchema;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.codegen.v3.generators.CodegenWrapper;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
-import io.swagger.codegen.v3.generators.SchemaHandler;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -25,9 +21,6 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
-import io.swagger.v3.parser.OpenAPIV3Parser;
-import io.swagger.v3.parser.core.models.ParseOptions;
-import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -41,6 +34,26 @@ import java.util.List;
 import java.util.Map;
 
 public class JavaClientCodegenTest extends AbstractCodegenTest {
+
+    @Test
+    public void testIsJsonMimeType() {
+        Assert.assertTrue(JavaClientCodegen.isJsonMimeType("application/json"));
+        Assert.assertTrue(JavaClientCodegen.isJsonMimeType("application/json; charset=UTF8"));
+        Assert.assertTrue(JavaClientCodegen.isJsonMimeType("APPLICATION/JSON"));
+        Assert.assertFalse(JavaClientCodegen.isJsonMimeType("text/plain"));
+        Assert.assertFalse(JavaClientCodegen.isJsonMimeType(null));
+        Assert.assertFalse(JavaClientCodegen.isJsonMimeType("application/vnd.mycompany+json"));
+    }
+
+    @Test
+    public void testIsJsonVendorMimeType() {
+        Assert.assertTrue(JavaClientCodegen.isJsonVendorMimeType("application/vnd.mycompany+json"));
+        Assert.assertTrue(JavaClientCodegen.isJsonVendorMimeType("application/vnd.mycompany.resourceA.version1+json"));
+        Assert.assertTrue(JavaClientCodegen.isJsonVendorMimeType("application/vnd.test+json; charset=UTF8"));
+        Assert.assertFalse(JavaClientCodegen.isJsonVendorMimeType("application/json"));
+        Assert.assertFalse(JavaClientCodegen.isJsonVendorMimeType("text/plain"));
+        Assert.assertFalse(JavaClientCodegen.isJsonVendorMimeType(null));
+    }
 
     @Test
     public void modelInheritanceSupportInGson() throws Exception {
