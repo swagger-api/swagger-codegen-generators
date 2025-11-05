@@ -1399,16 +1399,22 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
                     if (composed.getOneOf()!=null) {
                         composed.getOneOf().forEach( s -> {
-                            codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
-                                .forEach(key -> {
-                                    String mappingValue = codegenModel.discriminator.getMapping().get(key);
-                                    if (classnameKeys.containsKey(codegenModel.classname)) {
-                                        throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
-                                    }
-                                    classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
-                                });
+                            if(codegenModel.discriminator.getMapping() != null){
+                                codegenModel.discriminator.getMapping().keySet().stream().filter( key -> codegenModel.discriminator.getMapping().get(key).equals(s.get$ref()))
+                                    .forEach(key -> {
+                                        String mappingValue = codegenModel.discriminator.getMapping().get(key);
+                                        if (classnameKeys.containsKey(codegenModel.classname)) {
+                                            throw new IllegalArgumentException("Duplicate shema name in discriminator mapping");
+                                        }
+                                        classnameKeys.put(toModelName(mappingValue.replace("#/components/schemas/", "")),key);
+                                    });
+
+                            }
+
                         });
-                        codegenModel.discriminator.getMapping().putAll(classnameKeys);
+                        if(codegenModel.discriminator.getMapping() != null) {
+                            codegenModel.discriminator.getMapping().putAll(classnameKeys);
+                        }
                     }
                 }
 
@@ -1948,7 +1954,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
         if (baseItem != null) {
             // set both datatype and datetypeWithEnum as only the inner type is enum
-            property.datatypeWithEnum = property.datatypeWithEnum.replace(", " + baseItem.baseType, ", " + toEnumName(baseItem));
+            property.datatypeWithEnum = property.datatypeWithEnum.replace(baseItem.baseType + ">", toEnumName(baseItem) + ">");
 
             // naming the enum with respect to the language enum naming convention
             // e.g. remove [], {} from array/map of enum
