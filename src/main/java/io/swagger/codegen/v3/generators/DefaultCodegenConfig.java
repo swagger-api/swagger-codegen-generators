@@ -2101,6 +2101,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                             codegenOperation.returnBaseType = codegenProperty.baseType;
                         }
                     }
+                    if (responseSchema instanceof BinarySchema || responseSchema instanceof FileSchema) {
+                        codegenOperation.getVendorExtensions().put(CodegenConstants.IS_RESPONSE_FILE_EXT_NAME, Boolean.TRUE);
+                    }
                     if (!additionalProperties.containsKey(CodegenConstants.DISABLE_EXAMPLES_OPTION)) {
                         codegenOperation.examples = new ExampleGenerator(openAPI).generate(null, null, responseSchema);
                     }
@@ -3691,6 +3694,42 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             name = name.replaceAll("\\W", "");
         }
 
+        return name;
+    }
+
+    /**
+     * Sanitize name (parameter, property, method, etc)
+     *
+     * @param name string to be sanitize
+     * @return sanitized string
+     */
+    @SuppressWarnings("static-method")
+    public String sanitizeVarName(String name) {
+        if (name == null) {
+            LOGGER.warn("String to be sanitized is null. Default to " + Object.class.getSimpleName());
+            return Object.class.getSimpleName();
+        }
+        if ("$".equals(name)) {
+            return "value";
+        }
+        name = name.replaceAll("\\[\\]", StringUtils.EMPTY);
+        name = name.replaceAll("\\[", "_")
+            .replaceAll("\\]", "")
+            .replaceAll("\\(", "_")
+            .replaceAll("\\)", StringUtils.EMPTY)
+            .replaceAll("\\.", "_")
+            .replaceAll("@", "_at_")
+            .replaceAll("-", "_")
+            .replaceAll(" ", "_");
+
+        // remove everything else other than word, number and _
+        // $php_variable => php_variable
+        if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
+            name = Pattern.compile("[\\W&&[^$]]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
+        }
+        else {
+            name = name.replaceAll("[\\W&&[^$]]", StringUtils.EMPTY);
+        }
         return name;
     }
 
