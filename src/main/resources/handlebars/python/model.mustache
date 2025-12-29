@@ -85,7 +85,7 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
 {{/required}}
 {{/vars}}
 {{#parent}}
-        {{parent}}.__init__(self, *args, **kwargs)
+        {{parent}}.__init__(self{{#vars}}, {{name}}={{name}}{{/vars}}, *args, **kwargs)
 {{/parent}}
 
 {{#vars}}
