@@ -67,7 +67,29 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
     }
 {{/discriminator}}
 
-    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}{{#parent}}, *args, **kwargs{{/parent}}):  # noqa: E501
+{{#parent}}
+    def __init__(self, **kwargs):  # noqa: E501
+        """{{classname}} - a model defined in Swagger"""  # noqa: E501
+{{#vars}}{{#@first}}
+{{/@first}}
+        self._{{name}} = None
+{{/vars}}
+        self.discriminator = {{#discriminator}}'{{discriminator.propertyName}}'{{/discriminator}}{{^discriminator}}None{{/discriminator}}
+{{#vars}}{{#@first}}
+{{/@first}}
+        {{name}} = kwargs.get('{{name}}'{{#defaultValue}}, {{{defaultValue}}}{{/defaultValue}})
+{{#required}}
+        self.{{name}} = {{name}}
+{{/required}}
+{{^required}}
+        if {{name}} is not None:
+            self.{{name}} = {{name}}
+{{/required}}
+{{/vars}}
+        {{parent}}.__init__(self, **kwargs)
+{{/parent}}
+{{^parent}}
+    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}, **kwargs):  # noqa: E501
         """{{classname}} - a model defined in Swagger"""  # noqa: E501
 {{#vars}}{{#@first}}
 {{/@first}}
@@ -84,8 +106,6 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
             self.{{name}} = {{name}}
 {{/required}}
 {{/vars}}
-{{#parent}}
-        {{parent}}.__init__(self, *args, **kwargs)
 {{/parent}}
 
 {{#vars}}
