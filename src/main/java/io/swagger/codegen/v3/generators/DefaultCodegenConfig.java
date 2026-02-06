@@ -4457,11 +4457,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected boolean isFileTypeSchema(Schema schema) {
         final Schema fileTypeSchema;
+
+        if (schema == null) {
+            return false;
+        }
+
         if (StringUtils.isNotBlank(schema.get$ref())) {
             fileTypeSchema = OpenAPIUtil.getSchemaFromRefSchema(schema, openAPI);
         } else {
             fileTypeSchema = schema;
         }
+
         if (fileTypeSchema.getProperties() != null) {
             final Collection<Schema> propertySchemas = fileTypeSchema.getProperties().values();
             return propertySchemas.stream().anyMatch(propertySchema -> "string".equalsIgnoreCase(propertySchema.getType())
