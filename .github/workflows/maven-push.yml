@@ -3,6 +3,7 @@ name: Build Test Push
 on:
   push:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build_push:
