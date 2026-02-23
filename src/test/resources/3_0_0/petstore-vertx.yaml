@@ -745,8 +745,33 @@ components:
             - available
             - pending
             - sold
+        part:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Dog"
+              - $ref: "#/components/schemas/Cat"
       xml:
         name: Pet
+    Dog:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            bark:
+              type: boolean
+            breed:
+              type: string
+              enum: [Dingo, Husky, Retriever, Shepherd]
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            hunts:
+              type: boolean
+            age:
+              type: integer
     ApiResponse:
       type: object
       properties:
