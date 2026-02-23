@@ -4,7 +4,6 @@ import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.generators.AbstractCodegenTest;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -19,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -281,6 +278,24 @@ public class KotlinClientCodegenModelTest {
         final KotlinClientCodegen codegen = new KotlinClientCodegen();
         Assert.assertEquals(codegen.toEnumVarName(name, "String"), expectedName);
 
+    }
+
+    @DataProvider
+    public static Object[][] enumClassNames() {
+        return new Object[][] {
+            {"name1", "Name1"},
+            {"A", "A"},
+            {"NAME2", "NAME2"},
+            {"`return`", "`Return`"},
+        };
+    }
+
+    @Test(dataProvider = "enumClassNames", description = "sanitize Enum class names")
+    public void capitalizeEnumName(final String name, final String expectedName) {
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+        CodegenProperty property = new CodegenProperty();
+        property.setName(name);
+        Assert.assertEquals(codegen.toEnumName(property), expectedName);
     }
 
     private static class ModelNameTest {
