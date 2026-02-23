@@ -4,6 +4,7 @@ package io.swagger.codegen.v3.generators.util;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
+import java.util.function.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import static io.swagger.codegen.v3.CodegenConstants.HAS_VALIDATION_EXT_NAME;
 
 public class OpenAPIUtil {
 
-    public static void addPropertiesFromRef(OpenAPI openAPI, Schema refSchema, CodegenProperty codegenProperty) {
+    public static void addPropertiesFromRef(OpenAPI openAPI, Schema refSchema, CodegenProperty codegenProperty, UnaryOperator<String> toRegularExpression) {
         final Map<String, Schema> allSchemas = openAPI.getComponents().getSchemas();
         if (allSchemas == null || allSchemas.isEmpty()) {
             return;
@@ -23,7 +24,7 @@ public class OpenAPIUtil {
             return;
         }
         if (StringUtils.isBlank(codegenProperty.pattern)) {
-            codegenProperty.pattern = schema.getPattern();
+            codegenProperty.pattern = toRegularExpression.apply(schema.getPattern());
         }
         codegenProperty.minLength = schema.getMinLength();
         codegenProperty.maxLength = schema.getMaxLength();
