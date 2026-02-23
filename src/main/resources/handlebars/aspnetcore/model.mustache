@@ -55,8 +55,11 @@ namespace {{packageName}}.Models
         {
             var sb = new StringBuilder();
             sb.Append("class {{classname}} {\n");
+            {{#parent}}
+            sb.Append(base.ToString());
+            {{/parent}}
             {{#vars}}
-            sb.Append("  {{name}}: ").Append({{name}}).Append("\n");
+            sb.Append("  {{name}}: ").Append({{name}}).Append('\n');
             {{/vars}}
             sb.Append("}\n");
             return sb.ToString();
@@ -66,7 +69,7 @@ namespace {{packageName}}.Models
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
-        public {{#parent}} new {{/parent}}string ToJson()
+        public {{#parent}}new {{/parent}}string ToJson()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
