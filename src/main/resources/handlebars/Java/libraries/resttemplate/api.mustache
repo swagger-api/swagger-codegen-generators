@@ -63,14 +63,17 @@ public class {{classname}} {
      * @return {{returnType}}
     {{/returnType}}
      * @throws RestClientException if an error occurs while attempting to invoke the API
+    {{#vendorExtensions.x-is-deprecated}}
+    * @deprecated
+    {{/vendorExtensions.x-is-deprecated}}
     {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
     {{/externalDocs}}
      */
-    {{#isDeprecated}}
+    {{#vendorExtension.x-is-enum}}
     @Deprecated
-    {{/isDeprecated}}
+    {{/vendorExtension.x-is-enum}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) throws RestClientException {
         {{#returnType}}
         return {{operationId}}WithHttpInfo({{#parameters}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}).getBody();
@@ -91,14 +94,17 @@ public class {{classname}} {
      {{/parameters}}
      * @return ResponseEntity&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
+     {{#vendorExtensions.x-is-deprecated}}
+     * @deprecated
+     {{/vendorExtensions.x-is-deprecated}}
      {{#externalDocs}}
      * {{description}}
      * @see <a href="{{url}}">{{summary}} Documentation</a>
      {{/externalDocs}}
      */
-    {{#isDeprecated}}
+    {{#vendorExtension.x-is-enum}}
     @Deprecated
-    {{/isDeprecated}}
+    {{/vendorExtension.x-is-enum}}
     public ResponseEntity<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#parameters}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}}) throws RestClientException {
         Object {{localVariablePrefix}}postBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
         {{#parameters}}

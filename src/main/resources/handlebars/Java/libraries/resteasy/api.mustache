@@ -51,17 +51,17 @@ public class {{classname}} {
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/parameters}}{{#returnType}}
    * @return {{{returnType}}}{{/returnType}}
    * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
+   {{#vendorExtension.x-is-enum}}
    * @deprecated
-   {{/isDeprecated}}
+   {{/vendorExtension.x-is-enum}}
    {{#externalDocs}}
    * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>
    {{/externalDocs}}
    */
-  {{#isDeprecated}}
+  {{#vendorExtension.x-is-enum}}
   @Deprecated
-  {{/isDeprecated}}
+  {{/vendorExtension.x-is-enum}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
     Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
     {{#parameters}}{{#required}}
