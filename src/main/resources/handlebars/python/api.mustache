@@ -8,7 +8,11 @@ import re  # noqa: F401
 
 # python 2 and python 3 compatibility library
 import six
-
+# Model imports
+{{#operations}}{{#operation}}{{#unless returnTypeIsPrimitive}}{{#returnType}}from . import {{returnType}}
+{{/returnType}}{{/unless}}{{/operation}}{{/operations}}
+# Importing for doctring purposes
+# Api Client
 from {{packageName}}.api_client import ApiClient
 
 
@@ -50,6 +54,7 @@ class {{classname}}(object):
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
+        :rtype: {{#returnType}}{{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
@@ -81,6 +86,7 @@ class {{classname}}(object):
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
                  If the method is called asynchronously,
                  returns the request thread.
+        :rtype: {{#returnType}}{{returnType}} | {{/returnType}}multiprocessing.pool.ApplyResult
         """
 
         all_params = [{{#parameters}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/parameters}}]  # noqa: E501
