@@ -175,6 +175,17 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return cliOptions;
     }
 
+
+    // a map to store the mapping between inline schema and the name provided by the user
+    protected Map<String, String> inlineSchemaNameMapping = new HashMap<>();
+    // a map to store the inline schema naming conventions
+    protected Map<String, String> inlineSchemaOption = new HashMap<>();
+    public Map<String, String> inlineSchemaOption() {
+        return inlineSchemaOption;
+    }
+    public Map<String, String> inlineSchemaNameMapping() {
+        return inlineSchemaNameMapping;
+    }
     public void processOpts() {
         if (additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)) {
             this.customTemplateDir = additionalProperties.get(CodegenConstants.TEMPLATE_DIR).toString();
