@@ -217,11 +217,13 @@ public class RClientCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toModelFilename(String name) {
-        if (!StringUtils.isEmpty(modelNamePrefix)) {
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+            !name.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) {
             name = modelNamePrefix + "_" + name;
         }
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) {
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !name.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) {
             name = name + "_" + modelNameSuffix;
         }
 

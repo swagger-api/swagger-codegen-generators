@@ -311,11 +311,13 @@ public abstract class AbstractSwiftCodegen extends DefaultCodegenConfig {
         // FIXME parameter should not be assigned. Also declare it as "final"
         name = sanitizeName(name);
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) { // set model suffix
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !name.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) { // set model suffix
             name = name + "_" + modelNameSuffix;
         }
 
-        if (!StringUtils.isEmpty(modelNamePrefix)) { // set model prefix
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+            !name.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) { // set model prefix
             name = modelNamePrefix + "_" + name;
         }
 
