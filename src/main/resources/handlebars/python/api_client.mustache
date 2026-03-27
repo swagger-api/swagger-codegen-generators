@@ -216,6 +216,39 @@ class ApiClient(object):
         return {key: self.sanitize_for_serialization(val)
                 for key, val in six.iteritems(obj_dict)}
 
+    @staticmethod
+    def _decode_data_according_to_charset(data, response):
+        """Gets the charset from response headers and decode
+           the body accordingly.
+
+        :param data: bytes to be decoded.
+        :param response: RESTResponse object.
+
+        :return: tuple with content_type and decoded string or original data.
+        """
+        charset = "ascii"
+        content_type = response.getheader("Content-Type", None)
+
+        if data is None:
+            return content_type, data
+
+        if content_type is None:
+            # assume content type "application/octet-stream" [RFC2046]
+            # this means its binary so return bytes here
+            return None, data
+        content_type = content_type.lower()
+        # Just decode and try to find content types that starts with "text/"
+        if content_type.startswith("text/"):
+            # try to find a charset and decode it, fallback is ascii
+            # according to http spec
+            parts = content_type.split(";")
+            for part in parts:
+                if part.strip().startswith('charset='):
+                    charset_parts = part.strip().replace('"', '').split("=")
+                    if len(charset_parts) == 2:
+                        charset = charset_parts[1]
+        return content_type, data.decode(charset)
+
     def deserialize(self, response, response_type):
         """Deserializes response into an object.
 
@@ -230,11 +263,12 @@ class ApiClient(object):
         if response_type == "file":
             return self.__deserialize_file(response)
 
-        # fetch data from response object
-        try:
-            data = json.loads(response.data)
-        except ValueError:
-            data = response.data
+        # get content type and decode body accoding to charset
+        content_type, data = self._decode_data_according_to_charset(response.data, response)
+
+        if data is not None and content_type.startswith("application/json"):
+            # Should throw exception if json content type
+            data = json.loads(data)
 
         return self.__deserialize(data, response_type)
 
