@@ -32,6 +32,7 @@ public class NodeJSServerCodegenTest  extends AbstractCodegenTest {
         final String content = FileUtils.readFileToString(petControllerFile);
 
         Assert.assertTrue(content.contains("module.exports.feedPet = function feedPet (req, res, next, body, petType, status, petId, token, sessionId)"));
+        Assert.assertTrue(content.contains("module.exports.getPetById = function getPetById (req, res, next, queryParam1, petId)"));
 
         this.folder.delete();
     }

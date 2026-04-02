@@ -158,6 +158,11 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: queryParam1
+          in: query
+          description: A bogus field for testing order of path and query parameters
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
