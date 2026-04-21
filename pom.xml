@@ -337,8 +337,8 @@
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
         <swagger-codegen-version>3.0.78</swagger-codegen-version>
-        <swagger-parser-version>2.1.38</swagger-parser-version>
-        <swagger-core-version>2.2.43</swagger-core-version>
+        <swagger-parser-version>2.1.40</swagger-parser-version>
+        <swagger-core-version>2.2.48</swagger-core-version>
         <jackson-bom-version>2.21.2</jackson-bom-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
