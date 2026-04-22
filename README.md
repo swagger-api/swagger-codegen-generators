@@ -12,7 +12,7 @@ More details about these and more differences are referenced at [https://github.
 ### Prerequisites
 You need the following installed and available in your $PATH:
 
-* Java 8 (http://java.oracle.com)
+* Java 11+ (http://java.oracle.com)
 * Apache maven 3.0.4 or greater (http://maven.apache.org/)
 
 ## How to Contribute.
