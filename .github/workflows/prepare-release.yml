@@ -1,0 +1,193 @@
+name: Prepare Release 1.x
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Release version (format: 1.X.Y)"
+        required: false
+        default: ""
+        type: string
+      swagger_codegen_version:
+        description: "swagger-codegen release version to pin (e.g. 3.0.79)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: "17"
+          distribution: temurin
+          cache: maven
+          overwrite-settings: false
+
+      - name: Add Central-Portal snapshot repo to settings.xml
+        uses: s4u/maven-settings-action@v4.0.0
+        with:
+          repositories: '[{"id":"central-portal-snapshots","name":"Sonatype Central Portal snapshots","url":"https://central.sonatype.com/repository/maven-snapshots/","releases":{"enabled":false},"snapshots":{"enabled":true}}]'
+          servers: '[{"id":"central","username":"${{ secrets.MAVEN_CENTRAL_USERNAME }}","password":"${{ secrets.MAVEN_CENTRAL_PASSWORD }}"}]'
+
+      - name: Resolve and validate inputs
+        id: resolve
+        run: |
+          set -euo pipefail
+          POM_VERSION="$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)"
+          POM_RELEASE_VERSION="${POM_VERSION%-SNAPSHOT}"
+
+          RELEASE_VERSION="${{ inputs.release_version }}"
+          if [ -z "${RELEASE_VERSION}" ]; then
+            RELEASE_VERSION="${POM_RELEASE_VERSION}"
+          fi
+          if [[ ! "$RELEASE_VERSION" =~ ^1\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release_version must match 1.X.Y"
+            exit 1
+          fi
+
+          SWAGGER_CODEGEN_VERSION="${{ inputs.swagger_codegen_version }}"
+
+          if [[ "$SWAGGER_CODEGEN_VERSION" =~ SNAPSHOT$ ]]; then
+            echo "Release dependency versions must not be SNAPSHOT: $SWAGGER_CODEGEN_VERSION"
+            exit 1
+          fi
+
+          echo "release_version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "swagger_codegen_version=${SWAGGER_CODEGEN_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Update versions
+        run: |
+          set -euo pipefail
+          RELEASE_VERSION="${{ steps.resolve.outputs.release_version }}"
+          SWAGGER_CODEGEN_VERSION="${{ steps.resolve.outputs.swagger_codegen_version }}"
+
+          mvn -q -B versions:set -DnewVersion="${RELEASE_VERSION}" -DgenerateBackupPoms=false
+          if [ -n "${SWAGGER_CODEGEN_VERSION}" ]; then
+            mvn -q -B versions:set-property -Dproperty=swagger-codegen-version -DnewVersion="${SWAGGER_CODEGEN_VERSION}" -DgenerateBackupPoms=false
+          fi
+
+      - name: Build release candidate
+        run: |
+          set -euo pipefail
+          CODEGEN_VERSION="${{ steps.resolve.outputs.swagger_codegen_version }}"
+          CODEGEN_MAJOR="${CODEGEN_VERSION%%.*}"
+          CODEGEN_VERSION_PROPERTY=""
+          CODEGEN_FOUND_JSON="$(curl -s --max-time 60 --retry 15 --connect-timeout 20 "https://central.sonatype.com/solrsearch/select?q=g:io.swagger.codegen.v3%20AND%20a:swagger-codegen%20AND%20v:${CODEGEN_VERSION}%20AND%20p:jar")"
+          CODEGEN_FOUND="$(echo "${CODEGEN_FOUND_JSON}" | jq '.response.numFound')"
+          if [[ "${CODEGEN_FOUND}" == "0" ]]; then
+            SNAP_API="https://central.sonatype.com/repository/maven-snapshots"
+            ARTIFACT_PATH="io/swagger/codegen/v3/swagger-codegen"
+            ROOT_META="${SNAP_API}/${ARTIFACT_PATH}/maven-metadata.xml"
+            LAST_SNAP="$(curl -s "$ROOT_META" | grep -oP "(?<=<version>)${CODEGEN_MAJOR}\.[^<]+" | sort -V | tail -n1)"
+            CODEGEN_VERSION_PROPERTY="-Dswagger-codegen-version=${LAST_SNAP}"
+          fi
+          ./mvnw clean verify -U ${CODEGEN_VERSION_PROPERTY}
+
+      - name: Prepare draft release notes body
+        id: notes
+        run: |
+          set -euo pipefail
+          RELEASE_VERSION="${{ steps.resolve.outputs.release_version }}"
+          LAST_TAG_VERSION="$(
+            {
+              git tag -l 'v1.*' | sed 's/^v//'
+              echo "${RELEASE_VERSION}"
+            } \
+              | grep -E '^1\.[0-9]+\.[0-9]+$' \
+              | sort -V \
+              | awk -v rel="${RELEASE_VERSION}" '
+                  $0 == rel { print prev; found=1; exit }
+                  { prev=$0 }
+                  END { if (!found) exit 1 }
+                '
+          )"
+          if [ -z "${LAST_TAG_VERSION}" ]; then
+            echo "No previous v1.* tag found before ${RELEASE_VERSION}"
+            exit 1
+          fi
+          LAST_TAG="v${LAST_TAG_VERSION}"
+          RELEASE_TAG="v${{ steps.resolve.outputs.release_version }}"
+          NOTES_FILE="${RUNNER_TEMP}/release-notes-${RELEASE_TAG}.md"
+          {
+            echo "## ${RELEASE_TAG}"
+            echo
+            echo "### Notable Changes"
+            git log \
+              --first-parent \
+              --pretty='- %s (%h)' \
+              --invert-grep \
+              --grep='^chore: prepare release ' \
+              --grep='^chore: bump snapshot to ' \
+              "${LAST_TAG}..HEAD"
+            echo
+            echo "### Full Changelog"
+            echo "- Compare: ${LAST_TAG}...${RELEASE_TAG}"
+          } > "${NOTES_FILE}"
+
+          echo "notes_file=${NOTES_FILE}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update draft GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          bodyFile: ${{ steps.notes.outputs.notes_file }}
+          commit: master
+          draft: true
+          name: v${{ steps.resolve.outputs.release_version }}
+          tag: v${{ steps.resolve.outputs.release_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit release prep
+        run: |
+          set -euo pipefail
+          BRANCH="prepare-release-${{ steps.resolve.outputs.release_version }}"
+          RELEASE_VERSION="${{ steps.resolve.outputs.release_version }}"
+          SWAGGER_CODEGEN_VERSION="${{ steps.resolve.outputs.swagger_codegen_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "${BRANCH}" || true
+          if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH}"; then
+            git checkout -B "${BRANCH}" "origin/${BRANCH}"
+            git reset --hard "${GITHUB_SHA}"
+          else
+            git checkout -B "${BRANCH}"
+          fi
+          mvn -q -B versions:set -DnewVersion="${RELEASE_VERSION}" -DgenerateBackupPoms=false
+          if [ -n "${SWAGGER_CODEGEN_VERSION}" ]; then
+            mvn -q -B versions:set-property -Dproperty=swagger-codegen-version -DnewVersion="${SWAGGER_CODEGEN_VERSION}" -DgenerateBackupPoms=false
+          fi
+          git add pom.xml
+          if git diff --cached --quiet; then
+            echo "No pom.xml changes to commit."
+          else
+            git commit -m "chore: prepare release ${RELEASE_VERSION}"
+          fi
+          git push --force-with-lease origin "${BRANCH}"
+
+      - name: Create or update pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH="prepare-release-${{ steps.resolve.outputs.release_version }}"
+          TITLE="chore: prepare release ${{ steps.resolve.outputs.release_version }}"
+          BODY="Prepare release ${{ steps.resolve.outputs.release_version }} and draft notes."
+          EXISTING="$(gh pr list --base master --head "${BRANCH}" --state open --json number --jq '.[0].number' || true)"
+          if [ -n "${EXISTING}" ]; then
+            echo "PR #${EXISTING} already exists; updating title and body."
+            gh pr edit "${EXISTING}" --title "${TITLE}" --body "${BODY}"
+          else
+            gh pr create --base master --head "${BRANCH}" --title "${TITLE}" --body "${BODY}"
+          fi
