@@ -15,7 +15,7 @@ import java.util.Map;
 public class JavaCXFClientCodegenTest extends AbstractCodegenTest {
 
     @Test
-    public void responseWithoutContent() throws Exception {
+    public void responseWithoutContent() {
         final OpenAPI openAPI = getOpenAPI("3_0_0/response_without_content.yaml");
         final Operation operation = openAPI.getPaths().get("/pets").getGet();
 
@@ -41,6 +41,5 @@ public class JavaCXFClientCodegenTest extends AbstractCodegenTest {
         Assert.assertEquals(cr2.dataType, "void");
         Assert.assertEquals(cr2.vendorExtensions.get("x-java-is-response-void"), Boolean.TRUE);
     }
-
 
 }
