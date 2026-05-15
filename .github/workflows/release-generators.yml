@@ -1,0 +1,167 @@
+name: Release Generators
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Release version (format: 1.X.Y)"
+        required: false
+        default: ""
+        type: string
+      next_snapshot:
+        description: "Next snapshot version (format: 1.X.Y-SNAPSHOT)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require master branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "master" ]; then
+            echo "This workflow can run only from branch master (current: ${GITHUB_REF_NAME})."
+            exit 1
+          fi
+
+      - name: Checkout master
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v5
+        with:
+          java-version: "11"
+          distribution: temurin
+          cache: maven
+          overwrite-settings: false
+
+      - name: Add Maven settings
+        uses: s4u/maven-settings-action@v4.0.0
+        with:
+          repositories: '[{"id":"central-portal-snapshots","name":"Sonatype Central Portal snapshots","url":"https://central.sonatype.com/repository/maven-snapshots/","releases":{"enabled":false},"snapshots":{"enabled":true}}]'
+          servers: '[{"id":"central","username":"${{ secrets.MAVEN_CENTRAL_USERNAME }}","password":"${{ secrets.MAVEN_CENTRAL_PASSWORD }}"}]'
+
+      - name: Validate inputs and repo version
+        id: resolve
+        run: |
+          set -euo pipefail
+          POM_VERSION="$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)"
+          POM_RELEASE_VERSION="${POM_VERSION%-SNAPSHOT}"
+
+          RELEASE_VERSION="${{ inputs.release_version }}"
+          if [ -z "${RELEASE_VERSION}" ]; then
+            RELEASE_VERSION="${POM_RELEASE_VERSION}"
+          fi
+          if [[ ! "$RELEASE_VERSION" =~ ^1\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release_version must match 1.X.Y"
+            exit 1
+          fi
+
+          NEXT_SNAPSHOT="${{ inputs.next_snapshot }}"
+          if [ -z "${NEXT_SNAPSHOT}" ]; then
+            IFS='.' read -r major minor patch <<< "${RELEASE_VERSION}"
+            NEXT_SNAPSHOT="${major}.${minor}.$((patch + 1))-SNAPSHOT"
+          fi
+          if [[ ! "$NEXT_SNAPSHOT" =~ ^1\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
+            echo "next_snapshot must match 1.X.Y-SNAPSHOT"
+            exit 1
+          fi
+          if [[ "${POM_VERSION}" == *-SNAPSHOT ]]; then
+            echo "master pom.xml version (${POM_VERSION}) is a snapshot. Merge the prepare-release PR first, then rerun this workflow."
+            exit 1
+          fi
+          if [[ "${POM_VERSION}" != "${RELEASE_VERSION}" ]]; then
+            echo "master pom.xml version (${POM_VERSION}) must match release_version (${RELEASE_VERSION})"
+            exit 1
+          fi
+          echo "release_version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "next_snapshot=${NEXT_SNAPSHOT}" >> "$GITHUB_OUTPUT"
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Build generators with release version
+        run: ./mvnw -Prelease clean verify -U --settings "$HOME/.m2/settings.xml"
+
+      - name: Publish prepared draft release notes
+        # Publishes the draft release created in prepare-release workflow.
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const tag = `v${{ steps.resolve.outputs.release_version }}`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let release;
+            try {
+              const { data } = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              release = data;
+            } catch (error) {
+              core.setFailed(`Expected prepared draft release for tag ${tag}, but it was not found.`);
+              return;
+            }
+
+            if (!release.draft) {
+              core.info(`Release ${tag} is already published.`);
+              return;
+            }
+
+            await github.rest.repos.updateRelease({
+              owner,
+              repo,
+              release_id: release.id,
+              draft: false,
+            });
+            core.info(`Published release ${tag}.`);
+
+      - name: Bump to next snapshot
+        id: bump
+        run: |
+          set -euo pipefail
+          BRANCH="post-release-${{ steps.resolve.outputs.release_version }}-snapshot-bump"
+          NEXT_SNAPSHOT="${{ steps.resolve.outputs.next_snapshot }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "${BRANCH}" || true
+          if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH}"; then
+            git checkout -B "${BRANCH}" "origin/${BRANCH}"
+            git reset --hard "${GITHUB_SHA}"
+          else
+            git checkout -B "${BRANCH}"
+          fi
+          mvn -q -B versions:set -DnewVersion="${NEXT_SNAPSHOT}" -DgenerateBackupPoms=false
+          git add pom.xml
+          if git diff --cached --quiet; then
+            echo "No pom.xml changes to commit."
+          else
+            git commit -m "chore: bump snapshot to ${NEXT_SNAPSHOT}"
+          fi
+          git push --force-with-lease origin "${BRANCH}"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update post-release snapshot PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH="${{ steps.bump.outputs.branch }}"
+          TITLE="chore: bump snapshot to ${{ steps.resolve.outputs.next_snapshot }}"
+          BODY="Post-release snapshot bump after v${{ steps.resolve.outputs.release_version }} publication."
+          EXISTING="$(gh pr list --base master --head "${BRANCH}" --state open --json number --jq '.[0].number' || true)"
+          if [ -n "${EXISTING}" ]; then
+            echo "PR #${EXISTING} already exists; updating title and body."
+            gh pr edit "${EXISTING}" --title "${TITLE}" --body "${BODY}"
+          else
+            gh pr create --base master --head "${BRANCH}" --title "${TITLE}" --body "${BODY}"
+          fi
