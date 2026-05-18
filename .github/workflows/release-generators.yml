@@ -103,11 +103,13 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            let release;
-            try {
-              const { data } = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
-              release = data;
-            } catch (error) {
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner,
+              repo,
+              per_page: 100,
+            });
+            const release = releases.find((r) => r.tag_name === tag);
+            if (!release) {
               core.setFailed(`Expected prepared draft release for tag ${tag}, but it was not found.`);
               return;
             }
