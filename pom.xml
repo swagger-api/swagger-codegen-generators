@@ -8,7 +8,7 @@
     <name>swagger-codegen-generators</name>
     <description>swagger-codegen-generators</description>
     <url>https://github.com/swagger-api/swagger-codegen-generators</url>
-    <version>1.0.61</version>
+    <version>1.0.63-SNAPSHOT</version>
     <packaging>jar</packaging>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-codegen-generators.git</connection>
@@ -38,12 +38,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.15.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.12.0</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <source>1.8</source>
@@ -67,7 +67,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -200,51 +200,6 @@
                 <artifactId>swagger-parser-v2-converter</artifactId>
                 <version>${swagger-parser-version}</version>
             </dependency>
-            <!-- jackson artifacts - versions managed by jackson-bom above -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-jaxb-annotations</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-xml</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-base</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-xml-provider</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-joda</artifactId>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -329,13 +284,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.17.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
-        <swagger-codegen-version>3.0.79</swagger-codegen-version>
+        <swagger-codegen-version>3.0.80</swagger-codegen-version>
         <swagger-parser-version>2.1.40</swagger-parser-version>
         <swagger-core-version>2.2.48</swagger-core-version>
         <jackson-bom-version>2.21.2</jackson-bom-version>
