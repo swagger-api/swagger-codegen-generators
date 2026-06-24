@@ -916,10 +916,17 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
         this.packageAuthors = packageAuthors;
     }
 
+    public String getSourceFolder() {
+        return this.sourceFolder;
+    }
+
     public void setSourceFolder(String sourceFolder) {
         this.sourceFolder = sourceFolder;
     }
 
+    public String getTestFolder() {
+        return this.testFolder;
+    }
     public void setTestFolder(String testFolder) {
         this.testFolder = testFolder;
     }

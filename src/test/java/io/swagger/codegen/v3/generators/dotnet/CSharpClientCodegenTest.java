@@ -1,6 +1,7 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
 import io.swagger.codegen.v3.CodegenConfig;
+import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.ISchemaHandler;
 import io.swagger.codegen.v3.generators.AbstractCodegenTest;
@@ -58,4 +59,39 @@ public class CSharpClientCodegenTest extends AbstractCodegenTest {
         codegenModel = codegenWrapper.getAllModels().get("ModelList");
         Assert.assertNotNull(codegenModel);
     }
+
+    @Test
+    public void testProcessOpts_WithExplicitSourceFolder() {
+        // Arrange
+        AbstractCSharpCodegen codegen = new CSharpClientCodegen();
+        String expectedCustomFolder = "custom_src_directory";
+
+        // Pass the explicit key configuration
+        codegen.additionalProperties().put(CodegenConstants.SOURCE_FOLDER, expectedCustomFolder);
+
+        // Act
+        codegen.processOpts();
+
+        // Assert: Verify your single-line logical bindings hold true
+        Assert.assertEquals(codegen.getSourceFolder(), expectedCustomFolder, "sourceFolder should be updated via explicit option.");
+        Assert.assertEquals(codegen.getTestFolder(), expectedCustomFolder, "testFolder should explicitly match sourceFolder values when custom defined.");
+    }
+
+    @Test
+    public void testProcessOpts_WithDefaultSourceFolder() {
+        // Arrange
+        AbstractCSharpCodegen codegen = new CSharpClientCodegen();
+
+        // Ensure the option is completely absent from execution properties
+        codegen.additionalProperties().remove(CodegenConstants.SOURCE_FOLDER);
+        String fallbackValue = codegen.sourceFolder; // Capture initial setup default
+
+        // Act
+        codegen.processOpts();
+
+        // Assert: Ensure properties dictionary falls back gracefully
+        Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.SOURCE_FOLDER), fallbackValue, "Properties must append default placeholder context.");
+    }
+
+
 }
