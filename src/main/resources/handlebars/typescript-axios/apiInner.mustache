@@ -28,10 +28,10 @@ export const {{classname}}AxiosParamCreator = function (configuration?: Configur
          {{#parameters}}
          * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
          {{/parameters}}
-         * @param {*} [options] Override http request option.
+         * @param {*} [requestOptions] Override http request option.
          * @throws {RequiredError}
          */
-        {{nickname}}{{#isForm}}Form{{/isForm}}: async ({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        {{nickname}}{{#isForm}}Form{{/isForm}}: async ({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}requestOptions: AxiosRequestConfig = {}): Promise<RequestArgs> => {
     {{#parameters}}
     {{#required}}
             // verify required parameter '{{paramName}}' is not null or undefined
@@ -48,7 +48,7 @@ export const {{classname}}AxiosParamCreator = function (configuration?: Configur
             if (configuration) {
                 baseOptions = configuration.baseOptions;
             }
-            const localVarRequestOptions :AxiosRequestConfig = { method: '{{httpMethod}}', ...baseOptions, ...options};
+            const localVarRequestOptions :AxiosRequestConfig = { method: '{{httpMethod}}', ...baseOptions, ...requestOptions};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;{{#vendorExtensions}}{{#hasFormParams}}
             const localVarFormParams = new {{^multipartFormData}}URLSearchParams(){{/multipartFormData}}{{#multipartFormData}}FormData(){{/multipartFormData}};{{/hasFormParams}}{{/vendorExtensions}}
@@ -191,32 +191,22 @@ export const {{classname}}AxiosParamCreator = function (configuration?: Configur
             for (const key in localVarQueryParameter) {
                 query.set(key, localVarQueryParameter[key]);
             }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
+            for (const key in requestOptions.params) {
+                query.set(key, requestOptions.params[key]);
             }
             localVarUrlObj.search = (new URLSearchParams(query)).toString();
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...requestOptions.headers};
     {{#isForm}}
     {{#hasFormParams}}
             localVarRequestOptions.data = localVarFormParams{{#vendorExtensions}}{{^multipartFormData}}.toString(){{/multipartFormData}}{{/vendorExtensions}};
     {{/hasFormParams}}
     {{/isForm}}
     {{^isForm}}
-{{#bodyParam}}
-    let needsSerialization =
-        typeof {{paramName}} !== "string" ||
-        Object.keys(localVarRequestOptions.headers || {}).some(
-            headerKey =>
-                headerKey.toLowerCase() === "content-type" &&
-                (localVarRequestOptions.headers as any)[headerKey] === "application/json"
-        );
-
-    localVarRequestOptions.data =
-        needsSerialization
-            ? JSON.stringify({{paramName}} !== undefined ? {{paramName}} : {})
-            : ({{paramName}} || "");
-{{/bodyParam}}
+    {{#bodyParam}}
+            const needsSerialization = (typeof {{paramName}} !== "string") || localVarRequestOptions.headers?['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify({{paramName}} !== undefined ? {{paramName}} : {}) : ({{paramName}} || "");
+    {{/bodyParam}}
     {{/isForm}}
 
             return {
@@ -246,11 +236,11 @@ export const {{classname}}Fp = function(configuration?: Configuration) {
          {{#parameters}}
          * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
          {{/parameters}}
-         * @param {*} [options] Override http request option.
+         * @param {*} [requestOptions] Override http request option.
          * @throws {RequiredError}
          */
-        async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>> {
-            const localVarAxiosArgs = await {{classname}}AxiosParamCreator(configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}options);
+        async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}requestOptions?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>> {
+            const localVarAxiosArgs = await {{classname}}AxiosParamCreator(configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}requestOptions);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -278,11 +268,11 @@ export const {{classname}}Factory = function (configuration?: Configuration, bas
          {{#parameters}}
          * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
          {{/parameters}}
-         * @param {*} [options] Override http request option.
+         * @param {*} [requestOptions] Override http request option.
          * @throws {RequiredError}
          */
-        async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-            return {{classname}}Fp(configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}options).then((request) => request(axios, basePath));
+        async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}requestOptions?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+            return {{classname}}Fp(configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}requestOptions).then((request) => request(axios, basePath));
         },
     {{/contents}}
     {{/operation}}
@@ -307,11 +297,11 @@ export interface {{classname}}Interface {
      {{#parameters}}
      * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
      {{/parameters}}
-     * @param {*} [options] Override http request option.
+     * @param {*} [requestOptions] Override http request option.
      * @throws {RequiredError}
      * @memberof {{classname}}Interface
      */
-    async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>;
+    async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}requestOptions?: AxiosRequestConfig): Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>>;
 
 {{/contents}}
 {{/operation}}
@@ -341,12 +331,12 @@ export class {{classname}} extends BaseAPI {
      {{#parameters}}
      * @param {{braces "left"}}{{{dataType}}}{{braces "right"}} {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
      {{/parameters}}
-     * @param {*} [options] Override http request option.
+     * @param {*} [requestOptions] Override http request option.
      * @throws {RequiredError}
      * @memberof {{classname}}
      */
-    public async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}options?: AxiosRequestConfig) : Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-        return {{classname}}Fp(this.configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}options).then((request) => request(this.axios, this.basePath));
+    public async {{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/parameters}}requestOptions?: AxiosRequestConfig) : Promise<AxiosResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+        return {{classname}}Fp(this.configuration).{{nickname}}{{#isForm}}Form{{/isForm}}({{#parameters}}{{paramName}}, {{/parameters}}requestOptions).then((request) => request(this.axios, this.basePath));
     }
     {{^@last}}
 
