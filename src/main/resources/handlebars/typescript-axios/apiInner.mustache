@@ -203,10 +203,20 @@ export const {{classname}}AxiosParamCreator = function (configuration?: Configur
     {{/hasFormParams}}
     {{/isForm}}
     {{^isForm}}
-    {{#bodyParam}}
-            const needsSerialization = (typeof {{paramName}} !== "string") || localVarRequestOptions.headers?['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify({{paramName}} !== undefined ? {{paramName}} : {}) : ({{paramName}} || "");
-    {{/bodyParam}}
+{{#bodyParam}}
+    let needsSerialization =
+        typeof {{paramName}} !== "string" ||
+        Object.keys(localVarRequestOptions.headers || {}).some(
+            headerKey =>
+                headerKey.toLowerCase() === "content-type" &&
+                (localVarRequestOptions.headers as any)[headerKey] === "application/json"
+        );
+
+    localVarRequestOptions.data =
+        needsSerialization
+            ? JSON.stringify({{paramName}} !== undefined ? {{paramName}} : {})
+            : ({{paramName}} || "");
+{{/bodyParam}}
     {{/isForm}}
 
             return {
