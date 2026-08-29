@@ -1,0 +1,24 @@
+{{>licenseInfo}}
+
+package {{apiPackage}}
+
+{{#imports}}import _root_.{{import}}
+{{/imports}}
+
+object {{classname}}Service {
+  def apply() : {{classname}}Service = new {{classname}}Service {}
+}
+
+trait {{classname}}Service {
+{{#operations}}
+{{#operation}}
+  /** {{summary}}
+   * {{description}}
+   * @return {{returnType}}
+   */
+  def {{operationId}}({{vendorExtensions.x-param-list-typed}}) : {{vendorExtensions.x-response-type}} = {
+    ServiceResponse.notImplemented
+  }
+{{/operation}}
+{{/operations}}
+}

@@ -1,0 +1,41 @@
+{{>licenseInfo}}
+
+package {{packageName}}
+
+{{#imports}}import {{import}}
+{{/imports}}
+import _root_.{{modelPackage}}.*
+import _root_.{{apiPackage}}.*
+
+/**
+ * This is the crux of our application - the definitions and bindings of the http routes
+ * with the server logic (services) behind them.
+ *
+ * This mix-in can be overridden to supply different service implementations to a main application
+ */
+trait AppRoutes {
+{{#operations}}
+  def app{{classname}}Service = {{classname}}Service()
+  def routeFor{{classname}} = {{classname}}Routes(app{{classname}}Service)
+{{/operations}}
+
+   def appRoutes = Seq(
+{{#operations}}
+      routeFor{{classname}}{{#hasMore}},{{/hasMore}}
+{{/operations}}
+    )
+}
+
+/**
+ * extracts the boilerplate into a trait for use in custom environments or tests
+ */
+trait MainApp extends cask.MainRoutes { self =>
+    override def host: String = "0.0.0.0"
+    override def port = sys.env.get("PORT").map(_.toInt).getOrElse(8080)
+    initialize()
+    startupLog(this)
+}
+
+object App extends MainApp with AppRoutes:
+    override def allRoutes = appRoutes
+
