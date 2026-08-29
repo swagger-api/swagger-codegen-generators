@@ -312,6 +312,15 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(headerProperty.example, referencedHeader.getSchema().getExample());
     }
 
+    @Test
+    public void testSnakeCase() {
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        Assert.assertEquals(codegen.snakeCase("TestTest"), 
+            "test_test");
+        Assert.assertEquals(codegen.snakeCase("TEST"), "test");
+        Assert.assertEquals(codegen.snakeCase("TESTTest"), "test_test");
+    }
+
     @Test(dataProvider = "testCommonPrefixProvider")
     public void testCommonPrefix(List<Object> vars, String expectedPrefix) {
         DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
