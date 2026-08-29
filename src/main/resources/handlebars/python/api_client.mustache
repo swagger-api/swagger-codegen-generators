@@ -133,7 +133,7 @@ class ApiClient(object):
                                                     collection_formats)
 
         # auth setting
-        self.update_params_for_auth(header_params, query_params, auth_settings)
+        {{#asyncio}}await {{/asyncio}}self.update_params_for_auth(header_params, query_params, auth_settings)
 
         # body
         if body:
@@ -488,7 +488,7 @@ class ApiClient(object):
         else:
             return content_types[0]
 
-    def update_params_for_auth(self, headers, querys, auth_settings):
+    {{#asyncio}}async {{/asyncio}}def update_params_for_auth(self, headers, querys, auth_settings):
         """Updates header and query params based on authentication setting.
 
         :param headers: Header parameters dict to be updated.
@@ -499,7 +499,7 @@ class ApiClient(object):
             return
 
         for auth in auth_settings:
-            auth_setting = self.configuration.auth_settings().get(auth)
+            auth_setting = {{#asyncio}}(await {{/asyncio}}self.configuration.auth_settings(){{#asyncio}}){{/asyncio}}.get(auth)
             if auth_setting:
                 if not auth_setting['value']:
                     continue
