@@ -1,6 +1,8 @@
 package io.swagger.codegen.v3.generators.kotlin;
 
 import com.github.jknack.handlebars.helper.ConditionalHelpers;
+import com.samskivert.mustache.Escapers;
+import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
@@ -513,7 +515,26 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumName(CodegenProperty property) {
+        //Need to handle case when property name is escaped (possible reserved word)
+        if (property.name.startsWith("`")) {
+            return String.format("`%s", StringUtils.capitalize(property.name.substring(1)));
+        }
         return StringUtils.capitalize(property.name);
+    }
+
+    @Override
+    public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
+        Mustache.Escaper KOTLIN = new Mustache.Escaper() {
+            @Override
+            public String escape(String text) {
+                if (text.startsWith("`") && text.endsWith("`")) {
+                    String unescaped = text.substring(1, text.length() - 1);
+                    return "`" + Escapers.HTML.escape(unescaped) + "`";
+                }
+                return Escapers.HTML.escape(text);
+            }
+        };
+        return compiler.withEscaper(KOTLIN);
     }
 
     @Override
