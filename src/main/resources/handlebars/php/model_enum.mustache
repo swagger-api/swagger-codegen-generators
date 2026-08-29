@@ -17,7 +17,7 @@ class {{classname}}
         return [
             {{#allowableValues}}
             {{#enumVars}}
-            self::{{{name}}}{{#hasMore}},{{/hasMore}}
+            self::{{{name}}}{{^@last}},{{/@last}}
             {{/enumVars}}
             {{/allowableValues}}
         ];
