@@ -46,7 +46,7 @@
     def self.openapi_types
       {
         {{#vars}}
-        :'{{{name}}}' => :'{{{dataType}}}'{{#hasMore}},{{/hasMore}}
+        :'{{{name}}}' => :'{{{datatype}}}'{{#hasMore}},{{/hasMore}}
         {{/vars}}
       }
     end
@@ -183,7 +183,7 @@
       {{/required}}
       {{#isEnum}}
       {{^isContainer}}
-      {{{name}}}_validator = EnumAttributeValidator.new('{{{dataType}}}', [{{#allowableValues}}{{#enumVars}}{{{value}}}{{^@last}}, {{/@last}}{{/enumVars}}{{/allowableValues}}])
+      {{{name}}}_validator = EnumAttributeValidator.new('{{{datatype}}}', [{{#allowableValues}}{{#enumVars}}{{{value}}}{{^@last}}, {{/@last}}{{/enumVars}}{{/allowableValues}}])
       return false unless {{{name}}}_validator.valid?(@{{{name}}})
       {{/isContainer}}
       {{/isEnum}}
@@ -220,7 +220,7 @@
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] {{{name}}} Object to be assigned
     def {{{name}}}=({{{name}}})
-      validator = EnumAttributeValidator.new('{{{dataType}}}', [{{#allowableValues}}{{#enumVars}}{{{value}}}{{^@last}}, {{/@last}}{{/enumVars}}{{/allowableValues}}])
+      validator = EnumAttributeValidator.new('{{{datatype}}}', [{{#allowableValues}}{{#enumVars}}{{{value}}}{{^@last}}, {{/@last}}{{/enumVars}}{{/allowableValues}}])
       unless validator.valid?({{{name}}})
         fail ArgumentError, "invalid value for \"{{{name}}}\", must be one of #{validator.allowable_values}."
       end
