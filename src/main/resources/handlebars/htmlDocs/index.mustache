@@ -133,7 +133,7 @@
     <h3 class="field-label">Responses</h3>
     {{#responses}}
     <h4 class="field-label">{{code}}</h4>
-    {{message}}
+    {{{message}}}
         {{#simpleType}}<a href="#{{dataType}}">{{dataType}}</a>{{/simpleType}}
     {{#examples}}
     <h3 class="field-label">Example data</h3>
@@ -164,9 +164,9 @@
   {{#model}}
   <div class="model">
     <h3><a name="{{name}}"><code>{{name}}</code>{{#title}} - {{title}}{{/title}}</a> <a class="up" href="#__Models">Up</a></h3>
-    {{#unescapedDescription}}<div class='model-description'>{{unescapedDescription}}</div>{{/unescapedDescription}}
+    {{#unescapedDescription}}<div class='model-description'>{{{unescapedDescription}}}</div>{{/unescapedDescription}}
     <div class="field-items">
-      {{#vars}}<div class="param">{{name}} {{^required}}(optional){{/required}}</div><div class="param-desc"><span class="param-type">{{#isNot this 'primitive-type'}}<a href="#{{complexType}}">{{datatype}}</a>{{/isNot}}</span> {{unescapedDescription}} {{#dataFormat}}format: {{{dataFormat}}}{{/dataFormat}}</div>
+	    {{#vars}}<div class="param">{{name}} {{^required}}(optional){{/required}}</div><div class="param-desc"><span class="param-type">{{#isNot this 'primitive-type'}}<a href="#{{complexType}}">{{datatype}}</a>{{/isNot}}</span> {{{unescapedDescription}}} {{#dataFormat}}format: {{{dataFormat}}}{{/dataFormat}}</div>
       {{#is this 'enum'}}
         <div class="param-enum-header">Enum:</div>
         {{#_enum}}<div class="param-enum">{{this}}</div>{{/_enum}}
