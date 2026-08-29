@@ -523,6 +523,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegenConfig {
         handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
+    @Override
+    public String toRegularExpression(String pattern) {
+        return escapeText(pattern);
+    }
+
     /**
      * Provides a strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
      *
