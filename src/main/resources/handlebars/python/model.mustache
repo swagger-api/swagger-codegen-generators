@@ -69,6 +69,9 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
 
     def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}{{#parent}}, *args, **kwargs{{/parent}}):  # noqa: E501
         """{{classname}} - a model defined in Swagger"""  # noqa: E501
+{{#parent}}
+        {{parent}}.__init__(self, *args, **kwargs)
+{{/parent}}
 {{#vars}}{{#@first}}
 {{/@first}}
         self._{{name}} = None
@@ -84,9 +87,6 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
             self.{{name}} = {{name}}
 {{/required}}
 {{/vars}}
-{{#parent}}
-        {{parent}}.__init__(self, *args, **kwargs)
-{{/parent}}
 
 {{#vars}}
     @property
