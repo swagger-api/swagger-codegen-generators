@@ -38,6 +38,8 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
     protected String testResourcesFolder = "src/test/resources";
     protected String title = "Swagger Server";
 
+    public static final String RETURN_RESPONSE_OVER_VOID = "returnResponseOverVoid";
+    protected boolean returnResponseOverVoid = false;
     protected boolean useBeanValidation = true;
 
     public AbstractJavaJAXRSServerCodegen() {
@@ -60,6 +62,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
 
         cliOptions.add(CliOption.newBoolean(USE_BEANVALIDATION, "Use BeanValidation API annotations"));
         cliOptions.add(new CliOption("serverPort", "The port on which the server should be started"));
+        cliOptions.add(CliOption.newBoolean(RETURN_RESPONSE_OVER_VOID, "Whether to return a javax.ws.rs.core.Response instead of void.").defaultValue(String.valueOf(returnResponseOverVoid)));
     }
 
 
@@ -91,7 +94,9 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
         }
-
+        if (additionalProperties.containsKey(RETURN_RESPONSE_OVER_VOID)) {
+            returnResponseOverVoid = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE_OVER_VOID).toString());
+        } 
     }
 
     @Override
@@ -136,6 +141,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
 
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
+        objs.put(RETURN_RESPONSE_OVER_VOID, returnResponseOverVoid);
         return jaxrsPostProcessOperations(objs);
     }
 
@@ -175,6 +181,12 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
                     }
                 }
 
+                String defaultDataType = "void";
+                
+                if(objs.get(RETURN_RESPONSE_OVER_VOID)!=null && Boolean.parseBoolean(objs.get(RETURN_RESPONSE_OVER_VOID).toString())) {
+                    defaultDataType = "Response";
+                }
+                
                 List<CodegenResponse> responses = operation.responses;
                 if ( responses != null ) {
                     for ( CodegenResponse resp : responses ) {
@@ -183,7 +195,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
                         }
 
                         if (resp.baseType == null) {
-                            resp.dataType = "void";
+                            resp.dataType = defaultDataType;
                             resp.baseType = "Void";
                             // set vendorExtensions.x-java-is-response-void to true as baseType is set to "Void"
                             resp.vendorExtensions.put("x-java-is-response-void", true);
@@ -198,7 +210,7 @@ public abstract class AbstractJavaJAXRSServerCodegen extends AbstractJavaCodegen
                 }
 
                 if ( operation.returnBaseType == null ) {
-                    operation.returnType = "void";
+                    operation.returnType = defaultDataType;
                     operation.returnBaseType = "Void";
                     // set vendorExtensions.x-java-is-response-void to true as returnBaseType is set to "Void"
                     operation.vendorExtensions.put("x-java-is-response-void", true);

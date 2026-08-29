@@ -23,9 +23,12 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
     public static final String INTERFACE_ONLY = "interfaceOnly";
     public static final String GENERATE_POM = "generatePom";
+    public static final String RETURN_RESPONSE = "returnResponse";
+    
 
     private boolean interfaceOnly = false;
     private boolean generatePom = true;
+    protected boolean returnResponse = false;
 
     public JavaJAXRSSpecServerCodegen() {
         super();
@@ -57,6 +60,7 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
         cliOptions.add(library);
         cliOptions.add(CliOption.newBoolean(GENERATE_POM, "Whether to generate pom.xml if the file does not already exist.").defaultValue(String.valueOf(generatePom)));
         cliOptions.add(CliOption.newBoolean(INTERFACE_ONLY, "Whether to generate only API interface stubs without the server files.").defaultValue(String.valueOf(interfaceOnly)));
+        cliOptions.add(CliOption.newBoolean(RETURN_RESPONSE, "Whether to return a javax.ws.rs.core.Response.").defaultValue(String.valueOf(returnResponse)));
     }
 
     @Override
@@ -67,6 +71,10 @@ public class JavaJAXRSSpecServerCodegen extends AbstractJavaJAXRSServerCodegen {
         if (additionalProperties.containsKey(INTERFACE_ONLY)) {
             interfaceOnly = Boolean.valueOf(additionalProperties.get(INTERFACE_ONLY).toString());
         }
+        if (additionalProperties.containsKey(RETURN_RESPONSE)) {
+            returnResponse = Boolean.valueOf(additionalProperties.get(RETURN_RESPONSE).toString());
+        }
+        
         if (interfaceOnly) {
             // Change default artifactId if genereating interfaces only, before
             // command line options are applied in base class.
