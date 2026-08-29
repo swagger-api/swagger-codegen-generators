@@ -134,6 +134,32 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(true, codegenOperation.bodyParams.get(0).getVendorExtensions().get("x-has-more"));
     }
 
+    @Test
+    public void testFromParameter_DefaultValue() {
+        PathItem dummyPath = new PathItem()
+                .get(new Operation());
+        OpenAPI openAPI = new OpenAPI()
+                .path("dummy", dummyPath);
+
+        DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+
+        Operation operation = new Operation();
+        Parameter param = new Parameter()
+                .in("query")
+                .name("testParameter");
+        operation.addParametersItem(param);
+
+        CodegenOperation codegenOperation = codegen.fromOperation("/path", "GET", operation, null, openAPI);
+        Assert.assertNull(codegenOperation.allParams.get(0).getDefaultValue());
+
+        Schema schema = new Schema();
+        schema.setDefault("myDefaultValue");
+        param.setSchema(schema);
+
+        codegenOperation = codegen.fromOperation("/path", "GET", operation, null, openAPI);
+        Assert.assertEquals(codegenOperation.allParams.get(0).getDefaultValue(), "myDefaultValue");
+    }
+
     @Test(dataProvider = "testGetCollectionFormatProvider")
     public void testGetCollectionFormat(Parameter.StyleEnum style, Boolean explode, String expectedCollectionFormat) {
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
