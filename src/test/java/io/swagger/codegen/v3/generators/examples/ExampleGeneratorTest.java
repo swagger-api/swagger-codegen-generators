@@ -20,7 +20,7 @@ public class ExampleGeneratorTest {
 
     @BeforeClass
     public void setUp() throws Exception {
-        final String content = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("3_0_0/petstore.yaml").getFile()));
+        final String content = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("3_0_0/petstore.yaml").toURI()));
         final ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setFlatten(true);
