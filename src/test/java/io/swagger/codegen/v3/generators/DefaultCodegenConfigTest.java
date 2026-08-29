@@ -91,7 +91,7 @@ public class DefaultCodegenConfigTest {
 
     @Test
     public void testNumberSchemaMinMax() {
-        Schema schema = new NumberSchema()
+        Schema<?> schema = new NumberSchema()
                 .minimum(BigDecimal.valueOf(50))
                 .maximum(BigDecimal.valueOf(1000));
 
@@ -100,6 +100,21 @@ public class DefaultCodegenConfigTest {
 
         Assert.assertEquals(codegenProperty.minimum, "50");
         Assert.assertEquals(codegenProperty.maximum, "1000");
+    }
+    
+    @Test
+    public void testNumberSchemaMinMaxForLong() {
+        Schema<?> schema = new NumberSchema()
+                .minimum(BigDecimal.valueOf(50))
+                .maximum(BigDecimal.valueOf(Integer.MAX_VALUE + 1L));
+        
+        schema.setFormat("int64");
+
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        CodegenProperty codegenProperty = codegen.fromProperty("test", schema);
+
+        Assert.assertEquals(codegenProperty.minimum, "50");
+        Assert.assertEquals(codegenProperty.maximum, Integer.MAX_VALUE + 1L + "L");
     }
 
     @Test
