@@ -40,11 +40,17 @@ public interface {{classname}} {
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
 {{/parameters}}
    * @return Call&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Object{{/returnType}}&gt;
+{{#vendorExtensions.x-is-deprecated}}
+   * @deprecated
+{{/vendorExtensions.x-is-deprecated}}
 {{#externalDocs}}
    * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>
 {{/externalDocs}}
    */
+  {{#vendorExtensions.x-is-deprecated}}
+  @Deprecated
+  {{/vendorExtensions.x-is-deprecated}}
   {{#formParams}}
   {{#@first}}
   {{#is ../this 'multipart'}}@retrofit2.http.Multipart{{/is}}{{#isNot ../this 'multipart'}}@retrofit2.http.FormUrlEncoded{{/isNot}}

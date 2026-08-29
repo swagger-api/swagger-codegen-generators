@@ -32,11 +32,17 @@ public interface {{classname}} extends ApiClient.Api {
    {{#returnType}}
    * @return {{returnType}}
    {{/returnType}}
+   {{#vendorExtensions.x-is-deprecated}}
+   * @deprecated
+   {{/vendorExtensions.x-is-deprecated}}
    {{#externalDocs}}
    * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>
    {{/externalDocs}}
    */
+  {{#vendorExtensions.x-is-deprecated}}
+  @Deprecated
+  {{/vendorExtensions.x-is-deprecated}}
   @RequestLine("{{httpMethod}} {{{path}}}{{#hasQueryParams}}?{{/hasQueryParams}}{{#queryParams}}{{baseName}}={{braces "left"}}{{paramName}}{{braces "right"}}{{#has this 'more'}}&{{/has}}{{/queryParams}}")
   @Headers({
   {{#vendorExtensions.x-contentType}}
@@ -78,10 +84,16 @@ public interface {{classname}} extends ApiClient.Api {
    {{#returnType}}
    * @return {{returnType}}
    {{/returnType}}
+   {{#vendorExtensions.x-is-deprecated}}
+   * @deprecated
+   {{/vendorExtensions.x-is-deprecated}}
    {{#externalDocs}}
    * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>{{/externalDocs}}
    */
+  {{#vendorExtensions.x-is-deprecated}}
+  @Deprecated
+  {{/vendorExtensions.x-is-deprecated}}
   @RequestLine("{{httpMethod}} {{{path}}}?{{#queryParams}}{{baseName}}={{braces "left"}}{{paramName}}{{braces "right"}}{{#has this 'more'}}&{{/has}}{{/queryParams}}")
   @Headers({
   {{#vendorExtensions.x-contentType}}

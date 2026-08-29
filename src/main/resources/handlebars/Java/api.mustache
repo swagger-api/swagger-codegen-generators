@@ -51,17 +51,17 @@ public class {{classname}} {
    * @return {{returnType}}
    {{/returnType}}
    * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
+   {{#vendorExtensions.x-is-deprecated}}
    * @deprecated
-   {{/isDeprecated}}
+   {{/vendorExtensions.x-is-deprecated}}
    {{#externalDocs}}
    * {{description}}
    * @see <a href="{{url}}">{{summary}} Documentation</a>
    {{/externalDocs}}
    */
-  {{#isDeprecated}}
+  {{#vendorExtensions.x-is-deprecated}}
   @Deprecated
-  {{/isDeprecated}}
+  {{/vendorExtensions.x-is-deprecated}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{{dataType}}} {{paramName}}{{#has this 'more'}}, {{/has}}{{/parameters}}) throws ApiException {
     Object {{localVariablePrefix}}localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
     {{#parameters}}{{#required}}
