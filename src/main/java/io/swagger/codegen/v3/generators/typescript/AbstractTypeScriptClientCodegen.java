@@ -190,11 +190,13 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     public String toModelName(String name) {
         name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
 
-        if (!StringUtils.isEmpty(modelNamePrefix)) {
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+            !name.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) {
             name = modelNamePrefix + "_" + name;
         }
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) {
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !name.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) {
             name = name + "_" + modelNameSuffix;
         }
 
