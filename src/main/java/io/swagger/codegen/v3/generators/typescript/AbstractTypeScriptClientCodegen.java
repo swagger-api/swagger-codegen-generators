@@ -79,7 +79,8 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
                 "any",
                 "File",
                 "Error",
-                "Map"
+                "Map",
+                "Record"
                 ));
 
         languageGenericTypes = new HashSet<String>(Arrays.asList(
@@ -87,6 +88,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
         ));
 
         instantiationTypes.put("array", "Array");
+        instantiationTypes.put("map", "Record");
 
         typeMapping = new HashMap<String, String>();
         typeMapping.put("Array", "Array");
@@ -494,5 +496,16 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegenConf
     @Override
     public ISchemaHandler getSchemaHandler() {
         return new TypeScriptSchemaHandler(this);
+    }
+
+    @Override
+    public String toInstantiationType(Schema property) {
+        String instantiationType = super.toInstantiationType(property);
+
+        if (instantiationType != null && instantiationType.contains("<String, ")) {
+            return instantiationType.replaceFirst("<String, ", "<string, ");
+        }
+
+        return instantiationType;
     }
 }
