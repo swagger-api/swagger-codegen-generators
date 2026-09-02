@@ -305,7 +305,7 @@
         <slf4j-version>2.0.17</slf4j-version>
         <scala-maven-plugin-version>3.2.1</scala-maven-plugin-version>
         <testng-version>7.11.0</testng-version>
-        <surefire-version>3.5.3</surefire-version>
+        <surefire-version>3.5.5</surefire-version>
         <jmockit-version>1.49</jmockit-version>
         <reflections-version>0.10.2</reflections-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
