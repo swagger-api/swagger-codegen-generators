@@ -372,4 +372,32 @@ public class JavaClientCodegenTest extends AbstractCodegenTest {
         Assert.assertEquals(employeeWithMultiMapOfEnum.vars.get(0).datatypeWithEnum, "Map<String, List<InnerEnum>>");
 
     }
+    @Test
+    public void testJava11DateLibrarySchemaMappings() {
+        final JavaClientCodegen codegen = new JavaClientCodegen();
+        codegen.additionalProperties().put("dateLibrary", "java11");
+        codegen.processOpts();
+
+        final OpenAPI openAPI = getOpenAPI("3_0_0/java11_date_library.yaml");
+        final CodegenWrapper codegenWrapper = processSchemas(codegen, openAPI);
+
+        final CodegenModel model = codegenWrapper.getAllModels().get("DateModel");
+        Assert.assertNotNull(model);
+
+        final CodegenProperty birthDate = model.getVars().stream()
+            .filter(property -> "birthDate".equals(property.name))
+            .findFirst()
+            .orElse(null);
+
+        final CodegenProperty createdAt = model.getVars().stream()
+            .filter(property -> "createdAt".equals(property.name))
+            .findFirst()
+            .orElse(null);
+
+        Assert.assertNotNull(birthDate);
+        Assert.assertNotNull(createdAt);
+
+        Assert.assertEquals(birthDate.datatype, "LocalDate");
+        Assert.assertEquals(createdAt.datatype, "OffsetDateTime");
+    }
 }

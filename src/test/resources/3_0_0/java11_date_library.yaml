@@ -1,0 +1,16 @@
+openapi: 3.0.3
+info:
+  title: Java 11 Date Library Test
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    DateModel:
+      type: object
+      properties:
+        birthDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
