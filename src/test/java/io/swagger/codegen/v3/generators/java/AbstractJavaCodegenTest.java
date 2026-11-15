@@ -170,6 +170,25 @@ public class AbstractJavaCodegenTest {
     }
 
     @Test
+    public void testJava11DateLibraryMappings() {
+        final AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
+
+        codegen.additionalProperties().put("dateLibrary", "java11");
+
+        codegen.processOpts();
+
+        Assert.assertEquals(codegen.typeMapping().get("date"), "LocalDate");
+        Assert.assertEquals(codegen.typeMapping().get("DateTime"), "OffsetDateTime");
+
+        Assert.assertEquals(codegen.importMapping().get("LocalDate"), "java.time.LocalDate");
+        Assert.assertEquals(codegen.importMapping().get("OffsetDateTime"), "java.time.OffsetDateTime");
+
+        Assert.assertTrue(codegen.java11Mode);
+        Assert.assertEquals(codegen.additionalProperties().get("jsr310"), "true");
+        Assert.assertEquals(codegen.additionalProperties().get("java11"), Boolean.TRUE);
+    }
+
+    @Test
     public void testFixUpParentAndInterfaces_propertyNameDifferent_getterSetterSame_typeDifferent() {
         AbstractJavaCodegen codegen = new P_AbstractJavaCodegen();
 
@@ -288,7 +307,7 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(childModel.vars.get(1).getter, childValueProperty2.getter);
         Assert.assertEquals(childModel.vars.get(1).setter, childValueProperty2.setter);
     }
-    
+
     /**
      * Issue #1066 - testing case when the conflicting property is actually not the first one but the
      * second
@@ -355,7 +374,7 @@ public class AbstractJavaCodegenTest {
         Assert.assertEquals(childModel.vars.get(0).nameInCamelCase, childValueProperty1.nameInCamelCase);
         Assert.assertEquals(childModel.vars.get(0).getter, childValueProperty1.getter);
         Assert.assertEquals(childModel.vars.get(0).setter, childValueProperty1.setter);
-    }    
+    }
 
     public static class P_AbstractJavaCodegen extends AbstractJavaCodegen {
         @Override

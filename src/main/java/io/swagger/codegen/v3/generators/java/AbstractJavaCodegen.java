@@ -510,6 +510,17 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
                 typeMapping.put("DateTime", "OffsetDateTime");
                 importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
             }
+        } else if ("java11".equals(dateLibrary)) {
+            setJava11Mode(true);
+            additionalProperties.put(JAVA11_MODE, java11Mode);
+            additionalProperties.put("jsr310", "true");
+            additionalProperties.put("java8", true);
+
+            typeMapping.put("date", "LocalDate");
+            typeMapping.put("DateTime", "OffsetDateTime");
+
+            importMapping.put("LocalDate", "java.time.LocalDate");
+            importMapping.put("OffsetDateTime", "java.time.OffsetDateTime");
         } else if (dateLibrary.equals("legacy")) {
             additionalProperties.put("legacyDates", true);
         }
