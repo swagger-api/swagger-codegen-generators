@@ -60,6 +60,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_MVC_LIBRARY = "spring-mvc";
     public static final String SPRING_CLOUD_LIBRARY = "spring-cloud";
     public static final String SPRING_BOOT_3_LIBRARY = "spring-boot3";
+    public static final String SPRING_BOOT_4_LIBRARY = "spring-boot4";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String SWAGGER_DOCKET_CONFIG = "swaggerDocketConfig";
     public static final String TARGET_OPENFEIGN = "generateForOpenFeign";
@@ -67,6 +68,11 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     public static final String SPRING_BOOT_VERSION = "springBootVersion";
     public static final String SPRING_BOOT3_VERSION = "springBoot3Version";
     public static final String SPRING_BOOT3_JAVA_VERSION = "springBoot3JavaVersion";
+    public static final String SPRING_BOOT4_VERSION = "springBoot4Version";
+    public static final String SPRING_BOOT4_JAVA_VERSION = "springBoot4JavaVersion";
+    public static final String SPRINGDOC_VERSION = "springdocVersion";
+    /** Template flag: generated code targets Jackson 3 ({@code tools.jackson.*}). Set only for {@link #SPRING_BOOT_4_LIBRARY}. */
+    public static final String JACKSON3 = "jackson3";
     public static final String SPRING_BOOT_VERSION_2 = "springBootV2";
     public static final String DATE_PATTERN = "datePattern";
     public static final String DATE_TIME_PATTERN = "dateTimePattern";
@@ -99,6 +105,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected String springBootVersion = "2.1.16.RELEASE";
     protected String springBoot3Version = "3.4.2";
     protected String springBoot3JavaVersion = "21";
+    protected String springBoot4Version = "4.1.2";
+    protected String springBoot4JavaVersion = "21";
     protected boolean throwsException = false;
     private boolean notNullJacksonAnnotation = false;
     protected String validationMode = "strict";
@@ -139,6 +147,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
 
         supportedLibraries.put(DEFAULT_LIBRARY, "Spring-boot Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_BOOT_3_LIBRARY, "Spring-boot v3 Server application.");
+        supportedLibraries.put(SPRING_BOOT_4_LIBRARY, "Spring-boot v4 Server application (Spring Framework 7, Jackson 3, Java 17+).");
         supportedLibraries.put(SPRING_MVC_LIBRARY, "Spring-MVC Server application using the SpringFox integration.");
         supportedLibraries.put(SPRING_CLOUD_LIBRARY, "Spring-Cloud-Feign client with Spring-Boot auto-configured settings.");
         setLibrary(DEFAULT_LIBRARY);
@@ -169,6 +178,22 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         springBoot3JavaEnum.put("21", "21");
         springBoot3JavaVersionOption.setEnum(springBoot3JavaEnum);
         cliOptions.add(springBoot3JavaVersionOption);
+
+        CliOption springBoot4VersionOption = new CliOption(SPRING_BOOT4_VERSION, "Spring boot 4 version");
+        Map<String, String> springBoot4Enum = new HashMap<>();
+        springBoot4Enum.put("4.0.9", "4.0.9");
+        springBoot4Enum.put("4.1.2", "4.1.2");
+        springBoot4VersionOption.setEnum(springBoot4Enum);
+        springBoot4VersionOption.setDefault(springBoot4Version);
+        cliOptions.add(springBoot4VersionOption);
+
+        CliOption springBoot4JavaVersionOption = new CliOption(SPRING_BOOT4_JAVA_VERSION, "Spring boot 4 Java version");
+        Map<String, String> springBoot4JavaEnum = new HashMap<>();
+        springBoot4JavaEnum.put("17", "17");
+        springBoot4JavaEnum.put("21", "21");
+        springBoot4JavaVersionOption.setEnum(springBoot4JavaEnum);
+        springBoot4JavaVersionOption.setDefault(springBoot4JavaVersion);
+        cliOptions.add(springBoot4JavaVersionOption);
 
         CliOption validationMode = new CliOption(VALIDATION_MODE_OPTION, "Validation mode to apply");
         validationMode.setDefault(VALIDATION_MODE_STRICT);
@@ -249,10 +274,19 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
         }
 
-        if (isSpringBoot3Library()) {
+        if (isSpringBoot3OrLater()) {
             setDateLibrary("java8");
             setJakarta(true);
             additionalProperties.put(JAKARTA, jakarta);
+        }
+
+        // Jackson 3 only on the spring-boot4 path; every other library keeps Jackson 2 output byte-for-byte.
+        if (isSpringBoot4Library()) {
+            additionalProperties.put(JACKSON3, true);
+            additionalProperties.put(JACKSON_DATABIND_PACKAGE, JACKSON3_DATABIND_PACKAGE);
+        } else {
+            additionalProperties.remove(JACKSON3);
+            additionalProperties.put(JACKSON_DATABIND_PACKAGE, JACKSON2_DATABIND_PACKAGE);
         }
 
         super.processOpts();
@@ -346,6 +380,20 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
         additionalProperties.put(SPRING_BOOT3_JAVA_VERSION, this.springBoot3JavaVersion);
 
+        if (additionalProperties.containsKey(SPRING_BOOT4_VERSION)) {
+            this.springBoot4Version = additionalProperties.get(SPRING_BOOT4_VERSION).toString();
+        }
+        additionalProperties.put(SPRING_BOOT4_VERSION, this.springBoot4Version);
+
+        if (additionalProperties.containsKey(SPRING_BOOT4_JAVA_VERSION)) {
+            this.springBoot4JavaVersion = additionalProperties.get(SPRING_BOOT4_JAVA_VERSION).toString();
+        }
+        additionalProperties.put(SPRING_BOOT4_JAVA_VERSION, this.springBoot4JavaVersion);
+
+        if (isSpringBoot4Library() && !additionalProperties.containsKey(SPRINGDOC_VERSION)) {
+            additionalProperties.put(SPRINGDOC_VERSION, springdocVersionFor(this.springBoot4Version));
+        }
+
         if (useBeanValidation) {
             writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
             if (VALIDATION_MODE_LOOSE.equals(validationMode) || VALIDATION_MODE_STRICT.equals(validationMode)) {
@@ -387,7 +435,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
         if (!this.interfaceOnly) {
-            if (isSpringBoot3Library()) {
+            if (isSpringBoot3OrLater()) {
                 useOas2 = false;
                 additionalProperties.remove("threetenbp");
                 additionalProperties.put(JAKARTA, jakarta = true);
@@ -457,7 +505,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "NotFoundException.java"));
                 supportingFiles.add(new SupportingFile("apiOriginFilter.mustache",
                         (sourceFolder + File.separator + apiPackage).replace(".", java.io.File.separator), "ApiOriginFilter.java"));
-                if (!isSpringBoot3Library()) {
+                if (!isSpringBoot3OrLater()) {
                     supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                         (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
                 }
@@ -466,7 +514,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                 supportingFiles.add(new SupportingFile("LocalDateTimeConverter.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "LocalDateTimeConverter.java"));
             }
-        } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary() && !isSpringBoot3Library()) {
+        } else if ( this.swaggerDocketConfig && !isSpringCloudLibrary() && !isSpringBoot3OrLater()) {
             supportingFiles.add(new SupportingFile("swaggerDocumentationConfig.mustache",
                     (sourceFolder + File.separator + configPackage).replace(".", java.io.File.separator), "SwaggerDocumentationConfig.java"));
         }
@@ -833,6 +881,26 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     }
     private boolean isSpringBoot3Library() {
         return library.equals(SPRING_BOOT_3_LIBRARY);
+    }
+
+    private boolean isSpringBoot4Library() {
+        return library.equals(SPRING_BOOT_4_LIBRARY);
+    }
+
+    /** spring-boot3 and spring-boot4 share the springdoc / jakarta / java8-date setup. */
+    private boolean isSpringBoot3OrLater() {
+        return isSpringBoot3Library() || isSpringBoot4Library();
+    }
+
+    /**
+     * springdoc-openapi line matching a Spring Boot 4 minor: 3.0.x for Boot 4.0.x, 3.2.x for Boot 4.1+.
+     * See https://springdoc.org/faq.html
+     */
+    static String springdocVersionFor(String springBootVersion) {
+        if (springBootVersion != null && springBootVersion.startsWith("4.0.")) {
+            return "3.0.3";
+        }
+        return "3.2.0";
     }
 
     @Override

@@ -65,6 +65,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String WIREMOCK_OPTION = "wiremock";
 
     public static final String JAKARTA = "jakarta";
+    /**
+     * Root package for Jackson databind / dataformat imports: {@code com.fasterxml.jackson} (Jackson 2) or
+     * {@code tools.jackson} (Jackson 3). Never applies to {@code com.fasterxml.jackson.annotation.*}, which is
+     * shared by both major versions.
+     */
+    public static final String JACKSON_DATABIND_PACKAGE = "jacksonDatabindPackage";
+    public static final String JACKSON2_DATABIND_PACKAGE = "com.fasterxml.jackson";
+    public static final String JACKSON3_DATABIND_PACKAGE = "tools.jackson";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -437,9 +445,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         this.sanitizeConfig();
 
+        // Root package for Jackson databind imports: "com.fasterxml.jackson" (Jackson 2, default) or "tools.jackson"
+        // (Jackson 3, set by a subclass before super.processOpts()). Annotations stay on com.fasterxml.jackson.annotation.
+        if (!additionalProperties.containsKey(JACKSON_DATABIND_PACKAGE)) {
+            additionalProperties.put(JACKSON_DATABIND_PACKAGE, JACKSON2_DATABIND_PACKAGE);
+        }
+        final String jacksonDatabindPackage = additionalProperties.get(JACKSON_DATABIND_PACKAGE).toString();
+
         // optional jackson mappings for BigDecimal support
-        importMapping.put("ToStringSerializer", "com.fasterxml.jackson.databind.ser.std.ToStringSerializer");
-        importMapping.put("JsonSerialize", "com.fasterxml.jackson.databind.annotation.JsonSerialize");
+        importMapping.put("ToStringSerializer", jacksonDatabindPackage + ".databind.ser.std.ToStringSerializer");
+        importMapping.put("JsonSerialize", jacksonDatabindPackage + ".databind.annotation.JsonSerialize");
 
         // imports for pojos
         if (useOas2) {

@@ -31,8 +31,8 @@ import javax.validation.constraints.*;
 {{/useBeanValidation}}
 {{#jackson}}
 {{#withXml}}
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import {{jacksonDatabindPackage}}.dataformat.xml.annotation.JacksonXmlRootElement;
+import {{jacksonDatabindPackage}}.dataformat.xml.annotation.JacksonXmlProperty;
 {{/withXml}}
 {{/jackson}}
 {{#withXml}}

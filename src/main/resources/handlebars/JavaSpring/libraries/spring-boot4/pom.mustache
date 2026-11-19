@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>{{groupId}}</groupId>
+    <artifactId>{{artifactId}}</artifactId>
+    <packaging>jar</packaging>
+    <name>{{artifactId}}</name>
+    <version>{{artifactVersion}}</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>{{springBoot4JavaVersion}}</maven.compiler.release>
+        <springboot-version>{{springBoot4Version}}</springboot-version>
+        <swagger-annotations-version>2.2.25</swagger-annotations-version>
+        <springdoc-version>{{springdocVersion}}</springdoc-version>
+        <jackson-databind-nullable-version>0.2.13</jackson-databind-nullable-version>
+    </properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>{{springBoot4Version}}</version>
+    </parent>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <!-- Spring Boot 4: spring-boot-starter-web is deprecated, spring-boot-starter-webmvc brings Spring MVC + Tomcat + Jackson 3 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        {{#withXml}}
+        <dependency>
+          <groupId>tools.jackson.dataformat</groupId>
+          <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        {{/withXml}}
+{{#useBeanValidation}}{{#isStrictValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>${jackson-databind-nullable-version}</version>
+        </dependency>
+{{/isStrictValidation}}{{#isLooseValidation}}
+        <!-- Bean Validation API support -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>${jackson-databind-nullable-version}</version>
+        </dependency>
+{{/isLooseValidation}}
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        {{/useBeanValidation}}
+        {{#notNullJacksonAnnotation}}
+            <!-- shared by Jackson 2 and 3; version managed by the Spring Boot BOM -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+            </dependency>
+        {{/notNullJacksonAnnotation}}
+        <!-- SpringDoc dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
