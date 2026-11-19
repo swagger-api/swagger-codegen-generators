@@ -3,7 +3,7 @@ package {{package}};
 {{#imports}}import {{import}};
 {{/imports}}
 {{#isJava8or11}}
-import com.fasterxml.jackson.databind.ObjectMapper;
+import {{jacksonDatabindPackage}}.databind.ObjectMapper;
 {{/isJava8or11}}
 {{#useOas2}}
 import io.swagger.annotations.*;
@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 {{#isJava8or11}}
-import java.io.IOException;
+{{#jackson3}}import tools.jackson.core.JacksonException;{{/jackson3}}{{^jackson3}}import java.io.IOException;{{/jackson3}}
 {{/isJava8or11}}
 
 {{#isJava8or11}}
@@ -88,7 +88,7 @@ public interface {{classname}}Delegate {
             if (getAcceptHeader().get().contains("{{{contentType}}}")) {
                 try {
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(getObjectMapper().get().readValue("{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{example}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{>exampleReturnTypes}}.class), HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
-                } catch (IOException e) {
+                } catch ({{#jackson3}}JacksonException{{/jackson3}}{{^jackson3}}IOException{{/jackson3}} e) {
                     log.error("Couldn't serialize response for content type {{{contentType}}}", e);
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR){{#async}}){{/async}};
                 }

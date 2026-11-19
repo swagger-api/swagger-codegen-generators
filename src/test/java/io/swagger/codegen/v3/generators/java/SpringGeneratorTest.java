@@ -9,6 +9,7 @@ import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -17,8 +18,16 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class SpringGeneratorTest extends AbstractCodegenTest {
+    /** testGenerator sets JVM-wide system properties; without this, every later test in the same JVM gets no supporting files. */
+    @AfterClass(alwaysRun = true)
+    public void clearSystemProperties() {
+        System.clearProperty("supportingFiles");
+        System.clearProperty("generateModels");
+        System.clearProperty("generateApis");
+    }
+
     @Test
-    public void testGenerator() throws Exception {
+    public void testGenerator() {
 
         System.setProperty("supportingFiles", "false");
         System.setProperty("generateModels", "true");
@@ -54,25 +63,6 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
 
         List<File> files = new GeneratorService().generationRequest(request).generate();
         Assert.assertFalse(files.isEmpty());
-/*        for (File f: files) {
-            // test stuff
-            if (f.getName().endsWith("Pet.java")) {
-                String content = new String(Files.readAllBytes(f.toPath()));
-                System.out.println(content);
-            }
-            if (f.getName().endsWith("application.properties")) {
-                String content = new String(Files.readAllBytes(f.toPath()));
-                System.out.println(content);
-            }
-            if (f.getName().endsWith("pom.xml")) {
-                String content = new String(Files.readAllBytes(f.toPath()));
-                // System.out.println(content);
-            }
-            if (f.getName().endsWith("Boot.java")) {
-                String content = new String(Files.readAllBytes(f.toPath()));
-                // System.out.println(content);
-            }
-        }*/
     }
 
     protected static File getTmpFolder() {
@@ -104,7 +94,6 @@ public class SpringGeneratorTest extends AbstractCodegenTest {
 
     protected JsonNode loadSpecAsNode(final String file, boolean yaml, boolean v2) {
         InputStream in = null;
-        String s = "";
         try {
             in = getClass().getClassLoader().getResourceAsStream(file);
             if (yaml) {

@@ -5,7 +5,7 @@ package {{package}};
 {{/imports}}
 {{/fullController}}
 {{^isDelegate}}
-import com.fasterxml.jackson.databind.ObjectMapper;
+import {{jacksonDatabindPackage}}.databind.ObjectMapper;
 {{/isDelegate}}
 {{#fullController}}
 {{#useOas2}}
@@ -69,7 +69,7 @@ import java.util.Optional;
 {{/jdk8-no-delegate}}
 {{#fullController}}
     {{^isDelegate}}
-import java.io.IOException;
+{{#jackson3}}import tools.jackson.core.JacksonException;{{/jackson3}}{{^jackson3}}import java.io.IOException;{{/jackson3}}
     {{/isDelegate}}
 import java.util.List;
 import java.util.Map;
@@ -143,7 +143,7 @@ public class {{classname}}Controller implements {{classname}} {
         if (accept != null && accept.contains("{{{contentType}}}")) {
             try {
                 return new ResponseEntity<{{>returnTypes}}>(objectMapper.readValue("{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{example}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{>exampleReturnTypes}}.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
+            } catch ({{#jackson3}}JacksonException{{/jackson3}}{{^jackson3}}IOException{{/jackson3}} e) {
                 log.error("Couldn't serialize response for content type {{{contentType}}}", e);
                 return new ResponseEntity<{{>returnTypes}}>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -161,7 +161,7 @@ public class {{classname}}Controller implements {{classname}} {
                 if (accept != null && accept.contains("{{{contentType}}}")) {
                     try {
                         return new ResponseEntity<{{>returnTypes}}>(objectMapper.readValue("{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{example}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{>exampleReturnTypes}}.class), HttpStatus.NOT_IMPLEMENTED);
-                    } catch (IOException e) {
+                    } catch ({{#jackson3}}JacksonException{{/jackson3}}{{^jackson3}}IOException{{/jackson3}} e) {
                         log.error("Couldn't serialize response for content type {{{contentType}}}", e);
                         return new ResponseEntity<{{>returnTypes}}>(HttpStatus.INTERNAL_SERVER_ERROR);
                     }
