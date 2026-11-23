@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.15.0</version>
+                <version>3.16.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -97,7 +97,7 @@
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.7.0</version>
+                <version>0.12.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
@@ -285,27 +285,27 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.23.0</version>
+            <version>5.24.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
-        <swagger-codegen-version>3.0.80</swagger-codegen-version>
-        <swagger-parser-version>2.1.40</swagger-parser-version>
-        <swagger-core-version>2.2.48</swagger-core-version>
-        <jackson-bom-version>2.21.2</jackson-bom-version>
+        <swagger-codegen-version>3.0.85</swagger-codegen-version>
+        <swagger-parser-version>2.1.49</swagger-parser-version>
+        <swagger-core-version>2.2.56</swagger-core-version>
+        <jackson-bom-version>2.23.0</jackson-bom-version>
         <scala-version>2.11.1</scala-version>
         <felix-version>3.3.0</felix-version>
-        <commons-io-version>2.20.0</commons-io-version>
-        <commons-cli-version>1.9.0</commons-cli-version>
+        <commons-io-version>2.22.0</commons-io-version>
+        <commons-cli-version>1.11.0</commons-cli-version>
         <junit-version>4.13.2</junit-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <commons-lang-version>3.18.0</commons-lang-version>
-        <slf4j-version>2.0.17</slf4j-version>
+        <commons-lang-version>3.22.0</commons-lang-version>
+        <slf4j-version>2.0.20</slf4j-version>
         <scala-maven-plugin-version>3.2.1</scala-maven-plugin-version>
-        <testng-version>7.11.0</testng-version>
-        <surefire-version>3.5.3</surefire-version>
+        <testng-version>7.12.0</testng-version>
+        <surefire-version>3.5.6</surefire-version>
         <jmockit-version>1.49</jmockit-version>
         <reflections-version>0.10.2</reflections-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
