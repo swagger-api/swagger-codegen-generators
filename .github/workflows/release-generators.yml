@@ -30,13 +30,13 @@ jobs:
           fi
 
       - name: Checkout master
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: master
           fetch-depth: 0
 
       - name: Set up Java 11
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: "11"
           distribution: temurin
@@ -86,7 +86,7 @@ jobs:
           echo "next_snapshot=${NEXT_SNAPSHOT}" >> "$GITHUB_OUTPUT"
 
       - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}
@@ -96,7 +96,7 @@ jobs:
 
       - name: Publish prepared draft release notes
         # Publishes the draft release created in prepare-release workflow.
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const tag = `v${{ steps.resolve.outputs.release_version }}`;
