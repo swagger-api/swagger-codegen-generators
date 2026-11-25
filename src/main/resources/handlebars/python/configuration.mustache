@@ -4,11 +4,19 @@
 
 from __future__ import absolute_import
 
+{{#asyncio}}
+import aiohttp
+{{/asyncio}}
 import copy
 import logging
+{{^asyncio}}{{^tornado}}
 import multiprocessing
+{{/asyncio}}{{/tornado}}
 import sys
+{{^asyncio}}
 import urllib3
+{{/asyncio}}
+
 
 import six
 from six.moves import http_client as httplib
@@ -60,7 +68,12 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         # Logging Settings
         self.logger = {}
         self.logger["package_logger"] = logging.getLogger("{{packageName}}")
+{{#asyncio}}
+        self.logger["aiohttp"] = logging.getLogger("aiohttp.client")
+{{/asyncio}}
+{{^asyncio}}
         self.logger["urllib3_logger"] = logging.getLogger("urllib3")
+{{/asyncio}}
         # Log format
         self.logger_format = '%(asctime)s %(levelname)s %(message)s'
         # Log stream handler
@@ -84,14 +97,14 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         self.key_file = None
         # Set this to True/False to enable/disable SSL hostname verification.
         self.assert_hostname = None
-
+{{^asyncio}}{{^tornado}}
         # urllib3 connection pool's maximum number of connections saved
         # per pool. urllib3 uses 1 connection as default value, but this is
         # not the best value when you are making a lot of possibly parallel
         # requests to the same host, which is often the case here.
         # cpu_count * 5 is used as default value to increase performance.
         self.connection_pool_maxsize = multiprocessing.cpu_count() * 5
-
+{{/tornado}}{{/asyncio}}
         # Proxy URL
         self.proxy = None
         # Safe chars for path_param
@@ -193,14 +206,14 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         self.__logger_format = value
         self.logger_formatter = logging.Formatter(self.__logger_format)
 
-    def get_api_key_with_prefix(self, identifier):
+    {{#asyncio}}async {{/asyncio}}def get_api_key_with_prefix(self, identifier):
         """Gets API key (with prefix if set).
 
         :param identifier: The identifier of apiKey.
         :return: The token for api key authentication.
         """
         if self.refresh_api_key_hook:
-            self.refresh_api_key_hook(self)
+            {{#asyncio}}await {{/asyncio}}self.refresh_api_key_hook(self)
 
         key = self.api_key.get(identifier)
         if key:
@@ -217,12 +230,18 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
         """
         token = ""
         if self.username or self.password:
+{{#asyncio}}
+            token = aiohttp.BasicAuth(
+                self.username, self.password).encode()
+{{/asyncio}}
+{{^asyncio}}
             token = urllib3.util.make_headers(
                 basic_auth=self.username + ':' + self.password
             ).get('authorization')
+{{/asyncio}}
         return token
 
-    def auth_settings(self):
+    {{#asyncio}}async {{/asyncio}}def auth_settings(self):
         """Gets Auth Settings dict for api client.
 
         :return: The Auth Settings information dict.
@@ -235,7 +254,7 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
                     'type': 'api_key',
                     'in': {{#isKeyInHeader}}'header'{{/isKeyInHeader}}{{#isKeyInQuery}}'query'{{/isKeyInQuery}},
                     'key': '{{keyParamName}}',
-                    'value': self.get_api_key_with_prefix('{{keyParamName}}')
+                    'value': {{#asyncio}}await {{/asyncio}}self.get_api_key_with_prefix('{{keyParamName}}')
                 },
 {{/isApiKey}}
 {{#isBasic}}
