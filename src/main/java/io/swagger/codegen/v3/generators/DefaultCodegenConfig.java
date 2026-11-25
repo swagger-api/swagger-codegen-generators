@@ -1815,12 +1815,23 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     }
 
     private void handleMinMaxValues(Schema propertySchema, CodegenProperty codegenProperty) {
-        if (propertySchema.getMinimum() != null) {
-            codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
-        }
-        if (propertySchema.getMaximum() != null) {
-            codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
-        }
+    	if (propertySchema.getMaximum() != null) {
+    		long maximumLongValue = propertySchema.getMaximum().longValue();
+    		if (maximumLongValue > Integer.MAX_VALUE || maximumLongValue < Integer.MIN_VALUE) {
+    			codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue()) + "L";
+    		} else {
+    			codegenProperty.maximum = String.valueOf(propertySchema.getMaximum().longValue());
+    		}
+    	}
+    	if (propertySchema.getMinimum() != null) {
+    		long minimumLongValue = propertySchema.getMinimum().longValue();
+    		if (minimumLongValue > Integer.MAX_VALUE || minimumLongValue < Integer.MIN_VALUE) {
+    			codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue()) + "L";
+    		} else {
+    			codegenProperty.minimum = String.valueOf(propertySchema.getMinimum().longValue());
+    		}
+    	}
+    	
         if (propertySchema.getExclusiveMinimum() != null) {
             codegenProperty.exclusiveMinimum = propertySchema.getExclusiveMinimum();
         }
@@ -2582,8 +2593,26 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             // validation
             // handle maximum, minimum properly for int/long by removing the trailing ".0"
             if (parameterSchema instanceof IntegerSchema) {
-                codegenParameter.maximum = parameterSchema.getMaximum() == null ? null : String.valueOf(parameterSchema.getMaximum().longValue());
-                codegenParameter.minimum = parameterSchema.getMinimum() == null ? null : String.valueOf(parameterSchema.getMinimum().longValue());
+            	if (parameterSchema.getMaximum() == null) {
+            		codegenParameter.maximum = null;
+            	} else {
+            		long maximumLongValue = parameterSchema.getMaximum().longValue();
+            		if (maximumLongValue > Integer.MAX_VALUE || maximumLongValue < Integer.MIN_VALUE) {
+            			codegenParameter.maximum = String.valueOf(parameterSchema.getMaximum().longValue()) + "L";
+            		} else {
+            			codegenParameter.maximum = String.valueOf(parameterSchema.getMaximum().longValue());
+            		}
+            	}
+            	if (parameterSchema.getMinimum() == null) {
+            		codegenParameter.minimum = null;
+            	} else {
+            		long minimumLongValue = parameterSchema.getMinimum().longValue();
+            		if (minimumLongValue > Integer.MAX_VALUE || minimumLongValue < Integer.MIN_VALUE) {
+            			codegenParameter.minimum = String.valueOf(parameterSchema.getMinimum().longValue()) + "L";
+            		} else {
+            			codegenParameter.minimum = String.valueOf(parameterSchema.getMinimum().longValue());
+            		}
+            	}     	
             } else {
                 codegenParameter.maximum = parameterSchema.getMaximum() == null ? null : String.valueOf(parameterSchema.getMaximum());
                 codegenParameter.minimum = parameterSchema.getMinimum() == null ? null : String.valueOf(parameterSchema.getMinimum());
