@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
+  property = "{{discriminator.propertyName}}")
 @JsonSubTypes({
   {{#subTypes}}
   @JsonSubTypes.Type(value = {{classname}}.class, name = "{{classname}}"){{^@last}},{{/@last}}
