@@ -65,6 +65,21 @@ public class AbstractJavaJAXRSServerCodegenTest {
         Assert.assertEquals(codegen.invokerPackage, "xxx.yyyyy.iiii.invoker");
         Assert.assertEquals(codegen.additionalProperties().get(CodegenConstants.INVOKER_PACKAGE), "xxx.yyyyy.iiii.invoker");
     }
+    @Test
+    public void testJava11DateLibraryEnablesJakarta() {
+        final AbstractJavaJAXRSServerCodegen codegen =
+            new P_AbstractJavaJAXRSServerCodegen();
+
+        codegen.additionalProperties().put("dateLibrary", "java11");
+
+        codegen.processOpts();
+
+        Assert.assertTrue(codegen.java11Mode);
+        Assert.assertEquals(
+            codegen.additionalProperties().get("jakarta"),
+            Boolean.TRUE
+        );
+    }
 
     private static class P_AbstractJavaJAXRSServerCodegen extends AbstractJavaJAXRSServerCodegen {
         @Override
