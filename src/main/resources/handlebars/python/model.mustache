@@ -129,10 +129,10 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
             )
 {{/isListContainer}}
 {{#isMapContainer}}
-        if not set({{{name}}}.keys()).issubset(set(allowed_values)):
+        if not set({{{name}}}.values()).issubset(set(allowed_values)):
             raise ValueError(
-                "Invalid keys in `{{{name}}}` [{0}], must be a subset of [{1}]"  # noqa: E501
-                .format(", ".join(map(str, set({{{name}}}.keys()) - set(allowed_values))),  # noqa: E501
+                "Invalid values in `{{{name}}}` [{0}], must be a subset of [{1}]"  # noqa: E501
+                .format(", ".join(map(str, set({{{name}}}.values()) - set(allowed_values))),  # noqa: E501
                         ", ".join(map(str, allowed_values)))
             )
 {{/isMapContainer}}
