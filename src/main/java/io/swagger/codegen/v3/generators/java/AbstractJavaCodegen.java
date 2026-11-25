@@ -691,12 +691,15 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         final String sanitizedName = sanitizeName(name);
 
         String nameWithPrefixSuffix = sanitizedName;
-        if (!StringUtils.isEmpty(modelNamePrefix)) {
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+            !nameWithPrefixSuffix.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) {
             // add '_' so that model name can be camelized correctly
             nameWithPrefixSuffix = modelNamePrefix + "_" + nameWithPrefixSuffix;
         }
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) {
+
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !nameWithPrefixSuffix.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) {
             // add '_' so that model name can be camelized correctly
             nameWithPrefixSuffix = nameWithPrefixSuffix + "_" + modelNameSuffix;
         }

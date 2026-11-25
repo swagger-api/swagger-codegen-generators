@@ -461,11 +461,13 @@ public class PythonFlaskConnexionCodegen extends DefaultCodegenConfig {
             name = "model_" + name; // e.g. 200Response => Model200Response (after camelize)
         }
 
-        if (!StringUtils.isEmpty(modelNamePrefix)) {
+        if (!StringUtils.isEmpty(modelNamePrefix) &&
+            !name.toLowerCase().startsWith(modelNamePrefix.toLowerCase())) {
             name = modelNamePrefix + "_" + name;
         }
 
-        if (!StringUtils.isEmpty(modelNameSuffix)) {
+        if (!StringUtils.isEmpty(modelNameSuffix) &&
+            !name.toLowerCase().endsWith(modelNameSuffix.toLowerCase())) {
             name = name + "_" + modelNameSuffix;
         }
 
