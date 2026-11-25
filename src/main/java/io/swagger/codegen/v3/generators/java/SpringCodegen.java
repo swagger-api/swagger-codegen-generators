@@ -24,7 +24,6 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -155,14 +160,14 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         cliOptions.add(versionOption(SPRING_BOOT_VERSION, "Spring boot version", null, "1.5.22.RELEASE", "2.1.7.RELEASE"));
         cliOptions.add(versionOption(SPRING_BOOT3_VERSION, "Spring boot 3 version", null, "3.3.4", "3.4.2"));
         cliOptions.add(versionOption(SPRING_BOOT3_JAVA_VERSION, "Spring boot 3 Java version", null, "17", "21"));
-        cliOptions.add(versionOption(SPRING_BOOT4_VERSION, "Spring boot 4 version", springBoot4Version, "4.0.9", "4.1.3"));
+        cliOptions.add(versionOption(SPRING_BOOT4_VERSION, "Spring boot 4 version", springBoot4Version, "4.0.9", springBoot4Version));
         cliOptions.add(versionOption(SPRING_BOOT4_JAVA_VERSION, "Spring boot 4 Java version", springBoot4JavaVersion, "17", "21"));
 
         CliOption cliOption = createValidationModeCliOption();
         cliOptions.add(cliOption);
     }
 
-    private static @NonNull CliOption createValidationModeCliOption() {
+    private static CliOption createValidationModeCliOption() {
         CliOption cliOption = new CliOption(VALIDATION_MODE_OPTION, "Validation mode to apply");
         cliOption.setDefault(VALIDATION_MODE_STRICT);
         Map<String, String> validationModeOptions = new HashMap<String, String>();
@@ -217,8 +222,8 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
         }
 
         if (additionalProperties.containsKey(DATE_LIBRARY) && additionalProperties.get(DATE_LIBRARY).toString().startsWith("java8")) {
-                this.setJava8(true);
-            }
+            this.setJava8(true);
+        }
 
         if (this.java8) {
             additionalProperties.put("javaVersion", "1.8");
@@ -435,15 +440,15 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
                     this.setSingleContentTypes(true);
                 }
                 if (additionalProperties.containsKey(CodegenConstants.GENERATE_API_TESTS)
-                    && Boolean.TRUE.equals(Boolean.valueOf(additionalProperties.get(CodegenConstants.GENERATE_API_TESTS).toString()))) {
-                        apiTestTemplateFiles.clear();
-                        supportingFiles.add(new SupportingFile("application-test.mustache",
-                            packageDir("src.test.resources"), "application.yml"));
-                        supportingFiles.add(new SupportingFile("TestUtils.mustache",
-                            packageDir(testFolder, basePackage), "TestUtils.java"));
-                        supportingFiles.add(new SupportingFile("Application.mustache",
-                            packageDir(testFolder, basePackage), "Application.java"));
+                    && Boolean.parseBoolean(additionalProperties.get(CodegenConstants.GENERATE_API_TESTS).toString())) {
 
+                    apiTestTemplateFiles.clear();
+                    supportingFiles.add(new SupportingFile("application-test.mustache",
+                        packageDir("src.test.resources"), "application.yml"));
+                    supportingFiles.add(new SupportingFile("TestUtils.mustache",
+                        packageDir(testFolder, basePackage), "TestUtils.java"));
+                    supportingFiles.add(new SupportingFile("Application.mustache",
+                        packageDir(testFolder, basePackage), "Application.java"));
                     }
 
             } else {
@@ -509,7 +514,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
             case "Future":
             case "Callable":
             case "CompletableFuture":
-                additionalProperties.put(RESPONSE_WRAPPER, "java.util.concurrent." + this.responseWrapper);
+                additionalProperties.put(RESPONSE_WRAPPER, "java.util.concurrent" + this.responseWrapper);
                 break;
             case "ListenableFuture":
                 additionalProperties.put(RESPONSE_WRAPPER, "org.springframework.util.concurrent.ListenableFuture");

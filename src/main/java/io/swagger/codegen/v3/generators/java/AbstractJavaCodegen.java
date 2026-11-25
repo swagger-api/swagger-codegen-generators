@@ -1010,14 +1010,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             final CodegenModel parentCodegenModel = super.fromModel(codegenModel.parent, parentModel, allSchemas);
             codegenModel = AbstractJavaCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
-        if (this instanceof NotNullAnnotationFeatures && this instanceof NotNullAnnotationFeatures) {
-                notNullOption = (NotNullAnnotationFeatures)this;
-                if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
-                    if (notNullOption.isNotNullJacksonAnnotation()) {
-                        codegenModel.imports.add("JsonInclude");
-                    }
+        if (this instanceof NotNullAnnotationFeatures) {
+            notNullOption = (NotNullAnnotationFeatures)this;
+            if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+                if (notNullOption.isNotNullJacksonAnnotation()) {
+                    codegenModel.imports.add("JsonInclude");
                 }
             }
+        }
 
         return codegenModel;
     }

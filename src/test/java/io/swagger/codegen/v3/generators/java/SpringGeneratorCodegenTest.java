@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
@@ -265,8 +266,13 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         }
     }
 
-    @Test(description = "spring-boot4 generates Jackson 3 (tools.jackson) code, Boot 4 pom and keeps shared jackson-annotations")
-    public void testSpringBoot4Jackson3() throws Exception {
+    /** True when {@code regex} matches somewhere in {@code text}; use \\s* where the template may change indentation. */
+    private static boolean matches(String text, String regex) {
+        return Pattern.compile(regex).matcher(text).find();
+    }
+
+    @Test(description = "spring-boot4 API and controller use Jackson 3 ObjectMapper and JacksonException, no IOException")
+    public void testSpringBoot4ApiUsesJackson3() throws Exception {
         final TemporaryFolder folder = new TemporaryFolder();
         folder.create();
         final File output = folder.getRoot();
@@ -288,10 +294,23 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertFalse(controller.contains("IOException"));
         Assert.assertFalse(controller.contains("javax."));
 
+        folder.delete();
+    }
+
+    @Test(description = "spring-boot4 application config and model use Jackson 3 modules and XML annotations; shared jackson-annotations stay on com.fasterxml")
+    public void testSpringBoot4ConfigAndModelUseJackson3() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final Map<String, Object> props = new HashMap<>();
+        props.put(CodegenConstants.WITH_XML, true);
+        generateSpringPetstore(output, SpringCodegen.SPRING_BOOT_4_LIBRARY, props);
+
         final String application = read(output, "/src/main/java/io/swagger/OpenAPISpringBoot.java");
         Assert.assertTrue(application.contains("import tools.jackson.databind.JacksonModule;"));
         Assert.assertTrue(application.contains("import org.openapitools.jackson.nullable.JsonNullableJackson3Module;"));
-        Assert.assertTrue(application.contains("public JacksonModule jsonNullableModule()"));
+        Assert.assertTrue(matches(application, "public\\s+JacksonModule\\s+jsonNullableModule\\(\\)"));
         Assert.assertTrue(application.contains("return new JsonNullableJackson3Module();"));
 
         final String model = read(output, "/src/main/java/io/swagger/model/Pet.java");
@@ -301,16 +320,42 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertTrue(model.contains("import com.fasterxml.jackson.annotation.JsonProperty;"));
         Assert.assertTrue(model.contains("import org.openapitools.jackson.nullable.JsonNullable;"));
 
+        folder.delete();
+    }
+
+    @Test(description = "spring-boot4 pom uses the Boot 4 parent, webmvc starter and Jackson 3 XML artifact")
+    public void testSpringBoot4PomUsesBoot4() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final Map<String, Object> props = new HashMap<>();
+        props.put(CodegenConstants.WITH_XML, true);
+        generateSpringPetstore(output, SpringCodegen.SPRING_BOOT_4_LIBRARY, props);
+
         final String pom = read(output, "/pom.xml");
         Assert.assertTrue(pom.contains("<artifactId>spring-boot-starter-webmvc</artifactId>"));
         Assert.assertFalse(pom.contains("spring-boot-starter-web</artifactId>"));
         Assert.assertFalse(pom.contains("spring-plugin-core"));
-        Assert.assertTrue(pom.contains("<artifactId>spring-boot-starter-parent</artifactId>\n        <version>4.1.3</version>"));
+        Assert.assertTrue(matches(pom, "<artifactId>spring-boot-starter-parent</artifactId>\\s*<version>4\\.1\\.3</version>"));
         Assert.assertTrue(pom.contains("<maven.compiler.release>21</maven.compiler.release>"));
         Assert.assertTrue(pom.contains("<springdoc-version>3.2.0</springdoc-version>"));
         Assert.assertTrue(pom.contains("<jackson-databind-nullable-version>0.2.13</jackson-databind-nullable-version>"));
         Assert.assertTrue(pom.contains("<groupId>tools.jackson.dataformat</groupId>"));
         Assert.assertFalse(pom.contains("com.fasterxml.jackson.dataformat"));
+
+        folder.delete();
+    }
+
+    @Test(description = "spring-boot4 output contains no Jackson 2 databind/dataformat imports and no javax")
+    public void testSpringBoot4HasNoJackson2() throws Exception {
+        final TemporaryFolder folder = new TemporaryFolder();
+        folder.create();
+        final File output = folder.getRoot();
+
+        final Map<String, Object> props = new HashMap<>();
+        props.put(CodegenConstants.WITH_XML, true);
+        generateSpringPetstore(output, SpringCodegen.SPRING_BOOT_4_LIBRARY, props);
 
         Assert.assertEquals(filesContaining(output, JACKSON2_DATABIND_IMPORT), Collections.emptyList());
         Assert.assertEquals(filesContaining(output, JACKSON2_DATAFORMAT_IMPORT), Collections.emptyList());
@@ -331,7 +376,7 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         generateSpringPetstore(output, SpringCodegen.SPRING_BOOT_4_LIBRARY, props);
 
         final String pom = read(output, "/pom.xml");
-        Assert.assertTrue(pom.contains("<artifactId>spring-boot-starter-parent</artifactId>\n        <version>4.0.9</version>"));
+        Assert.assertTrue(matches(pom, "<artifactId>spring-boot-starter-parent</artifactId>\\s*<version>4\\.0\\.9</version>"));
         Assert.assertTrue(pom.contains("<maven.compiler.release>17</maven.compiler.release>"));
         Assert.assertTrue(pom.contains("<springdoc-version>3.0.3</springdoc-version>"));
 
