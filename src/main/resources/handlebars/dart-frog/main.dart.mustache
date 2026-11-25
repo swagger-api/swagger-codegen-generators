@@ -1,0 +1,11 @@
+import 'dart:io';
+
+import 'package:dart_frog/dart_frog.dart';
+
+/// Runs initialization of the server
+void init(InternetAddress ip, int port) {}
+
+/// Initializes server every time it reloads
+Future<HttpServer> run(Handler handler, InternetAddress ip, int port) {
+  return serve(handler, ip, port);
+}
