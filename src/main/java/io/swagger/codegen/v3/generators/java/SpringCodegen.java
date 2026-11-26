@@ -106,7 +106,7 @@ public class SpringCodegen extends AbstractJavaCodegen implements BeanValidation
     protected String springBoot3Version = "3.4.2";
     protected String springBoot3JavaVersion = "21";
     protected String springBoot4Version = "4.1.3";
-    protected String springBoot4JavaVersion = "21";
+    protected String springBoot4JavaVersion = "17";
     protected boolean throwsException = false;
     private boolean notNullJacksonAnnotation = false;
     protected String validationMode = VALIDATION_MODE_STRICT;

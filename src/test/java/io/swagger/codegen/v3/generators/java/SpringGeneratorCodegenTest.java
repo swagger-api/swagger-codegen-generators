@@ -338,7 +338,7 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
         Assert.assertFalse(pom.contains("spring-boot-starter-web</artifactId>"));
         Assert.assertFalse(pom.contains("spring-plugin-core"));
         Assert.assertTrue(matches(pom, "<artifactId>spring-boot-starter-parent</artifactId>\\s*<version>4\\.1\\.3</version>"));
-        Assert.assertTrue(pom.contains("<maven.compiler.release>21</maven.compiler.release>"));
+        Assert.assertTrue(pom.contains("<maven.compiler.release>17</maven.compiler.release>"));
         Assert.assertTrue(pom.contains("<springdoc-version>3.2.0</springdoc-version>"));
         Assert.assertTrue(pom.contains("<jackson-databind-nullable-version>0.2.13</jackson-databind-nullable-version>"));
         Assert.assertTrue(pom.contains("<groupId>tools.jackson.dataformat</groupId>"));
@@ -372,12 +372,12 @@ public class SpringGeneratorCodegenTest extends AbstractCodegenTest {
 
         final Map<String, Object> props = new HashMap<>();
         props.put(SpringCodegen.SPRING_BOOT4_VERSION, "4.0.9");
-        props.put(SpringCodegen.SPRING_BOOT4_JAVA_VERSION, "17");
+        props.put(SpringCodegen.SPRING_BOOT4_JAVA_VERSION, "21");
         generateSpringPetstore(output, SpringCodegen.SPRING_BOOT_4_LIBRARY, props);
 
         final String pom = read(output, "/pom.xml");
         Assert.assertTrue(matches(pom, "<artifactId>spring-boot-starter-parent</artifactId>\\s*<version>4\\.0\\.9</version>"));
-        Assert.assertTrue(pom.contains("<maven.compiler.release>17</maven.compiler.release>"));
+        Assert.assertTrue(pom.contains("<maven.compiler.release>21</maven.compiler.release>"));
         Assert.assertTrue(pom.contains("<springdoc-version>3.0.3</springdoc-version>"));
 
         folder.delete();
