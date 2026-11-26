@@ -8,7 +8,7 @@ package {{package}};
 {{#imports}}import {{import}};
 {{/imports}}
 {{#jdk8-no-delegate}}
-import com.fasterxml.jackson.databind.ObjectMapper;
+import {{jacksonDatabindPackage}}.databind.ObjectMapper;
 {{/jdk8-no-delegate}}
 {{#useOas2}}
 import io.swagger.annotations.*;
@@ -62,7 +62,7 @@ import javax.validation.constraints.*;
 {{/jakarta}}
 {{/useBeanValidation}}
 {{#jdk8-no-delegate}}
-import java.io.IOException;
+{{#jackson3}}import tools.jackson.core.JacksonException;{{/jackson3}}{{^jackson3}}import java.io.IOException;{{/jackson3}}
 {{/jdk8-no-delegate}}
 import java.util.List;
 import java.util.Map;
@@ -161,7 +161,7 @@ public interface {{classname}} {
             if (getAcceptHeader().get().contains("{{{contentType}}}")) {
                 try {
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(getObjectMapper().get().readValue("{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{example}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{>exampleReturnTypes}}.class), HttpStatus.NOT_IMPLEMENTED){{#async}}){{/async}};
-                } catch (IOException e) {
+                } catch ({{#jackson3}}JacksonException{{/jackson3}}{{^jackson3}}IOException{{/jackson3}} e) {
                     log.error("Couldn't serialize response for content type {{{contentType}}}", e);
                     return {{#async}}CompletableFuture.completedFuture({{/async}}new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR){{#async}}){{/async}};
                 }

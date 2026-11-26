@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
-    private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
     public static final String FULL_JAVA_UTIL = "fullJavaUtil";
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
@@ -65,6 +65,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public static final String WIREMOCK_OPTION = "wiremock";
 
     public static final String JAKARTA = "jakarta";
+    /**
+     * Root package for Jackson databind / dataformat imports: {@code com.fasterxml.jackson} (Jackson 2) or
+     * {@code tools.jackson} (Jackson 3). Never applies to {@code com.fasterxml.jackson.annotation.*}, which is
+     * shared by both major versions.
+     */
+    public static final String JACKSON_DATABIND_PACKAGE = "jacksonDatabindPackage";
+    public static final String JACKSON2_DATABIND_PACKAGE = "com.fasterxml.jackson";
+    public static final String JACKSON3_DATABIND_PACKAGE = "tools.jackson";
 
     protected String dateLibrary = "threetenbp";
     protected boolean java8Mode = false;
@@ -363,14 +371,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         }
 
         if(additionalProperties.containsKey(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING)) {
-            this.setSerializeBigDecimalAsString(Boolean.valueOf(additionalProperties.get(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING).toString()));
+            this.setSerializeBigDecimalAsString(Boolean.parseBoolean(additionalProperties.get(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING).toString()));
         }
 
         // need to put back serializableModel (boolean) into additionalProperties as value in additionalProperties is string
         additionalProperties.put(CodegenConstants.SERIALIZABLE_MODEL, serializableModel);
 
         if (additionalProperties.containsKey(FULL_JAVA_UTIL)) {
-            this.setFullJavaUtil(Boolean.valueOf(additionalProperties.get(FULL_JAVA_UTIL).toString()));
+            this.setFullJavaUtil(Boolean.parseBoolean(additionalProperties.get(FULL_JAVA_UTIL).toString()));
         }
 
         if (additionalProperties.containsKey(ERROR_ON_UNKNOWN_ENUM)) {
@@ -406,7 +414,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         additionalProperties.put("javaUtilPrefix", javaUtilPrefix);
 
         if (additionalProperties.containsKey(WITH_XML)) {
-            this.setWithXml(Boolean.valueOf(additionalProperties.get(WITH_XML).toString()));
+            this.setWithXml(Boolean.parseBoolean(additionalProperties.get(WITH_XML).toString()));
         }
         additionalProperties.put(WITH_XML, withXml);
 
@@ -437,9 +445,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         this.sanitizeConfig();
 
+        // Root package for Jackson databind imports: "com.fasterxml.jackson" (Jackson 2, default) or "tools.jackson"
+        // (Jackson 3, set by a subclass before super.processOpts()). Annotations stay on com.fasterxml.jackson.annotation.
+        if (!additionalProperties.containsKey(JACKSON_DATABIND_PACKAGE)) {
+            additionalProperties.put(JACKSON_DATABIND_PACKAGE, JACKSON2_DATABIND_PACKAGE);
+        }
+        final String jacksonDatabindPackage = additionalProperties.get(JACKSON_DATABIND_PACKAGE).toString();
+
         // optional jackson mappings for BigDecimal support
-        importMapping.put("ToStringSerializer", "com.fasterxml.jackson.databind.ser.std.ToStringSerializer");
-        importMapping.put("JsonSerialize", "com.fasterxml.jackson.databind.annotation.JsonSerialize");
+        importMapping.put("ToStringSerializer", jacksonDatabindPackage + ".databind.ser.std.ToStringSerializer");
+        importMapping.put("JsonSerialize", jacksonDatabindPackage + ".databind.annotation.JsonSerialize");
 
         // imports for pojos
         if (useOas2) {
@@ -600,7 +615,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toApiName(String name) {
-        if (name.length() == 0) {
+        if (name.isEmpty()) {
             return "DefaultApi";
         }
         return camelize(name) + "Api";
@@ -688,9 +703,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (!getIgnoreImportMapping() && importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-        final String sanitizedName = sanitizeName(name);
 
-        String nameWithPrefixSuffix = sanitizedName;
+        String nameWithPrefixSuffix = sanitizeName(name);
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             // add '_' so that model name can be camelized correctly
             nameWithPrefixSuffix = modelNamePrefix + "_" + nameWithPrefixSuffix;
@@ -780,8 +794,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             String typeDeclaration = getTypeDeclaration(arraySchema.getItems());
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
-                Boolean java8 = Boolean.valueOf(java8obj.toString());
-                if (java8 != null && java8) {
+                boolean java8 = Boolean.parseBoolean(java8obj.toString());
+                if (java8) {
                     typeDeclaration = "";
                 }
             }
@@ -801,8 +815,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             String typeDeclaration = String.format("String, %s", getTypeDeclaration((Schema) schema.getAdditionalProperties()));
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
-                Boolean java8 = Boolean.valueOf(java8obj.toString());
-                if (java8 != null && java8) {
+                boolean java8 = Boolean.parseBoolean(java8obj.toString());
+                if (java8) {
                     typeDeclaration = "";
                 }
             }
@@ -822,8 +836,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             String typeDeclaration = String.format("String, %s", getTypeDeclaration(inner));
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
-                Boolean java8 = Boolean.valueOf(java8obj.toString());
-                if (java8 != null && java8) {
+                boolean java8 = Boolean.parseBoolean(java8obj.toString());
+                if (java8) {
                     typeDeclaration = "";
                 }
             }
@@ -952,8 +966,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if (null == schemaType) {
             if (schema.getName() != null) {
                 LOGGER.warn("No Type defined for Property " + schema.getName());
-            } else {
-                // LOGGER.error("No Type defined.", new Exception());
             }
         }
         return toModelName(schemaType);
@@ -999,15 +1011,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             codegenModel = AbstractJavaCodegen.reconcileInlineEnums(codegenModel, parentCodegenModel);
         }
         if (this instanceof NotNullAnnotationFeatures) {
-            if (this instanceof NotNullAnnotationFeatures) {
-                notNullOption = (NotNullAnnotationFeatures)this;
-                if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
-                    if (notNullOption.isNotNullJacksonAnnotation()) {
-                        codegenModel.imports.add("JsonInclude");
-                    }
+            notNullOption = (NotNullAnnotationFeatures)this;
+            if (additionalProperties.containsKey(NOT_NULL_JACKSON_ANNOTATION)) {
+                if (notNullOption.isNotNullJacksonAnnotation()) {
+                    codegenModel.imports.add("JsonInclude");
                 }
             }
         }
+
         return codegenModel;
     }
 
@@ -1201,7 +1212,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     protected boolean needToImport(String type) {
-        return super.needToImport(type) && type.indexOf(".") < 0;
+        return super.needToImport(type) && !type.contains(".");
     }
 
     protected void checkDuplicatedModelNameIgnoringCase(OpenAPI openAPI) {
@@ -1213,11 +1224,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
             final String lowerKeyDefinition = schemaKey.toLowerCase();
 
             if (schemasRepeated.containsKey(lowerKeyDefinition)) {
-                Map<String, Schema> modelMap = schemasRepeated.get(lowerKeyDefinition);
-                if (modelMap == null) {
-                    modelMap = new HashMap<>();
-                    schemasRepeated.put(lowerKeyDefinition, modelMap);
-                }
+                Map<String, Schema> modelMap = schemasRepeated.computeIfAbsent(lowerKeyDefinition, k -> new HashMap<>());
                 modelMap.put(schemaKey, schema);
             } else {
                 schemasRepeated.put(lowerKeyDefinition, null);
@@ -1308,7 +1315,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
     @Override
     public String toEnumVarName(String value, String datatype) {
-        if (value.length() == 0) {
+        if (value.isEmpty()) {
             return "EMPTY";
         }
 
@@ -1382,7 +1389,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         // remove everything else other than word, number and _
         // $php_variable => php_variable
-        if (allowUnicodeIdentifiers) { //could be converted to a single line with ?: operator
+        if (Boolean.TRUE.equals(allowUnicodeIdentifiers)) { //could be converted to a single line with ?: operator
             name = Pattern.compile("[\\W&&[^$]]", Pattern.UNICODE_CHARACTER_CLASS).matcher(name).replaceAll(StringUtils.EMPTY);
         }
         else {
@@ -1437,10 +1444,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
 
         if(removedChildEnum) {
             // If we removed an entry from this model's vars, we need to ensure hasMore is updated
-            int count = 0, numVars = codegenProperties.size();
+            int count = 0;
+            int numVars = codegenProperties.size();
             for(CodegenProperty codegenProperty : codegenProperties) {
                 count += 1;
-                codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, (count < numVars) ? true : false);
+                codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, count < numVars);
             }
 
             if (!codegenProperties.isEmpty()) {
@@ -1479,10 +1487,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         if ((actual.baseType == null) ? (other.baseType != null) : !actual.baseType.equals(other.baseType)) {
             return false;
         }
-        if (!Objects.equals(actual.enumName, other.enumName)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(actual.enumName, other.enumName);
     }
     private static String sanitizePackageName(String packageName) {
         packageName = packageName.trim(); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
@@ -1617,7 +1622,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
-    /*
+    /**
      * Derive invoker package name based on the input
      * e.g. foo.bar.model => foo.bar
      *
@@ -1647,7 +1652,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     public boolean convertPropertyToBoolean(String propertyKey) {
         boolean booleanValue = false;
         if (additionalProperties.containsKey(propertyKey)) {
-            booleanValue = Boolean.valueOf(additionalProperties.get(propertyKey).toString());
+            booleanValue = Boolean.parseBoolean(additionalProperties.get(propertyKey).toString());
         }
 
         return booleanValue;
@@ -1687,8 +1692,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegenConfig {
     @Override
     public void setLanguageArguments(List<CodegenArgument> languageArguments) {
         if (languageArguments != null) {
-            if (!languageArguments.stream()
-                    .anyMatch(codegenArgument -> CodegenConstants.USE_OAS2_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
+            if (languageArguments.stream()
+                    .noneMatch(codegenArgument -> CodegenConstants.USE_OAS2_OPTION.equalsIgnoreCase(codegenArgument.getOption()) && StringUtils.isNotBlank(codegenArgument.getValue()))) {
                 languageArguments.add(new CodegenArgument()
                         .option(CodegenConstants.USE_OAS2_OPTION)
                         .type("boolean")
