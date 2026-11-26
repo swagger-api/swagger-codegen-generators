@@ -1,3 +1,18 @@
+{{#jackson}}
+  import com.fasterxml.jackson.annotation.JsonSubTypes;
+  import com.fasterxml.jackson.annotation.JsonTypeInfo;
+{{/jackson}}
+{{#jackson}}
+  @JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "type")
+  @JsonSubTypes({
+  {{#subTypes}}
+    @JsonSubTypes.Type(value = {{classname}}.class, name = "{{classname}}"){{^@last}},{{/@last}}
+  {{/subTypes}}
+  })
+{{/jackson}}
 /**
 * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
 */
