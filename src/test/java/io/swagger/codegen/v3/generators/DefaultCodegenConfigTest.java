@@ -7,6 +7,7 @@ import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenResponse;
 import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -27,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -310,6 +312,15 @@ public class DefaultCodegenConfigTest {
         Assert.assertEquals(headerProperty.description, referencedHeader.getSchema().getDescription());
         Assert.assertEquals(headerProperty.datatype, "String");
         Assert.assertEquals(headerProperty.example, referencedHeader.getSchema().getExample());
+    }
+    
+    
+    @Test
+    public void customTemplates_embeddedTemplateDir_must_be_init_to_getTemplateDir() throws Exception {
+        final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
+        codegen.additionalProperties().put(CodegenConstants.TEMPLATE_DIR, String.join(File.separator, "user", "custom", "location"));
+        codegen.processOpts();
+        Assert.assertEquals(codegen.embeddedTemplateDir(), codegen.getTemplateDir());
     }
 
     @Test(dataProvider = "testCommonPrefixProvider")
