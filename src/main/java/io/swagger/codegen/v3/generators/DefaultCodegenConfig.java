@@ -2219,6 +2219,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                     if (foundSchemas.isEmpty()) {
                         operationParameters.addBodyParams(bodyParam.copy());
                         operationParameters.addAllParams(bodyParam);
+                        if (body.getRequired() != null && body.getRequired()) {
+                            operationParameters.addRequiredParam(bodyParam.copy()); 
+                        }
                     } else {
                         boolean alreadyAdded = false;
                         for (Schema usedSchema : foundSchemas) {
